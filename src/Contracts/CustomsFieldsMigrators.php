@@ -5,11 +5,10 @@ declare(strict_types=1);
 namespace Relaticle\CustomFields\Contracts;
 
 use Relaticle\CustomFields\Data\CustomFieldData;
-use Relaticle\CustomFields\Enums\CustomFieldType;
 
 interface CustomsFieldsMigrators
 {
-    public function setTenantId(int|string|null $tenantId = null): void;
+    public function setTenantId(int | string | null $tenantId = null): void;
 
     public function find(string $model, string $code): ?CustomsFieldsMigrators;
 

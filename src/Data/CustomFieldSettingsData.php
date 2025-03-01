@@ -11,13 +11,12 @@ use Spatie\LaravelData\Mappers\SnakeCaseMapper;
 class CustomFieldSettingsData extends Data
 {
     public function __construct(
-        public bool  $visible_in_list = true,
+        public bool $visible_in_list = true,
         public ?bool $list_toggleable_hidden = null,
-        public bool  $visible_in_view = true,
-        public bool  $searchable = false,
-        public bool  $encrypted = false,
-    )
-    {
+        public bool $visible_in_view = true,
+        public bool $searchable = false,
+        public bool $encrypted = false,
+    ) {
         if ($this->list_toggleable_hidden === null) {
             $this->list_toggleable_hidden = Utils::isTableColumnsToggleableHiddenByDefault();
         }

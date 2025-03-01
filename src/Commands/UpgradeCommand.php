@@ -6,13 +6,14 @@ namespace Relaticle\CustomFields\Commands;
 
 use Illuminate\Console\Command;
 use Illuminate\Pipeline\Pipeline;
-use Throwable;
 use Relaticle\CustomFields\Commands\Upgrade\UpdateDatabaseSchema;
 use Relaticle\CustomFields\Commands\Upgrade\UpdateExistingData;
+use Throwable;
 
 class UpgradeCommand extends Command
 {
     protected $signature = 'custom-fields:upgrade {--dry-run : Simulate the upgrade without making any changes}';
+
     protected $description = 'Upgrade the Custom Fields Filament Plugin to version 1.0';
 
     public function handle(): int
@@ -25,8 +26,9 @@ class UpgradeCommand extends Command
             $this->warn('Running in Dry Run mode. No changes will be made.');
         }
 
-        if (!$this->confirm('Do you wish to continue?', true)) {
+        if (! $this->confirm('Do you wish to continue?', true)) {
             $this->info('Upgrade cancelled by the user.');
+
             return self::SUCCESS;
         }
 
@@ -42,6 +44,7 @@ class UpgradeCommand extends Command
                 ->thenReturn();
 
             $this->info('Upgrade completed successfully.');
+
             return self::SUCCESS;
         } catch (Throwable $e) {
             $this->error('An error occurred during the upgrade process:');

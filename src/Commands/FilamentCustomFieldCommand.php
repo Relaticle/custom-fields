@@ -2,8 +2,8 @@
 
 namespace Relaticle\CustomFields\Commands;
 
-use Illuminate\Console\Command;
 use Carbon\Carbon;
+use Illuminate\Console\Command;
 use Illuminate\Filesystem\Filesystem;
 use Illuminate\Support\Str;
 use InvalidArgumentException;
@@ -65,7 +65,7 @@ EOT;
 
     protected function ensureMigrationDoesntAlreadyExist($name, $migrationPath = null): void
     {
-        if (!empty($migrationPath)) {
+        if (! empty($migrationPath)) {
             $migrationFiles = $this->files->glob($migrationPath . '/*.php');
 
             foreach ($migrationFiles as $migrationFile) {
@@ -85,7 +85,7 @@ EOT;
 
     protected function resolveMigrationPaths(): array
     {
-        return !empty(config('custom-fields.migrations_path'))
+        return ! empty(config('custom-fields.migrations_path'))
             ? [config('custom-fields.migrations_path')]
             : config('custom-fields.migrations_paths');
     }

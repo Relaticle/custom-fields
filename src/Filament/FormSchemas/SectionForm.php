@@ -5,12 +5,12 @@ declare(strict_types=1);
 namespace Relaticle\CustomFields\Filament\FormSchemas;
 
 use Filament\Facades\Filament;
+use Filament\Forms;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rules\Unique;
 use Relaticle\CustomFields\Enums\CustomFieldSectionType;
 use Relaticle\CustomFields\Models\CustomFieldSection;
 use Relaticle\CustomFields\Support\Utils;
-use Filament\Forms;
 
 class SectionForm implements FormInterface, SectionFormInterface
 {
@@ -19,6 +19,7 @@ class SectionForm implements FormInterface, SectionFormInterface
     public static function entityType(string $entityType): self
     {
         self::$entityType = $entityType;
+
         return new self;
     }
 
@@ -38,7 +39,7 @@ class SectionForm implements FormInterface, SectionFormInterface
                         modifyRuleUsing: function (Unique $rule, Forms\Get $get) {
                             return $rule->when(
                                 Utils::isTenantEnabled(),
-                                fn(Unique $rule) => $rule
+                                fn (Unique $rule) => $rule
                                     ->where(
                                         config('custom-fields.column_names.tenant_foreign_key'),
                                         Filament::getTenant()?->id
@@ -70,7 +71,7 @@ class SectionForm implements FormInterface, SectionFormInterface
                         modifyRuleUsing: function (Unique $rule, Forms\Get $get) {
                             return $rule->when(
                                 Utils::isTenantEnabled(),
-                                fn(Unique $rule) => $rule
+                                fn (Unique $rule) => $rule
                                     ->where(
                                         config('custom-fields.column_names.tenant_foreign_key'),
                                         Filament::getTenant()?->id
@@ -92,11 +93,11 @@ class SectionForm implements FormInterface, SectionFormInterface
                     ->columnSpan(12),
                 Forms\Components\Textarea::make('description')
                     ->label(__('custom-fields::custom-fields.section.form.description'))
-                    ->visible(fn(Forms\Get $get): bool => $get('type') === CustomFieldSectionType::SECTION->value)
+                    ->visible(fn (Forms\Get $get): bool => $get('type') === CustomFieldSectionType::SECTION->value)
                     ->maxLength(255)
                     ->nullable()
                     ->columnSpan(12),
-            ])
+            ]),
         ];
     }
 }

@@ -16,9 +16,7 @@ final readonly class MultiValueEntry implements FieldInfolistsComponentInterface
     public function __construct(
         private FieldInfolistsConfigurator $configurator,
         private LookupMultiValueResolver $valueResolver
-    )
-    {
-    }
+    ) {}
 
     public function make(CustomField $customField): Entry
     {
@@ -26,6 +24,6 @@ final readonly class MultiValueEntry implements FieldInfolistsComponentInterface
             BaseTextEntry::make("custom_fields.{$customField->code}"),
             $customField
         )
-            ->getStateUsing(fn($record) => $this->valueResolver->resolve($record, $customField));
+            ->getStateUsing(fn ($record) => $this->valueResolver->resolve($record, $customField));
     }
 }

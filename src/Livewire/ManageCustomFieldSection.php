@@ -21,12 +21,13 @@ use Relaticle\CustomFields\Models\CustomField;
 use Relaticle\CustomFields\Models\CustomFieldSection;
 use Relaticle\CustomFields\Support\Utils;
 
-class ManageCustomFieldSection extends Component implements HasForms, HasActions
+class ManageCustomFieldSection extends Component implements HasActions, HasForms
 {
     use InteractsWithActions;
     use InteractsWithForms;
 
     public string $entityType;
+
     public CustomFieldSection $section;
 
     #[Computed]
@@ -82,7 +83,7 @@ class ManageCustomFieldSection extends Component implements HasForms, HasActions
             ->record($this->section)
             ->form(SectionForm::entityType($this->entityType)->schema())
             ->fillForm($this->section->toArray())
-            ->action(fn(array $data) => $this->section->update($data))
+            ->action(fn (array $data) => $this->section->update($data))
             ->modalWidth('max-w-2xl');
     }
 
@@ -92,8 +93,8 @@ class ManageCustomFieldSection extends Component implements HasForms, HasActions
             ->icon('heroicon-o-archive-box')
             ->model(CustomFieldSection::class)
             ->record($this->section)
-            ->visible(fn(CustomFieldSection $record): bool => !$record->isActive())
-            ->action(fn() => $this->section->activate());
+            ->visible(fn (CustomFieldSection $record): bool => ! $record->isActive())
+            ->action(fn () => $this->section->activate());
     }
 
     public function deactivateAction(): Action
@@ -102,8 +103,8 @@ class ManageCustomFieldSection extends Component implements HasForms, HasActions
             ->icon('heroicon-o-archive-box-x-mark')
             ->model(CustomFieldSection::class)
             ->record($this->section)
-            ->visible(fn(CustomFieldSection $record): bool => $record->isActive())
-            ->action(fn() => $this->section->deactivate());
+            ->visible(fn (CustomFieldSection $record): bool => $record->isActive())
+            ->action(fn () => $this->section->deactivate());
     }
 
     public function deleteAction(): Action
@@ -113,8 +114,8 @@ class ManageCustomFieldSection extends Component implements HasForms, HasActions
             ->icon('heroicon-o-trash')
             ->model(CustomFieldSection::class)
             ->record($this->section)
-            ->visible(fn(CustomFieldSection $record): bool => !$record->isActive() && !$record->isSystemDefined())
-            ->action(fn() => $this->section->delete() && $this->dispatch('section-deleted'));
+            ->visible(fn (CustomFieldSection $record): bool => ! $record->isActive() && ! $record->isSystemDefined())
+            ->action(fn () => $this->section->delete() && $this->dispatch('section-deleted'));
     }
 
     public function createFieldAction(): Action
@@ -142,7 +143,7 @@ class ManageCustomFieldSection extends Component implements HasForms, HasActions
                 $options = collect($data['options'] ?? [])->filter()
                     ->map(function ($option) {
                         $data = [
-                            'name' => $option
+                            'name' => $option,
                         ];
 
                         if (Utils::isTenantEnabled()) {

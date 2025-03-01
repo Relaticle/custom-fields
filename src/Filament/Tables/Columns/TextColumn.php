@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace Relaticle\CustomFields\Filament\Tables\Columns;
 
 use Filament\Tables\Columns\Column as BaseColumn;
+use Filament\Tables\Columns\TextColumn as BaseTextColumn;
 use Illuminate\Database\Eloquent\Builder;
 use Relaticle\CustomFields\Models\CustomField;
-use Filament\Tables\Columns\TextColumn as BaseTextColumn;
 use Relaticle\CustomFields\Queries\ColumnSearchableQuery;
 
 final readonly class TextColumn implements ColumnInterface
@@ -17,7 +17,7 @@ final readonly class TextColumn implements ColumnInterface
         return BaseTextColumn::make("custom_fields.$customField->code")
             ->label($customField->name)
             ->sortable(
-                condition: !$customField->settings->encrypted,
+                condition: ! $customField->settings->encrypted,
                 query: function (Builder $query, string $direction) use ($customField): Builder {
                     $table = $query->getModel()->getTable();
                     $key = $query->getModel()->getKeyName();
@@ -33,8 +33,8 @@ final readonly class TextColumn implements ColumnInterface
             )
             ->searchable(
                 condition: $customField->settings->searchable,
-                query: fn(Builder $query, string $search) => (new ColumnSearchableQuery())->builder($query, $customField, $search),
+                query: fn (Builder $query, string $search) => (new ColumnSearchableQuery)->builder($query, $customField, $search),
             )
-            ->getStateUsing(fn($record) => $record->getCustomFieldValue($customField));
+            ->getStateUsing(fn ($record) => $record->getCustomFieldValue($customField));
     }
 }

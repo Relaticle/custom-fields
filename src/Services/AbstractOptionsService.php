@@ -22,36 +22,26 @@ abstract class AbstractOptionsService
     public static function getOptions(): Collection
     {
         return static::getFilteredResources()
-            ->mapWithKeys(fn(string $resource) => static::mapResourceToOption($resource));
+            ->mapWithKeys(fn (string $resource) => static::mapResourceToOption($resource));
     }
 
-    /**
-     * @return string
-     */
     public static function getDefaultOption(): string
     {
         return static::getOptions()->keys()->first() ?: '';
     }
 
-    /**
-     * @return Collection
-     */
     protected static function getFilteredResources(): Collection
     {
         return collect(Filament::getResources())
-            ->reject(fn(string $resource) => static::shouldRejectResource($resource));
+            ->reject(fn (string $resource) => static::shouldRejectResource($resource));
     }
 
-    /**
-     * @param string $resource
-     * @return bool
-     */
     protected static function shouldRejectResource(string $resource): bool
     {
         $allowedResources = config(static::$allowedConfigKey, []);
         $disallowedResources = config(static::$disallowedConfigKey, []);
 
-        return (!empty($allowedResources) && !in_array($resource, $allowedResources))
+        return (! empty($allowedResources) && ! in_array($resource, $allowedResources))
             || in_array($resource, $disallowedResources);
     }
 
@@ -67,14 +57,11 @@ abstract class AbstractOptionsService
         return [$alias => $resourceInstance::getBreadcrumb()];
     }
 
-    /**
-     * @param string $model
-     * @return string
-     */
     public static function getEntityFromModel(string $model): string
     {
         try {
             $modelInstance = app($model);
+
             return $modelInstance->getMorphClass();
         } catch (\Exception $e) {
             return $model;

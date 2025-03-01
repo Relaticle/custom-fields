@@ -11,5 +11,5 @@ use Relaticle\CustomFields\Models\CustomFieldSection;
 
 interface SectionComponentInterface
 {
-    public function make(CustomFieldSection $customFieldSection): Section|Fieldset|Grid;
+    public function make(CustomFieldSection $customFieldSection): Section | Fieldset | Grid;
 }

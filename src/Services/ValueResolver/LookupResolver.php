@@ -25,7 +25,7 @@ final readonly class LookupResolver
             return collect($values);
         }
 
-        if (!isset($customField->lookup_type)) {
+        if (! isset($customField->lookup_type)) {
             return $customField->options->whereIn('id', $values)->pluck('name');
         }
 

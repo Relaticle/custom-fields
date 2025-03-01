@@ -20,19 +20,13 @@ final class CustomFieldsComponent extends Component
      */
     protected ?array $cachedSchema = null;
 
-    /**
-     * @param SectionComponentFactory $sectionComponentFactory
-     * @param FieldComponentFactory $fieldComponentFactory
-     */
     public function __construct(
         private readonly SectionComponentFactory $sectionComponentFactory,
-        private readonly FieldComponentFactory   $fieldComponentFactory
-    )
-    {
+        private readonly FieldComponentFactory $fieldComponentFactory
+    ) {
         // Defer schema generation until we can safely access the record
-        $this->schema(fn() => $this->getSchema());
+        $this->schema(fn () => $this->getSchema());
     }
-
 
     /**
      * @return array<int, Field>
@@ -46,9 +40,6 @@ final class CustomFieldsComponent extends Component
         return $this->cachedSchema;
     }
 
-    /**
-     * @return static
-     */
     public static function make(): static
     {
         return app(self::class);
@@ -62,7 +53,7 @@ final class CustomFieldsComponent extends Component
         $this->getRecord()?->load('customFieldValues.customField');
 
         return CustomFieldSection::query()
-            ->with(['fields' => fn($query) => $query->with('options', 'values')])
+            ->with(['fields' => fn ($query) => $query->with('options', 'values')])
             ->forEntityType($this->getModel())
             ->orderBy('sort_order')
             ->get()

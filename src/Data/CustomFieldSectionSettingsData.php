@@ -10,7 +10,5 @@ use Spatie\LaravelData\Mappers\SnakeCaseMapper;
 class CustomFieldSectionSettingsData extends Data
 {
     public function __construct(
-    )
-    {
-    }
+    ) {}
 }

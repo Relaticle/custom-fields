@@ -24,14 +24,12 @@ class CustomFieldsPlugin implements Plugin
     {
         $panel
             ->pages([
-                CustomFields::class
+                CustomFields::class,
             ])
-            ->discoverPages(in: __DIR__.'/Filament/Pages', for: 'ManukMinasyan\\FilamentCustomField\\Filament\\Pages');
+            ->discoverPages(in: __DIR__ . '/Filament/Pages', for: 'ManukMinasyan\\FilamentCustomField\\Filament\\Pages');
     }
 
-    public function boot(Panel $panel): void
-    {
-    }
+    public function boot(Panel $panel): void {}
 
     public static function make(): static
     {
@@ -45,7 +43,6 @@ class CustomFieldsPlugin implements Plugin
 
         return $plugin;
     }
-
 
     public function authorize(bool | \Closure $callback = true): static
     {

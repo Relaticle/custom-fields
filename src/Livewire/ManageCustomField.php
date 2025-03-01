@@ -16,7 +16,7 @@ use Livewire\Component;
 use Relaticle\CustomFields\Filament\FormSchemas\FieldForm;
 use Relaticle\CustomFields\Models\CustomField;
 
-class ManageCustomField extends Component implements HasForms, HasActions
+class ManageCustomField extends Component implements HasActions, HasForms
 {
     use InteractsWithActions;
     use InteractsWithForms;
@@ -24,9 +24,6 @@ class ManageCustomField extends Component implements HasForms, HasActions
 
     public CustomField $field;
 
-    /**
-     * @return ActionGroup
-     */
     public function actions(): ActionGroup
     {
         return ActionGroup::make([
@@ -37,9 +34,6 @@ class ManageCustomField extends Component implements HasForms, HasActions
         ]);
     }
 
-    /**
-     * @return Action
-     */
     public function editAction(): Action
     {
         return Action::make('edit')
@@ -48,7 +42,7 @@ class ManageCustomField extends Component implements HasForms, HasActions
             ->record($this->field)
             ->form(FieldForm::schema())
             ->fillForm($this->field->toArray())
-            ->action(fn(array $data) => $this->field->update($data))
+            ->action(fn (array $data) => $this->field->update($data))
             ->slideOver();
     }
 
@@ -58,8 +52,8 @@ class ManageCustomField extends Component implements HasForms, HasActions
             ->icon('heroicon-o-archive-box')
             ->model(CustomField::class)
             ->record($this->field)
-            ->visible(fn(CustomField $record): bool => !$record->isActive())
-            ->action(fn() => $this->field->activate());
+            ->visible(fn (CustomField $record): bool => ! $record->isActive())
+            ->action(fn () => $this->field->activate());
     }
 
     public function deactivateAction(): Action
@@ -68,8 +62,8 @@ class ManageCustomField extends Component implements HasForms, HasActions
             ->icon('heroicon-o-archive-box-x-mark')
             ->model(CustomField::class)
             ->record($this->field)
-            ->visible(fn(CustomField $record): bool => $record->isActive())
-            ->action(fn() => $this->field->deactivate());
+            ->visible(fn (CustomField $record): bool => $record->isActive())
+            ->action(fn () => $this->field->deactivate());
     }
 
     public function deleteAction(): Action
@@ -79,8 +73,8 @@ class ManageCustomField extends Component implements HasForms, HasActions
             ->icon('heroicon-o-trash')
             ->model(CustomField::class)
             ->record($this->field)
-            ->visible(fn(CustomField $record): bool => !$record->isActive() && !$record->isSystemDefined())
-            ->action(fn() => $this->field->delete() && $this->dispatch('field-deleted'));
+            ->visible(fn (CustomField $record): bool => ! $record->isActive() && ! $record->isSystemDefined())
+            ->action(fn () => $this->field->delete() && $this->dispatch('field-deleted'));
     }
 
     public function setWidth(int $fieldId, int $width): void

@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Relaticle\CustomFields\Filament\Infolists;
 
-use Filament\Infolists\Components\Component;
 use Filament\Forms\Components\Field;
+use Filament\Infolists\Components\Component;
 use Relaticle\CustomFields\Models\CustomField;
 use Relaticle\CustomFields\Models\CustomFieldSection;
 
@@ -15,11 +15,10 @@ final class CustomFieldsInfolists extends Component
 
     public function __construct(
         private readonly SectionInfolistsFactory $sectionInfolistsFactory,
-        private readonly FieldInfolistsFactory   $fieldInfolistsFactory
-    )
-    {
+        private readonly FieldInfolistsFactory $fieldInfolistsFactory
+    ) {
         // Defer schema generation until we can safely access the record
-        $this->schema(fn() => $this->generateSchema());
+        $this->schema(fn () => $this->generateSchema());
     }
 
     public static function make(): static
@@ -35,7 +34,7 @@ final class CustomFieldsInfolists extends Component
         $this->getRecord()?->load('customFieldValues.customField');
 
         return CustomFieldSection::query()
-            ->with(['fields' => fn($query) => $query->visibleInView()])
+            ->with(['fields' => fn ($query) => $query->visibleInView()])
             ->forEntityType($this->getRecord()::class)
             ->orderBy('sort_order')
             ->get()

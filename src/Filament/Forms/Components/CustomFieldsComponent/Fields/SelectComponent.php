@@ -13,16 +13,9 @@ use Throwable;
 
 final readonly class SelectComponent implements FieldComponentInterface
 {
-    /**
-     * @param FieldConfigurator $configurator
-     */
-    public function __construct(private FieldConfigurator $configurator)
-    {
-    }
+    public function __construct(private FieldConfigurator $configurator) {}
 
     /**
-     * @param CustomField $customField
-     * @return Select
      * @throws Throwable
      */
     public function make(CustomField $customField): Select
@@ -50,7 +43,7 @@ final readonly class SelectComponent implements FieldComponentInterface
 
         return $select
             ->options(function () use ($select, $entityInstance, $recordTitleAttribute) {
-                if (!$select->isPreloaded()) {
+                if (! $select->isPreloaded()) {
                     return [];
                 }
 
@@ -58,13 +51,13 @@ final readonly class SelectComponent implements FieldComponentInterface
                     ->pluck($recordTitleAttribute, 'id')
                     ->toArray();
             })
-            ->getSearchResultsUsing(fn(string $search): array => $entityInstance->query()
+            ->getSearchResultsUsing(fn (string $search): array => $entityInstance->query()
                 ->whereAny($globalSearchableAttributes, 'like', "%{$search}%")
                 ->limit(50)
                 ->pluck($recordTitleAttribute, 'id')
                 ->toArray())
-            ->getOptionLabelUsing(fn($value) => $entityInstance::query()->find($value)?->{$recordTitleAttribute})
-            ->getOptionLabelsUsing(fn(array $values): array => $entityInstance::query()
+            ->getOptionLabelUsing(fn ($value) => $entityInstance::query()->find($value)?->{$recordTitleAttribute})
+            ->getOptionLabelsUsing(fn (array $values): array => $entityInstance::query()
                 ->whereIn('id', $values)
                 ->pluck($recordTitleAttribute, 'id')
                 ->toArray());

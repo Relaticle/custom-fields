@@ -4,20 +4,19 @@ declare(strict_types=1);
 
 namespace Relaticle\CustomFields\Filament\Pages;
 
-use Illuminate\Support\Collection;
-use Livewire\Attributes\On;
-use Relaticle\CustomFields\CustomFieldsPlugin;
-use Relaticle\CustomFields\Enums\CustomFieldSectionType;
-use Relaticle\CustomFields\Filament\FormSchemas\SectionForm;
-use Relaticle\CustomFields\Models\CustomFieldSection;
 use Filament\Actions\Action;
 use Filament\Facades\Filament;
 use Filament\Pages\Page;
 use Filament\Support\Enums\ActionSize;
+use Illuminate\Support\Collection;
 use Livewire\Attributes\Computed;
-use Relaticle\CustomFields\Models\CustomField;
-use Relaticle\CustomFields\Services\EntityTypeService;
+use Livewire\Attributes\On;
 use Livewire\Attributes\Url;
+use Relaticle\CustomFields\CustomFieldsPlugin;
+use Relaticle\CustomFields\Enums\CustomFieldSectionType;
+use Relaticle\CustomFields\Filament\FormSchemas\SectionForm;
+use Relaticle\CustomFields\Models\CustomFieldSection;
+use Relaticle\CustomFields\Services\EntityTypeService;
 use Relaticle\CustomFields\Support\Utils;
 
 class CustomFields extends Page
@@ -35,7 +34,7 @@ class CustomFields extends Page
 
     public function mount()
     {
-        if (!$this->currentEntityType) {
+        if (! $this->currentEntityType) {
             $this->setCurrentEntityType(EntityTypeService::getDefaultOption());
         }
     }
@@ -50,7 +49,7 @@ class CustomFields extends Page
                 'fields' => function ($query) {
                     $query->forMorphEntity($this->currentEntityType)
                         ->orderBy('sort_order');
-                }
+                },
             ])
             ->orderBy('sort_order')
             ->get();
@@ -80,14 +79,10 @@ class CustomFields extends Page
                 'class' => 'h-36 flex justify-center items-center rounded-lg border-gray-300 hover:border-gray-400 border-dashed',
             ])
             ->form(SectionForm::entityType($this->currentEntityType)->schema())
-            ->action(fn(array $data) => $this->storeSection($data))
+            ->action(fn (array $data) => $this->storeSection($data))
             ->modalWidth('max-w-2xl');
     }
 
-    /**
-     * @param $sections
-     * @return void
-     */
     public function updateSectionsOrder($sections): void
     {
         foreach ($sections as $index => $section) {
@@ -100,13 +95,9 @@ class CustomFields extends Page
         }
     }
 
-    /**
-     * @param array $data
-     * @return CustomFieldSection
-     */
     private function storeSection(array $data): CustomFieldSection
     {
-        if(Utils::isTenantEnabled()) {
+        if (Utils::isTenantEnabled()) {
             $data[config('custom-fields.column_names.tenant_foreign_key')] = Filament::getTenant()?->id;
         }
 
@@ -119,7 +110,7 @@ class CustomFields extends Page
     #[On('section-deleted')]
     public function sectionDeleted(): void
     {
-        $this->sections = $this->sections->filter(fn($section) => $section->exists);
+        $this->sections = $this->sections->filter(fn ($section) => $section->exists);
     }
 
     public static function getCluster(): ?string

@@ -106,8 +106,6 @@ enum CustomFieldValidationRule: string implements HasLabel
 
     /**
      * Get the count of allowed parameters for a given validation rule.
-     *
-     * @return int
      */
     public function allowedParameterCount(): int
     {

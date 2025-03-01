@@ -15,6 +15,6 @@ class CustomFieldsActivableScope extends ActivableScope
     public function apply(Builder $builder, Model $model): void
     {
         $builder->where($model->getQualifiedActiveColumn(), true)
-            ->whereHas('section', fn($query) => $query->active());
+            ->whereHas('section', fn ($query) => $query->active());
     }
 }

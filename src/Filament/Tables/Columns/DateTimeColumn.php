@@ -7,21 +7,17 @@ namespace Relaticle\CustomFields\Filament\Tables\Columns;
 use Closure;
 use Filament\Support\Components\Component;
 use Filament\Tables\Columns\Column as BaseColumn;
+use Filament\Tables\Columns\TextColumn as BaseTextColumn;
 use Illuminate\Database\Eloquent\Builder;
 use Relaticle\CustomFields\Enums\CustomFieldType;
 use Relaticle\CustomFields\Models\CustomField;
-use Filament\Tables\Columns\TextColumn as BaseTextColumn;
 use Relaticle\CustomFields\Queries\ColumnSearchableQuery;
 use Relaticle\CustomFields\Support\FieldTypeUtils;
 
 class DateTimeColumn extends Component implements ColumnInterface
 {
-    protected null|Closure $locale = null;
+    protected ?Closure $locale = null;
 
-    /**
-     * @param CustomField $customField
-     * @return BaseColumn
-     */
     public function make(CustomField $customField): BaseColumn
     {
         $static = BaseTextColumn::make("custom_fields.$customField->code");
@@ -30,7 +26,7 @@ class DateTimeColumn extends Component implements ColumnInterface
 
         $static
             ->sortable(
-                condition: !$customField->settings->encrypted,
+                condition: ! $customField->settings->encrypted,
                 query: function (Builder $query, string $direction) use ($customField): Builder {
                     $table = $query->getModel()->getTable();
                     $key = $query->getModel()->getKeyName();
@@ -46,7 +42,7 @@ class DateTimeColumn extends Component implements ColumnInterface
             )
             ->searchable(
                 condition: $customField->settings->searchable,
-                query: fn(Builder $query, string $search) => (new ColumnSearchableQuery())->builder($query, $customField, $search),
+                query: fn (Builder $query, string $search) => (new ColumnSearchableQuery)->builder($query, $customField, $search),
             )
             ->label($customField->name)
             ->getStateUsing(function ($record) use ($customField) {
@@ -71,7 +67,6 @@ class DateTimeColumn extends Component implements ColumnInterface
     }
 
     /**
-     * @param Closure $locale
      * @return $this
      */
     public function localize(Closure $locale): static

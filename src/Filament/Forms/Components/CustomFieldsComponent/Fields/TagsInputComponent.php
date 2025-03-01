@@ -13,9 +13,7 @@ use Relaticle\CustomFields\Services\FilamentResourceService;
 
 final readonly class TagsInputComponent implements FieldComponentInterface
 {
-    public function __construct(private FieldConfigurator $configurator)
-    {
-    }
+    public function __construct(private FieldConfigurator $configurator) {}
 
     public function make(CustomField $customField): Field
     {

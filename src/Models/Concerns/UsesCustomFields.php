@@ -19,9 +19,6 @@ use Relaticle\CustomFields\Support\Utils;
  */
 trait UsesCustomFields
 {
-    /**
-     * @param $attributes
-     */
     public function __construct($attributes = [])
     {
         // Ensure custom fields are included in a fillable array
@@ -85,10 +82,6 @@ trait UsesCustomFields
         return $this->morphMany(CustomFieldValue::class, 'entity');
     }
 
-    /**
-     * @param CustomField $customField
-     * @return mixed
-     */
     public function getCustomFieldValue(CustomField $customField): mixed
     {
         $customFieldValue = $this->customFieldValues->where('custom_field_id', $customField->id);
@@ -103,11 +96,6 @@ trait UsesCustomFields
         return $customFieldValue instanceof Collection ? $customFieldValue->toArray() : $customFieldValue;
     }
 
-    /**
-     * @param CustomField $customField
-     * @param mixed $value
-     * @return void
-     */
     public function saveCustomFieldValue(CustomField $customField, mixed $value): void
     {
         $data = ['custom_field_id' => $customField->id];
@@ -128,8 +116,7 @@ trait UsesCustomFields
     }
 
     /**
-     * @param array<string, mixed> $customFields
-     * @return void
+     * @param  array<string, mixed>  $customFields
      */
     public function saveCustomFields(array $customFields): void
     {

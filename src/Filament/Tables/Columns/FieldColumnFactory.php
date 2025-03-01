@@ -18,17 +18,8 @@ final class FieldColumnFactory
      */
     private array $instanceCache = [];
 
-    /**
-     * @param Container $container
-     */
-    public function __construct(private readonly Container $container)
-    {
-    }
+    public function __construct(private readonly Container $container) {}
 
-    /**
-     * @param CustomFieldType $type
-     * @return string
-     */
     private function componentMap(CustomFieldType $type): string
     {
         return match ($type) {
@@ -48,10 +39,10 @@ final class FieldColumnFactory
     {
         $componentClass = $this->componentMap($customField->type);
 
-        if (!isset($this->instanceCache[$componentClass])) {
+        if (! isset($this->instanceCache[$componentClass])) {
             $component = $this->container->make($componentClass);
 
-            if (!$component instanceof ColumnInterface) {
+            if (! $component instanceof ColumnInterface) {
                 throw new RuntimeException("Component class {$componentClass} must implement FieldColumnInterface");
             }
 

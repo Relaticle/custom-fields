@@ -34,7 +34,7 @@ final class SectionInfolistsFactory
 
     public function __construct(private readonly Container $container) {}
 
-    public function create(CustomFieldSection $customFieldSection): Section|Fieldset|Grid
+    public function create(CustomFieldSection $customFieldSection): Section | Fieldset | Grid
     {
         $customFieldSectionType = $customFieldSection->type->value;
 

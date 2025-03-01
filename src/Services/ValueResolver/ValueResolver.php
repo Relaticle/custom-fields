@@ -10,26 +10,14 @@ use Relaticle\CustomFields\Models\CustomField;
 
 readonly class ValueResolver implements ValueResolvers
 {
-    /**
-     * @param LookupMultiValueResolver $multiValueResolver
-     * @param LookupSingleValueResolver $singleValueResolver
-     */
     public function __construct(
-        private LookupMultiValueResolver  $multiValueResolver,
+        private LookupMultiValueResolver $multiValueResolver,
         private LookupSingleValueResolver $singleValueResolver
-    )
-    {
-    }
+    ) {}
 
-    /**
-     * @param Model $record
-     * @param CustomField $customField
-     * @param bool $exportable
-     * @return mixed
-     */
     public function resolve(Model $record, CustomField $customField, bool $exportable = false): mixed
     {
-        if (!$customField->type->isOptionable()) {
+        if (! $customField->type->isOptionable()) {
             $value = $record->getCustomFieldValue($customField);
 
             if ($exportable && $customField->type->isBoolean()) {

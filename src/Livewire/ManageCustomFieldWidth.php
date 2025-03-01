@@ -11,7 +11,7 @@ class ManageCustomFieldWidth extends Component
     public $selectedWidth = 100;
 
     public $widthOptions = [
-        25, 33, 50, 66, 75, 100
+        25, 33, 50, 66, 75, 100,
     ];
 
     public $widthMap = [

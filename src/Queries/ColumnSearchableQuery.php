@@ -9,12 +9,6 @@ use Relaticle\CustomFields\Models\CustomField;
 
 final readonly class ColumnSearchableQuery
 {
-    /**
-     * @param Builder $builder
-     * @param CustomField $customField
-     * @param string $search
-     * @return Builder
-     */
     public function builder(Builder $builder, CustomField $customField, string $search): Builder
     {
         $table = $builder->getModel()->getTable();

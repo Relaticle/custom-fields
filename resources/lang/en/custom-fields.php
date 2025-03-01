@@ -1,9 +1,10 @@
 <?php
+
 return [
     'nav' => [
         'label' => 'Custom Fields',
         'group' => 'Custom Fields',
-        'icon' => 'heroicon-o-cube'
+        'icon' => 'heroicon-o-cube',
     ],
 
     'section' => [
@@ -16,7 +17,7 @@ return [
         ],
         'default' => [
             'new_section' => 'New Section',
-        ]
+        ],
     ],
 
     'field' => [
@@ -58,8 +59,8 @@ return [
                 'parameters' => 'Parameters',
                 'parameters_value' => 'Parameter Value',
                 'add_parameter' => 'Add Parameter',
-            ]
-        ]
+            ],
+        ],
     ],
 
     'validation' => [
@@ -242,4 +243,3 @@ return [
         'inactive' => 'Inactive',
     ],
 ];
-

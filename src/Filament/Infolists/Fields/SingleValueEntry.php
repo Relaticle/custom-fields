@@ -16,9 +16,7 @@ final readonly class SingleValueEntry implements FieldInfolistsComponentInterfac
     public function __construct(
         private FieldInfolistsConfigurator $configurator,
         private LookupSingleValueResolver $valueResolver
-    )
-    {
-    }
+    ) {}
 
     public function make(CustomField $customField): Entry
     {
@@ -26,6 +24,6 @@ final readonly class SingleValueEntry implements FieldInfolistsComponentInterfac
             BaseTextEntry::make("custom_fields.{$customField->code}"),
             $customField
         )
-            ->getStateUsing(fn($record) => $this->valueResolver->resolve($record, $customField));
+            ->getStateUsing(fn ($record) => $this->valueResolver->resolve($record, $customField));
     }
 }

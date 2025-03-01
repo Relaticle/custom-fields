@@ -63,6 +63,7 @@ final class FilamentResourceService
 
     /**
      * Get the globally searchable attributes for a given model.
+     *
      * @throws Throwable
      */
     public static function getGlobalSearchableAttributes(string $model): array

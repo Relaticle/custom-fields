@@ -39,9 +39,10 @@ use Spatie\LaravelData\DataCollection;
 #[ObservedBy(CustomFieldObserver::class)]
 final class CustomField extends Model
 {
+    use Activable;
+
     /** @use HasFactory<CustomFieldFactory> */
     use HasFactory;
-    use Activable;
 
     /**
      * @var array<int, string>
@@ -54,7 +55,7 @@ final class CustomField extends Model
 
     public function __construct(array $attributes = [])
     {
-        if (!isset($this->table)) {
+        if (! isset($this->table)) {
             $this->setTable(config('custom-fields.table_names.custom_fields'));
         }
 
@@ -63,18 +64,12 @@ final class CustomField extends Model
 
     /**
      * Boot the soft deleting trait for a model.
-     *
-     * @return void
      */
     public static function bootActivable(): void
     {
-        CustomField::addGlobalScope(new CustomFieldsActivableScope());
+        CustomField::addGlobalScope(new CustomFieldsActivableScope);
     }
 
-    /**
-     * @param $query
-     * @return CustomFieldQueryBuilder
-     */
     public function newEloquentBuilder($query): CustomFieldQueryBuilder
     {
         return new CustomFieldQueryBuilder($query);
@@ -97,9 +92,6 @@ final class CustomField extends Model
         ];
     }
 
-    /**
-     * @return BelongsTo
-     */
     public function section(): BelongsTo
     {
         return $this->belongsTo(CustomFieldSection::class, 'custom_field_section_id');
@@ -129,9 +121,6 @@ final class CustomField extends Model
         return $this->system_defined === true;
     }
 
-    /**
-     * @return string
-     */
     public function getValueColumn(): string
     {
         return CustomFieldValue::getValueColumn($this->type);

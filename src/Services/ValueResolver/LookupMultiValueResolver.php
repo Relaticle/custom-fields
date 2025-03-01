@@ -10,9 +10,7 @@ use Relaticle\CustomFields\Models\CustomField;
 
 final readonly class LookupMultiValueResolver implements ValueResolvers
 {
-    public function __construct(private LookupResolver $lookupResolver)
-    {
-    }
+    public function __construct(private LookupResolver $lookupResolver) {}
 
     public function resolve(Model $record, CustomField $customField): string
     {

@@ -25,11 +25,12 @@ final readonly class CustomFieldsColumn
             ->visibleInList()
             ->with('options')
             ->get()
-            ->map(fn(CustomField $customField) => $fieldColumnFactory->create($customField)
-                ->toggleable(
-                    condition: Utils::isTableColumnsToggleableEnabled(),
-                    isToggledHiddenByDefault: $customField->settings->list_toggleable_hidden
-                )
+            ->map(
+                fn (CustomField $customField) => $fieldColumnFactory->create($customField)
+                    ->toggleable(
+                        condition: Utils::isTableColumnsToggleableEnabled(),
+                        isToggledHiddenByDefault: $customField->settings->list_toggleable_hidden
+                    )
             )
             ->toArray();
     }

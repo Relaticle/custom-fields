@@ -17,7 +17,6 @@ class ActivableScope implements Scope
      */
     protected $extensions = ['active', 'WithDeactivated', 'WithoutDeactivated'];
 
-
     /**
      * Apply the scope to a given Eloquent query builder.
      */
@@ -30,7 +29,6 @@ class ActivableScope implements Scope
      * Extend the query builder with the needed functions.
      *
      * @param  \Illuminate\Database\Eloquent\Builder<*>  $builder
-     * @return void
      */
     public function extend(Builder $builder): void
     {

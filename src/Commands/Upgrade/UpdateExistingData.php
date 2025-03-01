@@ -25,6 +25,7 @@ class UpdateExistingData
 
         if ($customFields->isEmpty()) {
             $command->info('No custom fields found that require updating.');
+
             return $next($command);
         }
 
@@ -44,7 +45,7 @@ class UpdateExistingData
 
                 $sectionCacheKey = $entityType . '|' . $tenantId;
 
-                if (!isset($sectionsCache[$sectionCacheKey])) {
+                if (! isset($sectionsCache[$sectionCacheKey])) {
                     // Get or create the section once per group
                     $sectionsCache[$sectionCacheKey] = CustomFieldSection::firstOrCreate(
                         [
@@ -65,6 +66,7 @@ class UpdateExistingData
                     foreach ($groupedCustomFields as $customField) {
                         $command->line("Custom field `{$customField->name}` will be moved to a new section.");
                     }
+
                     continue;
                 }
 

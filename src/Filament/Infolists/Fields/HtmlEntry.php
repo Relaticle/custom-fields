@@ -12,9 +12,7 @@ use Relaticle\CustomFields\Models\CustomField;
 
 final readonly class HtmlEntry implements FieldInfolistsComponentInterface
 {
-    public function __construct(private FieldInfolistsConfigurator $configurator)
-    {
-    }
+    public function __construct(private FieldInfolistsConfigurator $configurator) {}
 
     public function make(CustomField $customField): Entry
     {

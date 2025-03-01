@@ -12,10 +12,6 @@ use Relaticle\CustomFields\Filament\Tables\Filter\CustomFieldsFilter;
 
 trait InteractsWithCustomFields
 {
-    /**
-     * @param Table $table
-     * @return Table
-     */
     public function table(Table $table): Table
     {
         $model = $this instanceof RelationManager ? $this->getRelationship()->getModel()::class : $this->getModel();

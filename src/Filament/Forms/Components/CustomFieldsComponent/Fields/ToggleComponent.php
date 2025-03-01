@@ -12,9 +12,7 @@ use Relaticle\CustomFields\Models\CustomField;
 
 final readonly class ToggleComponent implements FieldComponentInterface
 {
-    public function __construct(private FieldConfigurator $configurator)
-    {
-    }
+    public function __construct(private FieldConfigurator $configurator) {}
 
     public function make(CustomField $customField): Field
     {

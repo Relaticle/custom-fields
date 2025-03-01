@@ -13,9 +13,7 @@ use Relaticle\CustomFields\Support\FieldTypeUtils;
 
 final readonly class DateTimeEntry implements FieldInfolistsComponentInterface
 {
-    public function __construct(private FieldInfolistsConfigurator $configurator)
-    {
-    }
+    public function __construct(private FieldInfolistsConfigurator $configurator) {}
 
     public function make(CustomField $customField): Entry
     {

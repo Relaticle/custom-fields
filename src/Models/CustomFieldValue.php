@@ -37,7 +37,7 @@ final class CustomFieldValue extends Model
 
     public function __construct(array $attributes = [])
     {
-        if (!isset($this->table)) {
+        if (! isset($this->table)) {
             $this->setTable(config('custom-fields.table_names.custom_field_values'));
         }
 
@@ -63,10 +63,6 @@ final class CustomFieldValue extends Model
         ];
     }
 
-    /**
-     * @param CustomFieldType $type
-     * @return string
-     */
     public static function getValueColumn(CustomFieldType $type): string
     {
         return match ($type) {
@@ -97,19 +93,13 @@ final class CustomFieldValue extends Model
         return $this->morphTo();
     }
 
-    /**
-     * @return mixed
-     */
     public function getValue(): mixed
     {
         $column = $this->getValueColumn($this->customField->type);
+
         return $this->$column;
     }
 
-    /**
-     * @param mixed $value
-     * @return void
-     */
     public function setValue(mixed $value): void
     {
         $column = $this->getValueColumn($this->customField->type);

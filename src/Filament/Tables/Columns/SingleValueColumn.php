@@ -8,21 +8,18 @@ use Filament\Tables\Columns\Column as BaseColumn;
 use Filament\Tables\Columns\TextColumn as BaseTextColumn;
 use Illuminate\Database\Eloquent\Builder;
 use Relaticle\CustomFields\Models\CustomField;
-use Relaticle\CustomFields\Queries\ColumnSearchableQuery;
 use Relaticle\CustomFields\Services\ValueResolver\LookupSingleValueResolver;
 
 final readonly class SingleValueColumn implements ColumnInterface
 {
-    public function __construct(public LookupSingleValueResolver $valueResolver)
-    {
-    }
+    public function __construct(public LookupSingleValueResolver $valueResolver) {}
 
     public function make(CustomField $customField): BaseColumn
     {
         return BaseTextColumn::make("custom_fields.$customField->code")
             ->label($customField->name)
             ->sortable(
-                condition: !$customField->settings->encrypted,
+                condition: ! $customField->settings->encrypted,
                 query: function (Builder $query, string $direction) use ($customField): Builder {
                     $table = $query->getModel()->getTable();
                     $key = $query->getModel()->getKeyName();
@@ -37,6 +34,6 @@ final readonly class SingleValueColumn implements ColumnInterface
                 }
             )
             ->searchable(false)
-            ->getStateUsing(fn($record) => $this->valueResolver->resolve($record, $customField));
+            ->getStateUsing(fn ($record) => $this->valueResolver->resolve($record, $customField));
     }
 }

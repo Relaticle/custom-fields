@@ -3,11 +3,11 @@
 namespace Relaticle\CustomFields\Commands\Upgrade;
 
 use Closure;
+use Illuminate\Console\Command;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 use Relaticle\CustomFields\Commands\UpgradeCommand;
 use Relaticle\CustomFields\Support\Utils;
-use Illuminate\Console\Command;
 
 class UpdateDatabaseSchema
 {
@@ -34,7 +34,7 @@ class UpdateDatabaseSchema
     {
         $sectionsTable = config('custom-fields.table_names.custom_field_sections', 'custom_field_sections');
 
-        if (!Schema::hasTable($sectionsTable)) {
+        if (! Schema::hasTable($sectionsTable)) {
             if ($isDryRun) {
                 $command->line("Table `{$sectionsTable}` would be created.");
             } else {
@@ -72,14 +72,14 @@ class UpdateDatabaseSchema
         $customFieldsTable = config('custom-fields.table_names.custom_fields');
 
         $columnsToAdd = [];
-        if (!Schema::hasColumn($customFieldsTable, 'custom_field_section_id')) {
+        if (! Schema::hasColumn($customFieldsTable, 'custom_field_section_id')) {
             $columnsToAdd[] = 'custom_field_section_id';
         }
-        if (!Schema::hasColumn($customFieldsTable, 'width')) {
+        if (! Schema::hasColumn($customFieldsTable, 'width')) {
             $columnsToAdd[] = 'width';
         }
 
-        if (!empty($columnsToAdd)) {
+        if (! empty($columnsToAdd)) {
             if ($isDryRun) {
                 foreach ($columnsToAdd as $column) {
                     $command->line("Column `{$column}` would be added to `{$customFieldsTable}` table.");

@@ -15,7 +15,7 @@ class TypeField extends Select
 
         $this->native(false)
             ->allowHtml()
-            ->options(fn(): array => collect(CustomFieldType::options())->mapWithKeys(fn($name, $value) => [$value => $this->getHtmlOption($name, $value)])->toArray());
+            ->options(fn (): array => collect(CustomFieldType::options())->mapWithKeys(fn ($name, $value) => [$value => $this->getHtmlOption($name, $value)])->toArray());
     }
 
     public function getHtmlOption($name, $value)

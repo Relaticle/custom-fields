@@ -13,8 +13,6 @@ trait Activable
 
     /**
      * Boot the soft deleting trait for a model.
-     *
-     * @return void
      */
     public static function bootActivable(): void
     {
@@ -80,8 +78,6 @@ trait Activable
 
     /**
      * Get the fully qualified "created at" column.
-     *
-     * @return string
      */
     public function getQualifiedActiveColumn(): string
     {

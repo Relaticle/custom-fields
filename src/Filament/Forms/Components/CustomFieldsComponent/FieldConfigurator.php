@@ -15,7 +15,7 @@ final readonly class FieldConfigurator
     /**
      * @template T of Field
      *
-     * @param T $field
+     * @param  T  $field
      * @return T
      */
     public function configure(Field $field, CustomField $customField): Field
@@ -35,7 +35,7 @@ final readonly class FieldConfigurator
                 // Set the component state
                 $component->state($value);
             })
-            ->dehydrated(fn($state): bool => $state !== null && $state !== '')
+            ->dehydrated(fn ($state): bool => $state !== null && $state !== '')
             ->required($this->isRequired($customField))
             ->rules($this->convertRulesToFilamentFormat($customField->validation_rules));
     }
@@ -43,12 +43,12 @@ final readonly class FieldConfigurator
     /**
      * Converts validation rules from a collection to an array in the format expected by Filament.
      *
-     * @param DataCollection<int, ValidationRuleData>|null $rules The validation rules to convert.
+     * @param  DataCollection<int, ValidationRuleData>|null  $rules  The validation rules to convert.
      * @return array<string, string> The converted rules.
      */
     private function convertRulesToFilamentFormat(?DataCollection $rules): array
     {
-        if (!$rules instanceof DataCollection || $rules->toCollection()->isEmpty()) {
+        if (! $rules instanceof DataCollection || $rules->toCollection()->isEmpty()) {
             return [];
         }
 
@@ -61,10 +61,6 @@ final readonly class FieldConfigurator
         })->toArray();
     }
 
-    /**
-     * @param CustomField $customField
-     * @return bool
-     */
     public function isRequired(CustomField $customField): bool
     {
         return $customField->validation_rules->toCollection()->contains('name', CustomFieldValidationRule::REQUIRED->value);
