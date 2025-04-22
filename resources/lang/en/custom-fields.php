@@ -36,6 +36,8 @@ return [
             'list_toggleable_hidden' => 'Toggleable Hidden',
             'list_toggleable_hidden_hint' => 'When enabled, this field will be hidden by default in the list view but can be toggled visible by the user.',
             'visible_in_view' => 'Visible in View',
+            'enable_option_colors' => 'Enable Color Options',
+            'enable_option_colors_help' => 'When enabled, you can assign colors to each option for better visual representation.',
             'options_lookup_type' => [
                 'label' => 'Options Lookup Type',
                 'options' => 'Options',

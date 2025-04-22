@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Relaticle\CustomFields\CustomFields;
+use Relaticle\CustomFields\Data\CustomFieldOptionSettingsData;
 use Relaticle\CustomFields\Database\Factories\CustomFieldOptionFactory;
 use Relaticle\CustomFields\Models\Scopes\SortOrderScope;
 use Relaticle\CustomFields\Models\Scopes\TenantScope;
@@ -20,6 +21,10 @@ class CustomFieldOption extends Model
     use HasFactory;
 
     protected $guarded = [];
+
+    protected $casts = [
+        'settings' => CustomFieldOptionSettingsData::class,
+    ];
 
     public function __construct(array $attributes = [])
     {

@@ -22,9 +22,14 @@ class FieldForm implements FormInterface
     public static function schema(bool $withOptionsRelationship = true): array
     {
         $optionsRepeater = Forms\Components\Repeater::make('options')
-            ->simple(
+            ->schema([
+                Forms\Components\ColorPicker::make('settings.color')
+                    ->columnSpan(1)
+                    ->visible(fn (Forms\Get $get): bool => 
+                        Utils::isOptionColorsFeatureEnabled() && 
+                        $get('../../settings.enable_option_colors')
+                    ),
                 Forms\Components\TextInput::make('name')
-                    ->columnSpanFull()
                     ->required()
                     ->unique(
                         table: CustomFields::optionModel(),
@@ -44,8 +49,8 @@ class FieldForm implements FormInterface
                                     }
                                 );
                         },
-                    )
-            )
+                    ),
+            ])
             ->columns(2)
             ->requiredUnless('type', CustomFieldType::TAGS_INPUT->value)
             ->hiddenLabel()
@@ -189,6 +194,15 @@ class FieldForm implements FormInterface
                                                 $component->state(true);
                                             }
                                         }),
+                                    Forms\Components\Toggle::make('settings.enable_option_colors')
+                                        ->inline(false)
+                                        ->reactive()
+                                        ->label(__('custom-fields::custom-fields.field.form.enable_option_colors'))
+                                        ->helperText(__('custom-fields::custom-fields.field.form.enable_option_colors_help'))
+                                        ->visible(fn (Forms\Get $get): bool => 
+                                            Utils::isOptionColorsFeatureEnabled() && 
+                                            in_array($get('type'), CustomFieldType::optionables()->pluck('value')->toArray())
+                                        ),
                                 ]),
 
                             Forms\Components\Select::make('options_lookup_type')

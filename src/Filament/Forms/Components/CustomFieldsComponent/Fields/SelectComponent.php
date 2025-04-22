@@ -9,6 +9,7 @@ use Relaticle\CustomFields\Filament\Forms\Components\CustomFieldsComponent\Field
 use Relaticle\CustomFields\Filament\Forms\Components\CustomFieldsComponent\FieldConfigurator;
 use Relaticle\CustomFields\Models\CustomField;
 use Relaticle\CustomFields\Services\FilamentResourceService;
+use Relaticle\CustomFields\Support\Utils;
 use Throwable;
 
 final readonly class SelectComponent implements FieldComponentInterface
@@ -27,7 +28,38 @@ final readonly class SelectComponent implements FieldComponentInterface
         if ($customField->lookup_type) {
             $field = $this->configureLookup($field, $customField->lookup_type);
         } else {
-            $field->options($customField->options->pluck('name', 'id')->all());
+            $options = $customField->options->pluck('name', 'id')->all();
+            $field->options($options);
+            
+            // Add color support if enabled
+            if (Utils::isOptionColorsFeatureEnabled() && $customField->settings->enable_option_colors) {
+                $optionsWithColor = $customField->options
+                    ->filter(fn ($option) => $option->settings?->color)
+                    ->mapWithKeys(fn ($option) => [$option->id => $option->settings->color])
+                    ->all();
+                    
+                if (count($optionsWithColor)) {
+                    // Use custom option rendering for colored options
+                    $field->getOptionLabelUsing(function ($value) use ($customField, $optionsWithColor) {
+                        $option = $customField->options->firstWhere('id', $value);
+                        if (!$option) return null;
+                        
+                        $color = $optionsWithColor[$value] ?? null;
+                        $name = $option->name;
+                        
+                        if ($color) {
+                            return new \Illuminate\Support\HtmlString(
+                                '<div class="flex items-center gap-2">' .
+                                '<span class="w-3 h-3 rounded-full" style="background-color: ' . $color . '"></span>' .
+                                '<span>' . $name . '</span>' .
+                                '</div>'
+                            );
+                        }
+                        
+                        return $name;
+                    });
+                }
+            }
         }
 
         /** @var Select */
