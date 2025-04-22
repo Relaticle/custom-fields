@@ -25,6 +25,7 @@ class FieldForm implements FormInterface
             ->schema([
                 Forms\Components\ColorPicker::make('settings.color')
                     ->columnSpan(3)
+                    ->hexColor()
                     ->visible(fn (Forms\Get $get): bool => 
                         Utils::isOptionColorsFeatureEnabled() && 
                         $get('../../settings.enable_option_colors')

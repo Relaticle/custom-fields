@@ -30,35 +30,34 @@ final readonly class SelectComponent implements FieldComponentInterface
         } else {
             $options = $customField->options->pluck('name', 'id')->all();
             $field->options($options);
-            
+
             // Add color support if enabled
             if (Utils::isOptionColorsFeatureEnabled() && $customField->settings->enable_option_colors) {
-                $optionsWithColor = $customField->options
-                    ->filter(fn ($option) => $option->settings?->color)
-                    ->mapWithKeys(fn ($option) => [$option->id => $option->settings->color])
-                    ->all();
-                    
-                if (count($optionsWithColor)) {
-                    // Use custom option rendering for colored options
-                    $field->getOptionLabelUsing(function ($value) use ($customField, $optionsWithColor) {
-                        $option = $customField->options->firstWhere('id', $value);
-                        if (!$option) return null;
-                        
-                        $color = $optionsWithColor[$value] ?? null;
-                        $name = $option->name;
-                        
+                $coloredOptions = $customField->options
+                    ->mapWithKeys(function ($option) {
+                        $color = $option->settings?->color;
+                        $text = $option->name;
+
                         if ($color) {
-                            return new \Illuminate\Support\HtmlString(
-                                '<div class="flex items-center gap-2">' .
-                                '<span class="w-3 h-3 rounded-full" style="background-color: ' . $color . '"></span>' .
-                                '<span>' . $name . '</span>' .
-                                '</div>'
-                            );
+                            return [
+                                $option->id => str(
+                                    '<div class="flex items-center gap-2">
+                                    <span class="w-3 h-3 rounded-full" style="background-color:{BACKGROUND_COLOR}"></span>
+                                    <span>{LABEL}</span>
+                                    </div>'
+                                )
+                                    ->replace(['{BACKGROUND_COLOR}', '{LABEL}'], [e($color), e($text)])
+                            ];
                         }
-                        
-                        return $name;
-                    });
-                }
+
+                        return [$option->id => $text];
+                    })
+                    ->all();
+
+                $field
+                    ->native(false)
+                    ->allowHtml()
+                    ->options($coloredOptions);
             }
         }
 

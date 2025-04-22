@@ -48,7 +48,7 @@ final readonly class SingleValueColumn implements ColumnInterface
                 ->color(function ($state) use ($customField): ?array {
                     $color = $customField->options->where('name', $state)->first()?->settings->color;
 
-                    return $color ? Color::hex($color) : null;
+                    return Color::hex($color ?? '#000000');
                 });
         }
 
