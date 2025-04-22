@@ -24,13 +24,14 @@ class FieldForm implements FormInterface
         $optionsRepeater = Forms\Components\Repeater::make('options')
             ->schema([
                 Forms\Components\ColorPicker::make('settings.color')
-                    ->columnSpan(1)
+                    ->columnSpan(3)
                     ->visible(fn (Forms\Get $get): bool => 
                         Utils::isOptionColorsFeatureEnabled() && 
                         $get('../../settings.enable_option_colors')
                     ),
                 Forms\Components\TextInput::make('name')
                     ->required()
+                    ->columnSpan(9)
                     ->unique(
                         table: CustomFields::optionModel(),
                         column: 'name',
@@ -51,7 +52,7 @@ class FieldForm implements FormInterface
                         },
                     ),
             ])
-            ->columns(2)
+            ->columns(12)
             ->requiredUnless('type', CustomFieldType::TAGS_INPUT->value)
             ->hiddenLabel()
             ->defaultItems(1)
@@ -148,25 +149,9 @@ class FieldForm implements FormInterface
                                     $set('code', Str::of($state)->slug('_')->toString());
                                 }),
                             Forms\Components\Fieldset::make(__('custom-fields::custom-fields.field.form.settings'))
-                                ->columns(3)
+                                ->columns(2)
                                 ->schema([
-                                    Forms\Components\Toggle::make('settings.encrypted')
-                                        ->inline(false)
-                                        ->reactive()
-                                        ->disabled(fn (?CustomField $record): bool => (bool) $record?->exists)
-                                        ->label(__('custom-fields::custom-fields.field.form.encrypted'))
-                                        ->visible(fn (Forms\Get $get): bool => Utils::isValuesEncryptionFeatureEnabled() && CustomFieldType::encryptables()->contains('value', $get('type')))
-                                        ->default(false),
-                                    Forms\Components\Toggle::make('settings.searchable')
-                                        ->inline(false)
-                                        ->visible(fn (Forms\Get $get): bool => CustomFieldType::searchables()->contains('value', $get('type')))
-                                        ->disabled(fn (Forms\Get $get): bool => $get('settings.encrypted') === true)
-                                        ->label(__('custom-fields::custom-fields.field.form.searchable'))
-                                        ->afterStateHydrated(function (Forms\Components\Toggle $component, $state) {
-                                            if (is_null($state)) {
-                                                $component->state(false);
-                                            }
-                                        }),
+                                    // Visibility settings
                                     Forms\Components\Toggle::make('settings.visible_in_list')
                                         ->inline(false)
                                         ->reactive()
@@ -174,16 +159,6 @@ class FieldForm implements FormInterface
                                         ->afterStateHydrated(function (Forms\Components\Toggle $component, $state) {
                                             if (is_null($state)) {
                                                 $component->state(true);
-                                            }
-                                        }),
-                                    Forms\Components\Toggle::make('settings.list_toggleable_hidden')
-                                        ->inline(false)
-                                        ->label(__('custom-fields::custom-fields.field.form.list_toggleable_hidden'))
-                                        ->hintIcon('heroicon-m-question-mark-circle', tooltip: __('custom-fields::custom-fields.field.form.list_toggleable_hidden_hint'))
-                                        ->visible(fn (Forms\Get $get): bool => $get('settings.visible_in_list') && Utils::isTableColumnsToggleableEnabled() && Utils::isTableColumnsToggleableUserControlEnabled())
-                                        ->afterStateHydrated(function (Forms\Components\Toggle $component, $state) {
-                                            if (is_null($state)) {
-                                                $component->state(Utils::isTableColumnsToggleableHiddenByDefault());
                                             }
                                         }),
                                     Forms\Components\Toggle::make('settings.visible_in_view')
@@ -194,6 +169,35 @@ class FieldForm implements FormInterface
                                                 $component->state(true);
                                             }
                                         }),
+                                    Forms\Components\Toggle::make('settings.list_toggleable_hidden')
+                                        ->inline(false)
+                                        ->label(__('custom-fields::custom-fields.field.form.list_toggleable_hidden'))
+                                        ->helperText( __('custom-fields::custom-fields.field.form.list_toggleable_hidden_hint'))
+                                        ->visible(fn (Forms\Get $get): bool => $get('settings.visible_in_list') && Utils::isTableColumnsToggleableEnabled() && Utils::isTableColumnsToggleableUserControlEnabled())
+                                        ->afterStateHydrated(function (Forms\Components\Toggle $component, $state) {
+                                            if (is_null($state)) {
+                                                $component->state(Utils::isTableColumnsToggleableHiddenByDefault());
+                                            }
+                                        }),
+                                    // Data settings
+                                    Forms\Components\Toggle::make('settings.searchable')
+                                        ->inline(false)
+                                        ->visible(fn (Forms\Get $get): bool => CustomFieldType::searchables()->contains('value', $get('type')))
+                                        ->disabled(fn (Forms\Get $get): bool => $get('settings.encrypted') === true)
+                                        ->label(__('custom-fields::custom-fields.field.form.searchable'))
+                                        ->afterStateHydrated(function (Forms\Components\Toggle $component, $state) {
+                                            if (is_null($state)) {
+                                                $component->state(false);
+                                            }
+                                        }),
+                                    Forms\Components\Toggle::make('settings.encrypted')
+                                        ->inline(false)
+                                        ->reactive()
+                                        ->disabled(fn (?CustomField $record): bool => (bool) $record?->exists)
+                                        ->label(__('custom-fields::custom-fields.field.form.encrypted'))
+                                        ->visible(fn (Forms\Get $get): bool => Utils::isValuesEncryptionFeatureEnabled() && CustomFieldType::encryptables()->contains('value', $get('type')))
+                                        ->default(false),
+                                    // Appearance settings    
                                     Forms\Components\Toggle::make('settings.enable_option_colors')
                                         ->inline(false)
                                         ->reactive()
