@@ -20,7 +20,7 @@ use Relaticle\CustomFields\Models\CustomFieldSection;
 use Relaticle\CustomFields\Services\EntityTypeService;
 use Relaticle\CustomFields\Support\Utils;
 
-class CustomFields extends Page
+class CustomFieldsPage extends Page
 {
     protected static ?string $navigationIcon = 'heroicon-m-document-text';
 
@@ -139,6 +139,11 @@ class CustomFields extends Page
     public static function getNavigationIcon(): string
     {
         return __('custom-fields::custom-fields.nav.icon');
+    }
+
+    public function getHeading(): string
+    {
+        return __('custom-fields::custom-fields.heading.title');
     }
 
     public static function getNavigationSort(): ?int

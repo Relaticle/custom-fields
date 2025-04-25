@@ -7,7 +7,7 @@ namespace Relaticle\CustomFields;
 use Filament\Contracts\Plugin;
 use Filament\Panel;
 use Filament\Support\Concerns\EvaluatesClosures;
-use Relaticle\CustomFields\Filament\Pages\CustomFields;
+use Relaticle\CustomFields\Filament\Pages\CustomFieldsPage;
 
 class CustomFieldsPlugin implements Plugin
 {
@@ -24,9 +24,8 @@ class CustomFieldsPlugin implements Plugin
     {
         $panel
             ->pages([
-                CustomFields::class,
-            ])
-            ->discoverPages(in: __DIR__.'/Filament/Pages', for: 'ManukMinasyan\\FilamentCustomField\\Filament\\Pages');
+                CustomFieldsPage::class,
+            ]);
     }
 
     public function boot(Panel $panel): void {}

@@ -1,8 +1,12 @@
 <?php
 
 return [
+    'heading' => [
+        'title' => 'Custom Fields',
+    ],
+
     'nav' => [
-        'label' => 'Custom Fields',
+        'label' => 'Custom Fields 123',
         'group' => 'Custom Fields',
         'icon' => 'heroicon-o-cube',
     ],
