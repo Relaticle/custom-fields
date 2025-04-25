@@ -88,6 +88,11 @@ class FieldForm implements FormInterface
                                 ->label(__('custom-fields::custom-fields.field.form.type'))
                                 ->disabled(fn (?CustomField $record): bool => (bool) $record?->exists)
                                 ->reactive()
+                                ->afterStateHydrated(function (Forms\Components\Select $component, $state, $record): void {
+                                    if (blank($state)) {
+                                        $component->state($record?->type ?? CustomFieldType::TEXT->value);
+                                    }
+                                })
                                 ->required(),
                             Forms\Components\TextInput::make('name')
                                 ->label(__('custom-fields::custom-fields.field.form.name'))

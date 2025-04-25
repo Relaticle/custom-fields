@@ -6,6 +6,7 @@ namespace Relaticle\CustomFields\Enums;
 
 use Filament\Support\Contracts\HasLabel;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Cache;
 
 enum CustomFieldType: string implements HasLabel
 {
@@ -53,6 +54,15 @@ enum CustomFieldType: string implements HasLabel
             self::COLOR_PICKER->value => 'Color picker',
             self::MULTI_SELECT->value => 'Multi-select',
         ];
+    }
+
+    public static function optionsForSelect(): Collection
+    {
+        return Cache::remember('custom-fields.field-types.options-for-select', 60, fn() => collect(self::options())->map(fn($label, $value) => [
+            'label' => $label,
+            'value' => $value,
+            'icon' => self::icons()[$value],
+        ]));
     }
 
     public static function icons(): array
