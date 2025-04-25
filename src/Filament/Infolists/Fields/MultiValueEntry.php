@@ -26,7 +26,7 @@ final readonly class MultiValueEntry implements FieldInfolistsComponentInterface
     {
         $entry = BaseTextEntry::make("custom_fields.{$customField->code}");
 
-        if (Utils::isOptionColorsFeatureEnabled() && $customField->settings->enable_option_colors && !$customField->lookup_type) {
+        if (Utils::isSelectOptionColorsFeatureEnabled() && $customField->settings->enable_option_colors && !$customField->lookup_type) {
             $entry->badge()
                 ->color(function ($state) use ($customField): ?array {
                     $color = $customField->options->where('name', $state)->first()?->settings->color;

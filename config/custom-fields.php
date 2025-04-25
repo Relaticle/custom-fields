@@ -15,7 +15,7 @@ return [
             'enabled' => true,
         ],
         'option_colors' => [
-            'enabled' => true,
+            'enabled' => false,
         ],
     ],
 

@@ -27,7 +27,7 @@ class FieldForm implements FormInterface
                     ->columnSpan(3)
                     ->hexColor()
                     ->visible(fn (Forms\Get $get): bool => 
-                        Utils::isOptionColorsFeatureEnabled() && 
+                        Utils::isSelectOptionColorsFeatureEnabled() && 
                         $get('../../settings.enable_option_colors')
                     ),
                 Forms\Components\TextInput::make('name')
@@ -210,8 +210,8 @@ class FieldForm implements FormInterface
                                         ->label(__('custom-fields::custom-fields.field.form.enable_option_colors'))
                                         ->helperText(__('custom-fields::custom-fields.field.form.enable_option_colors_help'))
                                         ->visible(fn (Forms\Get $get): bool => 
-                                            Utils::isOptionColorsFeatureEnabled() && 
-                                            in_array($get('type'), CustomFieldType::optionables()->pluck('value')->toArray())
+                                            Utils::isSelectOptionColorsFeatureEnabled() && 
+                                            in_array($get('type'), [CustomFieldType::SELECT->value, CustomFieldType::MULTI_SELECT->value])
                                         ),
                                 ]),
 

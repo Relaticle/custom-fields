@@ -141,15 +141,11 @@ class ManageCustomFieldSection extends Component implements HasActions, HasForms
             ->action(function (array $data) {
                 $options = collect($data['options'] ?? [])->filter()
                     ->map(function ($option) {
-                        $data = [
-                            'name' => $option,
-                        ];
-
                         if (Utils::isTenantEnabled()) {
-                            $data[config('custom-fields.column_names.tenant_foreign_key')] = Filament::getTenant()?->id;
+                            $option[config('custom-fields.column_names.tenant_foreign_key')] = Filament::getTenant()?->id;
                         }
 
-                        return $data;
+                        return $option;
                     })
                     ->values();
 

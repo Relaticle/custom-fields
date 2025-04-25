@@ -29,7 +29,7 @@ final readonly class MultiValueColumn implements ColumnInterface
 
         $column->getStateUsing(fn($record) => $this->valueResolver->resolve($record, $customField));
 
-        if (Utils::isOptionColorsFeatureEnabled() && $customField->settings->enable_option_colors && !$customField->lookup_type) {
+        if (Utils::isSelectOptionColorsFeatureEnabled() && $customField->settings->enable_option_colors && !$customField->lookup_type) {
             $column->badge()
                 ->color(function ($state) use ($customField): ?array {
                     $color = $customField->options->where('name', $state)->first()?->settings->color;

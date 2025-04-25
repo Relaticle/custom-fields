@@ -43,7 +43,7 @@ final readonly class SingleValueColumn implements ColumnInterface
             ->searchable(false);
 
         // Use colored badge for field with enabled option colors
-        if (Utils::isOptionColorsFeatureEnabled() && $customField->settings->enable_option_colors && !$customField->lookup_type) {
+        if (Utils::isSelectOptionColorsFeatureEnabled() && $customField->settings->enable_option_colors && !$customField->lookup_type) {
             $column->badge()
                 ->color(function ($state) use ($customField): ?array {
                     $color = $customField->options->where('name', $state)->first()?->settings->color;

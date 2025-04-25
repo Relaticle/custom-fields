@@ -32,7 +32,7 @@ final readonly class SelectComponent implements FieldComponentInterface
             $field->options($options);
 
             // Add color support if enabled
-            if (Utils::isOptionColorsFeatureEnabled() && $customField->settings->enable_option_colors) {
+            if (Utils::isSelectOptionColorsFeatureEnabled() && $customField->settings->enable_option_colors) {
                 $coloredOptions = $customField->options
                     ->mapWithKeys(function ($option) {
                         $color = $option->settings?->color;

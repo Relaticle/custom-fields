@@ -69,9 +69,9 @@ class Utils
     /**
      * Check if the option colors feature is enabled.
      */
-    public static function isOptionColorsFeatureEnabled(): bool
+    public static function isSelectOptionColorsFeatureEnabled(): bool
     {
-        return config('custom-fields.features.option_colors.enabled', false);
+        return config('custom-fields.features.select_option_colors.enabled', false);
     }
 
     /**
