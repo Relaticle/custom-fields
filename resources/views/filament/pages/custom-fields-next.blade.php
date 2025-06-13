@@ -20,13 +20,14 @@
             @endforeach
 
             @if(!count($this->sections))
-                <x-filament::grid.column default="12">
-                    <x-filament-tables::empty-state
-                        icon="heroicon-o-rectangle-group"
-                        heading="No sections yet"
-                        description="Start by creating a new section to organize your custom fields."
-                    />
-                </x-filament::grid.column>
+{{--                <x-filament-schemas::grid default="12">--}}
+{{--                    <x-filament-tables::empty-state--}}
+{{--                        icon="heroicon-o-rectangle-group"--}}
+{{--                        heading="No sections yet"--}}
+{{--                        description="Start by creating a new section to organize your custom fields."--}}
+{{--                    />--}}
+                    --Empty state for no sections yet--
+{{--                </x-filament-schemas::grid>--}}
             @endempty
 
             {{ $this->createSectionAction }}
