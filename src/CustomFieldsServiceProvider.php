@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Relaticle\CustomFields;
 
+use Relaticle\CustomFields\Providers\ValidationServiceProvider;
 use Filament\Facades\Filament;
 use Filament\Support\Assets\Asset;
 use Filament\Support\Assets\Css;
@@ -42,7 +43,7 @@ class CustomFieldsServiceProvider extends PackageServiceProvider
     public function bootingPackage(): void
     {
         $this->app->register(ImportsServiceProvider::class);
-        $this->app->register(Providers\ValidationServiceProvider::class);
+        $this->app->register(ValidationServiceProvider::class);
 
         $this->app->singleton(CustomsFieldsMigrators::class, CustomFieldsMigrator::class);
         $this->app->singleton(ValueResolvers::class, ValueResolver::class);

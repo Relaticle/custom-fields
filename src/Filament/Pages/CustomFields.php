@@ -4,10 +4,11 @@ declare(strict_types=1);
 
 namespace Relaticle\CustomFields\Filament\Pages;
 
+use Filament\Support\Enums\Size;
+use Filament\Panel;
 use Filament\Actions\Action;
 use Filament\Facades\Filament;
 use Filament\Pages\Page;
-use Filament\Support\Enums\ActionSize;
 use Illuminate\Support\Collection;
 use Livewire\Attributes\Computed;
 use Livewire\Attributes\On;
@@ -22,9 +23,9 @@ use Relaticle\CustomFields\Support\Utils;
 
 class CustomFields extends Page
 {
-    protected static ?string $navigationIcon = 'heroicon-m-document-text';
+    protected static string | \BackedEnum | null $navigationIcon = 'heroicon-m-document-text';
 
-    protected static string $view = 'custom-fields::filament.pages.custom-fields-next';
+    protected string $view = 'custom-fields::filament.pages.custom-fields-next';
 
     protected static ?int $navigationSort = 10;
 
@@ -70,7 +71,7 @@ class CustomFields extends Page
     public function createSectionAction(): Action
     {
         return Action::make('createSection')
-            ->size(ActionSize::ExtraSmall)
+            ->size(Size::ExtraSmall)
             ->label(__('custom-fields::custom-fields.section.form.add_section'))
             ->icon('heroicon-s-plus')
             ->color('gray')
@@ -79,7 +80,7 @@ class CustomFields extends Page
             ->extraAttributes([
                 'class' => 'h-36 flex justify-center items-center rounded-lg border-gray-300 hover:border-gray-400 border-dashed',
             ])
-            ->form(SectionForm::entityType($this->currentEntityType)->schema())
+            ->schema(SectionForm::entityType($this->currentEntityType)->schema())
             ->action(fn (array $data) => $this->storeSection($data))
             ->modalWidth('max-w-2xl');
     }
@@ -148,7 +149,7 @@ class CustomFields extends Page
         return Utils::getResourceNavigationSort();
     }
 
-    public static function getSlug(): string
+    public static function getSlug(?Panel $panel = null): string
     {
         return Utils::getResourceSlug();
     }

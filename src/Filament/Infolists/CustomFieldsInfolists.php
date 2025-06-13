@@ -4,15 +4,15 @@ declare(strict_types=1);
 
 namespace Relaticle\CustomFields\Filament\Infolists;
 
+use Filament\Schemas\Components\Component;
 use Filament\Forms\Components\Field;
-use Filament\Infolists\Components\Component;
 use Relaticle\CustomFields\CustomFields;
 use Relaticle\CustomFields\Models\CustomField;
 use Relaticle\CustomFields\Models\CustomFieldSection;
 
 final class CustomFieldsInfolists extends Component
 {
-    protected string $view = 'filament-forms::components.group';
+    protected string $view = 'filament-schemas::components.grid';
 
     public function __construct(
         private readonly SectionInfolistsFactory $sectionInfolistsFactory,

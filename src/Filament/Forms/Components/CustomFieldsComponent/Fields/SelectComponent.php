@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Relaticle\CustomFields\Filament\Forms\Components\CustomFieldsComponent\Fields;
 
+use ReflectionException;
 use Filament\Forms\Components\Select;
 use Relaticle\CustomFields\Filament\Forms\Components\CustomFieldsComponent\FieldComponentInterface;
 use Relaticle\CustomFields\Filament\Forms\Components\CustomFieldsComponent\FieldConfigurator;
@@ -39,7 +40,7 @@ final readonly class SelectComponent implements FieldComponentInterface
      * @param $lookupType
      * @return Select
      * @throws Throwable
-     * @throws \ReflectionException
+     * @throws ReflectionException
      */
     protected function configureLookup(Select $select, $lookupType): Select
     {

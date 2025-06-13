@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Relaticle\CustomFields\Enums;
 
+use Exception;
+use InvalidArgumentException;
 use Carbon\Carbon;
 use Filament\Support\Contracts\HasLabel;
 use Illuminate\Validation\Rule;
@@ -236,7 +238,7 @@ enum CustomFieldValidationRule: string implements HasLabel
                 function ($attribute, $value, $fail) {
                     try {
                         preg_match('/' . $value . '/', 'test');
-                    } catch (\Exception $e) {
+                    } catch (Exception $e) {
                         $fail(__('custom-fields::custom-fields.validation.invalid_regex_pattern'));
                     }
                 },
@@ -268,7 +270,7 @@ enum CustomFieldValidationRule: string implements HasLabel
     {
         // For rules requiring exactly 2 parameters, strictly enforce that
         if ($this->allowedParameterCount() === 2 && $parameterIndex > 1) {
-            throw new \InvalidArgumentException(
+            throw new InvalidArgumentException(
                 __('custom-fields::custom-fields.validation.multi_parameter_missing')
             );
         }
@@ -280,18 +282,18 @@ enum CustomFieldValidationRule: string implements HasLabel
             self::BETWEEN => match ($parameterIndex) {
                 0 => __('custom-fields::custom-fields.validation.parameter_help.between.min'),
                 1 => __('custom-fields::custom-fields.validation.parameter_help.between.max'),
-                default => throw new \InvalidArgumentException(__('custom-fields::custom-fields.validation.between_validation_error')),
+                default => throw new InvalidArgumentException(__('custom-fields::custom-fields.validation.between_validation_error')),
             },
             self::DIGITS => __('custom-fields::custom-fields.validation.parameter_help.digits'),
             self::DIGITS_BETWEEN => match ($parameterIndex) {
                 0 => __('custom-fields::custom-fields.validation.parameter_help.digits_between.min'),
                 1 => __('custom-fields::custom-fields.validation.parameter_help.digits_between.max'),
-                default => throw new \InvalidArgumentException(__('custom-fields::custom-fields.validation.digits_between_validation_error')),
+                default => throw new InvalidArgumentException(__('custom-fields::custom-fields.validation.digits_between_validation_error')),
             },
             self::DECIMAL => match ($parameterIndex) {
                 0 => __('custom-fields::custom-fields.validation.parameter_help.decimal.min'),
                 1 => __('custom-fields::custom-fields.validation.parameter_help.decimal.max'),
-                default => throw new \InvalidArgumentException(__('custom-fields::custom-fields.validation.decimal_validation_error')),
+                default => throw new InvalidArgumentException(__('custom-fields::custom-fields.validation.decimal_validation_error')),
             },
             self::DATE_FORMAT => __('custom-fields::custom-fields.validation.parameter_help.date_format'),
             self::AFTER => __('custom-fields::custom-fields.validation.parameter_help.after'),
@@ -323,7 +325,7 @@ enum CustomFieldValidationRule: string implements HasLabel
         if ($ruleEnum && $ruleEnum->allowedParameterCount() === 2) {
             // Ensure we don't allow more than 2 parameters
             if ($parameterIndex > 1) {
-                throw new \InvalidArgumentException(__('custom-fields::custom-fields.validation.multi_parameter_missing'));
+                throw new InvalidArgumentException(__('custom-fields::custom-fields.validation.multi_parameter_missing'));
             }
 
             return $ruleEnum->getParameterValidationRule($parameterIndex);
@@ -372,7 +374,7 @@ enum CustomFieldValidationRule: string implements HasLabel
         
         // For multi-parameter rules, ensure both parameters exist
         if ($enum->allowedParameterCount() === 2 && $parameterIndex > 1) {
-            throw new \InvalidArgumentException(
+            throw new InvalidArgumentException(
                 __('custom-fields::custom-fields.validation.multi_parameter_missing')
             );
         }

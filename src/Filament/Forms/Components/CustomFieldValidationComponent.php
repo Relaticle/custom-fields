@@ -4,17 +4,22 @@ declare(strict_types=1);
 
 namespace Relaticle\CustomFields\Filament\Forms\Components;
 
+use Filament\Schemas\Components\Component;
+use Filament\Forms\Components\Repeater;
+use Filament\Schemas\Components\Grid;
+use Filament\Forms\Components\Select;
+use Filament\Schemas\Components\Utilities\Get;
+use Filament\Schemas\Components\Utilities\Set;
+use Filament\Forms\Components\Placeholder;
+use Filament\Forms\Components\TextInput;
 use Filament\Forms;
-use Filament\Forms\Components\Component;
-use Filament\Forms\Get;
-use Filament\Forms\Set;
 use Relaticle\CustomFields\Enums\CustomFieldType;
 use Relaticle\CustomFields\Enums\CustomFieldValidationRule;
 use Illuminate\Support\Str;
 
 final class CustomFieldValidationComponent extends Component
 {
-    protected string $view = 'filament-forms::components.group';
+    protected string $view = 'filament-schemas::components.grid';
 
     public function __construct()
     {
@@ -30,14 +35,14 @@ final class CustomFieldValidationComponent extends Component
         return app(self::class);
     }
 
-    private function buildValidationRulesRepeater(): Forms\Components\Repeater
+    private function buildValidationRulesRepeater(): Repeater
     {
-        return Forms\Components\Repeater::make('validation_rules')
+        return Repeater::make('validation_rules')
             ->label(__('custom-fields::custom-fields.field.form.validation.rules'))
             ->schema([
-                Forms\Components\Grid::make(3)
+                Grid::make(3)
                     ->schema([
-                        Forms\Components\Select::make('name')
+                        Select::make('name')
                             ->label(__('custom-fields::custom-fields.field.form.validation.rule'))
                             ->placeholder('Select Rule')
                             ->options(function (Get $get) {
@@ -75,7 +80,7 @@ final class CustomFieldValidationComponent extends Component
                                 }
                             })
                             ->columnSpan(1),
-                        Forms\Components\Placeholder::make('description')
+                        Placeholder::make('description')
                             ->label(__('custom-fields::custom-fields.field.form.validation.description'))
                             ->content(fn (Get $get): string => CustomFieldValidationRule::getDescriptionForRule($get('name')))
                             ->columnSpan(2),
@@ -102,21 +107,21 @@ final class CustomFieldValidationComponent extends Component
             ->columnSpanFull();
     }
 
-    private function buildRuleParametersRepeater(): Forms\Components\Repeater
+    private function buildRuleParametersRepeater(): Repeater
     {
-        return Forms\Components\Repeater::make('parameters')
+        return Repeater::make('parameters')
             ->label(__('custom-fields::custom-fields.field.form.validation.parameters'))
             ->simple(
-                Forms\Components\TextInput::make('value')
+                TextInput::make('value')
                     ->label(__('custom-fields::custom-fields.field.form.validation.parameters_value'))
                     ->required()
                     ->hiddenLabel()
-                    ->rules(function (Get $get, $record, $state, Forms\Components\Component $component): array {
+                    ->rules(function (Get $get, $record, $state, Component $component): array {
                         $ruleName = $get('../../name');
                         $parameterIndex = $this->getParameterIndex($component);
                         return CustomFieldValidationRule::getParameterValidationRuleFor($ruleName, $parameterIndex);
                     })
-                    ->hint(function (Get $get, Forms\Components\Component $component): string {
+                    ->hint(function (Get $get, Component $component): string {
                         $ruleName = $get('../../name');
                         if (empty($ruleName)) {
                             return '';
@@ -125,7 +130,7 @@ final class CustomFieldValidationComponent extends Component
 
                         return CustomFieldValidationRule::getParameterHelpTextFor($ruleName, $parameterIndex);
                     })
-                    ->afterStateHydrated(function (Get $get, Set $set, $state, Forms\Components\Component $component): void {
+                    ->afterStateHydrated(function (Get $get, Set $set, $state, Component $component): void {
                         if ($state === null) {
                             return;
                         }
@@ -138,7 +143,7 @@ final class CustomFieldValidationComponent extends Component
                         
                         $set('value', $this->normalizeParameterValue($ruleName, (string) $state, $parameterIndex));
                     })
-                    ->dehydrateStateUsing(function (Get $get, $state, Forms\Components\Component $component) {
+                    ->dehydrateStateUsing(function (Get $get, $state, Component $component) {
                         if ($state === null) {
                             return null;
                         }
@@ -256,10 +261,10 @@ final class CustomFieldValidationComponent extends Component
     /**
      * Get the parameter index from a component within a repeater.
      *
-     * @param Forms\Components\Component $component The component to get the index for
+     * @param \Filament\Schemas\Components\Component $component The component to get the index for
      * @return int The zero-based index of the parameter
      */
-    private function getParameterIndex(Forms\Components\Component $component): int
+    private function getParameterIndex(Component $component): int
     {
         $statePath = $component->getStatePath();
 

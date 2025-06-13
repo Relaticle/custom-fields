@@ -28,7 +28,7 @@ class ActivableScope implements Scope
     /**
      * Extend the query builder with the needed functions.
      *
-     * @param  \Illuminate\Database\Eloquent\Builder<*>  $builder
+     * @param Builder<*> $builder
      */
     public function extend(Builder $builder): void
     {
@@ -47,7 +47,7 @@ class ActivableScope implements Scope
     /**
      * Add the with-trashed extension to the builder.
      *
-     * @param  \Illuminate\Database\Eloquent\Builder<*>  $builder
+     * @param Builder<*> $builder
      * @return void
      */
     protected function addWithDeactivated(Builder $builder)
@@ -64,7 +64,7 @@ class ActivableScope implements Scope
     /**
      * Add the without-trashed extension to the builder.
      *
-     * @param  \Illuminate\Database\Eloquent\Builder<*>  $builder
+     * @param Builder<*> $builder
      * @return void
      */
     protected function addWithoutDeactivated(Builder $builder)

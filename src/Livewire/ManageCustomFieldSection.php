@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Relaticle\CustomFields\Livewire;
 
+use Filament\Support\Enums\Size;
 use Filament\Actions\Action;
 use Filament\Actions\ActionGroup;
 use Filament\Actions\Concerns\InteractsWithActions;
@@ -11,7 +12,6 @@ use Filament\Actions\Contracts\HasActions;
 use Filament\Facades\Filament;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
-use Filament\Support\Enums\ActionSize;
 use Livewire\Attributes\Computed;
 use Livewire\Attributes\On;
 use Livewire\Component;
@@ -82,7 +82,7 @@ class ManageCustomFieldSection extends Component implements HasActions, HasForms
             ->icon('heroicon-o-pencil')
             ->model(CustomFields::sectionModel())
             ->record($this->section)
-            ->form(SectionForm::entityType($this->entityType)->schema())
+            ->schema(SectionForm::entityType($this->entityType)->schema())
             ->fillForm($this->section->toArray())
             ->action(fn (array $data) => $this->section->update($data))
             ->modalWidth('max-w-2xl');
@@ -122,14 +122,14 @@ class ManageCustomFieldSection extends Component implements HasActions, HasForms
     public function createFieldAction(): Action
     {
         return Action::make('createField')
-            ->size(ActionSize::ExtraSmall)
+            ->size(Size::ExtraSmall)
             ->label(__('custom-fields::custom-fields.field.form.add_field'))
             ->model(CustomFields::customFieldModel())
-            ->form(FieldForm::schema(withOptionsRelationship: false))
+            ->schema(FieldForm::schema(withOptionsRelationship: false))
             ->fillForm([
                 'entity_type' => $this->entityType,
             ])
-            ->mutateFormDataUsing(function (array $data): array {
+            ->mutateDataUsing(function (array $data): array {
                 if (Utils::isTenantEnabled()) {
                     $data[config('custom-fields.column_names.tenant_foreign_key')] = Filament::getTenant()?->getKey();
                 }

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Relaticle\CustomFields;
 
+use Closure;
 use Filament\Actions\Action;
 use Filament\Contracts\Plugin;
 use Filament\Panel;
@@ -17,7 +18,7 @@ class CustomFieldsPlugin implements Plugin
 {
     use EvaluatesClosures;
 
-    protected bool|\Closure $authorizeUsing = true;
+    protected bool|Closure $authorizeUsing = true;
 
     public function getId(): string
     {
@@ -63,7 +64,7 @@ class CustomFieldsPlugin implements Plugin
         return $plugin;
     }
 
-    public function authorize(bool|\Closure $callback = true): static
+    public function authorize(bool|Closure $callback = true): static
     {
         $this->authorizeUsing = $callback;
 

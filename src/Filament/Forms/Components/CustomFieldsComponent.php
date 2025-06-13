@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Relaticle\CustomFields\Filament\Forms\Components;
 
-use Filament\Forms\Components\Component;
+use Filament\Schemas\Components\Component;
 use Filament\Forms\Components\Field;
 use Relaticle\CustomFields\CustomFields;
 use Relaticle\CustomFields\Filament\Forms\Components\CustomFieldsComponent\FieldComponentFactory;
@@ -14,7 +14,7 @@ use Relaticle\CustomFields\Models\CustomFieldSection;
 
 final class CustomFieldsComponent extends Component
 {
-    protected string $view = 'filament-forms::components.group';
+    protected string $view = 'filament-schemas::components.grid';
 
     /**
      * @var array<int, Field>|null

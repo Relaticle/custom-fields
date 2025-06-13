@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Relaticle\CustomFields\Services;
 
+use Exception;
 use Filament\Facades\Filament;
 use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Support\Collection;
@@ -63,7 +64,7 @@ abstract class AbstractOptionsService
             $modelInstance = app($model);
 
             return $modelInstance->getMorphClass();
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return $model;
         }
     }

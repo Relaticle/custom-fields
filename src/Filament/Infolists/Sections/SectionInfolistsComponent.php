@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Relaticle\CustomFields\Filament\Infolists\Sections;
 
-use Filament\Infolists\Components\Section;
+use Filament\Schemas\Components\Section;
 use Relaticle\CustomFields\Filament\Infolists\SectionInfolistsComponentInterface;
 use Relaticle\CustomFields\Models\CustomFieldSection;
 

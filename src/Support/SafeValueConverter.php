@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Relaticle\CustomFields\Support;
 
+use Exception;
 use Illuminate\Support\Facades\Log;
 use Relaticle\CustomFields\Enums\CustomFieldType;
 
@@ -128,7 +129,7 @@ class SafeValueConverter
                 if (is_array($decoded)) {
                     return $decoded;
                 }
-            } catch (\Exception $e) {
+            } catch (Exception $e) {
                 Log::warning("Failed to decode JSON value: {$e->getMessage()}");
             }
             

@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Relaticle\CustomFields\Filament\Forms\Components\CustomFieldsComponent\Fields;
 
+use ReflectionException;
+use Throwable;
 use Filament\Forms\Components\Field;
 use Filament\Forms\Components\TagsInput;
 use Relaticle\CustomFields\Filament\Forms\Components\CustomFieldsComponent\FieldComponentInterface;
@@ -16,8 +18,8 @@ final readonly class TagsInputComponent implements FieldComponentInterface
     public function __construct(private FieldConfigurator $configurator) {}
 
     /**
-     * @throws \ReflectionException
-     * @throws \Throwable
+     * @throws ReflectionException
+     * @throws Throwable
      */
     public function make(CustomField $customField): Field
     {

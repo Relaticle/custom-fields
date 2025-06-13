@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Relaticle\CustomFields\Commands;
 
+use Log;
 use Illuminate\Console\Command;
 use Illuminate\Pipeline\Pipeline;
 use Relaticle\CustomFields\Commands\Upgrade\UpdateDatabaseSchema;
@@ -50,7 +51,7 @@ class UpgradeCommand extends Command
             $this->error('An error occurred during the upgrade process:');
             $this->error($e->getMessage());
 
-            \Log::error('Custom Fields Upgrade Error:', [
+            Log::error('Custom Fields Upgrade Error:', [
                 'message' => $e->getMessage(),
                 'trace' => $e->getTraceAsString(),
             ]);

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Relaticle\CustomFields\Commands;
 
+use Exception;
 use Illuminate\Console\Command;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\DB;
@@ -88,7 +89,7 @@ class OptimizeDatabaseCommand extends Command
             $this->info('Database optimization completed successfully!');
             $this->info('You may need to restart your application for the changes to take effect.');
             return 0;
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             DB::rollBack();
             $this->error('An error occurred during database optimization:');
             $this->error($e->getMessage());

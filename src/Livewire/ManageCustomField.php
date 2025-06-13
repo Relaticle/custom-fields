@@ -41,7 +41,7 @@ class ManageCustomField extends Component implements HasActions, HasForms
             ->icon('heroicon-o-pencil')
             ->model(CustomFields::customFieldModel())
             ->record($this->field)
-            ->form(FieldForm::schema())
+            ->schema(FieldForm::schema())
             ->fillForm($this->field->toArray())
             ->action(fn (array $data) => $this->field->update($data))
             ->slideOver();

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Relaticle\CustomFields\Filament\Forms\Components\CustomFieldsComponent\Sections;
 
-use Filament\Forms\Components\Fieldset;
+use Filament\Schemas\Components\Fieldset;
 use Relaticle\CustomFields\Filament\Forms\Components\CustomFieldsComponent\SectionComponentInterface;
 use Relaticle\CustomFields\Models\CustomFieldSection;
 
