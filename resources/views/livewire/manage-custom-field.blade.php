@@ -1,4 +1,4 @@
-<x-filament::grid.column default="{{ $field->width->getSpanValue() }}" x-sortable-item="{{ $field->id }}">
+<div default="{{ $field->width->getSpanValue() }}" x-sortable-item="{{ $field->id }}">
     <x-filament::section
         compact
     >
@@ -40,4 +40,4 @@
 
     <x-filament-actions::modals/>
 
-</x-filament::grid.column>
+</div>

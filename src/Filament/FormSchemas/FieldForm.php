@@ -70,11 +70,13 @@ class FieldForm implements FormInterface
                 return $data;
             });
 
+
         if ($withOptionsRelationship) {
             $optionsRepeater = $optionsRepeater->relationship();
         }
 
         $optionsRepeater->reorderable()->orderColumn('sort_order');
+
 
         return [
             Tabs::make()
@@ -250,10 +252,10 @@ class FieldForm implements FormInterface
                                     $optionsRepeater,
                                 ]),
                         ]),
-                    Tab::make(__('custom-fields::custom-fields.field.form.validation.label'))
-                        ->schema([
-                            CustomFieldValidationComponent::make(),
-                        ]),
+//                    Tab::make(__('custom-fields::custom-fields.field.form.validation.label'))
+//                        ->schema([
+//                            CustomFieldValidationComponent::make(),
+//                        ]),
                 ])
                 ->columns(2)
                 ->columnSpanFull()

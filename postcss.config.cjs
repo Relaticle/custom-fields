@@ -1,9 +1,6 @@
 module.exports = {
     plugins: {
-        "postcss-import": {},
-        "tailwindcss/nesting": {},
-        tailwindcss: {},
-        autoprefixer: {},
+        '@tailwindcss/postcss': {},
         "postcss-prefix-selector": {
             prefix: '.custom-fields-component',
         },

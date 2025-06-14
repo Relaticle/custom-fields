@@ -1,1 +1,3 @@
+// resources/js/index.js
 console.log(1);
+//# sourceMappingURL=data:application/json;base64,ewogICJ2ZXJzaW9uIjogMywKICAic291cmNlcyI6IFsiLi4vanMvaW5kZXguanMiXSwKICAic291cmNlc0NvbnRlbnQiOiBbImNvbnNvbGUubG9nKDEpXG4iXSwKICAibWFwcGluZ3MiOiAiO0FBQUEsUUFBUSxJQUFJLENBQUM7IiwKICAibmFtZXMiOiBbXQp9Cg==
