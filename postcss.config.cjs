@@ -4,5 +4,6 @@ module.exports = {
         "postcss-prefix-selector": {
             prefix: '.custom-fields-component',
         },
+        ...(process.env.NODE_ENV === 'production' ? { cssnano: {} } : {}),
     },
 }

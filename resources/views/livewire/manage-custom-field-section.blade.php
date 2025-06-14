@@ -31,7 +31,7 @@
             data-section-id="{{ $section->id }}"
             default="12"
             class="fi-sc  fi-sc-has-gap fi-grid lg:fi-grid-cols"
-            style="--cols-lg: repeat(2, minmax(0, 1fr)); --cols-default: repeat(1, minmax(0, 1fr));"
+            style="--cols-lg: repeat(12, minmax(0, 12fr)); --cols-default: repeat(2, minmax(0, 1fr));"
             @end.stop="$wire.updateFieldsOrder($event.to.getAttribute('data-section-id'), $event.to.sortable.toArray())"
     >
         @foreach ($this->fields as $field)
@@ -39,7 +39,7 @@
         @endforeach
 
         @if(!count($this->fields))
-            <div>
+            <div class="fi-grid-col" style="--col-span-default: span 12 / span 12;">
                 <x-filament::icon icon="heroicon-o-x-mark"/>
 
                 <span class="text-gray-500 dark:text-gray-400">
@@ -48,7 +48,7 @@
 
                 <span class="text-gray-500 dark:text-gray-400">
                     Add or drag fields here.
-                <span>
+                </span>
             </div>
         @endempty
     </div>
