@@ -1,6 +1,7 @@
 <div
         id="{{ $field->id }}"
-        class="fi-section fi-compact fi-section-header {{ $field->width->getSpanValue() }}"
+        class="fi-section fi-grid-col fi-compact fi-section-header"
+        style="--col-span-default: span {{ $field->width->getSpanValue() }} / span 12;"
         x-sortable-item="{{ $field->id }}"
         compact
 >

@@ -30,7 +30,8 @@
             x-sortable-group="fields"
             data-section-id="{{ $section->id }}"
             default="12"
-            class="fi-grid fi-sc  fi-sc-has-gap fi-grid"
+            class="fi-sc  fi-sc-has-gap fi-grid lg:fi-grid-cols"
+            style="--cols-lg: repeat(2, minmax(0, 1fr)); --cols-default: repeat(1, minmax(0, 1fr));"
             @end.stop="$wire.updateFieldsOrder($event.to.getAttribute('data-section-id'), $event.to.sortable.toArray())"
     >
         @foreach ($this->fields as $field)
