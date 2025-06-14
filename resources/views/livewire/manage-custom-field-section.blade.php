@@ -25,29 +25,32 @@
     </x-slot>
 
 
-{{--    <x-filament-schemas::grid--}}
-{{--            x-sortable--}}
-{{--            x-sortable-group="fields"--}}
-{{--            data-section-id="{{ $section->id }}"--}}
-{{--            default="12"--}}
-{{--            class="gap-4"--}}
-{{--            @end.stop="$wire.updateFieldsOrder($event.to.getAttribute('data-section-id'), $event.to.sortable.toArray())"--}}
-{{--    >--}}
+    <div
+            x-sortable
+            x-sortable-group="fields"
+            data-section-id="{{ $section->id }}"
+            default="12"
+            class="fi-grid fi-sc  fi-sc-has-gap fi-grid"
+            @end.stop="$wire.updateFieldsOrder($event.to.getAttribute('data-section-id'), $event.to.sortable.toArray())"
+    >
         @foreach ($this->fields as $field)
             @livewire('manage-custom-field', ['field' => $field], key($field->id . $field->width->value . str()->random(16)))
         @endforeach
 
-{{--        @if(!count($this->fields))--}}
-{{--            --}}{{--            <x-filament::grid.column default="12">--}}
-{{--            --}}{{--                <x-filament-tables::empty-state--}}
-{{--            --}}{{--                    icon="heroicon-o-x-mark"--}}
-{{--            --}}{{--                    heading="No fields"--}}
-{{--            --}}{{--                    description="Add or drag fields here"--}}
-{{--            --}}{{--                />--}}
-{{--            --}}{{--            </x-filament::grid.column>--}}
-{{--            -- Empty state for no fields yet ----}}
-{{--        @endempty--}}
-{{--    </x-filament-schemas::grid>--}}
+        @if(!count($this->fields))
+            <div>
+                <x-filament::icon icon="heroicon-o-x-mark"/>
+
+                <span class="text-gray-500 dark:text-gray-400">
+                    No fields added yet.
+                </span>
+
+                <span class="text-gray-500 dark:text-gray-400">
+                    Add or drag fields here.
+                <span>
+            </div>
+        @endempty
+    </div>
 
     <x-slot name="footer">
         {{ $this->createFieldAction() }}

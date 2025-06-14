@@ -11,6 +11,7 @@ use Filament\Actions\Concerns\InteractsWithRecord;
 use Filament\Actions\Contracts\HasActions;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
+use Filament\Support\Enums\Width;
 use Illuminate\View\View;
 use Livewire\Component;
 use Relaticle\CustomFields\CustomFields;
@@ -44,6 +45,7 @@ class ManageCustomField extends Component implements HasActions, HasForms
             ->schema(FieldForm::schema())
             ->fillForm($this->field->toArray())
             ->action(fn (array $data) => $this->field->update($data))
+            ->modalWidth(Width::ScreenLarge)
             ->slideOver();
     }
 

@@ -162,6 +162,7 @@ class ManageCustomFieldSection extends Component implements HasActions, HasForms
 
                 $customField->options()->createMany($options);
             })
+            ->modalWidth(Width::ScreenLarge)
             ->slideOver();
     }
 
