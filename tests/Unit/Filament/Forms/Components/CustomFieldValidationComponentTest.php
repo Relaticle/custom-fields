@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Relaticle\CustomFields\Tests\Unit\Filament\Forms\Components;
 
-use Filament\Forms\Components\Component;
+use Filament\Schemas\Components\Component;
 use Filament\Forms\Components\Repeater;
 use Relaticle\CustomFields\Filament\Forms\Components\CustomFieldValidationComponent;
 use Relaticle\CustomFields\Tests\TestCase;
@@ -16,7 +16,7 @@ class CustomFieldValidationComponentTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->component = new CustomFieldValidationComponent();
+        $this->component = CustomFieldValidationComponent::make();
     }
 
     /** @test */
@@ -32,7 +32,7 @@ class CustomFieldValidationComponentTest extends TestCase
         $viewProperty = $reflection->getProperty('view');
         $viewProperty->setAccessible(true);
         
-        expect($viewProperty->getValue($this->component))->toBe('filament-forms::components.group');
+        expect($viewProperty->getValue($this->component))->toBe('filament-schemas::components.grid');
     }
 
     /** @test */

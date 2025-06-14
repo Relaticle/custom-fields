@@ -20,6 +20,7 @@ use Relaticle\CustomFields\Filament\FormSchemas\FieldForm;
 use Relaticle\CustomFields\Filament\FormSchemas\SectionForm;
 use Relaticle\CustomFields\Models\CustomFieldSection;
 use Relaticle\CustomFields\Support\Utils;
+use Filament\Support\Enums\Width;
 
 class ManageCustomFieldSection extends Component implements HasActions, HasForms
 {
@@ -85,7 +86,7 @@ class ManageCustomFieldSection extends Component implements HasActions, HasForms
             ->schema(SectionForm::entityType($this->entityType)->schema())
             ->fillForm($this->section->toArray())
             ->action(fn (array $data) => $this->section->update($data))
-            ->modalWidth('max-w-2xl');
+            ->modalWidth(Width::ExtraLarge);
     }
 
     public function activateAction(): Action

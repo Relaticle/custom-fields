@@ -261,7 +261,7 @@ final class CustomFieldValidationComponent extends Component
     /**
      * Get the parameter index from a component within a repeater.
      *
-     * @param \Filament\Schemas\Components\Component $component The component to get the index for
+     * @param Component $component The component to get the index for
      * @return int The zero-based index of the parameter
      */
     private function getParameterIndex(Component $component): int
