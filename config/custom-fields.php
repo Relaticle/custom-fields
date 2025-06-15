@@ -14,6 +14,9 @@ return [
         'encryption' => [
             'enabled' => true,
         ],
+        'select_option_colors' => [
+            'enabled' => true,
+        ],
     ],
 
     /*

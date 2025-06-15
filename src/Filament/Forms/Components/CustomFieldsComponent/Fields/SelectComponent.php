@@ -10,6 +10,7 @@ use Relaticle\CustomFields\Filament\Forms\Components\CustomFieldsComponent\Field
 use Relaticle\CustomFields\Filament\Forms\Components\CustomFieldsComponent\FieldConfigurator;
 use Relaticle\CustomFields\Models\CustomField;
 use Relaticle\CustomFields\Services\FilamentResourceService;
+use Relaticle\CustomFields\Support\Utils;
 use Throwable;
 
 final readonly class SelectComponent implements FieldComponentInterface
@@ -28,7 +29,37 @@ final readonly class SelectComponent implements FieldComponentInterface
         if ($customField->lookup_type) {
             $field = $this->configureLookup($field, $customField->lookup_type);
         } else {
-            $field->options($customField->options->pluck('name', 'id')->all());
+            $options = $customField->options->pluck('name', 'id')->all();
+            $field->options($options);
+
+            // Add color support if enabled
+            if (Utils::isSelectOptionColorsFeatureEnabled() && $customField->settings->enable_option_colors) {
+                $coloredOptions = $customField->options
+                    ->mapWithKeys(function ($option) {
+                        $color = $option->settings?->color;
+                        $text = $option->name;
+
+                        if ($color) {
+                            return [
+                                $option->id => str(
+                                    '<div class="flex items-center gap-2">
+                                    <span class="w-3 h-3 rounded-full" style="background-color:{BACKGROUND_COLOR}"></span>
+                                    <span>{LABEL}</span>
+                                    </div>'
+                                )
+                                    ->replace(['{BACKGROUND_COLOR}', '{LABEL}'], [e($color), e($text)])
+                            ];
+                        }
+
+                        return [$option->id => $text];
+                    })
+                    ->all();
+
+                $field
+                    ->native(false)
+                    ->allowHtml()
+                    ->options($coloredOptions);
+            }
         }
 
         /** @var Select */

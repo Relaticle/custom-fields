@@ -5,26 +5,89 @@ declare(strict_types=1);
 namespace Relaticle\CustomFields\Filament\Forms\Components;
 
 use Filament\Forms\Components\Select;
+use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Cache;
 use Relaticle\CustomFields\Enums\CustomFieldType;
+use Throwable;
 
 class TypeField extends Select
 {
+    /**
+     * Set up the component with a custom configuration.
+     */
     protected function setUp(): void
     {
         parent::setUp();
 
         $this->native(false)
+            ->searchable()
             ->allowHtml()
-            ->options(fn (): array => collect(CustomFieldType::options())->mapWithKeys(fn ($name, $value) => [$value => $this->getHtmlOption($name, $value)])->toArray());
+            ->preload()
+            ->getSearchResultsUsing(fn (string $search): array => $this->getFilteredOptions($search))
+            ->options(fn (): array => $this->getAllFormattedOptions());
     }
 
-    public function getHtmlOption($name, $value)
+    /**
+     * Get filtered options based on search query.
+     *
+     * @param string|null $search
+     * @return array<string, string>
+     */
+    protected function getFilteredOptions(?string $search = null): array
     {
-        return view('custom-fields::filament.forms.type-field')
-            ->with('label', $name)
-            ->with('value', $value)
-            ->with('icon', CustomFieldType::tryFrom($value)->getIcon())
-            ->with('selected', $this->getState())
-            ->render();
+        // If search is null or empty string, return all options
+        if ($search === null || trim($search) === '' || strlen($search) < 2) {
+            return $this->getAllFormattedOptions();
+        }
+        
+        return CustomFieldType::optionsForSelect()
+            ->filter(fn (array $data): bool => stripos($data['label'], $search) !== false)
+            ->mapWithKeys(
+                fn (array $data): array => [
+                    $data['value'] => $this->getHtmlOption($data)
+                ]
+            )
+            ->toArray();
+    }
+
+    /**
+     * Get all formatted options.
+     *
+     * @return array<string, string>
+     */
+    protected function getAllFormattedOptions(): array
+    {
+        return CustomFieldType::optionsForSelect()
+            ->mapWithKeys(
+                fn (array $data): array => [
+                    $data['value'] => $this->getHtmlOption($data)
+                ]
+            )
+            ->toArray();
+    }
+
+    /**
+     * Render an HTML option for the select field.
+     *
+     * @param array{label: string, value: string, icon: string} $data
+     * @return string The rendered HTML for the option
+     * @throws Throwable
+     */
+    public function getHtmlOption(array $data): string
+    {
+        $cacheKey = "custom-fields-type-field-view-{$data['value']}";
+        
+        return Cache::remember(
+            key: $cacheKey, 
+            ttl: 60, 
+            callback: fn (): string => view('custom-fields::filament.forms.type-field')
+                ->with([
+                    'label' => $data['label'],
+                    'value' => $data['value'],
+                    'icon' => $data['icon'],
+                    'selected' => $this->getState(),
+                ])
+                ->render()
+        );
     }
 }

@@ -9,6 +9,7 @@ use Filament\Forms\Components\ToggleButtons;
 use Relaticle\CustomFields\Filament\Forms\Components\CustomFieldsComponent\FieldComponentInterface;
 use Relaticle\CustomFields\Filament\Forms\Components\CustomFieldsComponent\FieldConfigurator;
 use Relaticle\CustomFields\Models\CustomField;
+use Relaticle\CustomFields\Support\Utils;
 
 final readonly class ToggleButtonsComponent implements FieldComponentInterface
 {
@@ -18,7 +19,20 @@ final readonly class ToggleButtonsComponent implements FieldComponentInterface
     {
         $field = ToggleButtons::make("custom_fields.{$customField->code}")->inline(false);
 
-        $field->options($customField->options->pluck('name', 'id')->all());
+        $options = $customField->options->pluck('name', 'id')->all();
+        $field->options($options);
+        
+        // Add color support if enabled
+        if (Utils::isSelectOptionColorsFeatureEnabled() && $customField->settings->enable_option_colors) {
+            $optionsWithColor = $customField->options
+                ->filter(fn ($option) => $option->settings?->color)
+                ->mapWithKeys(fn ($option) => [$option->id => $option->settings->color])
+                ->all();
+                
+            if (count($optionsWithColor)) {
+                $field->colors($optionsWithColor);
+            }
+        }
 
         return $this->configurator->configure($field, $customField);
     }
