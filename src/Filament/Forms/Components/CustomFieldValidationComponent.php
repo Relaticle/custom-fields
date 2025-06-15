@@ -11,9 +11,7 @@ use Filament\Schemas\Components\Grid;
 use Filament\Forms\Components\Select;
 use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Components\Utilities\Set;
-use Filament\Forms\Components\Placeholder;
 use Filament\Forms\Components\TextInput;
-use Filament\Forms;
 use Relaticle\CustomFields\Enums\CustomFieldType;
 use Relaticle\CustomFields\Enums\CustomFieldValidationRule;
 use Illuminate\Support\Str;
@@ -71,7 +69,7 @@ final class CustomFieldValidationComponent extends Component
                                         return;
                                     }
 
-                                    // Create appropriate number of parameters based on rule requirements
+                                    // Create the appropriate number of parameters based on rule requirements
                                     $rule = CustomFieldValidationRule::tryFrom($state);
                                     if ($rule && $rule->allowedParameterCount() > 0) {
                                         $paramCount = $rule->allowedParameterCount();
