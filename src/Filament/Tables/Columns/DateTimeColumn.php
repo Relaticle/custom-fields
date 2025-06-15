@@ -11,7 +11,7 @@ use Filament\Tables\Columns\TextColumn as BaseTextColumn;
 use Illuminate\Database\Eloquent\Builder;
 use Relaticle\CustomFields\Enums\CustomFieldType;
 use Relaticle\CustomFields\Models\CustomField;
-use Relaticle\CustomFields\Queries\ColumnSearchableQuery;
+use Relaticle\CustomFields\QueryBuilders\ColumnSearchableQuery;
 use Relaticle\CustomFields\Support\FieldTypeUtils;
 
 class DateTimeColumn extends Component implements ColumnInterface

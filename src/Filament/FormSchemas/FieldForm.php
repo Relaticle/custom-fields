@@ -252,10 +252,11 @@ class FieldForm implements FormInterface
                                     $optionsRepeater,
                                 ]),
                         ]),
-//                    Tab::make(__('custom-fields::custom-fields.field.form.validation.label'))
-//                        ->schema([
-//                            CustomFieldValidationComponent::make(),
-//                        ]),
+                    Tab::make(__('custom-fields::custom-fields.field.form.validation.label'))
+                        ->visible(fn(Get $get): bool => !empty($get('type')))
+                        ->schema([
+                            CustomFieldValidationComponent::make(),
+                        ]),
                 ])
                 ->columns(2)
                 ->columnSpanFull()

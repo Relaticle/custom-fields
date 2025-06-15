@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Relaticle\CustomFields\Filament\Forms\Components;
 
+use Filament\Infolists\Components\TextEntry;
 use Filament\Schemas\Components\Component;
 use Filament\Forms\Components\Repeater;
 use Filament\Schemas\Components\Grid;
@@ -65,11 +66,11 @@ final class CustomFieldValidationComponent extends Component
                             ->afterStateUpdated(function (Get $get, Set $set, ?string $state, ?string $old): void {
                                 if ($old !== $state) {
                                     $set('parameters', []);
-                                    
+
                                     if (empty($state)) {
                                         return;
                                     }
-                            
+
                                     // Create appropriate number of parameters based on rule requirements
                                     $rule = CustomFieldValidationRule::tryFrom($state);
                                     if ($rule && $rule->allowedParameterCount() > 0) {
@@ -80,9 +81,9 @@ final class CustomFieldValidationComponent extends Component
                                 }
                             })
                             ->columnSpan(1),
-                        Placeholder::make('description')
+                        TextEntry::make('description')
                             ->label(__('custom-fields::custom-fields.field.form.validation.description'))
-                            ->content(fn (Get $get): string => CustomFieldValidationRule::getDescriptionForRule($get('name')))
+                            ->state(fn (Get $get): string => CustomFieldValidationRule::getDescriptionForRule($get('name')))
                             ->columnSpan(2),
                         $this->buildRuleParametersRepeater(),
                     ]),
@@ -95,12 +96,7 @@ final class CustomFieldValidationComponent extends Component
             ->deletable()
             ->cloneable()
             ->hintColor('danger')
-            ->addable(fn (Get $get): bool => $get('type') && CustomFieldType::tryFrom($get('type')))
-            ->hint(function (Get $get): string {
-                $isTypeSelected = $get('type') && CustomFieldType::tryFrom($get('type'));
-
-                return $isTypeSelected ? '' : __('custom-fields::custom-fields.field.form.validation.rules_hint');
-            })
+            ->addable(fn (Get $get): bool => !empty($get('type')))
             ->hiddenLabel()
             ->defaultItems(0)
             ->addActionLabel(__('custom-fields::custom-fields.field.form.validation.add_rule'))

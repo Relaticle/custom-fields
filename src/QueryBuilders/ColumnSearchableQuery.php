@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Relaticle\CustomFields\Queries;
+namespace Relaticle\CustomFields\QueryBuilders;
 
 use Illuminate\Database\Eloquent\Builder;
 use Relaticle\CustomFields\Models\CustomField;

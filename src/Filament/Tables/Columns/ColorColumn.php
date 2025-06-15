@@ -8,7 +8,7 @@ use Filament\Tables\Columns\ColorColumn as BaseColorColumn;
 use Filament\Tables\Columns\Column as BaseColumn;
 use Illuminate\Database\Eloquent\Builder;
 use Relaticle\CustomFields\Models\CustomField;
-use Relaticle\CustomFields\Queries\ColumnSearchableQuery;
+use Relaticle\CustomFields\QueryBuilders\ColumnSearchableQuery;
 
 final readonly class ColorColumn implements ColumnInterface
 {
