@@ -1,0 +1,22 @@
+{
+  "permissions": {
+    "allow": [
+      "WebFetch(domain:filamentphp.com)",
+      "Bash(grep:*)",
+      "Bash(rg:*)",
+      "Bash(composer install:*)",
+      "Bash(composer:*)",
+      "Bash(find:*)",
+      "Bash(vendor/bin/filament-v4:*)",
+      "WebFetch(domain:github.com)",
+      "Bash(ls:*)",
+      "Bash(npm install)",
+      "Bash(npm run build:styles:*)",
+      "Bash(npm run build:*)",
+      "Bash(NODE_ENV=production npm run build:styles)",
+      "Bash(timeout 10s npm run dev)",
+      "Bash(true)"
+    ],
+    "deny": []
+  }
+}
