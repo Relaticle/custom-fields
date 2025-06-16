@@ -35,6 +35,9 @@ class TestCase extends Orchestra
             }
         );
 
+        // Start session for Livewire tests
+        $this->startSession();
+
         $this->setUpFilament();
     }
 
@@ -50,6 +53,9 @@ class TestCase extends Orchestra
     protected function getPackageProviders($app): array
     {
         return [
+            // Spatie Laravel Data Service Provider
+            \Spatie\LaravelData\LaravelDataServiceProvider::class,
+            
             CustomFieldsServiceProvider::class,
             LivewireServiceProvider::class,
             BladeIconsServiceProvider::class,
@@ -92,17 +98,12 @@ class TestCase extends Orchestra
 
         // Filament configuration
         config()->set('app.key', 'base64:'.base64_encode(random_bytes(32)));
+        
+        // Fix Spatie Laravel Data configuration for testing
+        config()->set('data.throw_when_max_depth_reached', false);
+        config()->set('data.max_transformation_depth', null);
+        config()->set('data.validation_strategy', 'only_requests');
 
-        // Spatie Laravel Data configuration for testing
-        config()->set('data', [
-            'validation_strategy' => 'always',
-            'max_transformation_depth' => null,
-            'throw_when_max_depth_reached' => false,
-            'normalizers' => [],
-            'transformers' => [],
-            'casts' => [],
-            'rule_inferrers' => [],
-        ]);
     }
 
     protected function defineDatabaseMigrations(): void

@@ -123,6 +123,10 @@ trait UsesCustomFields
         }
 
         $customFieldValue = $customFieldValue->firstOrNew($data);
+        // Ensure the customField relationship is loaded
+        if (!$customFieldValue->relationLoaded('customField')) {
+            $customFieldValue->setRelation('customField', $customField);
+        }
         $customFieldValue->setValue($value);
         $customFieldValue->save();
     }

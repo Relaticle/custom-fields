@@ -34,15 +34,12 @@ final class CustomFieldFactory extends Factory
             'type' => $this->faker->randomElement(CustomFieldType::cases()),
             'entity_type' => 'App\\Models\\User',
             'sort_order' => $this->faker->numberBetween(0, 100),
-            'validation' => [],
-            'is_required' => $this->faker->boolean(),
+            'validation_rules' => [],
+            'active' => $this->faker->boolean(),
+            'system_defined' => false,
             'settings' => [
-                'visible_in_list' => true,
-                'visible_in_view' => true,
-                'searchable' => false,
                 'encrypted' => false,
             ],
-            'is_unique' => $this->faker->boolean(),
             'created_at' => Carbon::now(),
             'updated_at' => Carbon::now(),
         ];

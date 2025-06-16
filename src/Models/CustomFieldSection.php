@@ -7,10 +7,12 @@ namespace Relaticle\CustomFields\Models;
 use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 use Illuminate\Database\Eloquent\Attributes\ScopedBy;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Relaticle\CustomFields\CustomFields;
 use Relaticle\CustomFields\Data\CustomFieldSectionSettingsData;
+use Relaticle\CustomFields\Database\Factories\CustomFieldSectionFactory;
 use Relaticle\CustomFields\Enums\CustomFieldSectionType;
 use Relaticle\CustomFields\Models\Concerns\Activable;
 use Relaticle\CustomFields\Models\Scopes\SortOrderScope;
@@ -34,6 +36,9 @@ use Relaticle\CustomFields\Services\EntityTypeService;
 class CustomFieldSection extends Model
 {
     use Activable;
+
+    /** @use HasFactory<CustomFieldSectionFactory> */
+    use HasFactory;
 
     /**
      * @var array<int, string>
