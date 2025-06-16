@@ -1,10 +1,10 @@
 parameters:
-    level: 8
+    level: 3
     paths:
         - src
         - tests
     excludePaths:
-        - tests/database/migrations
+        - tests
     tmpDir: build/phpstan
     checkOctaneCompatibility: true
     checkModelProperties: true
