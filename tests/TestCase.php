@@ -21,6 +21,7 @@ use Orchestra\Testbench\TestCase as Orchestra;
 use Relaticle\CustomFields\CustomFieldsServiceProvider;
 use Relaticle\CustomFields\Tests\Factories\UserFactory;
 use Relaticle\CustomFields\Tests\Models\User;
+use Spatie\LaravelData\LaravelDataServiceProvider;
 
 class TestCase extends Orchestra
 {
@@ -54,14 +55,14 @@ class TestCase extends Orchestra
     {
         return [
             // Spatie Laravel Data Service Provider
-            \Spatie\LaravelData\LaravelDataServiceProvider::class,
-            
+            LaravelDataServiceProvider::class,
+//
             CustomFieldsServiceProvider::class,
             LivewireServiceProvider::class,
             BladeIconsServiceProvider::class,
             BladeHeroiconsServiceProvider::class,
-
-            // Filament Core Service Providers
+//
+//            // Filament Core Service Providers
             SupportServiceProvider::class,
             ActionsServiceProvider::class,
             FormsServiceProvider::class,

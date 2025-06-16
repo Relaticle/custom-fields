@@ -76,16 +76,16 @@ beforeEach(function () {
 });
 
 test('custom fields component renders in create form', function () {
-    $component = livewire(CreateUser::class)->assertOk();
-
-//    $component->assertSchemaExists();
-
-//    // Check that form contains custom fields section
-//    $component->assertFormFieldExists('name');
-//    $component->assertFormFieldExists('email');
-//
-//    // Test that custom fields are rendered (they use dynamic keys based on field ID)
-//    expect($component->instance()->getForm()->getSchema())->toHaveCount(2); // User Info + Custom Fields sections
+    Livewire::actingAs(User::factory()->create())
+        ->test(CreateUser::class)
+        ->assertOk()
+        ->assertFormFieldExists('name')
+        ->assertFormFieldExists('email')
+        ->assertFormFieldExists('password')
+        ->assertFormFieldExists("custom_field_{$this->textField->id}")
+        ->assertFormFieldExists("custom_field_{$this->numberField->id}")
+        ->assertFormFieldExists("custom_field_{$this->selectField->id}")
+        ->assertFormFieldExists("custom_field_{$this->checkboxField->id}");
 });
 
 test('can create user with custom field values', function () {
