@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Relaticle\CustomFields\Livewire;
 
-use Filament\Support\Enums\Size;
 use Filament\Actions\Action;
 use Filament\Actions\ActionGroup;
 use Filament\Actions\Concerns\InteractsWithActions;
@@ -12,6 +11,8 @@ use Filament\Actions\Contracts\HasActions;
 use Filament\Facades\Filament;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
+use Filament\Support\Enums\Size;
+use Filament\Support\Enums\Width;
 use Livewire\Attributes\Computed;
 use Livewire\Attributes\On;
 use Livewire\Component;
@@ -20,7 +21,6 @@ use Relaticle\CustomFields\Filament\FormSchemas\FieldForm;
 use Relaticle\CustomFields\Filament\FormSchemas\SectionForm;
 use Relaticle\CustomFields\Models\CustomFieldSection;
 use Relaticle\CustomFields\Support\Utils;
-use Filament\Support\Enums\Width;
 
 class ManageCustomFieldSection extends Component implements HasActions, HasForms
 {

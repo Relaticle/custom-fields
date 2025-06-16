@@ -4,14 +4,14 @@ declare(strict_types=1);
 
 namespace Relaticle\CustomFields\Filament\Forms\Components\CustomFieldsComponent\Fields;
 
-use ReflectionException;
-use Throwable;
 use Filament\Forms\Components\Field;
 use Filament\Forms\Components\TagsInput;
+use ReflectionException;
 use Relaticle\CustomFields\Filament\Forms\Components\CustomFieldsComponent\FieldComponentInterface;
 use Relaticle\CustomFields\Filament\Forms\Components\CustomFieldsComponent\FieldConfigurator;
 use Relaticle\CustomFields\Models\CustomField;
 use Relaticle\CustomFields\Services\FilamentResourceService;
+use Throwable;
 
 final readonly class TagsInputComponent implements FieldComponentInterface
 {

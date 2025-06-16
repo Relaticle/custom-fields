@@ -4,17 +4,17 @@ declare(strict_types=1);
 
 namespace Relaticle\CustomFields\Filament\Forms\Components;
 
+use Filament\Forms\Components\Repeater;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\TextInput;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Schemas\Components\Component;
-use Filament\Forms\Components\Repeater;
 use Filament\Schemas\Components\Grid;
-use Filament\Forms\Components\Select;
 use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Components\Utilities\Set;
-use Filament\Forms\Components\TextInput;
+use Illuminate\Support\Str;
 use Relaticle\CustomFields\Enums\CustomFieldType;
 use Relaticle\CustomFields\Enums\CustomFieldValidationRule;
-use Illuminate\Support\Str;
 
 final class CustomFieldValidationComponent extends Component
 {
@@ -94,7 +94,7 @@ final class CustomFieldValidationComponent extends Component
             ->deletable()
             ->cloneable()
             ->hintColor('danger')
-            ->addable(fn (Get $get): bool => !empty($get('type')))
+            ->addable(fn (Get $get): bool => ! empty($get('type')))
             ->hiddenLabel()
             ->defaultItems(0)
             ->addActionLabel(__('custom-fields::custom-fields.field.form.validation.add_rule'))
@@ -113,6 +113,7 @@ final class CustomFieldValidationComponent extends Component
                     ->rules(function (Get $get, $record, $state, Component $component): array {
                         $ruleName = $get('../../name');
                         $parameterIndex = $this->getParameterIndex($component);
+
                         return CustomFieldValidationRule::getParameterValidationRuleFor($ruleName, $parameterIndex);
                     })
                     ->hint(function (Get $get, Component $component): string {
@@ -128,26 +129,26 @@ final class CustomFieldValidationComponent extends Component
                         if ($state === null) {
                             return;
                         }
-                        
+
                         $ruleName = $get('../../name');
                         if (empty($ruleName)) {
                             return;
                         }
                         $parameterIndex = $this->getParameterIndex($component);
-                        
+
                         $set('value', $this->normalizeParameterValue($ruleName, (string) $state, $parameterIndex));
                     })
                     ->dehydrateStateUsing(function (Get $get, $state, Component $component) {
                         if ($state === null) {
                             return null;
                         }
-                        
+
                         $ruleName = $get('../../name');
                         if (empty($ruleName)) {
                             return $state;
                         }
                         $parameterIndex = $this->getParameterIndex($component);
-                        
+
                         return $this->normalizeParameterValue($ruleName, (string) $state, $parameterIndex);
                     }),
             )
@@ -159,12 +160,12 @@ final class CustomFieldValidationComponent extends Component
                     return 1;
                 }
                 $rule = CustomFieldValidationRule::tryFrom($ruleName);
-                
+
                 // For rules with specific parameter counts, ensure we have the right minimum
                 if ($rule && $rule->allowedParameterCount() > 0) {
                     return $rule->allowedParameterCount();
                 }
-                
+
                 return 1;
             })
             ->maxItems(fn (Get $get): int => CustomFieldValidationRule::getAllowedParametersCountForRule($get('name')))
@@ -175,9 +176,9 @@ final class CustomFieldValidationComponent extends Component
                     return true;
                 }
                 $rule = CustomFieldValidationRule::tryFrom($ruleName);
-            
+
                 // For rules with specific parameter counts, don't allow deleting if it would go below required count
-                return !($rule && $rule->allowedParameterCount() > 0 && count($get('parameters') ?? []) <= $rule->allowedParameterCount());
+                return ! ($rule && $rule->allowedParameterCount() > 0 && count($get('parameters') ?? []) <= $rule->allowedParameterCount());
             })
             ->defaultItems(function (Get $get): int {
                 $ruleName = $get('name');
@@ -185,12 +186,12 @@ final class CustomFieldValidationComponent extends Component
                     return 1;
                 }
                 $rule = CustomFieldValidationRule::tryFrom($ruleName);
-                
+
                 // For rules with specific parameter counts, create the right number by default
                 if ($rule && $rule->allowedParameterCount() > 0) {
                     return $rule->allowedParameterCount();
                 }
-                
+
                 return 1;
             })
             ->hint(function (Get $get) {
@@ -200,29 +201,25 @@ final class CustomFieldValidationComponent extends Component
                 }
                 $rule = CustomFieldValidationRule::tryFrom($ruleName);
                 $parameters = $get('parameters') ?? [];
-                
+
                 // Validate that rules have the correct number of parameters
                 if ($rule && $rule->allowedParameterCount() > 0 && count($parameters) < $rule->allowedParameterCount()) {
                     $requiredCount = $rule->allowedParameterCount();
-                    
+
                     // Special case handling for known rules
                     if ($requiredCount === 2) {
-                        return match($rule) {
-                            CustomFieldValidationRule::BETWEEN => 
-                                __('custom-fields::custom-fields.validation.between_validation_error'),
-                            CustomFieldValidationRule::DIGITS_BETWEEN => 
-                                __('custom-fields::custom-fields.validation.digits_between_validation_error'),
-                            CustomFieldValidationRule::DECIMAL => 
-                                __('custom-fields::custom-fields.validation.decimal_validation_error'),
-                            default => 
-                                __('custom-fields::custom-fields.validation.parameter_missing', ['count' => $requiredCount]),
+                        return match ($rule) {
+                            CustomFieldValidationRule::BETWEEN => __('custom-fields::custom-fields.validation.between_validation_error'),
+                            CustomFieldValidationRule::DIGITS_BETWEEN => __('custom-fields::custom-fields.validation.digits_between_validation_error'),
+                            CustomFieldValidationRule::DECIMAL => __('custom-fields::custom-fields.validation.decimal_validation_error'),
+                            default => __('custom-fields::custom-fields.validation.parameter_missing', ['count' => $requiredCount]),
                         };
                     }
-                    
+
                     // Generic message for other parameter counts
                     return __('custom-fields::custom-fields.validation.parameter_missing', ['count' => $requiredCount]);
                 }
-                
+
                 return null;
             })
             ->hintColor('danger')
@@ -238,24 +235,24 @@ final class CustomFieldValidationComponent extends Component
     {
         return collect($rules)->contains(fn (array $rule): bool => $rule['name'] === $newRule);
     }
-    
+
     /**
      * Normalize a parameter value based on the validation rule type.
-     * 
-     * @param string|null $ruleName The validation rule name
-     * @param string $value The parameter value to normalize
-     * @param int $parameterIndex The index of the parameter (0-based)
+     *
+     * @param  string|null  $ruleName  The validation rule name
+     * @param  string  $value  The parameter value to normalize
+     * @param  int  $parameterIndex  The index of the parameter (0-based)
      * @return string The normalized parameter value
      */
     private function normalizeParameterValue(?string $ruleName, string $value, int $parameterIndex = 0): string
     {
         return CustomFieldValidationRule::normalizeParameterValue($ruleName, $value, $parameterIndex);
     }
-    
+
     /**
      * Get the parameter index from a component within a repeater.
      *
-     * @param Component $component The component to get the index for
+     * @param  Component  $component  The component to get the index for
      * @return int The zero-based index of the parameter
      */
     private function getParameterIndex(Component $component): int
@@ -296,8 +293,7 @@ final class CustomFieldValidationComponent extends Component
                 }
             }
         }
-        
+
         return 0;
     }
 }
-

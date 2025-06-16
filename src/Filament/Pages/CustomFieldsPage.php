@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace Relaticle\CustomFields\Filament\Pages;
 
-use Filament\Support\Enums\Size;
-use Filament\Panel;
 use Filament\Actions\Action;
 use Filament\Facades\Filament;
 use Filament\Pages\Page;
+use Filament\Panel;
+use Filament\Support\Enums\Size;
 use Illuminate\Support\Collection;
 use Livewire\Attributes\Computed;
 use Livewire\Attributes\On;
@@ -23,7 +23,7 @@ use Relaticle\CustomFields\Support\Utils;
 
 class CustomFieldsPage extends Page
 {
-    protected static string | \BackedEnum | null $navigationIcon = 'heroicon-m-document-text';
+    protected static string|\BackedEnum|null $navigationIcon = 'heroicon-m-document-text';
 
     protected string $view = 'custom-fields::filament.pages.custom-fields-next';
 
@@ -88,7 +88,7 @@ class CustomFieldsPage extends Page
     public function updateSectionsOrder($sections): void
     {
         $sectionModel = CustomFieldsModel::newSectionModel();
-        
+
         foreach ($sections as $index => $section) {
             $sectionModel->query()
                 ->withDeactivated()

@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Relaticle\CustomFields\Filament\Forms\Components;
 
 use Filament\Forms\Components\Select;
-use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cache;
 use Relaticle\CustomFields\Enums\CustomFieldType;
 use Throwable;
@@ -30,7 +29,6 @@ class TypeField extends Select
     /**
      * Get filtered options based on search query.
      *
-     * @param string|null $search
      * @return array<string, string>
      */
     protected function getFilteredOptions(?string $search = null): array
@@ -39,12 +37,12 @@ class TypeField extends Select
         if ($search === null || trim($search) === '' || strlen($search) < 2) {
             return $this->getAllFormattedOptions();
         }
-        
+
         return CustomFieldType::optionsForSelect()
             ->filter(fn (array $data): bool => stripos($data['label'], $search) !== false)
             ->mapWithKeys(
                 fn (array $data): array => [
-                    $data['value'] => $this->getHtmlOption($data)
+                    $data['value'] => $this->getHtmlOption($data),
                 ]
             )
             ->toArray();
@@ -60,7 +58,7 @@ class TypeField extends Select
         return CustomFieldType::optionsForSelect()
             ->mapWithKeys(
                 fn (array $data): array => [
-                    $data['value'] => $this->getHtmlOption($data)
+                    $data['value'] => $this->getHtmlOption($data),
                 ]
             )
             ->toArray();
@@ -69,17 +67,18 @@ class TypeField extends Select
     /**
      * Render an HTML option for the select field.
      *
-     * @param array{label: string, value: string, icon: string} $data
+     * @param  array{label: string, value: string, icon: string}  $data
      * @return string The rendered HTML for the option
+     *
      * @throws Throwable
      */
     public function getHtmlOption(array $data): string
     {
         $cacheKey = "custom-fields-type-field-view-{$data['value']}";
-        
+
         return Cache::remember(
-            key: $cacheKey, 
-            ttl: 60, 
+            key: $cacheKey,
+            ttl: 60,
             callback: fn (): string => view('custom-fields::filament.forms.type-field')
                 ->with([
                     'label' => $data['label'],

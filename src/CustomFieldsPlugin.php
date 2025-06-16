@@ -32,7 +32,7 @@ class CustomFieldsPlugin implements Plugin
                 CustomFieldsPage::class,
             ])
             ->tenantMiddleware([SetTenantContextMiddleware::class], true)
-            ->discoverPages(in: __DIR__ . '/Filament/Pages', for: 'ManukMinasyan\\FilamentCustomField\\Filament\\Pages');
+            ->discoverPages(in: __DIR__.'/Filament/Pages', for: 'ManukMinasyan\\FilamentCustomField\\Filament\\Pages');
     }
 
     public function boot(Panel $panel): void
@@ -43,6 +43,7 @@ class CustomFieldsPlugin implements Plugin
                     return $action->before(
                         function (Action $action): Action {
                             TenantContextService::setFromFilamentTenant();
+
                             return $action;
                         }
                     );

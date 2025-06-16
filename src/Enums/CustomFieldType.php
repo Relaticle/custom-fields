@@ -58,7 +58,7 @@ enum CustomFieldType: string implements HasLabel
 
     public static function optionsForSelect(): Collection
     {
-        return Cache::remember('custom-fields.field-types.options-for-select', 60, fn() => collect(self::options())->map(fn($label, $value) => [
+        return Cache::remember('custom-fields.field-types.options-for-select', 60, fn () => collect(self::options())->map(fn ($label, $value) => [
             'label' => $label,
             'value' => $value,
             'icon' => self::icons()[$value],

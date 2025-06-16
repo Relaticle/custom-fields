@@ -16,8 +16,8 @@ final class BasicColumnConfigurator implements ColumnConfiguratorInterface
     /**
      * Configure a basic import column based on a custom field.
      *
-     * @param ImportColumn $column The column to configure
-     * @param CustomField $customField The custom field to base configuration on
+     * @param  ImportColumn  $column  The column to configure
+     * @param  CustomField  $customField  The custom field to base configuration on
      */
     public function configure(ImportColumn $column, CustomField $customField): void
     {
@@ -44,7 +44,7 @@ final class BasicColumnConfigurator implements ColumnConfiguratorInterface
     /**
      * Configure a currency column with special formatting.
      *
-     * @param ImportColumn $column The column to configure
+     * @param  ImportColumn  $column  The column to configure
      * @return ImportColumn The configured column
      */
     private function configureCurrencyColumn(ImportColumn $column): ImportColumn
@@ -66,8 +66,8 @@ final class BasicColumnConfigurator implements ColumnConfiguratorInterface
     /**
      * Set example values for a column based on the field type.
      *
-     * @param ImportColumn $column The column to set example for
-     * @param CustomField $customField The custom field to extract example values from
+     * @param  ImportColumn  $column  The column to set example for
+     * @param  CustomField  $customField  The custom field to extract example values from
      */
     private function setExampleValue(ImportColumn $column, CustomField $customField): void
     {

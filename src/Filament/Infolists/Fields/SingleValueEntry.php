@@ -17,19 +17,18 @@ final readonly class SingleValueEntry implements FieldInfolistsComponentInterfac
 {
     public function __construct(
         private FieldInfolistsConfigurator $configurator,
-        private LookupSingleValueResolver  $valueResolver
-    )
-    {
-    }
+        private LookupSingleValueResolver $valueResolver
+    ) {}
 
     public function make(CustomField $customField): Entry
     {
         $entry = BaseTextEntry::make("custom_fields.{$customField->code}");
 
-        if (Utils::isSelectOptionColorsFeatureEnabled() && $customField->settings->enable_option_colors && !$customField->lookup_type) {
+        if (Utils::isSelectOptionColorsFeatureEnabled() && $customField->settings->enable_option_colors && ! $customField->lookup_type) {
             $entry->badge()
                 ->color(function ($state) use ($customField): ?array {
                     $color = $customField->options->where('name', $state)->first()?->settings->color;
+
                     return Color::hex($color ?? '#000000');
                 });
         }
@@ -38,6 +37,6 @@ final readonly class SingleValueEntry implements FieldInfolistsComponentInterfac
             $entry,
             $customField
         )
-            ->state(fn($record) => $this->valueResolver->resolve($record, $customField));
+            ->state(fn ($record) => $this->valueResolver->resolve($record, $customField));
     }
 }

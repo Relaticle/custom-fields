@@ -6,14 +6,21 @@ namespace Relaticle\CustomFields\Tests;
 
 use BladeUI\Heroicons\BladeHeroiconsServiceProvider;
 use BladeUI\Icons\BladeIconsServiceProvider;
+use Filament\Actions\ActionsServiceProvider;
 use Filament\FilamentServiceProvider;
 use Filament\Forms\FormsServiceProvider;
+use Filament\Infolists\InfolistsServiceProvider;
+use Filament\Notifications\NotificationsServiceProvider;
+use Filament\Schemas\SchemasServiceProvider;
 use Filament\Support\SupportServiceProvider;
+use Filament\Tables\TablesServiceProvider;
+use Filament\Widgets\WidgetsServiceProvider;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Livewire\LivewireServiceProvider;
 use Orchestra\Testbench\TestCase as Orchestra;
 use Relaticle\CustomFields\CustomFieldsServiceProvider;
-use Relaticle\CustomFields\Data\CustomFieldSettingsData;
+use Relaticle\CustomFields\Tests\Factories\UserFactory;
+use Relaticle\CustomFields\Tests\Models\User;
 
 class TestCase extends Orchestra
 {
@@ -22,8 +29,22 @@ class TestCase extends Orchestra
         parent::setUp();
 
         Factory::guessFactoryNamesUsing(
-            fn (string $modelName) => 'Relaticle\\CustomFields\\Database\\Factories\\'.class_basename($modelName).'Factory'
+            fn (string $modelName) => match ($modelName) {
+                User::class => UserFactory::class,
+                default => 'Relaticle\\CustomFields\\Database\\Factories\\'.class_basename($modelName).'Factory'
+            }
         );
+
+        $this->setUpFilament();
+    }
+
+    protected function setUpFilament(): void
+    {
+        // In Filament V4, panels are configured through PanelProviders
+        // The TestPanelProvider will be automatically registered via getPackageProviders()
+
+        // Optionally set the current panel if testing multiple panels
+        // Filament::setCurrentPanel(Filament::getPanel('admin'));
     }
 
     protected function getPackageProviders($app): array
@@ -31,16 +52,28 @@ class TestCase extends Orchestra
         return [
             CustomFieldsServiceProvider::class,
             LivewireServiceProvider::class,
-            FilamentServiceProvider::class,
-            FormsServiceProvider::class,
-            SupportServiceProvider::class,
             BladeIconsServiceProvider::class,
             BladeHeroiconsServiceProvider::class,
+
+            // Filament Core Service Providers
+            SupportServiceProvider::class,
+            ActionsServiceProvider::class,
+            FormsServiceProvider::class,
+            InfolistsServiceProvider::class,
+            NotificationsServiceProvider::class,
+            SchemasServiceProvider::class,
+            TablesServiceProvider::class,
+            WidgetsServiceProvider::class,
+            FilamentServiceProvider::class,
+
+            // Test Panel Provider
+            TestPanelProvider::class,
         ];
     }
 
     public function getEnvironmentSetUp($app): void
     {
+        // Database configuration
         config()->set('database.default', 'testing');
         config()->set('database.connections.testing', [
             'driver' => 'sqlite',
@@ -48,15 +81,37 @@ class TestCase extends Orchestra
             'prefix' => '',
         ]);
 
+        // Authentication configuration for testing
+        config()->set('auth.providers.users.model', User::class);
+
+        // Custom fields configuration
         config()->set('custom-fields.table_names.custom_field_sections', 'custom_field_sections');
         config()->set('custom-fields.table_names.custom_fields', 'custom_fields');
         config()->set('custom-fields.table_names.custom_field_values', 'custom_field_values');
         config()->set('custom-fields.table_names.custom_field_options', 'custom_field_options');
+
+        // Filament configuration
+        config()->set('app.key', 'base64:'.base64_encode(random_bytes(32)));
+
+        // Spatie Laravel Data configuration for testing
+        config()->set('data', [
+            'validation_strategy' => 'always',
+            'max_transformation_depth' => null,
+            'throw_when_max_depth_reached' => false,
+            'normalizers' => [],
+            'transformers' => [],
+            'casts' => [],
+            'rule_inferrers' => [],
+        ]);
     }
 
     protected function defineDatabaseMigrations(): void
     {
+        // Load package migrations
         $this->loadMigrationsFrom(__DIR__.'/../database/migrations');
+
+        // Load test migrations (like users table)
+        $this->loadMigrationsFrom(__DIR__.'/database/migrations');
     }
 
     protected function createTestModelTable(): void
@@ -66,45 +121,5 @@ class TestCase extends Orchestra
             $table->string('name');
             $table->timestamps();
         });
-    }
-
-    /**
-     * Create CustomField settings data properly formatted for the model.
-     * 
-     * @param array<string, mixed> $overrides
-     * @return CustomFieldSettingsData
-     */
-    protected function createCustomFieldSettings(array $overrides = []): CustomFieldSettingsData
-    {
-        return new CustomFieldSettingsData(
-            visible_in_list: $overrides['visible_in_list'] ?? true,
-            list_toggleable_hidden: $overrides['list_toggleable_hidden'] ?? null,
-            visible_in_view: $overrides['visible_in_view'] ?? true,
-            searchable: $overrides['searchable'] ?? false,
-            encrypted: $overrides['encrypted'] ?? false,
-        );
-    }
-
-    /**
-     * Create a basic CustomField for testing without settings issues.
-     * 
-     * @param array<string, mixed> $attributes
-     * @return array<string, mixed>
-     */
-    protected function createCustomFieldData(array $attributes = []): array
-    {
-        $data = array_merge([
-            'name' => 'Test Field',
-            'code' => 'test_field',
-            'type' => \Relaticle\CustomFields\Enums\CustomFieldType::TEXT,
-            'entity_type' => 'App\\Models\\User',
-        ], $attributes);
-
-        // If settings are provided, convert them to the proper format
-        if (isset($data['settings']) && is_array($data['settings'])) {
-            $data['settings'] = $this->createCustomFieldSettings($data['settings']);
-        }
-
-        return $data;
     }
 }

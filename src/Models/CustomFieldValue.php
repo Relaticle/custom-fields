@@ -105,13 +105,13 @@ class CustomFieldValue extends Model
     public function setValue(mixed $value): void
     {
         $column = $this->getValueColumn($this->customField->type);
-        
+
         // Convert the value to a database-safe format based on the field type
         $safeValue = SafeValueConverter::toDbSafe(
-            $value, 
+            $value,
             $this->customField->type
         );
-        
+
         $this->$column = $safeValue;
     }
 }

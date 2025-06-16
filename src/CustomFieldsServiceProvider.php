@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Relaticle\CustomFields;
 
-use Relaticle\CustomFields\Providers\ValidationServiceProvider;
 use Filament\Facades\Filament;
 use Filament\Support\Assets\Asset;
 use Filament\Support\Assets\Css;
@@ -19,7 +18,6 @@ use Relaticle\CustomFields\Commands\OptimizeDatabaseCommand;
 use Relaticle\CustomFields\Commands\UpgradeCommand;
 use Relaticle\CustomFields\Contracts\CustomsFieldsMigrators;
 use Relaticle\CustomFields\Contracts\ValueResolvers;
-use Relaticle\CustomFields\Services\TenantContextService;
 use Relaticle\CustomFields\Livewire\ManageCustomField;
 use Relaticle\CustomFields\Livewire\ManageCustomFieldSection;
 use Relaticle\CustomFields\Livewire\ManageCustomFieldWidth;
@@ -27,6 +25,8 @@ use Relaticle\CustomFields\Migrations\CustomFieldsMigrator;
 use Relaticle\CustomFields\Models\CustomField;
 use Relaticle\CustomFields\Models\CustomFieldSection;
 use Relaticle\CustomFields\Providers\ImportsServiceProvider;
+use Relaticle\CustomFields\Providers\ValidationServiceProvider;
+use Relaticle\CustomFields\Services\TenantContextService;
 use Relaticle\CustomFields\Services\ValueResolver\ValueResolver;
 use Relaticle\CustomFields\Support\Utils;
 use Relaticle\CustomFields\Testing\TestsFilamentCustomField;

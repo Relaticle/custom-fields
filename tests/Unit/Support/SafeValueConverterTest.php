@@ -1,128 +1,112 @@
 <?php
 
-namespace Relaticle\CustomFields\Tests\Unit\Support;
+declare(strict_types=1);
 
 use Relaticle\CustomFields\Enums\CustomFieldType;
 use Relaticle\CustomFields\Support\SafeValueConverter;
-use Relaticle\CustomFields\Tests\TestCase;
 
-class SafeValueConverterTest extends TestCase
-{
-    /** @test */
-    public function it_converts_normal_integers_correctly()
-    {
-        $this->assertSame(123, SafeValueConverter::toSafeInteger(123));
-        $this->assertSame(-456, SafeValueConverter::toSafeInteger(-456));
-        $this->assertSame(789, SafeValueConverter::toSafeInteger("789"));
-        $this->assertSame(-123, SafeValueConverter::toSafeInteger("-123"));
-    }
-    
-    /** @test */
-    public function it_handles_scientific_notation()
-    {
-        $this->assertSame(1000000, SafeValueConverter::toSafeInteger("1e6"));
-        $this->assertSame(1230000, SafeValueConverter::toSafeInteger("1.23e6"));
-        $this->assertSame(-1000000, SafeValueConverter::toSafeInteger("-1e6"));
-    }
-    
-    /** @test */
-    public function it_clamps_values_exceeding_bigint_bounds()
-    {
-        // Test max bound
-        $overMax = "1e20"; // This is much larger than PHP_INT_MAX
-        $this->assertIsInt(SafeValueConverter::toSafeInteger($overMax));
-        $this->assertGreaterThan(0, SafeValueConverter::toSafeInteger($overMax));
-        
-        // Test min bound
-        $belowMin = "-1e20"; // This is much smaller than PHP_INT_MIN
-        $this->assertIsInt(SafeValueConverter::toSafeInteger($belowMin));
-        $this->assertLessThan(0, SafeValueConverter::toSafeInteger($belowMin));
-        
-        // Test values near the boundaries - just verify they are integers with correct sign
-        $largePositive = "9223372036854775000"; // Close to Max 64-bit integer
-        $maxResult = SafeValueConverter::toSafeInteger($largePositive);
-        $this->assertIsInt($maxResult);
-        $this->assertGreaterThan(0, $maxResult);
-        
-        $largeNegative = "-9223372036854775000"; // Close to Min 64-bit integer
-        $minResult = SafeValueConverter::toSafeInteger($largeNegative);
-        $this->assertIsInt($minResult);
-        $this->assertLessThan(0, $minResult);
-            
-        // Test the specific value from the error report
-        $specificValue = '-9.2233720368548E+18';
-        $result = SafeValueConverter::toSafeInteger($specificValue);
-        $this->assertIsInt($result);
-        $this->assertLessThan(0, $result); // Should be negative
-    }
-    
-    /** @test */
-    public function it_ensures_return_type_is_integer_even_for_edge_cases()
-    {
-        // Test values that are on the edge of MAX_BIGINT boundary
-        $almostMax = '9.223372036854775E+18';
-        $result = SafeValueConverter::toSafeInteger($almostMax);
-        $this->assertIsInt($result);
-        $this->assertIsNotFloat($result);
-        
-        // Test values that are on the edge of MIN_BIGINT boundary
-        $almostMin = '-9.223372036854775E+18';
-        $result = SafeValueConverter::toSafeInteger($almostMin);
-        $this->assertIsInt($result);
-        $this->assertIsNotFloat($result);
-        
-        // Ensure constants are properly cast to int
-        $this->assertIsInt(SafeValueConverter::toSafeInteger(SafeValueConverter::MAX_BIGINT));
-        $this->assertIsInt(SafeValueConverter::toSafeInteger(SafeValueConverter::MIN_BIGINT));
-        
-        // Test decimal values to ensure they're properly converted to integers
-        $decimalValue = 123.456;
-        $result = SafeValueConverter::toSafeInteger($decimalValue);
-        $this->assertIsInt($result);
-        $this->assertSame(123, $result);
-        
-        // Test string with decimal points
-        $decimalString = '456.789';
-        $result = SafeValueConverter::toSafeInteger($decimalString);
-        $this->assertIsInt($result);
-        $this->assertSame(456, $result);
-    }
-    
-    /** @test */
-    public function it_returns_null_for_invalid_values()
-    {
-        $this->assertNull(SafeValueConverter::toSafeInteger(null));
-        $this->assertNull(SafeValueConverter::toSafeInteger(''));
-        $this->assertNull(SafeValueConverter::toSafeInteger('not-a-number'));
-        $this->assertNull(SafeValueConverter::toSafeInteger([]));
-        $this->assertNull(SafeValueConverter::toSafeInteger(new \stdClass()));
-    }
-    
-    /** @test */
-    public function it_converts_field_values_by_type()
-    {
-        // Test NUMBER field with scientific notation
-        $largeNumber = '-9.2233720368548E+18';
-        $converted = SafeValueConverter::toDbSafe($largeNumber, CustomFieldType::NUMBER);
-        $this->assertIsInt($converted);
-        $this->assertLessThan(0, $converted); // Just verify it's negative, not the exact value
-        
-        // Test CURRENCY field with float
-        $currency = '123.45';
-        $converted = SafeValueConverter::toDbSafe($currency, CustomFieldType::CURRENCY);
-        $this->assertIsFloat($converted);
-        $this->assertEquals(123.45, $converted);
-        
-        // Test array-based fields
-        $tags = ['tag1', 'tag2', 'tag3'];
-        $converted = SafeValueConverter::toDbSafe($tags, CustomFieldType::TAGS_INPUT);
-        $this->assertIsArray($converted);
-        $this->assertSame($tags, $converted);
-        
-        // Test string conversion for JSON
-        $jsonString = '["item1","item2"]';
-        $converted = SafeValueConverter::toDbSafe($jsonString, CustomFieldType::CHECKBOX_LIST);
-        $this->assertIsArray($converted);
-        $this->assertSame(['item1', 'item2'], $converted);
-    }
-}
+it('converts normal integers correctly', function () {
+    expect(SafeValueConverter::toSafeInteger(123))->toBe(123);
+    expect(SafeValueConverter::toSafeInteger(-456))->toBe(-456);
+    expect(SafeValueConverter::toSafeInteger('789'))->toBe(789);
+    expect(SafeValueConverter::toSafeInteger('-123'))->toBe(-123);
+});
+
+it('handles scientific notation', function () {
+    expect(SafeValueConverter::toSafeInteger('1e6'))->toBe(1000000);
+    expect(SafeValueConverter::toSafeInteger('1.23e6'))->toBe(1230000);
+    expect(SafeValueConverter::toSafeInteger('-1e6'))->toBe(-1000000);
+});
+
+it('clamps values exceeding bigint bounds', function () {
+    // Test max bound
+    $overMax = '1e20'; // This is much larger than PHP_INT_MAX
+    expect(SafeValueConverter::toSafeInteger($overMax))->toBeInt();
+    expect(SafeValueConverter::toSafeInteger($overMax))->toBeGreaterThan(0);
+
+    // Test min bound
+    $belowMin = '-1e20'; // This is much smaller than PHP_INT_MIN
+    expect(SafeValueConverter::toSafeInteger($belowMin))->toBeInt();
+    expect(SafeValueConverter::toSafeInteger($belowMin))->toBeLessThan(0);
+
+    // Test values near the boundaries - just verify they are integers with correct sign
+    $largePositive = '9223372036854775000'; // Close to Max 64-bit integer
+    $maxResult = SafeValueConverter::toSafeInteger($largePositive);
+    expect($maxResult)->toBeInt();
+    expect($maxResult)->toBeGreaterThan(0);
+
+    $largeNegative = '-9223372036854775000'; // Close to Min 64-bit integer
+    $minResult = SafeValueConverter::toSafeInteger($largeNegative);
+    expect($minResult)->toBeInt();
+    expect($minResult)->toBeLessThan(0);
+
+    // Test the specific value from the error report
+    $specificValue = '-9.2233720368548E+18';
+    $result = SafeValueConverter::toSafeInteger($specificValue);
+    expect($result)->toBeInt();
+    expect($result)->toBeLessThan(0); // Should be negative
+});
+
+it('ensures return type is integer even for edge cases', function () {
+    // Test values that are on the edge of MAX_BIGINT boundary
+    $almostMax = '9.223372036854775E+18';
+    $result = SafeValueConverter::toSafeInteger($almostMax);
+    expect($result)->toBeInt();
+    expect($result)->not->toBeFloat();
+
+    // Test values that are on the edge of MIN_BIGINT boundary
+    $almostMin = '-9.223372036854775E+18';
+    $result = SafeValueConverter::toSafeInteger($almostMin);
+    expect($result)->toBeInt();
+    expect($result)->not->toBeFloat();
+
+    // Ensure constants are properly cast to int
+    expect(SafeValueConverter::toSafeInteger(SafeValueConverter::MAX_BIGINT))->toBeInt();
+    expect(SafeValueConverter::toSafeInteger(SafeValueConverter::MIN_BIGINT))->toBeInt();
+
+    // Test decimal values to ensure they're properly converted to integers
+    $decimalValue = 123.456;
+    $result = SafeValueConverter::toSafeInteger($decimalValue);
+    expect($result)->toBeInt();
+    expect($result)->toBe(123);
+
+    // Test string with decimal points
+    $decimalString = '456.789';
+    $result = SafeValueConverter::toSafeInteger($decimalString);
+    expect($result)->toBeInt();
+    expect($result)->toBe(456);
+});
+
+it('returns null for invalid values', function () {
+    expect(SafeValueConverter::toSafeInteger(null))->toBeNull();
+    expect(SafeValueConverter::toSafeInteger(''))->toBeNull();
+    expect(SafeValueConverter::toSafeInteger('not-a-number'))->toBeNull();
+    expect(SafeValueConverter::toSafeInteger([]))->toBeNull();
+    expect(SafeValueConverter::toSafeInteger(new \stdClass))->toBeNull();
+});
+
+it('converts field values by type', function () {
+    // Test NUMBER field with scientific notation
+    $largeNumber = '-9.2233720368548E+18';
+    $converted = SafeValueConverter::toDbSafe($largeNumber, CustomFieldType::NUMBER);
+    expect($converted)->toBeInt();
+    expect($converted)->toBeLessThan(0); // Just verify it's negative, not the exact value
+
+    // Test CURRENCY field with float
+    $currency = '123.45';
+    $converted = SafeValueConverter::toDbSafe($currency, CustomFieldType::CURRENCY);
+    expect($converted)->toBeFloat();
+    expect($converted)->toBe(123.45);
+
+    // Test array-based fields
+    $tags = ['tag1', 'tag2', 'tag3'];
+    $converted = SafeValueConverter::toDbSafe($tags, CustomFieldType::TAGS_INPUT);
+    expect($converted)->toBeArray();
+    expect($converted)->toBe($tags);
+
+    // Test string conversion for JSON
+    $jsonString = '["item1","item2"]';
+    $converted = SafeValueConverter::toDbSafe($jsonString, CustomFieldType::CHECKBOX_LIST);
+    expect($converted)->toBeArray();
+    expect($converted)->toBe(['item1', 'item2']);
+});

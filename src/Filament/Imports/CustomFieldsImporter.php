@@ -29,9 +29,10 @@ final class CustomFieldsImporter
     /**
      * Get import columns for all custom fields of a model.
      *
-     * @param string $modelClass The fully qualified class name of the model
-     * @param Model|null $tenant Optional tenant for multi-tenancy support
+     * @param  string  $modelClass  The fully qualified class name of the model
+     * @param  Model|null  $tenant  Optional tenant for multi-tenancy support
      * @return array<int, ImportColumn> Array of import columns for custom fields
+     *
      * @throws UnsupportedColumnTypeException
      */
     public function getColumns(string $modelClass, ?Model $tenant = null): array
@@ -49,9 +50,10 @@ final class CustomFieldsImporter
     /**
      * Get custom field import columns for a specific model and set of field codes.
      *
-     * @param string $modelClass The fully qualified class name of the model
-     * @param array<string> $fieldCodes List of custom field codes to include
+     * @param  string  $modelClass  The fully qualified class name of the model
+     * @param  array<string>  $fieldCodes  List of custom field codes to include
      * @return array<int, ImportColumn> Array of import columns for the specified custom fields
+     *
      * @throws UnsupportedColumnTypeException
      */
     public function getColumnsByFieldCodes(string $modelClass, array $fieldCodes): array

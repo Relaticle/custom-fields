@@ -11,6 +11,5 @@ class CustomFieldOptionSettingsData extends Data
 {
     public function __construct(
         public ?string $color = null,
-    ) {
-    }
-} 
+    ) {}
+}

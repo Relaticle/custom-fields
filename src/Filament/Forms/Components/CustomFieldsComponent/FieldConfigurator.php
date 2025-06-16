@@ -29,8 +29,8 @@ final readonly class FieldConfigurator
      *
      * @template T of Field
      *
-     * @param Field $field The Filament form field to configure
-     * @param CustomField $customField The custom field definition
+     * @param  Field  $field  The Filament form field to configure
+     * @param  CustomField  $customField  The custom field definition
      * @return Field The configured field
      */
     public function configure(Field $field, CustomField $customField): Field

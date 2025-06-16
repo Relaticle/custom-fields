@@ -28,7 +28,7 @@ final class FilamentResourceService
         $modelPath = Relation::getMorphedModel($model) ?? $model;
         $resourceInstance = Filament::getModelResource($modelPath);
 
-        throw_if(!$resourceInstance, new InvalidArgumentException("No resource found for model: {$modelPath}"));
+        throw_if(! $resourceInstance, new InvalidArgumentException("No resource found for model: {$modelPath}"));
 
         return App::make($resourceInstance);
     }
@@ -42,14 +42,12 @@ final class FilamentResourceService
     {
         $model = Relation::getMorphedModel($model) ?: $model;
 
-        throw_if(!$model, new InvalidArgumentException("Model class not found: {$model}"));
+        throw_if(! $model, new InvalidArgumentException("Model class not found: {$model}"));
 
         return app($model);
     }
 
     /**
-     * @param string $model
-     * @return Builder
      * @throws Throwable
      * @throws ReflectionException
      */
@@ -63,7 +61,7 @@ final class FilamentResourceService
                 methodName: 'scopeEloquentQueryToTenant',
                 args: [
                     'query' => $query,
-                    'tenant' => Filament::getTenant()
+                    'tenant' => Filament::getTenant(),
                 ]);
         }
 
@@ -101,10 +99,11 @@ final class FilamentResourceService
     /**
      * Invoke a method on a Resource class using reflection
      *
-     * @param resource $resource The resource instance or class name
-     * @param string $methodName The name of the method to call
-     * @param array $args The arguments to pass to the method
+     * @param  resource  $resource  The resource instance or class name
+     * @param  string  $methodName  The name of the method to call
+     * @param  array  $args  The arguments to pass to the method
      * @return mixed The return value from the method
+     *
      * @throws ReflectionException
      */
     public static function invokeMethodByReflection(Resource $resource, string $methodName, array $args = []): mixed

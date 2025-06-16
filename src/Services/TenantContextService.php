@@ -66,6 +66,7 @@ class TenantContextService
 
         try {
             self::setTenantId($tenantId);
+
             return $callback();
         } finally {
             self::setTenantId($originalTenantId);

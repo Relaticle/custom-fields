@@ -27,18 +27,18 @@ final readonly class CheckboxListComponent implements FieldComponentInterface
             $options = $entityInstance->query()->limit(50)->pluck($recordTitleAttribute, 'id')->toArray();
         } else {
             $options = $customField->options->pluck('name', 'id')->all();
-            
+
             // Add color styling if enabled
             if (Utils::isSelectOptionColorsFeatureEnabled() && $customField->settings->enable_option_colors) {
                 $optionsWithColor = $customField->options
                     ->filter(fn ($option) => $option->settings?->color)
                     ->mapWithKeys(fn ($option) => [$option->id => $option->name])
                     ->all();
-                    
+
                 if (count($optionsWithColor)) {
                     $field->descriptions(
                         array_map(
-                            fn ($optionId) => $this->getColoredOptionDescription($optionId, $customField), 
+                            fn ($optionId) => $this->getColoredOptionDescription($optionId, $customField),
                             array_keys($optionsWithColor)
                         )
                     );
@@ -50,17 +50,17 @@ final readonly class CheckboxListComponent implements FieldComponentInterface
 
         return $this->configurator->configure($field, $customField);
     }
-    
+
     /**
      * Generate HTML for colored option indicator
      */
     private function getColoredOptionDescription(string $optionId, CustomField $customField): string
     {
         $option = $customField->options->firstWhere('id', $optionId);
-        if (!$option || !$option->settings?->color) {
+        if (! $option || ! $option->settings?->color) {
             return '';
         }
-        
+
         return "<span style='display: inline-block; width: 12px; height: 12px; background-color: {$option->settings->color}; border-radius: 2px; margin-right: 4px;'></span>";
     }
 }

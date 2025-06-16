@@ -15,7 +15,13 @@
       "Bash(npm run build:*)",
       "Bash(NODE_ENV=production npm run build:styles)",
       "Bash(timeout 10s npm run dev)",
-      "Bash(true)"
+      "Bash(true)",
+      "Bash(./vendor/bin/pest:*)",
+      "Bash(mkdir:*)",
+      "Bash(vendor/bin/pest:*)",
+      "WebFetch(domain:custom-fields.relaticle.com)",
+      "Bash(rm:*)",
+      "Bash(vendor/bin/phpstan analyse:*)"
     ],
     "deny": []
   }

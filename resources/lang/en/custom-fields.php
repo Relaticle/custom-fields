@@ -6,7 +6,7 @@ return [
     ],
 
     'nav' => [
-        'label' => 'Custom Fields 123',
+        'label' => 'Custom Fields',
         'group' => 'Custom Fields',
         'icon' => 'heroicon-o-cube',
     ],

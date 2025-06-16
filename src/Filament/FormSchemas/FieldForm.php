@@ -6,6 +6,10 @@ namespace Relaticle\CustomFields\Filament\FormSchemas;
 
 use Filament\Facades\Filament;
 use Filament\Forms;
+use Filament\Forms\Components\Repeater\TableColumn;
+use Filament\Schemas\Components\Fieldset;
+use Filament\Schemas\Components\Tabs;
+use Filament\Schemas\Components\Utilities;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rules\Unique;
 use Relaticle\CustomFields\CustomFields;
@@ -16,10 +20,6 @@ use Relaticle\CustomFields\Models\CustomField;
 use Relaticle\CustomFields\Services\EntityTypeService;
 use Relaticle\CustomFields\Services\LookupTypeService;
 use Relaticle\CustomFields\Support\Utils;
-use Filament\Schemas\Components\Tabs;
-use Filament\Schemas\Components\Fieldset;
-use Filament\Schemas\Components\Utilities;
-use Filament\Forms\Components\Repeater\TableColumn;
 
 class FieldForm implements FormInterface
 {
@@ -34,21 +34,20 @@ class FieldForm implements FormInterface
                     ->width('150px')
                     ->hiddenHeaderLabel(),
                 TableColumn::make('Name')
-                    ->hiddenHeaderLabel()
+                    ->hiddenHeaderLabel(),
             ])->hiddenLabel()
             ->schema([
                 Forms\Components\ColorPicker::make('settings.color')
                     ->columnSpan(3)
                     ->hexColor()
-                    ->visible(fn (Utilities\Get $get): bool => 
-                        Utils::isSelectOptionColorsFeatureEnabled() && 
+                    ->visible(fn (Utilities\Get $get): bool => Utils::isSelectOptionColorsFeatureEnabled() &&
                         $get('../../settings.enable_option_colors')
                     ),
                 Forms\Components\TextInput::make('name')
                     ->required()
                     ->columnSpan(9)
-                    ->distinct()
-                ])
+                    ->distinct(),
+            ])
             ->columns(12)
             ->columnSpanFull()
             ->requiredUnless('type', CustomFieldType::TAGS_INPUT->value)
@@ -64,7 +63,6 @@ class FieldForm implements FormInterface
 
                 return $data;
             });
-
 
         if ($withOptionsRelationship) {
             $optionsRepeater = $optionsRepeater->relationship();
@@ -178,7 +176,7 @@ class FieldForm implements FormInterface
                                     Forms\Components\Toggle::make('settings.list_toggleable_hidden')
                                         ->inline(false)
                                         ->label(__('custom-fields::custom-fields.field.form.list_toggleable_hidden'))
-                                        ->helperText( __('custom-fields::custom-fields.field.form.list_toggleable_hidden_hint'))
+                                        ->helperText(__('custom-fields::custom-fields.field.form.list_toggleable_hidden_hint'))
                                         ->visible(fn (Utilities\Get $get): bool => $get('settings.visible_in_list') && Utils::isTableColumnsToggleableEnabled() && Utils::isTableColumnsToggleableUserControlEnabled())
                                         ->afterStateHydrated(function (Forms\Components\Toggle $component, $state) {
                                             if (is_null($state)) {
@@ -203,14 +201,13 @@ class FieldForm implements FormInterface
                                         ->label(__('custom-fields::custom-fields.field.form.encrypted'))
                                         ->visible(fn (Utilities\Get $get): bool => Utils::isValuesEncryptionFeatureEnabled() && CustomFieldType::encryptables()->contains('value', $get('type')))
                                         ->default(false),
-                                    // Appearance settings    
+                                    // Appearance settings
                                     Forms\Components\Toggle::make('settings.enable_option_colors')
                                         ->inline(false)
                                         ->reactive()
                                         ->label(__('custom-fields::custom-fields.field.form.enable_option_colors'))
                                         ->helperText(__('custom-fields::custom-fields.field.form.enable_option_colors_help'))
-                                        ->visible(fn (Utilities\Get $get): bool => 
-                                            Utils::isSelectOptionColorsFeatureEnabled() && 
+                                        ->visible(fn (Utilities\Get $get): bool => Utils::isSelectOptionColorsFeatureEnabled() &&
                                             in_array($get('type'), [CustomFieldType::SELECT->value, CustomFieldType::MULTI_SELECT->value])
                                         ),
                                 ]),
@@ -218,7 +215,7 @@ class FieldForm implements FormInterface
                             Forms\Components\Select::make('options_lookup_type')
                                 ->label(__('custom-fields::custom-fields.field.form.options_lookup_type.label'))
                                 ->visible(fn (Utilities\Get $get): bool => in_array($get('type'), CustomFieldType::optionables()->pluck('value')->toArray()))
-                                ->disabled(fn(?CustomField $record): bool => (bool)$record?->system_defined)
+                                ->disabled(fn (?CustomField $record): bool => (bool) $record?->system_defined)
                                 ->reactive()
                                 ->options([
                                     'options' => __('custom-fields::custom-fields.field.form.options_lookup_type.options'),
@@ -233,7 +230,7 @@ class FieldForm implements FormInterface
                                 ->afterStateUpdated(function (Forms\Components\Select $component, ?string $state, Utilities\Set $set, $record): void {
                                     if ($state === 'options') {
                                         $set('lookup_type', null, true, true);
-                                    }else{
+                                    } else {
                                         $set('lookup_type', $record?->lookup_type ?? LookupTypeService::getDefaultOption());
                                     }
                                 })
@@ -249,7 +246,7 @@ class FieldForm implements FormInterface
                             Forms\Components\Hidden::make('lookup_type'),
                             $optionsRepeater
                                 ->label(__('custom-fields::custom-fields.field.form.options.label'))
-                                ->visible(fn(Utilities\Get $get): bool => $get('options_lookup_type') === 'options' && in_array($get('type'), CustomFieldType::optionables()->pluck('value')->toArray()))
+                                ->visible(fn (Utilities\Get $get): bool => $get('options_lookup_type') === 'options' && in_array($get('type'), CustomFieldType::optionables()->pluck('value')->toArray())),
                         ]),
                     Tabs\Tab::make(__('custom-fields::custom-fields.field.form.validation.label'))
                         ->schema([

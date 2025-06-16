@@ -8,7 +8,6 @@ use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Carbon;
 use Relaticle\CustomFields\Enums\CustomFieldType;
 use Relaticle\CustomFields\Models\CustomField;
-use Relaticle\CustomFields\Services\CustomFieldModelService;
 
 /**
  * @extends Factory<CustomField>
@@ -33,11 +32,16 @@ final class CustomFieldFactory extends Factory
             'code' => $this->faker->word(),
             'name' => $this->faker->name(),
             'type' => $this->faker->randomElement(CustomFieldType::cases()),
-            'lookup_type' => $this->faker->randomElement(CustomFieldModelService::default()),
-            'entity_type' => $this->faker->randomElement(CustomFieldModelService::default()),
-            'sort_order' => $this->faker->randomNumber(),
-            'validation' => $this->faker->word(),
+            'entity_type' => 'App\\Models\\User',
+            'sort_order' => $this->faker->numberBetween(0, 100),
+            'validation' => [],
             'is_required' => $this->faker->boolean(),
+            'settings' => [
+                'visible_in_list' => true,
+                'visible_in_view' => true,
+                'searchable' => false,
+                'encrypted' => false,
+            ],
             'is_unique' => $this->faker->boolean(),
             'created_at' => Carbon::now(),
             'updated_at' => Carbon::now(),

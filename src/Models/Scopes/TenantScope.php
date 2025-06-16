@@ -14,7 +14,7 @@ class TenantScope implements Scope
 {
     public function apply(Builder $builder, Model $model): void
     {
-        if (!Utils::isTenantEnabled()) {
+        if (! Utils::isTenantEnabled()) {
             return;
         }
 

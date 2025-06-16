@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace Relaticle\CustomFields\Commands;
 
-use Log;
 use Illuminate\Console\Command;
 use Illuminate\Pipeline\Pipeline;
+use Log;
 use Relaticle\CustomFields\Commands\Upgrade\UpdateDatabaseSchema;
 use Relaticle\CustomFields\Commands\Upgrade\UpdateExistingData;
 use Throwable;
