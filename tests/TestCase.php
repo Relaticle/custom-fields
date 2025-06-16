@@ -16,15 +16,24 @@ use Filament\Support\SupportServiceProvider;
 use Filament\Tables\TablesServiceProvider;
 use Filament\Widgets\WidgetsServiceProvider;
 use Illuminate\Database\Eloquent\Factories\Factory;
+use Illuminate\Foundation\Testing\Concerns\InteractsWithViews;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\View\ViewServiceProvider;
 use Livewire\LivewireServiceProvider;
+use Orchestra\Testbench\Concerns\InteractsWithPest;
 use Orchestra\Testbench\TestCase as Orchestra;
 use Relaticle\CustomFields\CustomFieldsServiceProvider;
 use Relaticle\CustomFields\Tests\Factories\UserFactory;
 use Relaticle\CustomFields\Tests\Models\User;
+use RyanChandler\BladeCaptureDirective\BladeCaptureDirectiveServiceProvider;
 use Spatie\LaravelData\LaravelDataServiceProvider;
 
 class TestCase extends Orchestra
 {
+    use InteractsWithPest;
+    use InteractsWithViews;
+    use RefreshDatabase;
+
     protected function setUp(): void
     {
         parent::setUp();
@@ -35,20 +44,6 @@ class TestCase extends Orchestra
                 default => 'Relaticle\\CustomFields\\Database\\Factories\\'.class_basename($modelName).'Factory'
             }
         );
-
-        // Start session for Livewire tests
-        $this->startSession();
-
-        $this->setUpFilament();
-    }
-
-    protected function setUpFilament(): void
-    {
-        // In Filament V4, panels are configured through PanelProviders
-        // The TestPanelProvider will be automatically registered via getPackageProviders()
-
-        // Optionally set the current panel if testing multiple panels
-        // Filament::setCurrentPanel(Filament::getPanel('admin'));
     }
 
     protected function getPackageProviders($app): array
@@ -57,12 +52,11 @@ class TestCase extends Orchestra
             // Spatie Laravel Data Service Provider
             LaravelDataServiceProvider::class,
 //
-            CustomFieldsServiceProvider::class,
             LivewireServiceProvider::class,
             BladeIconsServiceProvider::class,
             BladeHeroiconsServiceProvider::class,
-//
-//            // Filament Core Service Providers
+            BladeCaptureDirectiveServiceProvider::class,
+
             SupportServiceProvider::class,
             ActionsServiceProvider::class,
             FormsServiceProvider::class,
@@ -72,13 +66,16 @@ class TestCase extends Orchestra
             TablesServiceProvider::class,
             WidgetsServiceProvider::class,
             FilamentServiceProvider::class,
+            ViewServiceProvider::class,
+
+            CustomFieldsServiceProvider::class,
 
             // Test Panel Provider
             TestPanelProvider::class,
         ];
     }
 
-    public function getEnvironmentSetUp($app): void
+    public function defineEnvironment($app): void
     {
         // Database configuration
         config()->set('database.default', 'testing');
@@ -99,12 +96,11 @@ class TestCase extends Orchestra
 
         // Filament configuration
         config()->set('app.key', 'base64:'.base64_encode(random_bytes(32)));
-        
+
         // Fix Spatie Laravel Data configuration for testing
         config()->set('data.throw_when_max_depth_reached', false);
         config()->set('data.max_transformation_depth', null);
         config()->set('data.validation_strategy', 'only_requests');
-
     }
 
     protected function defineDatabaseMigrations(): void

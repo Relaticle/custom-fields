@@ -21,7 +21,8 @@
       "Bash(vendor/bin/pest:*)",
       "WebFetch(domain:custom-fields.relaticle.com)",
       "Bash(rm:*)",
-      "Bash(vendor/bin/phpstan analyse:*)"
+      "Bash(vendor/bin/phpstan analyse:*)",
+      "Bash(php artisan:*)"
     ],
     "deny": []
   }

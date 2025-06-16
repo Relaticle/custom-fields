@@ -14,6 +14,7 @@ use Filament\Actions\EditAction;
 use Filament\Actions\ViewAction;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
+use Relaticle\CustomFields\Filament\Forms\Components\CustomFieldsComponent;
 use Relaticle\CustomFields\Filament\Infolists\CustomFieldsInfolists;
 use Relaticle\CustomFields\Tests\Models\User;
 use Relaticle\CustomFields\Tests\Resources\UserResource\Pages;
@@ -46,11 +47,11 @@ class UserResource extends Resource
                     ])
                     ->columns(2),
 
-//                Section::make('Custom Fields')
-//                    ->schema([
-//                        CustomFieldsComponent::make()
-//                            ->columnSpanFull(),
-//                    ]),
+                Section::make('Custom Fields')
+                    ->schema([
+                        CustomFieldsComponent::make()
+                            ->columnSpanFull(),
+                    ]),
             ]);
     }
 
