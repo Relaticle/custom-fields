@@ -18,6 +18,7 @@ use Illuminate\Session\Middleware\StartSession;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
 use Relaticle\CustomFields\CustomFieldsPlugin;
 use Relaticle\CustomFields\Tests\Pages\TestCustomFieldsPage;
+use Relaticle\CustomFields\Tests\Resources\UserResource;
 
 class TestPanelProvider extends PanelProvider
 {
@@ -30,15 +31,15 @@ class TestPanelProvider extends PanelProvider
             ->colors([
                 'primary' => Color::Amber,
             ])
+            ->resources([
+                UserResource::class
+            ])
             ->pages([
                 TestCustomFieldsPage::class,
             ])
             ->plugins([
                 CustomFieldsPlugin::make(),
             ])
-            ->discoverResources(in: __DIR__.'/Resources', for: 'Relaticle\\CustomFields\\Tests\\Resources')
-            ->discoverPages(in: __DIR__.'/Pages', for: 'Relaticle\\CustomFields\\Tests\\Pages')
-            ->discoverWidgets(in: __DIR__.'/Widgets', for: 'Relaticle\\CustomFields\\Tests\\Widgets')
             ->middleware([
                 EncryptCookies::class,
                 AddQueuedCookiesToResponse::class,
