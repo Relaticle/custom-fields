@@ -16,19 +16,6 @@ use Illuminate\Support\Str;
 use Relaticle\CustomFields\Enums\CustomFieldType;
 use Relaticle\CustomFields\Enums\CustomFieldValidationRule;
 
-/**
- * Custom Field Validation Component
- *
- * A comprehensive validation component for managing custom field validation rules
- * with intelligent rule filtering, parameter management, and state synchronization.
- *
- * Features:
- * - Dynamic rule filtering based on field type compatibility
- * - Automatic duplicate rule prevention
- * - Smart parameter management with validation
- * - Real-time state synchronization
- * - Comprehensive error handling and user feedback
- */
 final class CustomFieldValidationComponent extends Component
 {
     protected string $view = 'filament-schemas::components.grid';
@@ -85,13 +72,12 @@ final class CustomFieldValidationComponent extends Component
         return Select::make('name')
             ->label(__('custom-fields::custom-fields.field.form.validation.rule'))
             ->placeholder(__('custom-fields::custom-fields.field.form.validation.select_rule_placeholder'))
-            ->options(fn (Get $get) => $this->getAvailableRuleOptions($get))
+            ->options(fn (Get $get) => $this->getAllAvailableRuleOptions($get))
             ->searchable()
             ->required()
             ->live()
             ->in(fn (Get $get) => $this->getAllowedRuleValues($get))
-            ->afterStateUpdated(fn (Get $get, Set $set, ?string $state, ?string $old) => $this->handleRuleChange($get, $set, $state, $old)
-            )
+            ->afterStateUpdated(fn (Get $get, Set $set, ?string $state, ?string $old) => $this->handleRuleChange($get, $set, $state, $old))
             ->columnSpan(1);
     }
 
@@ -140,9 +126,9 @@ final class CustomFieldValidationComponent extends Component
     }
 
     /**
-     * Get available rule options filtered by field type and existing rules
+     * Get all available rule options including selected values for proper display
      */
-    private function getAvailableRuleOptions(Get $get): array
+    private function getAllAvailableRuleOptions(Get $get): array
     {
         $fieldType = $this->getFieldType($get);
         if (! $fieldType) {
@@ -151,9 +137,10 @@ final class CustomFieldValidationComponent extends Component
 
         $allowedRules = $fieldType->allowedValidationRules();
         $existingRules = $this->getExistingRules($get);
+        $currentRuleName = $get('name');
 
         return collect($allowedRules)
-            ->reject(fn (CustomFieldValidationRule $rule): bool => $this->isRuleDuplicate($existingRules, $rule->value)
+            ->reject(fn (CustomFieldValidationRule $rule): bool => $this->isRuleDuplicate($existingRules, $rule->value) && $rule->value !== $currentRuleName
             )
             ->mapWithKeys(fn (CustomFieldValidationRule $rule) => [
                 $rule->value => $rule->getLabel(),
