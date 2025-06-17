@@ -7,7 +7,6 @@ use Relaticle\CustomFields\Data\CustomFieldSettingsData;
 use Relaticle\CustomFields\Enums\CustomFieldSectionType;
 use Relaticle\CustomFields\Enums\CustomFieldType;
 use Relaticle\CustomFields\Models\CustomField;
-use Relaticle\CustomFields\Models\CustomFieldOption;
 use Relaticle\CustomFields\Models\CustomFieldSection;
 use Relaticle\CustomFields\Tests\Models\User;
 
@@ -17,7 +16,7 @@ test('can create custom field section', function () {
         'code' => 'test_section',
         'entity_type' => User::class,
         'type' => CustomFieldSectionType::SECTION,
-        'settings' => new CustomFieldSectionSettingsData(),
+        'settings' => new CustomFieldSectionSettingsData,
         'sort_order' => 1,
         'active' => true,
         'system_defined' => false,
@@ -34,7 +33,7 @@ test('can create custom field', function () {
         'code' => 'test_section',
         'entity_type' => User::class,
         'type' => CustomFieldSectionType::SECTION,
-        'settings' => new CustomFieldSectionSettingsData(),
+        'settings' => new CustomFieldSectionSettingsData,
         'sort_order' => 1,
         'active' => true,
         'system_defined' => false,
@@ -46,7 +45,7 @@ test('can create custom field', function () {
         'code' => 'test_field',
         'type' => CustomFieldType::TEXT,
         'entity_type' => User::class,
-        'settings' => new CustomFieldSettingsData(),
+        'settings' => new CustomFieldSettingsData,
         'validation_rules' => [],
         'sort_order' => 1,
         'active' => true,
@@ -65,7 +64,7 @@ test('can save and retrieve custom field values', function () {
         'code' => 'test_section',
         'entity_type' => User::class,
         'type' => CustomFieldSectionType::SECTION,
-        'settings' => new CustomFieldSectionSettingsData(),
+        'settings' => new CustomFieldSectionSettingsData,
         'sort_order' => 1,
         'active' => true,
         'system_defined' => false,
@@ -77,7 +76,7 @@ test('can save and retrieve custom field values', function () {
         'code' => 'test_field',
         'type' => CustomFieldType::TEXT,
         'entity_type' => User::class,
-        'settings' => new CustomFieldSettingsData(),
+        'settings' => new CustomFieldSettingsData,
         'validation_rules' => [],
         'sort_order' => 1,
         'active' => true,
@@ -99,7 +98,7 @@ test('can save and retrieve custom field values', function () {
 
 test('user model implements HasCustomFields interface', function () {
     $user = User::factory()->create();
-    
+
     expect($user)->toBeInstanceOf(\Relaticle\CustomFields\Models\Contracts\HasCustomFields::class)
         ->and(method_exists($user, 'customFields'))->toBeTrue()
         ->and(method_exists($user, 'customFieldValues'))->toBeTrue()

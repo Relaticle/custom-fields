@@ -10,7 +10,7 @@ use Relaticle\CustomFields\Models\CustomFieldSection;
 use Relaticle\CustomFields\Tests\Models\User;
 use Relaticle\CustomFields\Tests\Resources\UserResource\Pages\CreateUser;
 use Relaticle\CustomFields\Tests\Resources\UserResource\Pages\EditUser;
-use Relaticle\CustomFields\Tests\Support\TestingHelpers;
+
 use function Pest\Livewire\livewire;
 
 beforeEach(function () {
@@ -41,7 +41,7 @@ beforeEach(function () {
         'entity_type' => User::class,
         'sort_order' => 2,
         'code' => 'age',
-//        'validation_rules' => ['required'],
+        //        'validation_rules' => ['required'],
     ]);
 
     $this->selectField = CustomField::factory()->create([
@@ -79,22 +79,22 @@ beforeEach(function () {
 test('custom fields component renders in create form', function () {
     // Skip Livewire testing due to framework bug and test form schema directly
     $this->markTestSkipped('Skipping Livewire component test due to error bag initialization bug in Livewire v3.6.3. Testing form schema instead.');
-    
+
     // Alternative: Test form schema generation directly
-    $resource = new UserResource();
-    $schema = $resource::form(new \Filament\Schemas\Schema());
+    $resource = new UserResource;
+    $schema = $resource::form(new \Filament\Schemas\Schema);
     $components = $schema->getComponents();
-    
+
     // Verify we have the expected sections
     expect($components)->toHaveCount(2); // User Information + Custom Fields
-    
+
     // Find the Custom Fields section
-    $customFieldsSection = collect($components)->first(function($component) {
+    $customFieldsSection = collect($components)->first(function ($component) {
         return $component->getName() === 'Custom Fields';
     });
-    
+
     expect($customFieldsSection)->not->toBeNull();
-    
+
     // Test that the custom fields component is present
     $customFieldsComponent = $customFieldsSection->getChildComponents()[0] ?? null;
     expect($customFieldsComponent)->toBeInstanceOf(\Relaticle\CustomFields\Filament\Forms\Components\CustomFieldsComponent::class);
@@ -102,17 +102,17 @@ test('custom fields component renders in create form', function () {
 
 test('form schema includes custom fields component', function () {
     // Direct test of form schema without Livewire
-    $schema = \Relaticle\CustomFields\Tests\Resources\UserResource::form(new \Filament\Schemas\Schema());
+    $schema = \Relaticle\CustomFields\Tests\Resources\UserResource::form(new \Filament\Schemas\Schema);
     $components = $schema->getComponents();
-    
+
     // Verify we have the expected sections
     expect($components)->toHaveCount(2); // User Information + Custom Fields
-    
+
     // Verify both sections are Section components
     foreach ($components as $component) {
         expect($component)->toBeInstanceOf(\Filament\Schemas\Components\Section::class);
     }
-    
+
     // The test passes if we have 2 sections and both are Section instances
     expect(true)->toBeTrue();
 });
@@ -132,18 +132,18 @@ test('can create user with custom field values', function () {
     ];
 
     $component = Livewire::test(CreateUser::class);
-    
+
     $component->fillForm(array_merge($userData, $customFieldData));
-    
+
     $component->call('create');
-    
+
     $component->assertHasNoFormErrors();
-    
+
     // Verify user was created
     $user = User::where('email', 'john@example.com')->first();
     expect($user)->not->toBeNull();
     expect($user->name)->toBe('John Doe');
-    
+
     // Verify custom field values were saved
     expect($user->getCustomFieldValue($this->textField))->toBe('Software developer with 5 years experience');
     expect($user->getCustomFieldValue($this->numberField))->toBe(30);
@@ -167,11 +167,11 @@ test('required custom fields are validated', function () {
     ];
 
     $component = Livewire::test(CreateUser::class);
-    
+
     $component->fillForm(array_merge($userData, $customFieldData));
-    
+
     $component->call('create');
-    
+
     $component->assertHasFormErrors(["custom_field_{$this->numberField->id}"]);
 });
 
@@ -234,9 +234,9 @@ test('hidden custom fields are not rendered in forms', function () {
     ]);
 
     $component = Livewire::test(CreateUser::class);
-    
+
     $component->assertFormExists();
-    
+
     // Hidden field should not have a form field
     $component->assertFormFieldDoesNotExist("custom_field_{$hiddenField->id}");
 });
@@ -259,40 +259,39 @@ test('custom field sections organize fields properly', function () {
     ]);
 
     $component = Livewire::test(CreateUser::class);
-    
+
     $schema = $component->instance()->getForm()->getSchema();
-    
+
     // Should have 2 sections: User Information and Custom Fields (which contains our 2 custom sections)
     expect($schema)->toHaveCount(2);
-    
+
     // Custom Fields section should contain both our custom sections
-    $customFieldsSection = collect($schema)->first(fn($component) => 
-        $component->getName() === 'Custom Fields'
+    $customFieldsSection = collect($schema)->first(fn ($component) => $component->getName() === 'Custom Fields'
     );
-    
+
     expect($customFieldsSection)->not->toBeNull();
 });
 
 test('select field options are rendered correctly', function () {
     $component = Livewire::test(CreateUser::class);
-    
+
     $component->assertFormExists();
-    
+
     // Fill form to trigger component rendering
     $component->fillForm([
         'name' => 'Test User',
         'email' => 'test@example.com',
         'password' => 'password123',
     ]);
-    
+
     // Check that select field has correct options
     $selectFieldKey = "custom_field_{$this->selectField->id}";
     $component->assertFormFieldExists($selectFieldKey);
-    
+
     // Test setting select value
     $component->set("data.{$selectFieldKey}", 'engineering');
     expect($component->get("data.{$selectFieldKey}"))->toBe('engineering');
-    
+
     $component->set("data.{$selectFieldKey}", 'marketing');
     expect($component->get("data.{$selectFieldKey}"))->toBe('marketing');
 });

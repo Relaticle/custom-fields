@@ -7,9 +7,6 @@ use Relaticle\CustomFields\Database\Factories\CustomFieldFactory;
 use Relaticle\CustomFields\Database\Factories\CustomFieldOptionFactory;
 use Relaticle\CustomFields\Database\Factories\CustomFieldSectionFactory;
 use Relaticle\CustomFields\Enums\CustomFieldType;
-use Relaticle\CustomFields\Models\CustomField;
-use Relaticle\CustomFields\Models\CustomFieldOption;
-use Relaticle\CustomFields\Models\CustomFieldSection;
 use Relaticle\CustomFields\Tests\Models\User;
 use Relaticle\CustomFields\Tests\Resources\UserResource\Pages\CreateUser;
 use Relaticle\CustomFields\Tests\Resources\UserResource\Pages\EditUser;
@@ -18,9 +15,9 @@ use Relaticle\CustomFields\Tests\Resources\UserResource\Pages\ViewUser;
 
 beforeEach(function () {
     // Create test data using factories
-    $sectionFactory = new CustomFieldSectionFactory();
-    $fieldFactory = new CustomFieldFactory();
-    $optionFactory = new CustomFieldOptionFactory();
+    $sectionFactory = new CustomFieldSectionFactory;
+    $fieldFactory = new CustomFieldFactory;
+    $optionFactory = new CustomFieldOptionFactory;
 
     // Create a section for User model
     $this->section = $sectionFactory->create([
@@ -86,7 +83,7 @@ test('user resource integrates with custom fields in forms', function () {
 
     // Check that the form exists and contains our custom fields component
     $component->assertFormExists();
-    
+
     // Test creating a user with custom field values
     $userData = [
         'name' => 'John Developer',
@@ -153,7 +150,7 @@ test('user resource displays custom fields in table', function () {
 
     // Verify that table includes custom field columns
     $tableColumns = $component->instance()->getTable()->getColumns();
-    $columnLabels = collect($tableColumns)->map(fn($column) => $column->getLabel())->toArray();
+    $columnLabels = collect($tableColumns)->map(fn ($column) => $column->getLabel())->toArray();
 
     // Should include our custom field columns
     expect($columnLabels)->toContain('Job Title');

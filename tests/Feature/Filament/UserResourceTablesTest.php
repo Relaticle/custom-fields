@@ -121,25 +121,25 @@ test('custom field columns are added to table', function () {
     $component = Livewire::test(ListUsers::class);
 
     $component->assertCanSeeTableRecords([
-        $this->user1, 
-        $this->user2, 
-        $this->user3
+        $this->user1,
+        $this->user2,
+        $this->user3,
     ]);
 
     // Check that custom field columns are present and display values correctly
     $component->assertTableColumnExists('name');
     $component->assertTableColumnExists('email');
-    
+
     // Custom field columns should be visible
     $tableColumns = $component->instance()->getTable()->getColumns();
-    $columnNames = collect($tableColumns)->map(fn($column) => $column->getName())->toArray();
-    
+    $columnNames = collect($tableColumns)->map(fn ($column) => $column->getName())->toArray();
+
     // Should include our custom field columns
     expect($columnNames)->toContain('Position'); // Text field
-    expect($columnNames)->toContain('Annual Salary'); // Number field  
+    expect($columnNames)->toContain('Annual Salary'); // Number field
     expect($columnNames)->toContain('Department'); // Select field
     expect($columnNames)->toContain('Is Active'); // Checkbox field
-    
+
     // Hidden field should not be visible
     expect($columnNames)->not->toContain('Secret Field');
 });
@@ -151,13 +151,13 @@ test('custom field values are displayed in table', function () {
     $component->assertTableCellExists($this->user1, 'name', 'John Developer');
     $component->assertTableCellExists($this->user2, 'name', 'Jane Marketer');
     $component->assertTableCellExists($this->user3, 'name', 'Bob Engineer');
-    
+
     // Test custom field value display
     // Note: The exact cell testing depends on how the custom field columns render values
     $tableRecords = $component->instance()->getTable()->getRecords();
-    
+
     expect($tableRecords)->toHaveCount(3);
-    
+
     // Verify that records have their custom field values loaded
     $user1Record = $tableRecords->firstWhere('id', $this->user1->id);
     expect($user1Record->getCustomFieldValue($this->textField))->toBe('Senior Developer');
@@ -169,15 +169,15 @@ test('can search by custom field values', function () {
 
     // Search for a custom field value
     $component->searchTable('Senior Developer');
-    
+
     // Should find user1 but not user2 or user3
     $component->assertCanSeeTableRecords([$this->user1]);
     $component->assertCanNotSeeTableRecords([$this->user2, $this->user3]);
-    
+
     // Clear search
     $component->searchTable('');
     $component->assertCanSeeTableRecords([$this->user1, $this->user2, $this->user3]);
-    
+
     // Search for another custom field value
     $component->searchTable('Marketing Manager');
     $component->assertCanSeeTableRecords([$this->user2]);
@@ -189,19 +189,19 @@ test('can sort by custom field values', function () {
 
     // Sort by salary (number field) ascending
     $component->sortTable('Annual Salary');
-    
+
     $tableRecords = $component->instance()->getTable()->getRecords();
-    $salaries = $tableRecords->map(fn($record) => $record->getCustomFieldValue($this->numberField))->toArray();
-    
+    $salaries = $tableRecords->map(fn ($record) => $record->getCustomFieldValue($this->numberField))->toArray();
+
     // Should be sorted: 55000, 65000, 75000
     expect($salaries)->toBe([55000, 65000, 75000]);
-    
+
     // Sort descending
     $component->sortTable('Annual Salary', 'desc');
-    
+
     $tableRecords = $component->instance()->getTable()->getRecords();
-    $salaries = $tableRecords->map(fn($record) => $record->getCustomFieldValue($this->numberField))->toArray();
-    
+    $salaries = $tableRecords->map(fn ($record) => $record->getCustomFieldValue($this->numberField))->toArray();
+
     // Should be sorted: 75000, 65000, 55000
     expect($salaries)->toBe([75000, 65000, 55000]);
 });
@@ -211,17 +211,17 @@ test('can filter by select custom field', function () {
 
     // Filter by department
     $component->filterTable('Department', 'engineering');
-    
+
     // Should show only engineering users
     $component->assertCanSeeTableRecords([$this->user1, $this->user3]);
     $component->assertCanNotSeeTableRecords([$this->user2]);
-    
+
     // Filter by marketing
     $component->filterTable('Department', 'marketing');
-    
+
     $component->assertCanSeeTableRecords([$this->user2]);
     $component->assertCanNotSeeTableRecords([$this->user1, $this->user3]);
-    
+
     // Clear filter
     $component->removeTableFilter('Department');
     $component->assertCanSeeTableRecords([$this->user1, $this->user2, $this->user3]);
@@ -232,14 +232,14 @@ test('can filter by checkbox custom field', function () {
 
     // Filter by active status
     $component->filterTable('Is Active', true);
-    
+
     // Should show only active users (user1 and user3)
     $component->assertCanSeeTableRecords([$this->user1, $this->user3]);
     $component->assertCanNotSeeTableRecords([$this->user2]);
-    
+
     // Filter by inactive
     $component->filterTable('Is Active', false);
-    
+
     $component->assertCanSeeTableRecords([$this->user2]);
     $component->assertCanNotSeeTableRecords([$this->user1, $this->user3]);
 });
@@ -249,14 +249,14 @@ test('custom field columns are toggleable', function () {
 
     // Get table instance
     $table = $component->instance()->getTable();
-    
+
     // Find custom field columns
-    $positionColumn = collect($table->getColumns())->first(fn($col) => $col->getName() === 'Position');
-    $salaryColumn = collect($table->getColumns())->first(fn($col) => $col->getName() === 'Annual Salary');
-    
+    $positionColumn = collect($table->getColumns())->first(fn ($col) => $col->getName() === 'Position');
+    $salaryColumn = collect($table->getColumns())->first(fn ($col) => $col->getName() === 'Annual Salary');
+
     expect($positionColumn)->not->toBeNull();
     expect($salaryColumn)->not->toBeNull();
-    
+
     // Columns should be toggleable by default
     expect($positionColumn->isToggleable())->toBeTrue();
     expect($salaryColumn->isToggleable())->toBeTrue();
@@ -266,8 +266,8 @@ test('hidden custom fields do not appear in table', function () {
     $component = Livewire::test(ListUsers::class);
 
     $tableColumns = $component->instance()->getTable()->getColumns();
-    $columnNames = collect($tableColumns)->map(fn($column) => $column->getName())->toArray();
-    
+    $columnNames = collect($tableColumns)->map(fn ($column) => $column->getName())->toArray();
+
     // Hidden field should not appear
     expect($columnNames)->not->toContain('Secret Field');
 });
@@ -277,7 +277,7 @@ test('table loads custom field values efficiently', function () {
 
     // Check that custom field values are eager loaded
     $tableRecords = $component->instance()->getTable()->getRecords();
-    
+
     // Verify relationships are loaded to avoid N+1 queries
     foreach ($tableRecords as $record) {
         expect($record->relationLoaded('customFieldValues'))->toBeTrue();
@@ -289,8 +289,8 @@ test('non-filterable custom fields do not have filters', function () {
     $component = Livewire::test(ListUsers::class);
 
     $tableFilters = $component->instance()->getTable()->getFilters();
-    $filterNames = collect($tableFilters)->map(fn($filter) => $filter->getName())->toArray();
-    
+    $filterNames = collect($tableFilters)->map(fn ($filter) => $filter->getName())->toArray();
+
     // Only filterable fields should have filters
     expect($filterNames)->toContain('Department'); // select field - filterable
     expect($filterNames)->toContain('Is Active'); // checkbox field - filterable
@@ -312,7 +312,7 @@ test('custom field filters work with multiple selections', function () {
 
     // Filter by engineering - should show 3 users now
     $component->filterTable('Department', 'engineering');
-    
+
     $component->assertCanSeeTableRecords([$this->user1, $this->user3, $user4]);
     $component->assertCanNotSeeTableRecords([$this->user2]);
 });

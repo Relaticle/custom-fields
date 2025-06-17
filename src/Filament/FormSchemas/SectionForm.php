@@ -45,7 +45,7 @@ class SectionForm implements FormInterface, SectionFormInterface
                             return $rule
                                 ->when(
                                     Utils::isTenantEnabled(),
-                                    fn(Unique $rule) => $rule->where(
+                                    fn (Unique $rule) => $rule->where(
                                         config('custom-fields.column_names.tenant_foreign_key'),
                                         Filament::getTenant()?->id
                                     )
@@ -77,7 +77,7 @@ class SectionForm implements FormInterface, SectionFormInterface
                             return $rule
                                 ->when(
                                     Utils::isTenantEnabled(),
-                                    fn(Unique $rule) => $rule
+                                    fn (Unique $rule) => $rule
                                         ->where(
                                             config('custom-fields.column_names.tenant_foreign_key'),
                                             Filament::getTenant()?->id
@@ -99,7 +99,7 @@ class SectionForm implements FormInterface, SectionFormInterface
                 Textarea::make('description')
                     ->label(__('custom-fields::custom-fields.section.form.description'))
                     ->reactive()
-                    ->visible(fn(Get $get): bool => $get('type') === CustomFieldSectionType::SECTION)
+                    ->visible(fn (Get $get): bool => $get('type') === CustomFieldSectionType::SECTION)
                     ->maxLength(255)
                     ->nullable()
                     ->columnSpan(12),

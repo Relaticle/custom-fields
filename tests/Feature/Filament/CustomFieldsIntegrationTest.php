@@ -127,7 +127,7 @@ beforeEach(function () {
 test('complete user lifecycle with custom fields', function () {
     // Step 1: Create user with custom fields
     $createComponent = Livewire::test(CreateUser::class);
-    
+
     $userData = [
         'name' => 'Alice Johnson',
         'email' => 'alice@example.com',
@@ -139,22 +139,22 @@ test('complete user lifecycle with custom fields', function () {
         "custom_field_{$this->dateField->id}" => '2022-01-15',
         "custom_field_{$this->textareaField->id}" => 'Excellent problem solver with strong leadership skills.',
     ];
-    
+
     $createComponent->fillForm($userData);
     $createComponent->call('create');
     $createComponent->assertHasNoFormErrors();
-    
+
     $user = User::where('email', 'alice@example.com')->first();
     expect($user)->not->toBeNull();
-    
+
     // Step 2: Verify user appears in table with custom field values
     $listComponent = Livewire::test(ListUsers::class);
     $listComponent->assertCanSeeTableRecords([$user]);
-    
+
     // Verify custom field values in table
     $tableRecords = $listComponent->instance()->getTable()->getRecords();
     $userRecord = $tableRecords->firstWhere('id', $user->id);
-    
+
     expect($userRecord->getCustomFieldValue($this->textField))->toBe('Senior Software Engineer')
         ->and($userRecord->getCustomFieldValue($this->numberField))->toBe(95000)
         ->and($userRecord->getCustomFieldValue($this->selectField))->toBe('engineering')
@@ -162,17 +162,17 @@ test('complete user lifecycle with custom fields', function () {
 
     // Step 3: View user details in infolist
     $viewComponent = Livewire::test(ViewUser::class, ['record' => $user->getRouteKey()]);
-    
+
     $viewComponent->assertSee('Senior Software Engineer');
     $viewComponent->assertSee('95000');
     $viewComponent->assertSee('Engineering'); // Option label
     $viewComponent->assertSee('Yes'); // Boolean true
     $viewComponent->assertSee('2022-01-15');
     $viewComponent->assertSee('Excellent problem solver with strong leadership skills.');
-    
+
     // Step 4: Edit user and update custom fields
     $editComponent = Livewire::test(EditUser::class, ['record' => $user->getRouteKey()]);
-    
+
     $editComponent->assertFormSet([
         'name' => 'Alice Johnson',
         "custom_field_{$this->textField->id}" => 'Senior Software Engineer',
@@ -180,7 +180,7 @@ test('complete user lifecycle with custom fields', function () {
         "custom_field_{$this->selectField->id}" => 'engineering',
         "custom_field_{$this->checkboxField->id}" => true,
     ]);
-    
+
     // Update some values
     $updatedData = [
         "custom_field_{$this->textField->id}" => 'Principal Software Engineer',
@@ -189,11 +189,11 @@ test('complete user lifecycle with custom fields', function () {
         "custom_field_{$this->checkboxField->id}" => false,
         "custom_field_{$this->textareaField->id}" => 'Promoted to principal level. Leading architecture decisions.',
     ];
-    
+
     $editComponent->fillForm($updatedData);
     $editComponent->call('save');
     $editComponent->assertHasNoFormErrors();
-    
+
     // Step 5: Verify updates in view
     $viewComponent->mount($user->getRouteKey());
     $viewComponent->assertSee('Principal Software Engineer');
@@ -205,7 +205,7 @@ test('complete user lifecycle with custom fields', function () {
 test('custom field validation across the application', function () {
     // Test required field validation in create form
     $createComponent = Livewire::test(CreateUser::class);
-    
+
     $incompleteData = [
         'name' => 'Bob Smith',
         'email' => 'bob@example.com',
@@ -214,16 +214,16 @@ test('custom field validation across the application', function () {
         "custom_field_{$this->numberField->id}" => 75000,
         "custom_field_{$this->checkboxField->id}" => false,
     ];
-    
+
     $createComponent->fillForm($incompleteData);
     $createComponent->call('create');
-    
+
     // Should have validation errors for required fields
     $createComponent->assertHasFormErrors([
         "custom_field_{$this->textField->id}",
         "custom_field_{$this->selectField->id}",
     ]);
-    
+
     // Test that user was not created
     expect(User::where('email', 'bob@example.com')->exists())->toBeFalse();
 });
@@ -234,37 +234,37 @@ test('table filtering and searching with custom fields', function () {
     $user1->saveCustomFieldValue($this->textField, 'Frontend Developer');
     $user1->saveCustomFieldValue($this->selectField, 'engineering');
     $user1->saveCustomFieldValue($this->checkboxField, true);
-    
+
     $user2 = User::factory()->create(['name' => 'Engineer Two', 'email' => 'eng2@example.com']);
     $user2->saveCustomFieldValue($this->textField, 'Backend Developer');
     $user2->saveCustomFieldValue($this->selectField, 'engineering');
     $user2->saveCustomFieldValue($this->checkboxField, false);
-    
+
     $user3 = User::factory()->create(['name' => 'Marketer One', 'email' => 'mark1@example.com']);
     $user3->saveCustomFieldValue($this->textField, 'Marketing Specialist');
     $user3->saveCustomFieldValue($this->selectField, 'marketing');
     $user3->saveCustomFieldValue($this->checkboxField, true);
-    
+
     $listComponent = Livewire::test(ListUsers::class);
-    
+
     // Test department filtering
     $listComponent->filterTable('Department', 'engineering');
     $listComponent->assertCanSeeTableRecords([$user1, $user2]);
     $listComponent->assertCanNotSeeTableRecords([$user3]);
-    
+
     // Test remote work filtering
     $listComponent->filterTable('Remote Work Eligible', true);
     $listComponent->assertCanSeeTableRecords([$user1]);
     $listComponent->assertCanNotSeeTableRecords([$user2, $user3]);
-    
+
     // Clear filters and test searching
     $listComponent->removeTableFilter('Department');
     $listComponent->removeTableFilter('Remote Work Eligible');
-    
+
     $listComponent->searchTable('Frontend');
     $listComponent->assertCanSeeTableRecords([$user1]);
     $listComponent->assertCanNotSeeTableRecords([$user2, $user3]);
-    
+
     $listComponent->searchTable('Marketing');
     $listComponent->assertCanSeeTableRecords([$user3]);
     $listComponent->assertCanNotSeeTableRecords([$user1, $user2]);
@@ -275,7 +275,7 @@ test('custom field data persistence and retrieval', function () {
         'name' => 'Test User',
         'email' => 'test@example.com',
     ]);
-    
+
     // Test saving various field types
     $user->saveCustomFieldValue($this->textField, 'Software Engineer');
     $user->saveCustomFieldValue($this->numberField, 80000);
@@ -283,7 +283,7 @@ test('custom field data persistence and retrieval', function () {
     $user->saveCustomFieldValue($this->checkboxField, true);
     $user->saveCustomFieldValue($this->dateField, '2023-03-20');
     $user->saveCustomFieldValue($this->textareaField, 'Long description with multiple lines');
-    
+
     // Test retrieval
     expect($user->getCustomFieldValue($this->textField))->toBe('Software Engineer');
     expect($user->getCustomFieldValue($this->numberField))->toBe(80000);
@@ -291,10 +291,10 @@ test('custom field data persistence and retrieval', function () {
     expect($user->getCustomFieldValue($this->checkboxField))->toBe(true);
     expect($user->getCustomFieldValue($this->dateField))->toBe('2023-03-20');
     expect($user->getCustomFieldValue($this->textareaField))->toBe('Long description with multiple lines');
-    
+
     // Test database persistence
     expect(CustomFieldValue::where('customizable_id', $user->id)->count())->toBe(6);
-    
+
     // Test fresh model retrieval
     $freshUser = User::find($user->id);
     expect($freshUser->getCustomFieldValue($this->textField))->toBe('Software Engineer');
@@ -303,15 +303,15 @@ test('custom field data persistence and retrieval', function () {
 
 test('custom field options are handled correctly', function () {
     $user = User::factory()->create(['name' => 'Option Test', 'email' => 'option@example.com']);
-    
+
     // Test saving select field with option value
     $user->saveCustomFieldValue($this->selectField, 'engineering');
     expect($user->getCustomFieldValue($this->selectField))->toBe('engineering');
-    
+
     // Test different option
     $user->saveCustomFieldValue($this->selectField, 'marketing');
     expect($user->getCustomFieldValue($this->selectField))->toBe('marketing');
-    
+
     // Test in infolist that label is shown
     $viewComponent = Livewire::test(ViewUser::class, ['record' => $user->getRouteKey()]);
     $viewComponent->assertSee('Marketing'); // Should see label
@@ -326,7 +326,7 @@ test('inactive custom field sections are handled properly', function () {
         'sort_order' => 3,
         'is_active' => false,
     ]);
-    
+
     $inactiveField = CustomField::factory()->create([
         'section_id' => $inactiveSection->id,
         'name' => 'InactiveField',
@@ -335,11 +335,11 @@ test('inactive custom field sections are handled properly', function () {
         'is_visible_in_forms' => true,
         'sort_order' => 1,
     ]);
-    
+
     // Inactive fields should not appear in forms
     $createComponent = Livewire::test(CreateUser::class);
     $createComponent->assertFormFieldDoesNotExist("custom_field_{$inactiveField->id}");
-    
+
     // Inactive sections should not appear in infolists
     $user = User::factory()->create(['name' => 'Test', 'email' => 'test@example.com']);
     $viewComponent = Livewire::test(ViewUser::class, ['record' => $user->getRouteKey()]);
@@ -353,10 +353,10 @@ test('custom fields work with model mass assignment', function () {
         $this->selectField->id => 'engineering',
         $this->checkboxField->id => true,
     ];
-    
+
     $user = User::factory()->create(['name' => 'Mass Test', 'email' => 'mass@example.com']);
     $user->saveCustomFields($customFieldData);
-    
+
     // Verify all fields were saved
     expect($user->getCustomFieldValue($this->textField))->toBe('Mass Assignment Test');
     expect($user->getCustomFieldValue($this->numberField))->toBe(50000);

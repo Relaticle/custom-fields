@@ -62,7 +62,6 @@ it('ensures return type is integer even for edge cases', function () {
         ->and(SafeValueConverter::toSafeInteger(SafeValueConverter::MAX_BIGINT))->toBeInt()
         ->and(SafeValueConverter::toSafeInteger(SafeValueConverter::MIN_BIGINT))->toBeInt();
 
-
     // Test decimal values to ensure they're properly converted to integers
     $decimalValue = 123.456;
     $result = SafeValueConverter::toSafeInteger($decimalValue);

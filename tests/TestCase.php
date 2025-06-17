@@ -51,7 +51,7 @@ class TestCase extends Orchestra
         return [
             // Spatie Laravel Data Service Provider
             LaravelDataServiceProvider::class,
-//
+            //
             LivewireServiceProvider::class,
             BladeIconsServiceProvider::class,
             BladeHeroiconsServiceProvider::class,

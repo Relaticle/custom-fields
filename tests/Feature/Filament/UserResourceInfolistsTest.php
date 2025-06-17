@@ -132,11 +132,11 @@ test('custom fields infolist renders in view page', function () {
     $component = Livewire::test(ViewUser::class, ['record' => $this->user->getRouteKey()]);
 
     $component->assertInfolistExists();
-    
+
     // Check that infolist contains both standard and custom field sections
     $infolist = $component->instance()->getInfolist();
     expect($infolist)->not->toBeNull();
-    
+
     // Should have User Information section + Custom Fields section
     $schema = $infolist->getSchema();
     expect($schema)->toHaveCount(2);
@@ -148,23 +148,23 @@ test('custom field values are displayed correctly in infolist', function () {
     // Standard user fields should be displayed
     $component->assertInfolistEntryExists('name');
     $component->assertInfolistEntryExists('email');
-    
+
     // Custom field values should be displayed
     $component->assertSee('Biography');
     $component->assertSee('Experienced full-stack developer with expertise in Laravel and React');
-    
+
     $component->assertSee('Years of Experience');
     $component->assertSee('8');
-    
+
     $component->assertSee('Experience Level');
     $component->assertSee('Senior'); // Should show the label, not the value
-    
+
     $component->assertSee('Works Remotely');
     $component->assertSee('Yes'); // Boolean true should display as "Yes"
-    
+
     $component->assertSee('Start Date');
     $component->assertSee('2020-03-15'); // Date should be formatted
-    
+
     $component->assertSee('Phone Number');
     $component->assertSee('+1-555-123-4567');
 });
@@ -183,18 +183,17 @@ test('custom field sections organize entries properly', function () {
     // Should see both section names
     $component->assertSee('User Profile');
     $component->assertSee('Contact Information');
-    
+
     // Fields should be grouped under their respective sections
     $infolist = $component->instance()->getInfolist();
     $schema = $infolist->getSchema();
-    
+
     // Find the Custom Fields section
-    $customFieldsSection = collect($schema)->first(fn($component) => 
-        $component->getName() === 'Custom Fields'
+    $customFieldsSection = collect($schema)->first(fn ($component) => $component->getName() === 'Custom Fields'
     );
-    
+
     expect($customFieldsSection)->not->toBeNull();
-    
+
     // Custom Fields section should contain our custom sections
     $customFieldsSchema = $customFieldsSection->getSchema();
     expect($customFieldsSchema)->toHaveCount(2); // User Profile + Contact Information
@@ -211,12 +210,12 @@ test('empty custom field values are handled gracefully', function () {
 
     // Should still render the custom fields section
     $component->assertSee('Custom Fields');
-    
+
     // Should show field labels but not crash on empty values
     $component->assertSee('Biography');
     $component->assertSee('Years of Experience');
     $component->assertSee('Experience Level');
-    
+
     // Empty values should display appropriately (empty or placeholder text)
     $component->assertInfolistExists();
 });
@@ -227,11 +226,11 @@ test('select field displays option labels not values', function () {
         'name' => 'Junior Developer',
         'email' => 'junior@example.com',
     ]);
-    
+
     $juniorUser->saveCustomFieldValue($this->selectField, 'junior');
-    
+
     $component = Livewire::test(ViewUser::class, ['record' => $juniorUser->getRouteKey()]);
-    
+
     $component->assertSee('Experience Level');
     $component->assertSee('Junior');
     $component->assertDontSee('junior'); // Should not see raw value
@@ -243,20 +242,20 @@ test('boolean field displays proper yes/no values', function () {
         'name' => 'Office Worker',
         'email' => 'office@example.com',
     ]);
-    
+
     $remoteUser->saveCustomFieldValue($this->checkboxField, false);
-    
+
     $component = Livewire::test(ViewUser::class, ['record' => $remoteUser->getRouteKey()]);
-    
+
     $component->assertSee('Works Remotely');
     $component->assertSee('No'); // Boolean false should display as "No"
 });
 
 test('date field displays formatted dates', function () {
     $component = Livewire::test(ViewUser::class, ['record' => $this->user->getRouteKey()]);
-    
+
     $component->assertSee('Start Date');
-    
+
     // Date should be formatted (exact format depends on configuration)
     // The test checks that some form of the date is displayed
     $component->assertSee('2020');
@@ -269,7 +268,7 @@ test('infolist handles multiple field types correctly', function () {
 
     // Verify different field types are handled
     $infolist = $component->instance()->getInfolist();
-    
+
     // Should have entries for all visible field types
     $component->assertSee('Biography'); // TEXT
     $component->assertSee('Years of Experience'); // NUMBER
@@ -284,17 +283,16 @@ test('infolist sections respect sort order', function () {
 
     $infolist = $component->instance()->getInfolist();
     $schema = $infolist->getSchema();
-    
+
     // Find the Custom Fields section
-    $customFieldsSection = collect($schema)->first(fn($component) => 
-        $component->getName() === 'Custom Fields'
+    $customFieldsSection = collect($schema)->first(fn ($component) => $component->getName() === 'Custom Fields'
     );
-    
+
     $customSections = $customFieldsSection->getSchema();
-    
+
     // First section should be "User Profile" (sort_order: 1)
     expect($customSections[0]->getName())->toBe('User Profile');
-    
+
     // Second section should be "Contact Information" (sort_order: 2)
     expect($customSections[1]->getName())->toBe('Contact Information');
 });
@@ -304,10 +302,10 @@ test('custom fields load efficiently for infolist', function () {
 
     // Get the record from the component
     $record = $component->instance()->getRecord();
-    
+
     // Verify that custom field values are properly loaded
     expect($record->relationLoaded('customFieldValues'))->toBeTrue();
-    
+
     // Check that custom field relationships are loaded
     if ($record->customFieldValues->isNotEmpty()) {
         expect($record->customFieldValues->first()->relationLoaded('customField'))->toBeTrue();

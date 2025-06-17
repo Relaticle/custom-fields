@@ -72,6 +72,7 @@ return [
                 'parameters' => 'Parameters',
                 'parameters_value' => 'Parameter Value',
                 'add_parameter' => 'Add Parameter',
+                'select_rule_placeholder' => 'Select a validation rule',
             ],
         ],
     ],
@@ -291,6 +292,7 @@ return [
         'decimal_validation_error' => 'The decimal rule requires exactly 2 parameters.',
         'multi_parameter_missing' => 'This validation rule requires multiple parameters. Please add all required parameters.',
         'parameter_missing' => 'This validation rule requires exactly :count parameter(s). Please add all required parameters.',
+        'invalid_rule_for_field_type' => 'The selected rule is not valid for this field type.',
     ],
 
     'common' => [

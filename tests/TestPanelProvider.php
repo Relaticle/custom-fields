@@ -32,7 +32,7 @@ class TestPanelProvider extends PanelProvider
                 'primary' => Color::Amber,
             ])
             ->resources([
-                UserResource::class
+                UserResource::class,
             ])
             ->pages([
                 TestCustomFieldsPage::class,
