@@ -86,7 +86,7 @@ class ManageCustomFieldSection extends Component implements HasActions, HasForms
             ->schema(SectionForm::entityType($this->entityType)->schema())
             ->fillForm($this->section->toArray())
             ->action(fn (array $data) => $this->section->update($data))
-            ->modalWidth(Width::ExtraLarge);
+            ->modalWidth(Width::TwoExtraLarge);
     }
 
     public function activateAction(): Action

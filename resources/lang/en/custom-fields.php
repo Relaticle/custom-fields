@@ -295,6 +295,19 @@ return [
         'invalid_rule_for_field_type' => 'The selected rule is not valid for this field type.',
     ],
 
+    'empty_states' => [
+        'sections' => [
+            'heading' => 'Ready to get started?',
+            'description' => 'Create your first section to organize and group your custom fields together.',
+            'icon' => 'heroicon-o-rectangle-group',
+        ],
+        'fields' => [
+            'heading' => 'This section is empty',
+            'description' => 'Drag and drop fields here or click the button below to add your first field.',
+            'icon' => 'heroicon-o-squares-plus',
+        ],
+    ],
+
     'common' => [
         'inactive' => 'Inactive',
     ],
