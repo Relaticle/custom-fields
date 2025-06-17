@@ -16,7 +16,7 @@ final readonly class LookupMultiValueResolver implements ValueResolvers
     /**
      * @throws Throwable
      */
-    public function resolve(Model $record, CustomField $customField): array
+    public function resolve(Model $record, CustomField $customField, bool $exportable = false): array
     {
         $value = $record->getCustomFieldValue($customField) ?? [];
         $lookupValues = $this->lookupResolver->resolveLookupValues($value, $customField);

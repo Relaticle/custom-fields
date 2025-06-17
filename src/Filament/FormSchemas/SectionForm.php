@@ -42,15 +42,15 @@ class SectionForm implements FormInterface, SectionFormInterface
                         column: 'name',
                         ignoreRecord: true,
                         modifyRuleUsing: function (Unique $rule, Get $get) {
-                            return $rule->when(
-                                Utils::isTenantEnabled(),
-                                fn (Unique $rule) => $rule
-                                    ->where(
+                            return $rule
+                                ->when(
+                                    Utils::isTenantEnabled(),
+                                    fn(Unique $rule) => $rule->where(
                                         config('custom-fields.column_names.tenant_foreign_key'),
                                         Filament::getTenant()?->id
                                     )
-                                    ->where('entity_type', self::$entityType)
-                            );
+                                )
+                                ->where('entity_type', self::$entityType);
                         },
                     )
                     ->afterStateUpdated(function (Get $get, Set $set, ?string $old, ?string $state): void {
@@ -74,15 +74,15 @@ class SectionForm implements FormInterface, SectionFormInterface
                         column: 'code',
                         ignoreRecord: true,
                         modifyRuleUsing: function (Unique $rule, Get $get) {
-                            return $rule->when(
-                                Utils::isTenantEnabled(),
-                                fn (Unique $rule) => $rule
-                                    ->where(
-                                        config('custom-fields.column_names.tenant_foreign_key'),
-                                        Filament::getTenant()?->id
-                                    )
-                                    ->where('entity_type', self::$entityType)
-                            );
+                            return $rule
+                                ->when(
+                                    Utils::isTenantEnabled(),
+                                    fn(Unique $rule) => $rule
+                                        ->where(
+                                            config('custom-fields.column_names.tenant_foreign_key'),
+                                            Filament::getTenant()?->id
+                                        )
+                                )->where('entity_type', self::$entityType);
                         },
                     )
                     ->afterStateUpdated(function (Set $set, ?string $state): void {
@@ -99,7 +99,7 @@ class SectionForm implements FormInterface, SectionFormInterface
                 Textarea::make('description')
                     ->label(__('custom-fields::custom-fields.section.form.description'))
                     ->reactive()
-                    ->visible(fn (Get $get): bool => $get('type') === CustomFieldSectionType::SECTION)
+                    ->visible(fn(Get $get): bool => $get('type') === CustomFieldSectionType::SECTION)
                     ->maxLength(255)
                     ->nullable()
                     ->columnSpan(12),

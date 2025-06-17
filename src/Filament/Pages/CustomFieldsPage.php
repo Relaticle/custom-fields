@@ -9,6 +9,7 @@ use Filament\Facades\Filament;
 use Filament\Pages\Page;
 use Filament\Panel;
 use Filament\Support\Enums\Size;
+use Filament\Support\Enums\Width;
 use Illuminate\Support\Collection;
 use Livewire\Attributes\Computed;
 use Livewire\Attributes\On;
@@ -82,7 +83,7 @@ class CustomFieldsPage extends Page
             ])
             ->schema(SectionForm::entityType($this->currentEntityType)->schema())
             ->action(fn (array $data) => $this->storeSection($data))
-            ->modalWidth('max-w-2xl');
+            ->modalWidth(Width::TwoExtraLarge);
     }
 
     public function updateSectionsOrder($sections): void
