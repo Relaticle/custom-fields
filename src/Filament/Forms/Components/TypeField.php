@@ -19,10 +19,8 @@ class TypeField extends Select
         parent::setUp();
 
         $this->native(false)
-            ->searchable()
             ->allowHtml()
-            ->preload()
-            ->getSearchResultsUsing(fn (string $search): array => $this->getFilteredOptions($search))
+            ->gridContainer()
             ->options(fn (): array => $this->getAllFormattedOptions());
     }
 
