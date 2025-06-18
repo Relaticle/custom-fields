@@ -33,6 +33,9 @@ final readonly class CustomFieldsFilter
             ->toArray();
     }
 
+    /**
+     * @throws BindingResolutionException
+     */
     public static function forRelationManager(RelationManager $relationManager): array
     {
         return CustomFieldsFilter::all($relationManager->getRelationship()->getModel());

@@ -23,7 +23,6 @@ final class FieldFilterFactory
         CustomFieldType::CHECKBOX->value => TernaryFilter::class,
         CustomFieldType::CHECKBOX_LIST->value => SelectFilter::class,
         CustomFieldType::TOGGLE->value => TernaryFilter::class,
-        CustomFieldType::RADIO->value => TernaryFilter::class,
         CustomFieldType::TOGGLE_BUTTONS->value => SelectFilter::class,
         CustomFieldType::RADIO->value => SelectFilter::class,
     ];

@@ -20,14 +20,18 @@ final readonly class TernaryFilter implements FilterInterface
             ])
             ->nullable()
             ->queries(
-                true: fn (Builder $query) => $query->whereHas('customFieldValues', function (Builder $query) use ($customField) {
-                    $query->where('custom_field_id', $customField->id)->where('text_value', true);
-                }),
-                false: fn (Builder $query) => $query->whereHas('customFieldValues', function (Builder $query) use ($customField) {
-                    $query->where('custom_field_id', $customField->id)->where('text_value', false);
-                })->orWhereDoesntHave('customFieldValues', function (Builder $query) use ($customField) {
-                    $query->where('custom_field_id', $customField->id);
-                }),
+                true: fn (Builder $query) => $query
+                    ->whereHas('customFieldValues', function (Builder $query) use ($customField) {
+                        $query->where('custom_field_id', $customField->getKey())->where($customField->getValueColumn(), true);
+                    }),
+                false: fn (Builder $query) => $query
+                    ->where(fn (Builder $query) => $query
+                        ->whereHas('customFieldValues', function (Builder $query) use ($customField) {
+                            $query->where('custom_field_id', $customField->getKey())->where($customField->getValueColumn(), false);
+                        })->orWhereDoesntHave('customFieldValues', function (Builder $query) use ($customField) {
+                            $query->where('custom_field_id', $customField->getKey())->where($customField->getValueColumn(), true);
+                        })
+                    )
             );
     }
 }
