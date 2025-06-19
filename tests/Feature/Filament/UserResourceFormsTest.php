@@ -11,8 +11,6 @@ use Relaticle\CustomFields\Tests\Models\User;
 use Relaticle\CustomFields\Tests\Resources\UserResource\Pages\CreateUser;
 use Relaticle\CustomFields\Tests\Resources\UserResource\Pages\EditUser;
 
-use function Pest\Livewire\livewire;
-
 beforeEach(function () {
     // Create a custom field section for User model
     $this->section = CustomFieldSection::factory()->create([
@@ -97,7 +95,7 @@ test('custom fields component renders in create form', function () {
 
     // Test that the custom fields component is present
     $customFieldsComponent = $customFieldsSection->getChildComponents()[0] ?? null;
-    expect($customFieldsComponent)->toBeInstanceOf(\Relaticle\CustomFields\Filament\Forms\Components\CustomFieldsComponent::class);
+    expect($customFieldsComponent)->toBeInstanceOf(\Relaticle\CustomFields\Integration\Forms\CustomFieldsForm::class);
 });
 
 test('form schema includes custom fields component', function () {

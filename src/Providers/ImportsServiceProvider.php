@@ -6,15 +6,15 @@ namespace Relaticle\CustomFields\Providers;
 
 use Illuminate\Support\ServiceProvider;
 use Psr\Log\LoggerInterface;
-use Relaticle\CustomFields\Filament\Imports\ColumnConfigurators\BasicColumnConfigurator;
-use Relaticle\CustomFields\Filament\Imports\ColumnConfigurators\MultiSelectColumnConfigurator;
-use Relaticle\CustomFields\Filament\Imports\ColumnConfigurators\SelectColumnConfigurator;
-use Relaticle\CustomFields\Filament\Imports\ColumnFactory;
-use Relaticle\CustomFields\Filament\Imports\CustomFieldsImporter;
-use Relaticle\CustomFields\Filament\Imports\Matchers\LookupMatcher;
-use Relaticle\CustomFields\Filament\Imports\Matchers\LookupMatcherInterface;
-use Relaticle\CustomFields\Filament\Imports\ValueConverters\ValueConverter;
-use Relaticle\CustomFields\Filament\Imports\ValueConverters\ValueConverterInterface;
+use Relaticle\CustomFields\Integration\Actions\Imports\ColumnConfigurators\BasicColumnConfigurator;
+use Relaticle\CustomFields\Integration\Actions\Imports\ColumnConfigurators\MultiSelectColumnConfigurator;
+use Relaticle\CustomFields\Integration\Actions\Imports\ColumnConfigurators\SelectColumnConfigurator;
+use Relaticle\CustomFields\Integration\Actions\Imports\ColumnFactory;
+use Relaticle\CustomFields\Integration\Actions\Imports\CustomFieldsImporter;
+use Relaticle\CustomFields\Integration\Actions\Imports\Matchers\LookupMatcher;
+use Relaticle\CustomFields\Integration\Actions\Imports\Matchers\LookupMatcherInterface;
+use Relaticle\CustomFields\Integration\Actions\Imports\ValueConverters\ValueConverter;
+use Relaticle\CustomFields\Integration\Actions\Imports\ValueConverters\ValueConverterInterface;
 
 /**
  * Service provider for custom fields import functionality.

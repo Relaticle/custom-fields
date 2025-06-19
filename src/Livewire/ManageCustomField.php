@@ -15,7 +15,7 @@ use Filament\Support\Enums\Width;
 use Illuminate\View\View;
 use Livewire\Component;
 use Relaticle\CustomFields\CustomFields;
-use Relaticle\CustomFields\Filament\FormSchemas\FieldForm;
+use Relaticle\CustomFields\Filament\Schemas\FieldForm;
 use Relaticle\CustomFields\Models\CustomField;
 
 class ManageCustomField extends Component implements HasActions, HasForms

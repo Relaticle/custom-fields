@@ -14,8 +14,8 @@ use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
-use Relaticle\CustomFields\Filament\Forms\Components\CustomFieldsComponent;
-use Relaticle\CustomFields\Filament\Infolists\CustomFieldsInfolists;
+use Relaticle\CustomFields\Integration\Forms\CustomFieldsForm;
+use Relaticle\CustomFields\Integration\Infolists\CustomFieldsInfolists;
 use Relaticle\CustomFields\Tests\Models\User;
 use Relaticle\CustomFields\Tests\Resources\UserResource\Pages;
 
@@ -49,8 +49,7 @@ class UserResource extends Resource
 
                 Section::make('Custom Fields')
                     ->schema([
-                        CustomFieldsComponent::make()
-                            ->columnSpanFull(),
+                        CustomFieldsForm::make()->columnSpanFull(),
                     ]),
             ]);
     }

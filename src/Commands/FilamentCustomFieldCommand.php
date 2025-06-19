@@ -50,7 +50,7 @@ class FilamentCustomFieldCommand extends Command
         return <<<EOT
 <?php
 
-use Relaticle\CustomFields\Migrations\CustomFieldsMigration;
+use Relaticle\CustomFields\Integration\Migrations\CustomFieldsMigration;
 
 return new class extends CustomFieldsMigration
 {

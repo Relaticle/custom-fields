@@ -22,7 +22,9 @@
       "WebFetch(domain:custom-fields.relaticle.com)",
       "Bash(rm:*)",
       "Bash(vendor/bin/phpstan analyse:*)",
-      "Bash(php artisan:*)"
+      "Bash(php artisan:*)",
+      "Bash(touch:*)",
+      "Bash(php -l:*)"
     ],
     "deny": []
   }

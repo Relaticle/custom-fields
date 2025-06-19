@@ -17,7 +17,7 @@ use Livewire\Attributes\Url;
 use Relaticle\CustomFields\CustomFields as CustomFieldsModel;
 use Relaticle\CustomFields\CustomFieldsPlugin;
 use Relaticle\CustomFields\Enums\CustomFieldSectionType;
-use Relaticle\CustomFields\Filament\FormSchemas\SectionForm;
+use Relaticle\CustomFields\Filament\Schemas\SectionForm;
 use Relaticle\CustomFields\Models\CustomFieldSection;
 use Relaticle\CustomFields\Services\EntityTypeService;
 use Relaticle\CustomFields\Support\Utils;

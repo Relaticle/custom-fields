@@ -18,10 +18,10 @@ use Relaticle\CustomFields\Commands\OptimizeDatabaseCommand;
 use Relaticle\CustomFields\Commands\UpgradeCommand;
 use Relaticle\CustomFields\Contracts\CustomsFieldsMigrators;
 use Relaticle\CustomFields\Contracts\ValueResolvers;
+use Relaticle\CustomFields\Integration\Migrations\CustomFieldsMigrator;
 use Relaticle\CustomFields\Livewire\ManageCustomField;
 use Relaticle\CustomFields\Livewire\ManageCustomFieldSection;
 use Relaticle\CustomFields\Livewire\ManageCustomFieldWidth;
-use Relaticle\CustomFields\Migrations\CustomFieldsMigrator;
 use Relaticle\CustomFields\Models\CustomField;
 use Relaticle\CustomFields\Models\CustomFieldSection;
 use Relaticle\CustomFields\Providers\ImportsServiceProvider;
@@ -29,7 +29,6 @@ use Relaticle\CustomFields\Providers\ValidationServiceProvider;
 use Relaticle\CustomFields\Services\TenantContextService;
 use Relaticle\CustomFields\Services\ValueResolver\ValueResolver;
 use Relaticle\CustomFields\Support\Utils;
-use Relaticle\CustomFields\Testing\TestsFilamentCustomField;
 use Spatie\LaravelPackageTools\Commands\InstallCommand;
 use Spatie\LaravelPackageTools\Package;
 use Spatie\LaravelPackageTools\PackageServiceProvider;
@@ -136,9 +135,6 @@ class CustomFieldsServiceProvider extends PackageServiceProvider
                 ], 'custom-fields-stubs');
             }
         }
-
-        // Testing
-        Testable::mixin(new TestsFilamentCustomField);
     }
 
     protected function getAssetPackageName(): ?string
