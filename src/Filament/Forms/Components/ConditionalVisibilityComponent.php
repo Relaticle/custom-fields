@@ -34,6 +34,7 @@ class ConditionalVisibilityComponent extends Component
             ->schema([
                 Select::make('settings.conditional_visibility.enabled')
                     ->label('When to show or hide this field')
+                    ->live()
                     ->options([
                         'always' => 'Always Show',
                         'if' => 'Show When',
