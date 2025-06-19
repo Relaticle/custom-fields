@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Relaticle\CustomFields\Integration\Forms;
 
-use;
 use Filament\Forms\Components\Field;
 use Illuminate\Contracts\Container\Container;
 use InvalidArgumentException;

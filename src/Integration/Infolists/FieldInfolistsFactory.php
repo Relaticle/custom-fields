@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Relaticle\CustomFields\Integration\Infolists;
 
-use;
 use Filament\Infolists\Components\Entry;
 use Illuminate\Contracts\Container\Container;
 use InvalidArgumentException;
