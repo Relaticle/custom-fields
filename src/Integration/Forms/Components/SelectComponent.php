@@ -40,17 +40,24 @@ final readonly class SelectComponent implements FieldComponentInterface
                             return [
                                 $option->id => str(
                                     '<div class="flex items-center gap-2">
-                                    <span class="w-3 h-3 rounded-full" style="background-color:{BACKGROUND_COLOR}"></span>
+                                    <span style=" width: 0.7rem;
+  height: 0.7rem;
+  border-radius: 50%;
+  display: inline-block;
+  margin-right: 0.1rem; background-color:{BACKGROUND_COLOR}"></span>
                                     <span>{LABEL}</span>
                                     </div>'
                                 )
-                                    ->replace(['{BACKGROUND_COLOR}', '{LABEL}'], [e($color), e($text)]),
+                                    ->replace(['{BACKGROUND_COLOR}', '{LABEL}'], [e($color), e($text)])
+                                    ->toString(),
                             ];
                         }
 
                         return [$option->id => $text];
                     })
                     ->all();
+
+//                dd($coloredOptions);
 
                 $field
                     ->native(false)
