@@ -64,6 +64,7 @@ class ConditionalVisibilityComponent extends Component
 
                         Select::make('operator')
                             ->label('Operator')
+                            ->live()
                             ->options([
                                 '=' => 'Equals',
                                 '!=' => 'Not equals',
@@ -87,6 +88,8 @@ class ConditionalVisibilityComponent extends Component
                     ->columns(12)
                     ->visible(fn (Get $get): bool => $get('settings.conditional_visibility.enabled') === 'if' || $get('settings.conditional_visibility.enabled') === 'unless')
                     ->defaultItems(1)
+                    ->minItems(1)
+                    ->maxItems(10)
                     ->reorderable(false),
 
                 Toggle::make('settings.conditional_visibility.always_save')
@@ -102,8 +105,9 @@ class ConditionalVisibilityComponent extends Component
     {
         try {
             $entityType = $get('../../../../entity_type');
+            $fieldCode = $get('../../../../code');
 
-            // Fallback to URL if not found in form
+            // Fallback to URL if isn't found in form
             if (! $entityType) {
                 $entityType = request('entityType') ?? request()->route('entityType');
             }
@@ -113,17 +117,15 @@ class ConditionalVisibilityComponent extends Component
             }
 
             // Get all custom fields for this entity type
-            $fields = CustomFields::customFieldModel()::query()
+            return CustomFields::customFieldModel()::query()
                 ->forMorphEntity($entityType)
+                ->where('code', '!=', $fieldCode)
                 ->orderBy('name')
-                ->get();
-
-            $options = [];
-            foreach ($fields as $field) {
-                $options[$field->code] = $field->name;
-            }
-
-            return $options;
+                ->get()
+                ->mapWithKeys(function ($field) {
+                    return [$field->code => $field->name];
+                })
+                ->toArray();
         } catch (\Exception $e) {
             report($e);
             return [];
