@@ -61,6 +61,8 @@ final readonly class FieldConfigurator
             })
             ->dehydrated(fn ($state): bool => $state !== null && $state !== '')
             ->required($this->validationService->isRequired($customField))
-            ->rules($this->validationService->getValidationRules($customField));
+            ->rules($this->validationService->getValidationRules($customField))
+            ->columnSpan($customField->width->getSpanValue())
+            ->inlineLabel(false);
     }
 }

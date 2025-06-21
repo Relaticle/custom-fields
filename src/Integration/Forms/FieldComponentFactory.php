@@ -85,8 +85,6 @@ final class FieldComponentFactory
             $component = $this->instanceCache[$componentClass];
         }
 
-        return $component->make($customField)
-            ->columnSpan($customField->width->getSpanValue())
-            ->inlineLabel(false);
+        return $component->make($customField);
     }
 }
