@@ -17,7 +17,7 @@ class CustomFieldSettingsData extends Data
         public bool $searchable = false,
         public bool $encrypted = false,
         public bool $enable_option_colors = false,
-        public ?CustomFieldConditionsData $conditional_visibility = null,
+        public CustomFieldConditionsData $conditionalVisibility = new CustomFieldConditionsData(),
     ) {
         if ($this->list_toggleable_hidden === null) {
             $this->list_toggleable_hidden = Utils::isTableColumnsToggleableHiddenByDefault();

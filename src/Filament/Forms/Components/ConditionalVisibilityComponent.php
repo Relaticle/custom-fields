@@ -41,7 +41,6 @@ class ConditionalVisibilityComponent extends Component
                     ->enum(ConditionalVisibilityMode::class)
                     ->default(ConditionalVisibilityMode::ALWAYS)
                     ->required()
-                    ->native(false)
                     ->live(),
 
                 Select::make('settings.conditional_visibility.logic')
