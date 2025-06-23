@@ -136,7 +136,7 @@ class SmartConditionalVisibilityTest extends TestCase
                     'logic' => Logic::ALL->value,
                     'conditions' => [
                         [
-                            'field' => 'priority',
+                            'field_code' => 'priority',
                             'operator' => Operator::EQUALS->value,
                             'value' => 'High',
                         ],
@@ -193,7 +193,7 @@ class SmartConditionalVisibilityTest extends TestCase
                     'logic' => Logic::ALL->value,
                     'conditions' => [
                         [
-                            'field' => 'user_tags',
+                            'field_code' => 'user_tags',
                             'operator' => Operator::CONTAINS->value,
                             'value' => 'VIP',
                         ],
@@ -272,12 +272,12 @@ class SmartConditionalVisibilityTest extends TestCase
                     'logic' => Logic::ALL->value,
                     'conditions' => [
                         [
-                            'field' => 'status',
+                            'field_code' => 'status',
                             'operator' => Operator::EQUALS->value,
                             'value' => 'Active',
                         ],
                         [
-                            'field' => 'roles',
+                            'field_code' => 'roles',
                             'operator' => Operator::CONTAINS->value,
                             'value' => 'Admin',
                         ],
@@ -344,12 +344,12 @@ class SmartConditionalVisibilityTest extends TestCase
                     'logic' => Logic::ANY->value,
                     'conditions' => [
                         [
-                            'field' => 'priority',
+                            'field_code' => 'priority',
                             'operator' => Operator::EQUALS->value,
                             'value' => 'High',
                         ],
                         [
-                            'field' => 'priority',
+                            'field_code' => 'priority',
                             'operator' => Operator::EQUALS->value,
                             'value' => 'Critical',
                         ],

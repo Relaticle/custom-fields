@@ -78,7 +78,7 @@ class VisibilityComponent extends Component
     private function buildConditionSchema(): array
     {
         return [
-            Select::make('field')
+            Select::make('field_code')
                 ->label('Field')
                 ->options(fn (Get $get) => $this->getFieldOptions($get))
                 ->required()
@@ -102,9 +102,17 @@ class VisibilityComponent extends Component
                 ->label('Value')
                 ->options(fn (Get $get) => $this->getValueOptions($get))
                 ->searchable()
-                ->visible(fn (Get $get) => $this->requiresValue($get) && $this->isOptionableField($get))
-                ->multiple(fn (Get $get) => $this->requiresMultipleValues($get))
+                ->visible(fn (Get $get) => $this->requiresValue($get) && $this->isOptionableField($get) && ! $this->requiresMultipleValues($get))
                 ->placeholder(fn (Get $get) => $this->getValuePlaceholder($get))
+                ->columnSpan(5),
+
+            Select::make('multiple_values')
+                ->label('Multiple Values')
+                ->multiple()
+                ->options(fn (Get $get) => $this->getValueOptions($get))
+                ->visible(fn (Get $get) => $this->requiresMultipleValues($get) && $this->isOptionableField($get))
+                ->placeholder(fn (Get $get) => $this->getValuePlaceholder($get))
+                ->dehydrateStateUsing(fn ($state) => is_array($state) ? array_values($state) : $state)
                 ->columnSpan(5),
 
             // Text input for non-optionable fields  
@@ -121,7 +129,7 @@ class VisibilityComponent extends Component
      */
     private function isOptionableField(Get $get): bool
     {
-        $fieldCode = $get('field');
+        $fieldCode = $get('field_code');
         
         if (! $fieldCode) {
             return false;
@@ -140,7 +148,7 @@ class VisibilityComponent extends Component
      */
     private function requiresMultipleValues(Get $get): bool
     {
-        $fieldCode = $get('field');
+        $fieldCode = $get('field_code');
         $operator = $get('operator');
         
         if (! $fieldCode || ! $operator) {
@@ -173,7 +181,7 @@ class VisibilityComponent extends Component
      */
     private function getValueOptions(Get $get): array
     {
-        $fieldCode = $get('field');
+        $fieldCode = $get('field_code');
         
         if (! $fieldCode) {
             return [];
@@ -198,7 +206,7 @@ class VisibilityComponent extends Component
      */
     private function getValuePlaceholder(Get $get): string
     {
-        $fieldCode = $get('field');
+        $fieldCode = $get('field_code');
         $operator = $get('operator');
         
         if (! $fieldCode) {
@@ -286,7 +294,7 @@ class VisibilityComponent extends Component
 
     private function getOperatorOptions(Get $get): array
     {
-        $fieldCode = $get('field');
+        $fieldCode = $get('field_code');
 
         if (! $fieldCode) {
             return Operator::options();

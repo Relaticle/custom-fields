@@ -6,9 +6,10 @@ namespace Relaticle\CustomFields\Data;
 
 use Relaticle\CustomFields\Enums\Logic;
 use Relaticle\CustomFields\Enums\Mode;
-use Relaticle\CustomFields\Enums\Operator;
+use Spatie\LaravelData\Attributes\DataCollectionOf;
 use Spatie\LaravelData\Attributes\MapName;
 use Spatie\LaravelData\Data;
+use Spatie\LaravelData\DataCollection;
 use Spatie\LaravelData\Mappers\SnakeCaseMapper;
 
 #[MapName(SnakeCaseMapper::class)]
@@ -17,10 +18,10 @@ class VisibilityData extends Data
     public function __construct(
         public Mode $mode = Mode::ALWAYS_VISIBLE,
         public Logic $logic = Logic::ALL,
-        public ?array $conditions = null,
+        #[DataCollectionOf(VisibilityConditionData::class)]
+        public ?DataCollection $conditions = null,
         public bool $alwaysSave = false,
     ) {
-        $this->conditions = $this->sanitizeConditions($conditions);
     }
 
     public function requiresConditions(): bool
@@ -46,60 +47,13 @@ class VisibilityData extends Data
         return $this->mode->shouldShow($conditionsMet);
     }
 
-    private function evaluateCondition(array $condition, array $fieldValues): bool
+    private function evaluateCondition(VisibilityConditionData $condition, array $fieldValues): bool
     {
-        $fieldCode = $condition['field'] ?? null;
-        $operator = $condition['operator'] ?? null;
-        $expectedValue = $condition['value'] ?? null;
-
-        if (! $fieldCode || ! $operator) {
-            return false;
-        }
-
-        try {
-            $operatorEnum = Operator::from($operator);
-            $fieldValue = $fieldValues[$fieldCode] ?? null;
-
-            return $operatorEnum->evaluate($fieldValue, $expectedValue);
-        } catch (\ValueError) {
-            return false;
-        }
+        $fieldValue = $fieldValues[$condition->field_code] ?? null;
+        
+        return $condition->operator->evaluate($fieldValue, $condition->value);
     }
 
-    private function sanitizeConditions(?array $conditions): ?array
-    {
-        if ($conditions === null) {
-            return null;
-        }
-
-        $sanitized = [];
-
-        foreach ($conditions as $condition) {
-            if (! is_array($condition)) {
-                continue;
-            }
-
-            $sanitizedCondition = [];
-
-            if (isset($condition['field']) && is_string($condition['field']) && ! empty($condition['field'])) {
-                $sanitizedCondition['field'] = $condition['field'];
-            }
-
-            if (isset($condition['operator']) && is_string($condition['operator']) && ! empty($condition['operator'])) {
-                $sanitizedCondition['operator'] = $condition['operator'];
-            }
-
-            if (isset($condition['value'])) {
-                $sanitizedCondition['value'] = $condition['value'];
-            }
-
-            if (isset($sanitizedCondition['field']) && isset($sanitizedCondition['operator'])) {
-                $sanitized[] = $sanitizedCondition;
-            }
-        }
-
-        return empty($sanitized) ? null : $sanitized;
-    }
 
     public function getDependentFields(): array
     {
@@ -110,9 +64,7 @@ class VisibilityData extends Data
         $fields = [];
 
         foreach ($this->conditions as $condition) {
-            if (isset($condition['field']) && is_string($condition['field'])) {
-                $fields[] = $condition['field'];
-            }
+            $fields[] = $condition->field_code;
         }
 
         return array_unique($fields);

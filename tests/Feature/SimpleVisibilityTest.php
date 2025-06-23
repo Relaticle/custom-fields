@@ -40,7 +40,7 @@ class SimpleVisibilityTest extends TestCase
                     'logic' => Logic::ALL->value,
                     'conditions' => [
                         [
-                            'field' => 'status',
+                            'field_code' => 'status',
                             'operator' => Operator::EQUALS->value,
                             'value' => 'active',
                         ],
@@ -73,7 +73,7 @@ class SimpleVisibilityTest extends TestCase
                     'logic' => Logic::ALL->value,
                     'conditions' => [
                         [
-                            'field' => 'status',
+                            'field_code' => 'status',
                             'operator' => Operator::EQUALS->value,
                             'value' => 'inactive',
                         ],
@@ -102,12 +102,12 @@ class SimpleVisibilityTest extends TestCase
                     'logic' => Logic::ALL->value,
                     'conditions' => [
                         [
-                            'field' => 'status',
+                            'field_code' => 'status',
                             'operator' => Operator::EQUALS->value,
                             'value' => 'active',
                         ],
                         [
-                            'field' => 'type',
+                            'field_code' => 'type',
                             'operator' => Operator::EQUALS->value,
                             'value' => 'premium',
                         ],
@@ -147,12 +147,12 @@ class SimpleVisibilityTest extends TestCase
                     'logic' => Logic::ANY->value,
                     'conditions' => [
                         [
-                            'field' => 'status',
+                            'field_code' => 'status',
                             'operator' => Operator::EQUALS->value,
                             'value' => 'active',
                         ],
                         [
-                            'field' => 'type',
+                            'field_code' => 'type',
                             'operator' => Operator::EQUALS->value,
                             'value' => 'premium',
                         ],
@@ -197,7 +197,7 @@ class SimpleVisibilityTest extends TestCase
                     'mode' => Mode::SHOW_WHEN->value,
                     'conditions' => [
                         [
-                            'field' => 'quantity',
+                            'field_code' => 'quantity',
                             'operator' => Operator::GREATER_THAN->value,
                             'value' => '10',
                         ],
@@ -224,7 +224,7 @@ class SimpleVisibilityTest extends TestCase
                     'mode' => Mode::SHOW_WHEN->value,
                     'conditions' => [
                         [
-                            'field' => 'features',
+                            'field_code' => 'features',
                             'operator' => Operator::CONTAINS->value,
                             'value' => 'api',
                         ],
@@ -255,7 +255,7 @@ class SimpleVisibilityTest extends TestCase
                     'mode' => Mode::SHOW_WHEN->value,
                     'conditions' => [
                         [
-                            'field' => 'description',
+                            'field_code' => 'description',
                             'operator' => Operator::IS_EMPTY->value,
                         ],
                     ],
@@ -278,8 +278,8 @@ class SimpleVisibilityTest extends TestCase
                 'visibility' => [
                     'mode' => Mode::SHOW_WHEN->value,
                     'conditions' => [
-                        ['field' => 'status', 'operator' => Operator::EQUALS->value, 'value' => 'active'],
-                        ['field' => 'type', 'operator' => Operator::EQUALS->value, 'value' => 'premium'],
+                        ['field_code' => 'status', 'operator' => Operator::EQUALS->value, 'value' => 'active'],
+                        ['field_code' => 'type', 'operator' => Operator::EQUALS->value, 'value' => 'premium'],
                     ],
                 ],
             ],
@@ -291,7 +291,7 @@ class SimpleVisibilityTest extends TestCase
                 'visibility' => [
                     'mode' => Mode::SHOW_WHEN->value,
                     'conditions' => [
-                        ['field' => 'status', 'operator' => Operator::EQUALS->value, 'value' => 'active'],
+                        ['field_code' => 'status', 'operator' => Operator::EQUALS->value, 'value' => 'active'],
                     ],
                 ],
             ],
@@ -335,8 +335,8 @@ class SimpleVisibilityTest extends TestCase
                     'mode' => Mode::SHOW_WHEN->value,
                     'conditions' => [
                         'invalid_condition',
-                        ['field' => null, 'operator' => 'invalid'],
-                        ['field' => 'status', 'operator' => Operator::EQUALS->value, 'value' => 'active'],
+                        ['field_code' => null, 'operator' => 'invalid'],
+                        ['field_code' => 'status', 'operator' => Operator::EQUALS->value, 'value' => 'active'],
                     ],
                 ],
             ],

@@ -36,7 +36,7 @@ class ConditionalVisibilityIntegrationTest extends TestCase
                     enabled: ConditionalVisibilityMode::SHOW_WHEN,
                     logic: ConditionalVisibilityLogic::ALL,
                     conditions: [
-                        ['field' => 'status', 'operator' => ConditionOperator::EQUALS->value, 'value' => 'active'],
+                        ['field_code' => 'status', 'operator' => ConditionOperator::EQUALS->value, 'value' => 'active'],
                     ],
                     always_save: false
                 ),
@@ -58,8 +58,8 @@ class ConditionalVisibilityIntegrationTest extends TestCase
                     enabled: ConditionalVisibilityMode::SHOW_WHEN,
                     logic: ConditionalVisibilityLogic::ALL,
                     conditions: [
-                        ['field' => 'priority', 'operator' => ConditionOperator::GREATER_THAN->value, 'value' => '5'],
-                        ['field' => 'category', 'operator' => ConditionOperator::EQUALS->value, 'value' => 'urgent'],
+                        ['field_code' => 'priority', 'operator' => ConditionOperator::GREATER_THAN->value, 'value' => '5'],
+                        ['field_code' => 'category', 'operator' => ConditionOperator::EQUALS->value, 'value' => 'urgent'],
                     ],
                     always_save: false
                 ),
@@ -86,7 +86,7 @@ class ConditionalVisibilityIntegrationTest extends TestCase
                     enabled: ConditionalVisibilityMode::SHOW_WHEN,
                     logic: ConditionalVisibilityLogic::ALL,
                     conditions: [
-                        ['field' => 'type', 'operator' => ConditionOperator::EQUALS->value, 'value' => 'detailed'],
+                        ['field_code' => 'type', 'operator' => ConditionOperator::EQUALS->value, 'value' => 'detailed'],
                     ],
                     always_save: false
                 ),
@@ -102,8 +102,8 @@ class ConditionalVisibilityIntegrationTest extends TestCase
                     enabled: ConditionalVisibilityMode::SHOW_WHEN,
                     logic: ConditionalVisibilityLogic::ANY,
                     conditions: [
-                        ['field' => 'status', 'operator' => ConditionOperator::EQUALS->value, 'value' => 'active'],
-                        ['field' => 'category', 'operator' => ConditionOperator::EQUALS->value, 'value' => 'urgent'],
+                        ['field_code' => 'status', 'operator' => ConditionOperator::EQUALS->value, 'value' => 'active'],
+                        ['field_code' => 'category', 'operator' => ConditionOperator::EQUALS->value, 'value' => 'urgent'],
                     ],
                     always_save: false
                 ),
@@ -135,7 +135,7 @@ class ConditionalVisibilityIntegrationTest extends TestCase
                     enabled: ConditionalVisibilityMode::SHOW_WHEN,
                     logic: ConditionalVisibilityLogic::ALL,
                     conditions: [
-                        ['field' => 'features', 'operator' => ConditionOperator::CONTAINS->value, 'value' => 'api_access'],
+                        ['field_code' => 'features', 'operator' => ConditionOperator::CONTAINS->value, 'value' => 'api_access'],
                     ],
                     always_save: false
                 ),
@@ -160,7 +160,7 @@ class ConditionalVisibilityIntegrationTest extends TestCase
                     enabled: ConditionalVisibilityMode::SHOW_WHEN,
                     logic: ConditionalVisibilityLogic::ALL,
                     conditions: [
-                        ['field' => 'notes', 'operator' => ConditionOperator::IS_NOT_EMPTY->value],
+                        ['field_code' => 'notes', 'operator' => ConditionOperator::IS_NOT_EMPTY->value],
                     ],
                     always_save: false
                 ),
@@ -189,7 +189,7 @@ class ConditionalVisibilityIntegrationTest extends TestCase
                     enabled: ConditionalVisibilityMode::HIDE_WHEN,
                     logic: ConditionalVisibilityLogic::ANY,
                     conditions: [
-                        ['field' => 'status', 'operator' => ConditionOperator::EQUALS->value, 'value' => 'disabled'],
+                        ['field_code' => 'status', 'operator' => ConditionOperator::EQUALS->value, 'value' => 'disabled'],
                     ],
                     always_save: true
                 ),
@@ -229,7 +229,7 @@ class ConditionalVisibilityIntegrationTest extends TestCase
                     enabled: ConditionalVisibilityMode::SHOW_WHEN,
                     logic: ConditionalVisibilityLogic::ALL,
                     conditions: [
-                        ['field' => 'field_a', 'operator' => ConditionOperator::EQUALS->value, 'value' => 'show_b'],
+                        ['field_code' => 'field_a', 'operator' => ConditionOperator::EQUALS->value, 'value' => 'show_b'],
                     ],
                     always_save: false
                 ),
@@ -245,7 +245,7 @@ class ConditionalVisibilityIntegrationTest extends TestCase
                     enabled: ConditionalVisibilityMode::SHOW_WHEN,
                     logic: ConditionalVisibilityLogic::ALL,
                     conditions: [
-                        ['field' => 'field_b', 'operator' => ConditionOperator::IS_NOT_EMPTY->value],
+                        ['field_code' => 'field_b', 'operator' => ConditionOperator::IS_NOT_EMPTY->value],
                     ],
                     always_save: false
                 ),

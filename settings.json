@@ -1,0 +1,19 @@
+{
+  "visible_in_list": true,
+  "list_toggleable_hidden": true,
+  "visible_in_view": true,
+  "searchable": false,
+  "encrypted": false,
+  "enable_option_colors": false,
+  "visibility": {
+    "mode": "show_when",
+    "logic": "all",
+    "conditions": [
+      {
+        "field": "email_types",
+        "operator": "contains"
+      }
+    ],
+    "always_save": false
+  }
+}
