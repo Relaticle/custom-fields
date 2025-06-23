@@ -14,7 +14,10 @@ final readonly class DateComponent implements FieldComponentInterface
 {
     public function __construct(private FieldConfigurator $configurator) {}
 
-    public function make(CustomField $customField): Field
+    /**
+     * @param  array<string>  $dependentFieldCodes
+     */
+    public function make(CustomField $customField, array $dependentFieldCodes = []): Field
     {
         $field = DatePicker::make("custom_fields.{$customField->code}")
             ->native(FieldTypeUtils::isDatePickerNative())
@@ -22,6 +25,6 @@ final readonly class DateComponent implements FieldComponentInterface
             ->displayFormat(FieldTypeUtils::getDateFormat())
             ->placeholder(FieldTypeUtils::getDateFormat());
 
-        return $this->configurator->configure($field, $customField);
+        return $this->configurator->configure($field, $customField, $dependentFieldCodes);
     }
 }

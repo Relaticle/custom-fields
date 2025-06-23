@@ -15,7 +15,10 @@ final readonly class RadioComponent implements FieldComponentInterface
 {
     public function __construct(private FieldConfigurator $configurator) {}
 
-    public function make(CustomField $customField): Field
+    /**
+     * @param  array<string>  $dependentFieldCodes
+     */
+    public function make(CustomField $customField, array $dependentFieldCodes = []): Field
     {
         $field = Radio::make("custom_fields.{$customField->code}")->inline(false);
 
@@ -47,7 +50,7 @@ final readonly class RadioComponent implements FieldComponentInterface
 
         $field->options($options);
 
-        return $this->configurator->configure($field, $customField);
+        return $this->configurator->configure($field, $customField, $dependentFieldCodes);
     }
 
     /**

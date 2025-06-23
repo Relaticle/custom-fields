@@ -13,10 +13,13 @@ final readonly class CheckboxComponent implements FieldComponentInterface
 {
     public function __construct(private FieldConfigurator $configurator) {}
 
-    public function make(CustomField $customField): Field
+    /**
+     * @param  array<string>  $dependentFieldCodes
+     */
+    public function make(CustomField $customField, array $dependentFieldCodes = []): Field
     {
         $field = Checkbox::make("custom_fields.{$customField->code}")->inline(false);
 
-        return $this->configurator->configure($field, $customField);
+        return $this->configurator->configure($field, $customField, $dependentFieldCodes);
     }
 }

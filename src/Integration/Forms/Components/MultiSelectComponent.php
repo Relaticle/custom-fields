@@ -12,8 +12,11 @@ final readonly class MultiSelectComponent implements FieldComponentInterface
 {
     public function __construct(private FieldConfigurator $configurator) {}
 
-    public function make(CustomField $customField): Select
+    /**
+     * @param  array<string>  $dependentFieldCodes
+     */
+    public function make(CustomField $customField, array $dependentFieldCodes = []): Select
     {
-        return (new SelectComponent($this->configurator))->make($customField)->multiple();
+        return (new SelectComponent($this->configurator))->make($customField, $dependentFieldCodes)->multiple();
     }
 }

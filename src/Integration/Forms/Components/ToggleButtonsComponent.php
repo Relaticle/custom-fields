@@ -14,7 +14,10 @@ final readonly class ToggleButtonsComponent implements FieldComponentInterface
 {
     public function __construct(private FieldConfigurator $configurator) {}
 
-    public function make(CustomField $customField): Field
+    /**
+     * @param  array<string>  $dependentFieldCodes
+     */
+    public function make(CustomField $customField, array $dependentFieldCodes = []): Field
     {
         $field = ToggleButtons::make("custom_fields.{$customField->code}")->inline(false);
 
@@ -33,6 +36,6 @@ final readonly class ToggleButtonsComponent implements FieldComponentInterface
             }
         }
 
-        return $this->configurator->configure($field, $customField);
+        return $this->configurator->configure($field, $customField, $dependentFieldCodes);
     }
 }

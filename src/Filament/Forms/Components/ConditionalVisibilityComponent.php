@@ -12,6 +12,10 @@ use Filament\Schemas\Components\Component;
 use Filament\Schemas\Components\Fieldset;
 use Filament\Schemas\Components\Utilities\Get;
 use Relaticle\CustomFields\CustomFields;
+use Relaticle\CustomFields\Enums\ConditionalVisibilityLogic;
+use Relaticle\CustomFields\Enums\ConditionalVisibilityMode;
+use Relaticle\CustomFields\Enums\ConditionOperator;
+use Relaticle\CustomFields\Enums\CustomFieldType;
 
 class ConditionalVisibilityComponent extends Component
 {
@@ -35,21 +39,14 @@ class ConditionalVisibilityComponent extends Component
                 Select::make('settings.conditional_visibility.enabled')
                     ->label('When to show or hide this field')
                     ->live()
-                    ->options([
-                        'always' => 'Always Show',
-                        'if' => 'Show When',
-                        'unless' => 'Hide When',
-                    ])
-                    ->default('always'),
+                    ->options(ConditionalVisibilityMode::options())
+                    ->default(ConditionalVisibilityMode::ALWAYS->value),
 
                 Select::make('settings.conditional_visibility.logic')
                     ->label('Logic')
-                    ->options([
-                        'all' => 'All conditions must be met (AND)',
-                        'any' => 'Any condition can be met (OR)',
-                    ])
-                    ->default('all')
-                    ->visible(fn (Get $get): bool => $get('settings.conditional_visibility.enabled') === 'if' || $get('settings.conditional_visibility.enabled') === 'unless'),
+                    ->options(ConditionalVisibilityLogic::options())
+                    ->default(ConditionalVisibilityLogic::ALL->value)
+                    ->visible(fn (Get $get): bool => $this->shouldShowConditionFields($get)),
 
                 Repeater::make('settings.conditional_visibility.conditions')
                     ->label('Conditions')
@@ -65,28 +62,19 @@ class ConditionalVisibilityComponent extends Component
                         Select::make('operator')
                             ->label('Operator')
                             ->live()
-                            ->options([
-                                '=' => 'Equals',
-                                '!=' => 'Not equals',
-                                '>' => 'Greater than',
-                                '<' => 'Less than',
-                                '>=' => 'Greater or equal',
-                                '<=' => 'Less or equal',
-                                'contains' => 'Contains',
-                                'not_contains' => 'Not contains',
-                                'empty' => 'Is empty',
-                                'not_empty' => 'Is not empty',
-                            ])
+                            ->options(function (Get $get) {
+                                return $this->getOperatorOptionsForField($get);
+                            })
                             ->required()
                             ->columnSpan(3),
 
                         TextInput::make('value')
                             ->label('Value')
                             ->columnSpan(6)
-                            ->visible(fn (Get $get): bool => ! in_array($get('operator'), ['empty', 'not_empty'])),
+                            ->visible(fn (Get $get): bool => $this->shouldShowValueField($get)),
                     ])
                     ->columns(12)
-                    ->visible(fn (Get $get): bool => $get('settings.conditional_visibility.enabled') === 'if' || $get('settings.conditional_visibility.enabled') === 'unless')
+                    ->visible(fn (Get $get): bool => $this->shouldShowConditionFields($get))
                     ->defaultItems(1)
                     ->minItems(1)
                     ->maxItems(10)
@@ -96,7 +84,7 @@ class ConditionalVisibilityComponent extends Component
                     ->label('Always save')
                     ->helperText('Save the field value even if it is hidden by conditional visibility')
                     ->default(false)
-                    ->visible(fn (Get $get): bool => $get('settings.conditional_visibility.enabled') === 'if' || $get('settings.conditional_visibility.enabled') === 'unless'),
+                    ->visible(fn (Get $get): bool => $this->shouldShowConditionFields($get)),
             ])
             ->columns(1);
     }
@@ -128,7 +116,86 @@ class ConditionalVisibilityComponent extends Component
                 ->toArray();
         } catch (\Exception $e) {
             report($e);
+
             return [];
+        }
+    }
+
+    /**
+     * Check if condition-related fields should be shown.
+     */
+    private function shouldShowConditionFields(Get $get): bool
+    {
+        $mode = $get('settings.conditional_visibility.enabled');
+
+        if (! $mode) {
+            return false;
+        }
+
+        $visibilityMode = ConditionalVisibilityMode::from($mode);
+
+        return $visibilityMode->requiresConditions();
+    }
+
+    /**
+     * Check if the value field should be shown for the selected operator.
+     */
+    private function shouldShowValueField(Get $get): bool
+    {
+        $operator = $get('operator');
+
+        if (! $operator) {
+            return true;
+        }
+
+        $conditionOperator = ConditionOperator::from($operator);
+
+        return $conditionOperator->requiresValue();
+    }
+
+    /**
+     * Get operator options based on the selected field type.
+     *
+     * @return array<string, string>
+     */
+    private function getOperatorOptionsForField(Get $get): array
+    {
+        $fieldCode = $get('field');
+
+        if (! $fieldCode) {
+            return ConditionOperator::commonOptions();
+        }
+
+        try {
+            // Get the field type for the selected field
+            $entityType = $get('../../../../entity_type') ?? request('entityType') ?? request()->route('entityType');
+
+            if (! $entityType) {
+                return ConditionOperator::commonOptions();
+            }
+
+            $field = CustomFields::customFieldModel()::query()
+                ->forMorphEntity($entityType)
+                ->where('code', $fieldCode)
+                ->first();
+
+            if (! $field) {
+                return ConditionOperator::commonOptions();
+            }
+
+            $fieldType = CustomFieldType::from($field->type->value);
+            $operators = ConditionOperator::forFieldType($fieldType);
+
+            $options = [];
+            foreach ($operators as $operator) {
+                $options[$operator->value] = $operator->getLabel();
+            }
+
+            return $options;
+        } catch (\Exception $e) {
+            report($e);
+
+            return ConditionOperator::commonOptions();
         }
     }
 }

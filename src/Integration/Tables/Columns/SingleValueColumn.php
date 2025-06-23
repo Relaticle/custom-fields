@@ -8,7 +8,6 @@ use Filament\Support\Colors\Color;
 use Filament\Tables\Columns\Column as BaseColumn;
 use Filament\Tables\Columns\TextColumn as BaseTextColumn;
 use Illuminate\Database\Eloquent\Builder;
-use Relaticle\CustomFields\Integration\Tables\Columns\ColumnInterface;
 use Relaticle\CustomFields\Models\CustomField;
 use Relaticle\CustomFields\Services\ValueResolver\LookupSingleValueResolver;
 use Relaticle\CustomFields\Support\Utils;

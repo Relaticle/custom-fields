@@ -98,7 +98,7 @@ class SectionForm implements FormInterface, SectionFormInterface
                     ->columnSpan(12),
                 Textarea::make('description')
                     ->label(__('custom-fields::custom-fields.section.form.description'))
-                    ->reactive()
+                    ->live()
                     ->visible(fn (Get $get): bool => $get('type') === CustomFieldSectionType::SECTION)
                     ->maxLength(255)
                     ->nullable()

@@ -15,7 +15,10 @@ final readonly class CheckboxListComponent implements FieldComponentInterface
 {
     public function __construct(private FieldConfigurator $configurator) {}
 
-    public function make(CustomField $customField): Field
+    /**
+     * @param  array<string>  $dependentFieldCodes
+     */
+    public function make(CustomField $customField, array $dependentFieldCodes = []): Field
     {
         $field = CheckboxList::make("custom_fields.{$customField->code}");
 
@@ -47,7 +50,7 @@ final readonly class CheckboxListComponent implements FieldComponentInterface
 
         $field->options($options);
 
-        return $this->configurator->configure($field, $customField);
+        return $this->configurator->configure($field, $customField, $dependentFieldCodes);
     }
 
     /**

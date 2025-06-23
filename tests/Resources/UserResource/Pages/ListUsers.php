@@ -6,7 +6,7 @@ namespace Relaticle\CustomFields\Tests\Resources\UserResource\Pages;
 
 use Filament\Actions;
 use Filament\Resources\Pages\ListRecords;
-use Relaticle\CustomFields\Filament\Tables\Concerns\InteractsWithCustomFields;
+use Relaticle\CustomFields\Integration\Tables\InteractsWithCustomFields;
 use Relaticle\CustomFields\Tests\Resources\UserResource;
 
 class ListUsers extends ListRecords

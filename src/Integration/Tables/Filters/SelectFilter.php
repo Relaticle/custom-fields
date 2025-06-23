@@ -6,7 +6,6 @@ namespace Relaticle\CustomFields\Integration\Tables\Filters;
 
 use Filament\Tables\Filters\SelectFilter as FilamentSelectFilter;
 use Illuminate\Database\Eloquent\Builder;
-use Relaticle\CustomFields\Integration\Tables\Filters\FilterInterface;
 use Relaticle\CustomFields\Models\CustomField;
 use Relaticle\CustomFields\Services\FilamentResourceService;
 use Throwable;

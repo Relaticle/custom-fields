@@ -9,5 +9,8 @@ use Relaticle\CustomFields\Models\CustomField;
 
 interface FieldComponentInterface
 {
-    public function make(CustomField $customField): Field;
+    /**
+     * @param  array<string>  $dependentFieldCodes
+     */
+    public function make(CustomField $customField, array $dependentFieldCodes = []): Field;
 }

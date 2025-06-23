@@ -5,9 +5,12 @@ declare(strict_types=1);
 namespace Relaticle\CustomFields\Integration\Forms;
 
 use Filament\Forms\Components\Field;
+use Filament\Schemas\Components\Utilities\Get;
 use Illuminate\Support\Carbon;
+use Relaticle\CustomFields\Data\CustomFieldConditionsData;
 use Relaticle\CustomFields\Enums\CustomFieldType;
 use Relaticle\CustomFields\Models\CustomField;
+use Relaticle\CustomFields\Services\ConditionalVisibilityService;
 use Relaticle\CustomFields\Services\ValidationService;
 use Relaticle\CustomFields\Support\FieldTypeUtils;
 
@@ -21,6 +24,10 @@ final readonly class FieldConfigurator
          * The validation service instance.
          */
         private ValidationService $validationService,
+        /**
+         * The conditional visibility service instance.
+         */
+        private ConditionalVisibilityService $conditionalVisibilityService,
     ) {}
 
     /**
@@ -29,15 +36,16 @@ final readonly class FieldConfigurator
      *
      * @template T of Field
      *
-     * @param  Field  $field  The Filament form field to configure
+     * @param  T  $field  The Filament form field to configure
      * @param  CustomField  $customField  The custom field definition
-     * @return Field The configured field
+     * @param  array<string>  $dependentFieldCodes  Field codes that depend on this field (makes it live)
+     * @return T The configured field
      */
-    public function configure(Field $field, CustomField $customField): Field
+    public function configure(Field $field, CustomField $customField, array $dependentFieldCodes = []): Field
     {
-        return $field
+        $field = $field
+            ->name('custom_fields.'.$customField->code)
             ->label($customField->name)
-            ->reactive()
             ->afterStateHydrated(function ($component, $state, $record) use ($customField): void {
                 // Get existing value from record or use default
                 $value = $record?->getCustomFieldValue($customField);
@@ -59,10 +67,57 @@ final readonly class FieldConfigurator
                 // Set the component state
                 $component->state($value);
             })
-            ->dehydrated(fn ($state): bool => $state !== null && $state !== '')
+            ->dehydrated(function ($state) use ($customField): bool {
+                // Always save if configured to do so, otherwise check if state is not empty
+                if ($this->conditionalVisibilityService->shouldAlwaysSave($customField)) {
+                    return true;
+                }
+
+                return $state !== null && $state !== '';
+            })
             ->required($this->validationService->isRequired($customField))
             ->rules($this->validationService->getValidationRules($customField))
             ->columnSpan($customField->width->getSpanValue())
             ->inlineLabel(false);
+
+        // Add conditional visibility if configured
+        $conditionalVisibility = $customField->settings?->conditional_visibility;
+        if ($conditionalVisibility && $conditionalVisibility->requiresConditions()) {
+            $field = $this->addConditionalVisibility($field, $conditionalVisibility);
+        }
+
+        // Make field live if other fields depend on it (this ensures dependency fields trigger updates)
+        if (! empty($dependentFieldCodes)) {
+            $field = $field->live();
+        }
+
+        return $field;
+    }
+
+    /**
+     * Add conditional visibility using the centralized service.
+     * Leverages Filament's reactive system for natural dependency resolution.
+     */
+    private function addConditionalVisibility(Field $field, CustomFieldConditionsData $conditionalVisibility): Field
+    {
+        return $field
+            ->live()
+            ->visible(function (Get $get) use ($conditionalVisibility): bool {
+                // Build field values for evaluation
+                $fieldValues = [];
+
+                foreach ($conditionalVisibility->conditions ?? [] as $condition) {
+                    $fieldCode = $condition['field'] ?? null;
+
+                    if (empty($fieldCode)) {
+                        continue;
+                    }
+
+                    $rawValue = $get('custom_fields.'.$fieldCode);
+                    $fieldValues[$fieldCode] = $this->conditionalVisibilityService->normalizeFieldValue($fieldCode, $rawValue);
+                }
+
+                return $conditionalVisibility->evaluate($fieldValues);
+            });
     }
 }

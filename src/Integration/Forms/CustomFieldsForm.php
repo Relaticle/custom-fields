@@ -9,6 +9,7 @@ use Filament\Schemas\Components\Component;
 use Relaticle\CustomFields\CustomFields;
 use Relaticle\CustomFields\Models\CustomField;
 use Relaticle\CustomFields\Models\CustomFieldSection;
+use Relaticle\CustomFields\Services\ConditionalVisibilityService;
 
 final class CustomFieldsForm extends Component
 {
@@ -57,12 +58,19 @@ final class CustomFieldsForm extends Component
             ->orderBy('sort_order')
             ->get();
 
-        return $sections->map(function (CustomFieldSection $section) {
+        // Calculate field dependencies for all fields across all sections
+        $allFields = $sections->flatMap(fn ($section) => $section->fields);
+        $fieldDependencies = app(ConditionalVisibilityService::class)->calculateFieldDependencies($allFields);
+
+        return $sections->map(function (CustomFieldSection $section) use ($fieldDependencies) {
             return $this->sectionComponentFactory->create($section)->schema(
-                function () use ($section) {
+                function () use ($section, $fieldDependencies) {
                     return $section->fields
-                        ->map(function (CustomField $customField) {
-                            return $this->fieldComponentFactory->create($customField);
+                        ->map(function (CustomField $customField) use ($fieldDependencies) {
+                            // Get fields that depend on this field (makes it live)
+                            $dependentFields = $fieldDependencies[$customField->code] ?? [];
+
+                            return $this->fieldComponentFactory->create($customField, $dependentFields);
                         })
                         ->toArray();
                 }

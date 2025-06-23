@@ -85,7 +85,7 @@ class FieldForm implements FormInterface
                             TypeField::make('type')
                                 ->label(__('custom-fields::custom-fields.field.form.type'))
                                 ->disabled(fn (?CustomField $record): bool => (bool) $record?->exists)
-                                ->reactive()
+                                ->live()
                                 ->afterStateHydrated(function (Forms\Components\Select $component, $state, $record): void {
                                     if (blank($state)) {
                                         $component->state($record?->type ?? CustomFieldType::TEXT->value);
@@ -161,7 +161,7 @@ class FieldForm implements FormInterface
                                     // Visibility settings
                                     Forms\Components\Toggle::make('settings.visible_in_list')
                                         ->inline(false)
-                                        ->reactive()
+                                        ->live()
                                         ->label(__('custom-fields::custom-fields.field.form.visible_in_list'))
                                         ->afterStateHydrated(function (Forms\Components\Toggle $component, $state) {
                                             if (is_null($state)) {
@@ -199,7 +199,7 @@ class FieldForm implements FormInterface
                                         }),
                                     Forms\Components\Toggle::make('settings.encrypted')
                                         ->inline(false)
-                                        ->reactive()
+                                        ->live()
                                         ->disabled(fn (?CustomField $record): bool => (bool) $record?->exists)
                                         ->label(__('custom-fields::custom-fields.field.form.encrypted'))
                                         ->visible(fn (Utilities\Get $get): bool => Utils::isValuesEncryptionFeatureEnabled() && CustomFieldType::encryptables()->contains('value', $get('type')))
@@ -207,7 +207,7 @@ class FieldForm implements FormInterface
                                     // Appearance settings
                                     Forms\Components\Toggle::make('settings.enable_option_colors')
                                         ->inline(false)
-                                        ->reactive()
+                                        ->live()
                                         ->label(__('custom-fields::custom-fields.field.form.enable_option_colors'))
                                         ->helperText(__('custom-fields::custom-fields.field.form.enable_option_colors_help'))
                                         ->visible(fn (Utilities\Get $get): bool => Utils::isSelectOptionColorsFeatureEnabled() &&
@@ -219,7 +219,7 @@ class FieldForm implements FormInterface
                                 ->label(__('custom-fields::custom-fields.field.form.options_lookup_type.label'))
                                 ->visible(fn (Utilities\Get $get): bool => in_array($get('type'), CustomFieldType::optionables()->pluck('value')->toArray()))
                                 ->disabled(fn (?CustomField $record): bool => (bool) $record?->system_defined)
-                                ->reactive()
+                                ->live()
                                 ->options([
                                     'options' => __('custom-fields::custom-fields.field.form.options_lookup_type.options'),
                                     'lookup' => __('custom-fields::custom-fields.field.form.options_lookup_type.lookup'),
@@ -242,7 +242,7 @@ class FieldForm implements FormInterface
                             Forms\Components\Select::make('lookup_type')
                                 ->label(__('custom-fields::custom-fields.field.form.lookup_type.label'))
                                 ->visible(fn (Utilities\Get $get): bool => $get('options_lookup_type') === 'lookup')
-                                ->reactive()
+                                ->live()
                                 ->options(LookupTypeService::getOptions())
                                 ->default(LookupTypeService::getDefaultOption())
                                 ->required(),

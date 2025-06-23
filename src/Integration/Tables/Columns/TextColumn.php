@@ -7,7 +7,6 @@ namespace Relaticle\CustomFields\Integration\Tables\Columns;
 use Filament\Tables\Columns\Column as BaseColumn;
 use Filament\Tables\Columns\TextColumn as BaseTextColumn;
 use Illuminate\Database\Eloquent\Builder;
-use Relaticle\CustomFields\Integration\Tables\Columns\ColumnInterface;
 use Relaticle\CustomFields\Models\CustomField;
 use Relaticle\CustomFields\QueryBuilders\ColumnSearchableQuery;
 

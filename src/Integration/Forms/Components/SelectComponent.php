@@ -17,9 +17,11 @@ final readonly class SelectComponent implements FieldComponentInterface
     public function __construct(private FieldConfigurator $configurator) {}
 
     /**
+     * @param  array<string>  $dependentFieldCodes
+     *
      * @throws Throwable
      */
-    public function make(CustomField $customField): Select
+    public function make(CustomField $customField, array $dependentFieldCodes = []): Select
     {
         $field = Select::make("custom_fields.{$customField->code}")->searchable();
 
@@ -57,8 +59,6 @@ final readonly class SelectComponent implements FieldComponentInterface
                     })
                     ->all();
 
-//                dd($coloredOptions);
-
                 $field
                     ->native(false)
                     ->allowHtml()
@@ -67,7 +67,7 @@ final readonly class SelectComponent implements FieldComponentInterface
         }
 
         /** @var Select */
-        return $this->configurator->configure($field, $customField);
+        return $this->configurator->configure($field, $customField, $dependentFieldCodes);
     }
 
     /**

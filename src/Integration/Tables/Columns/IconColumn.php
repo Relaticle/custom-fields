@@ -7,7 +7,6 @@ namespace Relaticle\CustomFields\Integration\Tables\Columns;
 use Filament\Tables\Columns\Column;
 use Filament\Tables\Columns\IconColumn as BaseIconColumn;
 use Illuminate\Database\Eloquent\Builder;
-use Relaticle\CustomFields\Integration\Tables\Columns\ColumnInterface;
 use Relaticle\CustomFields\Models\CustomField;
 
 class IconColumn implements ColumnInterface

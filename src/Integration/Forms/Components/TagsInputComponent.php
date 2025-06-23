@@ -17,10 +17,12 @@ final readonly class TagsInputComponent implements FieldComponentInterface
     public function __construct(private FieldConfigurator $configurator) {}
 
     /**
+     * @param  array<string>  $dependentFieldCodes
+     *
      * @throws ReflectionException
      * @throws Throwable
      */
-    public function make(CustomField $customField): Field
+    public function make(CustomField $customField, array $dependentFieldCodes = []): Field
     {
         $field = TagsInput::make("custom_fields.{$customField->code}");
 
@@ -36,6 +38,6 @@ final readonly class TagsInputComponent implements FieldComponentInterface
 
         $field->suggestions($suggestions);
 
-        return $this->configurator->configure($field, $customField);
+        return $this->configurator->configure($field, $customField, $dependentFieldCodes);
     }
 }

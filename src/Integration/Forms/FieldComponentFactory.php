@@ -63,7 +63,10 @@ final class FieldComponentFactory
 
     public function __construct(private readonly Container $container) {}
 
-    public function create(CustomField $customField): Field
+    /**
+     * @param  array<string>  $dependentFieldCodes
+     */
+    public function create(CustomField $customField, array $dependentFieldCodes = []): Field
     {
         $customFieldType = $customField->type->value;
 
@@ -85,6 +88,6 @@ final class FieldComponentFactory
             $component = $this->instanceCache[$componentClass];
         }
 
-        return $component->make($customField);
+        return $component->make($customField, $dependentFieldCodes);
     }
 }
