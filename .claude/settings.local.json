@@ -24,7 +24,8 @@
       "Bash(vendor/bin/phpstan analyse:*)",
       "Bash(php artisan:*)",
       "Bash(touch:*)",
-      "Bash(php -l:*)"
+      "Bash(php -l:*)",
+      "Bash(mv:*)"
     ],
     "deny": []
   }

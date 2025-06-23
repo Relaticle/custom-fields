@@ -9,7 +9,7 @@ use Filament\Schemas\Components\Component;
 use Relaticle\CustomFields\CustomFields;
 use Relaticle\CustomFields\Models\CustomField;
 use Relaticle\CustomFields\Models\CustomFieldSection;
-use Relaticle\CustomFields\Services\ConditionalVisibilityService;
+use Relaticle\CustomFields\Services\VisibilityService;
 
 final class CustomFieldsForm extends Component
 {
@@ -60,7 +60,7 @@ final class CustomFieldsForm extends Component
 
         // Calculate field dependencies for all fields across all sections
         $allFields = $sections->flatMap(fn ($section) => $section->fields);
-        $fieldDependencies = app(ConditionalVisibilityService::class)->calculateFieldDependencies($allFields);
+        $fieldDependencies = app(VisibilityService::class)->calculateDependencies($allFields);
 
         return $sections->map(function (CustomFieldSection $section) use ($fieldDependencies) {
             return $this->sectionComponentFactory->create($section)->schema(

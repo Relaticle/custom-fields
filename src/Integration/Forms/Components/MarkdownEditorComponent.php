@@ -14,7 +14,8 @@ final readonly class MarkdownEditorComponent implements FieldComponentInterface
     public function __construct(private FieldConfigurator $configurator) {}
 
     /**
-     * @param array<string> $dependentFieldCodes
+     * @param  array<string>  $dependentFieldCodes
+     *
      * @throws \Exception
      */
     public function make(CustomField $customField, array $dependentFieldCodes = []): Field

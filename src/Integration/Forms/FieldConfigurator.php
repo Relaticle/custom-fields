@@ -7,11 +7,10 @@ namespace Relaticle\CustomFields\Integration\Forms;
 use Filament\Forms\Components\Field;
 use Filament\Schemas\Components\Utilities\Get;
 use Illuminate\Support\Carbon;
-use Relaticle\CustomFields\Data\CustomFieldConditionsData;
 use Relaticle\CustomFields\Enums\CustomFieldType;
 use Relaticle\CustomFields\Models\CustomField;
-use Relaticle\CustomFields\Services\ConditionalVisibilityService;
 use Relaticle\CustomFields\Services\ValidationService;
+use Relaticle\CustomFields\Services\VisibilityService;
 use Relaticle\CustomFields\Support\FieldTypeUtils;
 
 final readonly class FieldConfigurator
@@ -25,9 +24,9 @@ final readonly class FieldConfigurator
          */
         private ValidationService $validationService,
         /**
-         * The conditional visibility service instance.
+         * The visibility service instance.
          */
-        private ConditionalVisibilityService $conditionalVisibilityService,
+        private VisibilityService $visibilityService,
     ) {}
 
     /**
@@ -69,7 +68,7 @@ final readonly class FieldConfigurator
             })
             ->dehydrated(function ($state) use ($customField): bool {
                 // Always save if configured to do so, otherwise check if state is not empty
-                if ($this->conditionalVisibilityService->shouldAlwaysSave($customField)) {
+                if ($this->visibilityService->shouldAlwaysSave($customField)) {
                     return true;
                 }
 
@@ -81,9 +80,8 @@ final readonly class FieldConfigurator
             ->inlineLabel(false);
 
         // Add conditional visibility if configured
-        $conditionalVisibility = $customField->settings?->conditionalVisibility;
-        if ($conditionalVisibility && $conditionalVisibility->requiresConditions()) {
-            $field = $this->addConditionalVisibility($field, $conditionalVisibility);
+        if ($this->hasVisibilityConditions($customField)) {
+            $field = $this->addConditionalVisibility($field, $customField);
         }
 
         // Make field live if other fields depend on it (this ensures dependency fields trigger updates)
@@ -95,29 +93,38 @@ final readonly class FieldConfigurator
     }
 
     /**
-     * Add conditional visibility using the centralized service.
+     * Check if field has visibility conditions configured.
+     */
+    private function hasVisibilityConditions(CustomField $customField): bool
+    {
+        $visibility = $customField->settings?->visibility;
+
+        return $visibility && $visibility->requiresConditions();
+    }
+
+    /**
+     * Add conditional visibility using the simplified service.
      * Leverages Filament's reactive system for natural dependency resolution.
      */
-    private function addConditionalVisibility(Field $field, CustomFieldConditionsData $conditionalVisibility): Field
+    private function addConditionalVisibility(Field $field, CustomField $customField): Field
     {
         return $field
             ->live()
-            ->visible(function (Get $get) use ($conditionalVisibility): bool {
+            ->visible(function (Get $get) use ($customField): bool {
+                // Get dependent field codes
+                $dependentFields = $this->visibilityService->getDependentFields($customField);
+
                 // Build field values for evaluation
                 $fieldValues = [];
-
-                foreach ($conditionalVisibility->conditions ?? [] as $condition) {
-                    $fieldCode = $condition['field'] ?? null;
-
-                    if (empty($fieldCode)) {
-                        continue;
-                    }
-
+                foreach ($dependentFields as $fieldCode) {
                     $rawValue = $get('custom_fields.'.$fieldCode);
-                    $fieldValues[$fieldCode] = $this->conditionalVisibilityService->normalizeFieldValue($fieldCode, $rawValue);
+                    $fieldValues[$fieldCode] = $rawValue;
                 }
 
-                return $conditionalVisibility->evaluate($fieldValues);
+                // Normalize values for consistent evaluation
+                $normalizedValues = $this->visibilityService->normalizeFieldValues($dependentFields, $fieldValues);
+
+                return $this->visibilityService->shouldShowField($customField, $normalizedValues);
             });
     }
 }
