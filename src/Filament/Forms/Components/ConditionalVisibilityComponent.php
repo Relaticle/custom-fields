@@ -128,6 +128,7 @@ class ConditionalVisibilityComponent extends Component
                 ->toArray();
         } catch (\Exception $e) {
             report($e);
+
             return [];
         }
     }

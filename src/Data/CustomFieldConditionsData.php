@@ -14,6 +14,5 @@ class CustomFieldConditionsData extends Data
         public string $logic = 'all', // 'all'(All the conditions must be met) or 'any' (Any of the conditions can be met)
         public ?array $conditions = null, // Array of conditions, each condition is an array with 'field', 'operator', and 'value'
         public ?bool $always_save = false, // Whether to always save the field value even if hidden
-    ) {
-    }
+    ) {}
 }

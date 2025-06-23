@@ -57,7 +57,7 @@ final readonly class SelectComponent implements FieldComponentInterface
                     })
                     ->all();
 
-//                dd($coloredOptions);
+                //                dd($coloredOptions);
 
                 $field
                     ->native(false)

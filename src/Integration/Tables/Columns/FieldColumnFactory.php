@@ -8,11 +8,6 @@ use Filament\Tables\Columns\Column;
 use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Contracts\Container\Container;
 use Relaticle\CustomFields\Enums\CustomFieldType;
-use Relaticle\CustomFields\Integration\Tables\Columns\ColorColumn;
-use Relaticle\CustomFields\Integration\Tables\Columns\DateTimeColumn;
-use Relaticle\CustomFields\Integration\Tables\Columns\IconColumn;
-use Relaticle\CustomFields\Integration\Tables\Columns\SingleValueColumn;
-use Relaticle\CustomFields\Integration\Tables\Columns\TextColumn;
 use Relaticle\CustomFields\Models\CustomField;
 use RuntimeException;
 
