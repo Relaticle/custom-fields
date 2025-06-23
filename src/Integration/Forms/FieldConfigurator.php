@@ -81,7 +81,7 @@ final readonly class FieldConfigurator
             ->inlineLabel(false);
 
         // Add conditional visibility if configured
-        $conditionalVisibility = $customField->settings?->conditional_visibility;
+        $conditionalVisibility = $customField->settings?->conditionalVisibility;
         if ($conditionalVisibility && $conditionalVisibility->requiresConditions()) {
             $field = $this->addConditionalVisibility($field, $conditionalVisibility);
         }

@@ -23,7 +23,7 @@ class CustomFieldOption extends Model
     protected $guarded = [];
 
     protected $casts = [
-        'settings' => CustomFieldOptionSettingsData::class,
+        'settings' => CustomFieldOptionSettingsData::class.':default',
     ];
 
     public function __construct(array $attributes = [])

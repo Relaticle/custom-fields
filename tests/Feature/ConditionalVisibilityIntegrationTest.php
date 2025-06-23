@@ -43,7 +43,7 @@ class ConditionalVisibilityIntegrationTest extends TestCase
             ]),
         ]);
 
-        $conditionalVisibility = $field->settings->conditional_visibility;
+        $conditionalVisibility = $field->settings->conditionalVisibility;
         $this->assertEquals(ConditionalVisibilityMode::SHOW_WHEN, $conditionalVisibility->enabled);
         $this->assertEquals(ConditionalVisibilityLogic::ALL, $conditionalVisibility->logic);
         $this->assertCount(1, $conditionalVisibility->conditions);
@@ -196,7 +196,7 @@ class ConditionalVisibilityIntegrationTest extends TestCase
             ]),
         ]);
 
-        $conditionalVisibility = $field->settings->conditional_visibility;
+        $conditionalVisibility = $field->settings->conditionalVisibility;
 
         $this->assertEquals(ConditionalVisibilityMode::HIDE_WHEN, $conditionalVisibility->enabled);
         $this->assertEquals(ConditionalVisibilityLogic::ANY, $conditionalVisibility->logic);

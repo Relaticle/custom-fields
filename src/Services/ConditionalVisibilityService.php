@@ -16,7 +16,7 @@ final readonly class ConditionalVisibilityService
      */
     public function shouldShowField(CustomField $field, array $fieldValues): bool
     {
-        $conditionalVisibility = $field->settings?->conditional_visibility;
+        $conditionalVisibility = $field->settings?->conditionalVisibility;
 
         if (!$conditionalVisibility) {
             return true;
@@ -33,7 +33,7 @@ final readonly class ConditionalVisibilityService
      */
     public function getFieldDependencies(CustomField $field): array
     {
-        $conditionalVisibility = $field->settings?->conditional_visibility;
+        $conditionalVisibility = $field->settings?->conditionalVisibility;
 
         if (!$conditionalVisibility || !$conditionalVisibility->requiresConditions()) {
             return [];
@@ -54,7 +54,7 @@ final readonly class ConditionalVisibilityService
      */
     public function shouldAlwaysSave(CustomField $field): bool
     {
-        return $field->settings?->conditional_visibility?->always_save ?? false;
+        return $field->settings?->conditionalVisibility?->always_save ?? false;
     }
 
     /**
@@ -113,7 +113,7 @@ final readonly class ConditionalVisibilityService
         $dependencies = [];
 
         foreach ($customFields as $field) {
-            $conditionalVisibility = $field->settings?->conditional_visibility;
+            $conditionalVisibility = $field->settings?->conditionalVisibility;
             if (!$conditionalVisibility || !$conditionalVisibility->requiresConditions()) {
                 continue;
             }
