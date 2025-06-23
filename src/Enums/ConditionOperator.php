@@ -23,7 +23,8 @@ enum ConditionOperator: string implements HasLabel
     case IS_NOT_EMPTY = 'not_empty';
     case IN = 'in';
     case NOT_IN = 'not_in';
-    case REGEX = 'regex';
+    case IS_CHECKED = 'is_checked';
+    case IS_UNCHECKED = 'is_unchecked';
 
     public function getLabel(): ?string
     {
@@ -42,7 +43,8 @@ enum ConditionOperator: string implements HasLabel
             self::IS_NOT_EMPTY => 'Is not empty',
             self::IN => 'In list',
             self::NOT_IN => 'Not in list',
-            self::REGEX => 'Matches pattern',
+            self::IS_CHECKED => 'Is checked',
+            self::IS_UNCHECKED => 'Is unchecked',
         };
     }
 
@@ -87,7 +89,7 @@ enum ConditionOperator: string implements HasLabel
      */
     public function requiresValue(): bool
     {
-        return ! in_array($this, [self::IS_EMPTY, self::IS_NOT_EMPTY]);
+        return ! in_array($this, [self::IS_EMPTY, self::IS_NOT_EMPTY, self::IS_CHECKED, self::IS_UNCHECKED]);
     }
 
     /**
@@ -122,7 +124,6 @@ enum ConditionOperator: string implements HasLabel
                 self::IS_NOT_EMPTY,
                 self::IN,
                 self::NOT_IN,
-                self::REGEX,
             ],
 
             CustomFieldType::NUMBER,
@@ -173,8 +174,8 @@ enum ConditionOperator: string implements HasLabel
 
             CustomFieldType::TOGGLE,
             CustomFieldType::CHECKBOX => [
-                self::EQUALS,
-                self::NOT_EQUALS,
+                self::IS_CHECKED,
+                self::IS_UNCHECKED,
             ],
         };
     }
@@ -196,6 +197,8 @@ enum ConditionOperator: string implements HasLabel
         return match ($this) {
             self::EQUALS => $fieldValue == $expectedValue,
             self::NOT_EQUALS => $fieldValue != $expectedValue,
+            self::IS_CHECKED => (bool) $fieldValue === true,
+            self::IS_UNCHECKED => (bool) $fieldValue === false,
             self::GREATER_THAN => is_numeric($fieldValue) && is_numeric($expectedValue) && (float) $fieldValue > (float) $expectedValue,
             self::LESS_THAN => is_numeric($fieldValue) && is_numeric($expectedValue) && (float) $fieldValue < (float) $expectedValue,
             self::GREATER_OR_EQUAL => is_numeric($fieldValue) && is_numeric($expectedValue) && (float) $fieldValue >= (float) $expectedValue,
@@ -206,7 +209,6 @@ enum ConditionOperator: string implements HasLabel
             self::ENDS_WITH => $this->evaluateEndsWith($fieldValue, $expectedValue),
             self::IN => in_array($fieldValue, $this->parseMultipleValues($expectedValue)),
             self::NOT_IN => ! in_array($fieldValue, $this->parseMultipleValues($expectedValue)),
-            self::REGEX => $this->evaluateRegex($fieldValue, $expectedValue),
             default => false,
         };
     }
@@ -256,20 +258,6 @@ enum ConditionOperator: string implements HasLabel
         return Str::endsWith($fieldStr, $expectedStr);
     }
 
-    /**
-     * Evaluate regex operation.
-     */
-    private function evaluateRegex(mixed $fieldValue, mixed $expectedValue): bool
-    {
-        if (is_array($fieldValue)) {
-            return false; // Arrays can't match regex
-        }
-
-        $fieldStr = (string) $fieldValue;
-        $expectedStr = (string) $expectedValue;
-
-        return @preg_match($expectedStr, $fieldStr) === 1;
-    }
 
     /**
      * Parse comma-separated values for IN/NOT_IN operators.
