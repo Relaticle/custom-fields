@@ -38,15 +38,17 @@ class ConditionalVisibilityComponent extends Component
             ->schema([
                 Select::make('settings.conditional_visibility.enabled')
                     ->label('When to show or hide this field')
-                    ->live()
-                    ->options(ConditionalVisibilityMode::options())
-                    ->default(ConditionalVisibilityMode::ALWAYS->value),
+                    ->enum(ConditionalVisibilityMode::class)
+                    ->default(ConditionalVisibilityMode::ALWAYS)
+                    ->required()
+                    ->native(false)
+                    ->live(),
 
                 Select::make('settings.conditional_visibility.logic')
                     ->label('Logic')
                     ->options(ConditionalVisibilityLogic::options())
                     ->default(ConditionalVisibilityLogic::ALL->value)
-                    ->visible(fn (Get $get): bool => $this->shouldShowConditionFields($get)),
+                    ->visible(fn(Get $get): bool => $this->shouldShowConditionFields($get)),
 
                 Repeater::make('settings.conditional_visibility.conditions')
                     ->label('Conditions')
@@ -71,10 +73,10 @@ class ConditionalVisibilityComponent extends Component
                         TextInput::make('value')
                             ->label('Value')
                             ->columnSpan(6)
-                            ->visible(fn (Get $get): bool => $this->shouldShowValueField($get)),
+                            ->visible(fn(Get $get): bool => $this->shouldShowValueField($get)),
                     ])
                     ->columns(12)
-                    ->visible(fn (Get $get): bool => $this->shouldShowConditionFields($get))
+                    ->visible(fn(Get $get): bool => $this->shouldShowConditionFields($get))
                     ->defaultItems(1)
                     ->minItems(1)
                     ->maxItems(10)
@@ -84,7 +86,7 @@ class ConditionalVisibilityComponent extends Component
                     ->label('Always save')
                     ->helperText('Save the field value even if it is hidden by conditional visibility')
                     ->default(false)
-                    ->visible(fn (Get $get): bool => $this->shouldShowConditionFields($get)),
+                    ->visible(fn(Get $get): bool => $this->shouldShowConditionFields($get)),
             ])
             ->columns(1);
     }
@@ -96,11 +98,11 @@ class ConditionalVisibilityComponent extends Component
             $fieldCode = $get('../../../../code');
 
             // Fallback to URL if isn't found in form
-            if (! $entityType) {
+            if (!$entityType) {
                 $entityType = request('entityType') ?? request()->route('entityType');
             }
 
-            if (! $entityType) {
+            if (!$entityType) {
                 return [];
             }
 
@@ -126,13 +128,11 @@ class ConditionalVisibilityComponent extends Component
      */
     private function shouldShowConditionFields(Get $get): bool
     {
-        $mode = $get('settings.conditional_visibility.enabled');
+        $visibilityMode = $get('settings.conditional_visibility.enabled');
 
-        if (! $mode) {
+        if (!$visibilityMode) {
             return false;
         }
-
-        $visibilityMode = ConditionalVisibilityMode::from($mode);
 
         return $visibilityMode->requiresConditions();
     }
@@ -144,7 +144,7 @@ class ConditionalVisibilityComponent extends Component
     {
         $operator = $get('operator');
 
-        if (! $operator) {
+        if (!$operator) {
             return true;
         }
 
@@ -162,7 +162,7 @@ class ConditionalVisibilityComponent extends Component
     {
         $fieldCode = $get('field');
 
-        if (! $fieldCode) {
+        if (!$fieldCode) {
             return ConditionOperator::commonOptions();
         }
 
@@ -170,7 +170,7 @@ class ConditionalVisibilityComponent extends Component
             // Get the field type for the selected field
             $entityType = $get('../../../../entity_type') ?? request('entityType') ?? request()->route('entityType');
 
-            if (! $entityType) {
+            if (!$entityType) {
                 return ConditionOperator::commonOptions();
             }
 
@@ -179,7 +179,7 @@ class ConditionalVisibilityComponent extends Component
                 ->where('code', $fieldCode)
                 ->first();
 
-            if (! $field) {
+            if (!$field) {
                 return ConditionOperator::commonOptions();
             }
 
