@@ -21,8 +21,7 @@ class VisibilityData extends Data
         #[DataCollectionOf(VisibilityConditionData::class)]
         public ?DataCollection $conditions = null,
         public bool $alwaysSave = false,
-    ) {
-    }
+    ) {}
 
     public function requiresConditions(): bool
     {
@@ -50,10 +49,9 @@ class VisibilityData extends Data
     private function evaluateCondition(VisibilityConditionData $condition, array $fieldValues): bool
     {
         $fieldValue = $fieldValues[$condition->field_code] ?? null;
-        
+
         return $condition->operator->evaluate($fieldValue, $condition->value);
     }
-
 
     public function getDependentFields(): array
     {

@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Relaticle\CustomFields\Tests\Feature;
 
 use PHPUnit\Framework\Attributes\Test;
-use Relaticle\CustomFields\Data\VisibilityData;
 use Relaticle\CustomFields\Enums\CustomFieldType;
 use Relaticle\CustomFields\Enums\Logic;
 use Relaticle\CustomFields\Enums\Mode;

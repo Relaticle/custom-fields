@@ -185,7 +185,7 @@ final readonly class VisibilityService
     public function clearFieldCache(string $entityType): void
     {
         $pattern = "custom_fields.visibility.*.{$entityType}.*";
-        
+
         // In production, you might want to use a more sophisticated cache tagging approach
         Cache::flush();
     }

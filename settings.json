@@ -10,8 +10,9 @@
     "logic": "all",
     "conditions": [
       {
-        "field": "email_types",
-        "operator": "contains"
+        "field_code": "email_types",
+        "operator": "contains",
+        "value": null
       }
     ],
     "always_save": false
