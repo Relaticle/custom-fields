@@ -24,12 +24,14 @@ final class FieldConfigurator
     public function __construct(
         private readonly ValidationService $validationService,
         private readonly VisibilityService $visibilityService,
-    ) {}
+    )
+    {
+    }
 
     public function configure(Field $field, CustomField $customField, array $dependentFieldCodes = []): Field
     {
         $field = $field
-            ->name('custom_fields.'.$customField->code)
+            ->name('custom_fields.' . $customField->code)
             ->label($customField->name)
             ->afterStateHydrated(function ($component, $state, $record) use ($customField): void {
                 $value = $record?->getCustomFieldValue($customField)
@@ -46,7 +48,7 @@ final class FieldConfigurator
 
                 $component->state($value);
             })
-            ->dehydrated(fn ($state) => $this->visibilityService->shouldAlwaysSave($customField)
+            ->dehydrated(fn($state) => $this->visibilityService->shouldAlwaysSave($customField)
                 || ($state !== null && $state !== ''))
             ->required($this->validationService->isRequired($customField))
             ->rules($this->validationService->getValidationRules($customField))
@@ -57,7 +59,7 @@ final class FieldConfigurator
             $field = $this->addConditionalVisibility($field, $customField);
         }
 
-        if (! empty($dependentFieldCodes)) {
+        if (!empty($dependentFieldCodes)) {
             $field = $field->live();
         }
 
@@ -79,12 +81,12 @@ final class FieldConfigurator
     private function generateJavaScriptVisibility(CustomField $field): ?string
     {
         $visibility = $field->settings?->visibility;
-        if (! $visibility?->requiresConditions() || blank($visibility->conditions)) {
+        if (!$visibility?->requiresConditions() || blank($visibility->conditions)) {
             return null;
         }
 
         $jsConditions = $visibility->conditions->toCollection()
-            ->map(fn (VisibilityConditionData $condition) => $this->buildConditionExpression($condition, $visibility->mode))
+            ->map(fn(VisibilityConditionData $condition) => $this->buildConditionExpression($condition, $visibility->mode))
             ->filter()
             ->values()
             ->all();
@@ -95,7 +97,7 @@ final class FieldConfigurator
 
         $logicOperator = ($visibility->logic ?? Logic::ALL) === Logic::ALL ? ' && ' : ' || ';
 
-        return '('.collect($jsConditions)->implode($logicOperator).')';
+        return '(' . collect($jsConditions)->implode($logicOperator) . ')';
     }
 
     private function buildConditionExpression(VisibilityConditionData $condition, object $mode): ?string
@@ -189,7 +191,7 @@ final class FieldConfigurator
 
         if (is_array($value)) {
             return Str::contains($operator, ['contains', 'not_contains']) && $targetField->type->hasMultipleValues()
-                ? collect($value)->map(fn ($v) => $this->convertToOptionId($v, $targetField))->all()
+                ? collect($value)->map(fn($v) => $this->convertToOptionId($v, $targetField))->all()
                 : $this->convertToOptionId(head($value), $targetField);
         }
 
@@ -199,13 +201,15 @@ final class FieldConfigurator
     private function convertToOptionId(mixed $value, CustomField $targetField): mixed
     {
         if (blank($value) || is_numeric($value)) {
-            return is_numeric($value) ? (int) $value : $value;
+            return is_numeric($value) ? (int)$value : $value;
         }
 
         if (filled($value) && is_string($value) && $targetField->options) {
             $matchingOption = $targetField->options->first(function ($option) use ($value) {
-                return filled($option->label) && Str::lower(trim($option->label)) === Str::lower(trim($value));
+                return filled($option->name) && Str::lower(trim($option->name)) === Str::lower(trim($value));
             });
+
+//            dd($matchingOption->id);
 
             return $matchingOption?->id ?? $value;
         }
@@ -215,16 +219,17 @@ final class FieldConfigurator
 
     private function createContainsExpression(string $fieldValue, mixed $value, ?CustomField $targetField): string
     {
-        if ($targetField?->type?->isOptionable()) {
-            $resolvedValue = $this->resolveOptionValue($value, $targetField, 'contains');
-            $jsValue = $this->formatJavaScriptValue($resolvedValue);
+//        if ($targetField?->type?->isOptionable()) {
+//            $resolvedValue = $this->resolveOptionValue($value, $targetField, 'contains');
+//            $jsValue = $this->formatJavaScriptValue($resolvedValue);
+//
+//            return $targetField->type->hasMultipleValues()
+//                ? "Array.isArray($fieldValue) && $fieldValue.includes($jsValue)"
+//                : "$fieldValue === $jsValue";
+//        }
 
-            return $targetField->type->hasMultipleValues()
-                ? "Array.isArray($fieldValue) && $fieldValue.includes($jsValue)"
-                : "$fieldValue === $jsValue";
-        }
-
-        $jsValue = $this->formatJavaScriptValue($value);
+        $resolvedValue = $this->resolveOptionValue($value, $targetField, 'contains');
+        $jsValue = $this->formatJavaScriptValue($resolvedValue);
 
         return Str::of("
             (() => {
@@ -260,10 +265,10 @@ final class FieldConfigurator
             $value === null => 'null',
             is_bool($value) => $value ? 'true' : 'false',
             is_string($value) && in_array(Str::lower($value), ['true', 'false']) => Str::lower($value),
-            is_string($value) => "'".addslashes($value)."'",
-            is_numeric($value) => (string) $value,
-            is_array($value) => '['.collect($value)->map(fn ($item) => $this->formatJavaScriptValue($item))->implode(', ').']',
-            default => "'".addslashes((string) $value)."'"
+            is_string($value) => "'" . addslashes($value) . "'",
+            is_numeric($value) => (string)$value,
+            is_array($value) => '[' . collect($value)->map(fn($item) => $this->formatJavaScriptValue($item))->implode(', ') . ']',
+            default => "'" . addslashes((string)$value) . "'"
         };
     }
 }
