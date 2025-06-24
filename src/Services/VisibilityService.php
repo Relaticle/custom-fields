@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Relaticle\CustomFields\Services;
 
 use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\Cache;
 use Relaticle\CustomFields\Data\VisibilityData;
 use Relaticle\CustomFields\Models\CustomField;
 
@@ -24,6 +23,42 @@ final readonly class VisibilityService
         $visibility = $this->getVisibilityData($field);
 
         return $visibility?->evaluate($fieldValues) ?? true;
+    }
+
+    /**
+     * Check if a field should be visible with cascading visibility logic.
+     * This method considers parent field visibility to properly handle hierarchical field dependencies.
+     */
+    public function shouldShowFieldWithCascading(CustomField $field, array $fieldValues, Collection $allFields): bool
+    {
+        // First check if the field itself should be visible based on its conditions
+        if (! $this->shouldShowField($field, $fieldValues)) {
+            return false;
+        }
+
+        // If the field has no visibility conditions, it's always visible
+        $visibility = $this->getVisibilityData($field);
+        if (! $visibility || ! $visibility->requiresConditions()) {
+            return true;
+        }
+
+        // Check if all parent fields that this field depends on are visible
+        $dependentFields = $this->getDependentFields($field);
+
+        foreach ($dependentFields as $dependentFieldCode) {
+            $parentField = $allFields->firstWhere('code', $dependentFieldCode);
+
+            if (! $parentField) {
+                continue; // Skip if parent field doesn't exist
+            }
+
+            // Recursively check if the parent field is visible
+            if (! $this->shouldShowFieldWithCascading($parentField, $fieldValues, $allFields)) {
+                return false; // Hide this field if any parent is hidden
+            }
+        }
+
+        return true;
     }
 
     /**
@@ -177,17 +212,6 @@ final readonly class VisibilityService
             'has_multiple_values' => $field->type->hasMultipleValues(),
             'compatible_operators' => $field->type->getCompatibleOperators(),
         ];
-    }
-
-    /**
-     * Clear field metadata cache for a specific entity type.
-     */
-    public function clearFieldCache(string $entityType): void
-    {
-        $pattern = "custom_fields.visibility.*.{$entityType}.*";
-
-        // In production, you might want to use a more sophisticated cache tagging approach
-        Cache::flush();
     }
 
     /**

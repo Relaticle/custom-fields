@@ -103,28 +103,67 @@ final readonly class FieldConfigurator
     }
 
     /**
-     * Add conditional visibility using the simplified service.
+     * Add conditional visibility using the visibility service.
      * Leverages Filament's reactive system for natural dependency resolution.
+     * Uses cascading visibility logic to properly handle parent-child dependencies.
      */
     private function addConditionalVisibility(Field $field, CustomField $customField): Field
     {
         return $field
             ->live()
             ->visible(function (Get $get) use ($customField): bool {
-                // Get dependent field codes
-                $dependentFields = $this->visibilityService->getDependentFields($customField);
-
-                // Build field values for evaluation
-                $fieldValues = [];
-                foreach ($dependentFields as $fieldCode) {
-                    $rawValue = $get('custom_fields.'.$fieldCode);
-                    $fieldValues[$fieldCode] = $rawValue;
-                }
-
-                // Normalize values for consistent evaluation
-                $normalizedValues = $this->visibilityService->normalizeFieldValues($dependentFields, $fieldValues);
-
-                return $this->visibilityService->shouldShowField($customField, $normalizedValues);
+                return $this->evaluateFieldVisibilityWithCascading($customField, $get);
             });
+    }
+
+    /**
+     * Evaluate field visibility with cascading logic using the Get closure.
+     * This recursively checks parent field visibility to ensure proper hierarchical hiding.
+     */
+    private function evaluateFieldVisibilityWithCascading(CustomField $field, Get $get): bool
+    {
+        // First check if the field itself should be visible based on its conditions
+        $dependentFields = $this->visibilityService->getDependentFields($field);
+
+        // Build field values for evaluation
+        $fieldValues = [];
+        foreach ($dependentFields as $fieldCode) {
+            $rawValue = $get('custom_fields.'.$fieldCode);
+            $fieldValues[$fieldCode] = $rawValue;
+        }
+
+        // Normalize values for consistent evaluation
+        $normalizedValues = $this->visibilityService->normalizeFieldValues($dependentFields, $fieldValues);
+
+        // Check if the field itself should be visible based on its conditions
+        if (! $this->visibilityService->shouldShowField($field, $normalizedValues)) {
+            return false;
+        }
+
+        // If the field has no visibility conditions, it's always visible
+        $visibility = $field->settings?->visibility;
+        if (! $visibility || ! $visibility->requiresConditions()) {
+            return true;
+        }
+
+        // Check if all parent fields that this field depends on are visible (cascading logic)
+        foreach ($dependentFields as $dependentFieldCode) {
+            // Dynamically fetch the parent field definition
+            $parentField = CustomField::withoutGlobalScopes()
+                ->where('code', $dependentFieldCode)
+                ->where('entity_type', $field->entity_type)
+                ->first();
+
+            if (! $parentField) {
+                continue; // Skip if the parent field doesn't exist
+            }
+
+            // Recursively check if the parent field is visible
+            if (! $this->evaluateFieldVisibilityWithCascading($parentField, $get)) {
+                return false; // Hide this field if any parent is hidden
+            }
+        }
+
+        return true;
     }
 }

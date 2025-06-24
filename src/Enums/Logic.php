@@ -4,10 +4,12 @@ declare(strict_types=1);
 
 namespace Relaticle\CustomFields\Enums;
 
+use Filament\Support\Contracts\HasLabel;
+
 /**
  * Logic for combining multiple conditions.
  */
-enum Logic: string
+enum Logic: string implements HasLabel
 {
     case ALL = 'all';
     case ANY = 'any';
@@ -30,12 +32,5 @@ enum Logic: string
             self::ALL => ! in_array(false, $results, true),
             self::ANY => in_array(true, $results, true),
         };
-    }
-
-    public static function options(): array
-    {
-        return collect(self::cases())
-            ->mapWithKeys(fn (self $logic) => [$logic->value => $logic->getLabel()])
-            ->toArray();
     }
 }

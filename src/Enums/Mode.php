@@ -4,10 +4,12 @@ declare(strict_types=1);
 
 namespace Relaticle\CustomFields\Enums;
 
+use Filament\Support\Contracts\HasLabel;
+
 /**
  * Simple visibility modes for conditional fields.
  */
-enum Mode: string
+enum Mode: string implements HasLabel
 {
     case ALWAYS_VISIBLE = 'always_visible';
     case SHOW_WHEN = 'show_when';
@@ -34,12 +36,5 @@ enum Mode: string
             self::SHOW_WHEN => $conditionsMet,
             self::HIDE_WHEN => ! $conditionsMet,
         };
-    }
-
-    public static function options(): array
-    {
-        return collect(self::cases())
-            ->mapWithKeys(fn (self $mode) => [$mode->value => $mode->getLabel()])
-            ->toArray();
     }
 }
