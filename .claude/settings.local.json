@@ -27,7 +27,10 @@
       "Bash(php -l:*)",
       "Bash(mv:*)",
       "Bash(php:*)",
-      "Bash(echo:*)"
+      "Bash(echo:*)",
+      "Bash(# Update all form components to add Collection import and allFields parameter\nfor file in src/Integration/Forms/Components/*Component.php; do\n    if [ \"$file\" != \"src/Integration/Forms/Components/FieldComponentInterface.php\" ]; then\n        echo \"Updating $file\"\n        \n        # Add Collection import after existing imports\n        sed -i '' '/^use Filament\\\\Forms\\\\Components/a\\\nuse Illuminate\\\\Support\\\\Collection;\n' \"$file\"\n        \n        # Update method signature\n        sed -i '' 's/public function make(CustomField \\$customField, array \\$dependentFieldCodes = [])/public function make(CustomField $customField, array $dependentFieldCodes = [], ?Collection $allFields = null)/' \"$file\"\n        \n        # Update configurator call\n        sed -i '' 's/\\$this->configurator->configure(\\$field, \\$customField, \\$dependentFieldCodes)/\\$this->configurator->configure($field, $customField, $dependentFieldCodes, $allFields)/' \"$file\"\n    fi\ndone)",
+      "Bash(# Remove duplicate Collection imports and fix method signatures\nfor file in src/Integration/Forms/Components/*Component.php; do\n    if [ \"$file\" != \"src/Integration/Forms/Components/FieldComponentInterface.php\" ]; then\n        echo \"Cleaning up $file\"\n        \n        # Remove duplicate Collection imports - keep only the first one\n        sed -i '' '/^use Illuminate\\\\Support\\\\Collection;$/{ N; s/use Illuminate\\\\Support\\\\Collection;\\nuse Illuminate\\\\Support\\\\Collection;//; }' \"$file\"\n        \n        # Fix method signatures that weren't updated properly\n        sed -i '' 's/public function make(CustomField \\$customField, array \\$dependentFieldCodes = [])/public function make(CustomField $customField, array $dependentFieldCodes = [], ?Collection $allFields = null)/' \"$file\" \n    fi\ndone)",
+      "Bash(git checkout:*)"
     ],
     "deny": []
   }

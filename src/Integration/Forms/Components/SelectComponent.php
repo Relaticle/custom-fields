@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Relaticle\CustomFields\Integration\Forms\Components;
 
 use Filament\Forms\Components\Select;
+use Illuminate\Support\Collection;
 use ReflectionException;
 use Relaticle\CustomFields\Integration\Forms\FieldConfigurator;
 use Relaticle\CustomFields\Models\CustomField;
@@ -21,7 +22,7 @@ final readonly class SelectComponent implements FieldComponentInterface
      *
      * @throws Throwable
      */
-    public function make(CustomField $customField, array $dependentFieldCodes = []): Select
+    public function make(CustomField $customField, array $dependentFieldCodes = [], ?Collection $allFields = null): Select
     {
         $field = Select::make("custom_fields.{$customField->code}")->searchable();
 
@@ -67,7 +68,7 @@ final readonly class SelectComponent implements FieldComponentInterface
         }
 
         /** @var Select */
-        return $this->configurator->configure($field, $customField, $dependentFieldCodes);
+        return $this->configurator->configure($field, $customField, $dependentFieldCodes, $allFields);
     }
 
     /**

@@ -6,6 +6,7 @@ namespace Relaticle\CustomFields\Integration\Forms\Components;
 
 use Filament\Forms\Components\Field;
 use Filament\Forms\Components\TagsInput;
+use Illuminate\Support\Collection;
 use ReflectionException;
 use Relaticle\CustomFields\Integration\Forms\FieldConfigurator;
 use Relaticle\CustomFields\Models\CustomField;
@@ -22,7 +23,7 @@ final readonly class TagsInputComponent implements FieldComponentInterface
      * @throws ReflectionException
      * @throws Throwable
      */
-    public function make(CustomField $customField, array $dependentFieldCodes = []): Field
+    public function make(CustomField $customField, array $dependentFieldCodes = [], ?Collection $allFields = null): Field
     {
         $field = TagsInput::make("custom_fields.{$customField->code}");
 
@@ -38,6 +39,6 @@ final readonly class TagsInputComponent implements FieldComponentInterface
 
         $field->suggestions($suggestions);
 
-        return $this->configurator->configure($field, $customField, $dependentFieldCodes);
+        return $this->configurator->configure($field, $customField, $dependentFieldCodes, $allFields);
     }
 }

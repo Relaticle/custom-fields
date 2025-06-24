@@ -6,6 +6,7 @@ namespace Relaticle\CustomFields\Integration\Forms\Components;
 
 use Filament\Forms\Components\Field;
 use Filament\Forms\Components\Radio;
+use Illuminate\Support\Collection;
 use Relaticle\CustomFields\Integration\Forms\FieldConfigurator;
 use Relaticle\CustomFields\Models\CustomField;
 use Relaticle\CustomFields\Services\FilamentResourceService;
@@ -16,9 +17,10 @@ final readonly class RadioComponent implements FieldComponentInterface
     public function __construct(private FieldConfigurator $configurator) {}
 
     /**
-     * @param  array<string>  $dependentFieldCodes
+     * @param array<string> $dependentFieldCodes
+     * @throws \Throwable
      */
-    public function make(CustomField $customField, array $dependentFieldCodes = []): Field
+    public function make(CustomField $customField, array $dependentFieldCodes = [], ?Collection $allFields = null): Field
     {
         $field = Radio::make("custom_fields.{$customField->code}")->inline(false);
 
@@ -50,7 +52,7 @@ final readonly class RadioComponent implements FieldComponentInterface
 
         $field->options($options);
 
-        return $this->configurator->configure($field, $customField, $dependentFieldCodes);
+        return $this->configurator->configure($field, $customField, $dependentFieldCodes, $allFields);
     }
 
     /**

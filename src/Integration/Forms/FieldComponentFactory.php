@@ -5,7 +5,9 @@ declare(strict_types=1);
 namespace Relaticle\CustomFields\Integration\Forms;
 
 use Filament\Forms\Components\Field;
+use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Contracts\Container\Container;
+use Illuminate\Support\Collection;
 use InvalidArgumentException;
 use Relaticle\CustomFields\Enums\CustomFieldType;
 use Relaticle\CustomFields\Integration\Forms\Components\CheckboxComponent;
@@ -64,9 +66,11 @@ final class FieldComponentFactory
     public function __construct(private readonly Container $container) {}
 
     /**
-     * @param  array<string>  $dependentFieldCodes
+     * @param array<string> $dependentFieldCodes
+     * @param Collection<int, CustomField>|null $allFields
+     * @throws BindingResolutionException
      */
-    public function create(CustomField $customField, array $dependentFieldCodes = []): Field
+    public function create(CustomField $customField, array $dependentFieldCodes = [], ?Collection $allFields = null): Field
     {
         $customFieldType = $customField->type->value;
 
@@ -88,6 +92,6 @@ final class FieldComponentFactory
             $component = $this->instanceCache[$componentClass];
         }
 
-        return $component->make($customField, $dependentFieldCodes);
+        return $component->make($customField, $dependentFieldCodes, $allFields);
     }
 }

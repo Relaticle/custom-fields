@@ -62,15 +62,15 @@ final class CustomFieldsForm extends Component
         $allFields = $sections->flatMap(fn ($section) => $section->fields);
         $fieldDependencies = app(VisibilityService::class)->calculateDependencies($allFields);
 
-        return $sections->map(function (CustomFieldSection $section) use ($fieldDependencies) {
+        return $sections->map(function (CustomFieldSection $section) use ($fieldDependencies, $allFields) {
             return $this->sectionComponentFactory->create($section)->schema(
-                function () use ($section, $fieldDependencies) {
+                function () use ($section, $fieldDependencies, $allFields) {
                     return $section->fields
-                        ->map(function (CustomField $customField) use ($fieldDependencies) {
+                        ->map(function (CustomField $customField) use ($fieldDependencies, $allFields) {
                             // Get fields that depend on this field (makes it live)
                             $dependentFields = $fieldDependencies[$customField->code] ?? [];
 
-                            return $this->fieldComponentFactory->create($customField, $dependentFields);
+                            return $this->fieldComponentFactory->create($customField, $dependentFields, $allFields);
                         })
                         ->toArray();
                 }

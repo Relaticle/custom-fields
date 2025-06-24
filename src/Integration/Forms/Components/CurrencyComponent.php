@@ -6,6 +6,7 @@ namespace Relaticle\CustomFields\Integration\Forms\Components;
 
 use Filament\Forms\Components\Field;
 use Filament\Forms\Components\TextInput;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
 use Relaticle\CustomFields\Integration\Forms\FieldConfigurator;
 use Relaticle\CustomFields\Models\CustomField;
@@ -17,7 +18,7 @@ final readonly class CurrencyComponent implements FieldComponentInterface
     /**
      * @param  array<string>  $dependentFieldCodes
      */
-    public function make(CustomField $customField, array $dependentFieldCodes = []): Field
+    public function make(CustomField $customField, array $dependentFieldCodes = [], ?Collection $allFields = null): Field
     {
         $field = TextInput::make("custom_fields.{$customField->code}")
             ->prefix('$')
@@ -30,6 +31,6 @@ final readonly class CurrencyComponent implements FieldComponentInterface
             ->formatStateUsing(fn ($state): string => number_format((float) $state, 2))
             ->dehydrateStateUsing(fn ($state) => Str::of($state)->replace(['$', ','], '')->toFloat());
 
-        return $this->configurator->configure($field, $customField, $dependentFieldCodes);
+        return $this->configurator->configure($field, $customField, $dependentFieldCodes, $allFields);
     }
 }

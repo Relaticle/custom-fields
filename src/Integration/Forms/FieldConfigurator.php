@@ -6,6 +6,7 @@ namespace Relaticle\CustomFields\Integration\Forms;
 
 use Filament\Forms\Components\Field;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
 use Relaticle\CustomFields\CustomFields;
 use Relaticle\CustomFields\Data\VisibilityConditionData;
@@ -24,14 +25,12 @@ final class FieldConfigurator
     public function __construct(
         private readonly ValidationService $validationService,
         private readonly VisibilityService $visibilityService,
-    )
-    {
-    }
+    ) {}
 
-    public function configure(Field $field, CustomField $customField, array $dependentFieldCodes = []): Field
+    public function configure(Field $field, CustomField $customField, array $dependentFieldCodes = [], ?Collection $allFields = null): Field
     {
         $field = $field
-            ->name('custom_fields.' . $customField->code)
+            ->name('custom_fields.'.$customField->code)
             ->label($customField->name)
             ->afterStateHydrated(function ($component, $state, $record) use ($customField): void {
                 $value = $record?->getCustomFieldValue($customField)
@@ -48,7 +47,7 @@ final class FieldConfigurator
 
                 $component->state($value);
             })
-            ->dehydrated(fn($state) => $this->visibilityService->shouldAlwaysSave($customField)
+            ->dehydrated(fn ($state) => $this->visibilityService->shouldAlwaysSave($customField)
                 || ($state !== null && $state !== ''))
             ->required($this->validationService->isRequired($customField))
             ->rules($this->validationService->getValidationRules($customField))
@@ -56,10 +55,10 @@ final class FieldConfigurator
             ->inlineLabel(false);
 
         if ($this->hasVisibilityConditions($customField)) {
-            $field = $this->addConditionalVisibility($field, $customField);
+            $field = $this->addConditionalVisibility($field, $customField, $allFields);
         }
 
-        if (!empty($dependentFieldCodes)) {
+        if (! empty($dependentFieldCodes)) {
             $field = $field->live();
         }
 
@@ -71,22 +70,23 @@ final class FieldConfigurator
         return $customField->settings?->visibility?->requiresConditions() ?? false;
     }
 
-    private function addConditionalVisibility(Field $field, CustomField $customField): Field
+    private function addConditionalVisibility(Field $field, CustomField $customField, ?Collection $allFields = null): Field
     {
-        $jsExpression = $this->generateJavaScriptVisibility($customField);
+        $jsExpression = $this->generateJavaScriptVisibility($customField, $allFields);
 
         return $jsExpression ? $field->live()->visibleJs($jsExpression) : $field;
     }
 
-    private function generateJavaScriptVisibility(CustomField $field): ?string
+    private function generateJavaScriptVisibility(CustomField $field, ?Collection $allFields = null): ?string
     {
         $visibility = $field->settings?->visibility;
-        if (!$visibility?->requiresConditions() || blank($visibility->conditions)) {
+        if (! $visibility?->requiresConditions() || blank($visibility->conditions)) {
             return null;
         }
 
+        // Generate conditions for this field
         $jsConditions = $visibility->conditions->toCollection()
-            ->map(fn(VisibilityConditionData $condition) => $this->buildConditionExpression($condition, $visibility->mode))
+            ->map(fn (VisibilityConditionData $condition) => $this->buildConditionExpression($condition, $visibility->mode))
             ->filter()
             ->values()
             ->all();
@@ -96,8 +96,60 @@ final class FieldConfigurator
         }
 
         $logicOperator = ($visibility->logic ?? Logic::ALL) === Logic::ALL ? ' && ' : ' || ';
+        $fieldConditions = '('.collect($jsConditions)->implode($logicOperator).')';
 
-        return '(' . collect($jsConditions)->implode($logicOperator) . ')';
+        // Add cascading visibility - ensure all parent fields are visible
+        $parentConditions = $this->generateParentVisibilityConditions($field, $allFields);
+
+        if (filled($parentConditions)) {
+            return "($parentConditions) && ($fieldConditions)";
+        }
+
+        return $fieldConditions;
+    }
+
+    private function generateParentVisibilityConditions(CustomField $field, ?Collection $allFields): ?string
+    {
+        if (! $allFields) {
+            return null;
+        }
+
+        // Get fields that this field depends on
+        $dependentFields = $this->visibilityService->getDependentFields($field);
+
+        if (blank($dependentFields)) {
+            return null;
+        }
+
+        $parentConditions = [];
+
+        foreach ($dependentFields as $parentFieldCode) {
+            $parentField = $allFields->firstWhere('code', $parentFieldCode);
+
+            if (! $parentField) {
+                continue;
+            }
+
+            // Check if parent field has visibility conditions
+            $parentVisibility = $parentField->settings?->visibility;
+
+            if ($parentVisibility?->requiresConditions() && filled($parentVisibility->conditions)) {
+                // Generate conditions for parent field (without cascading to avoid recursion)
+                $parentJsConditions = $parentVisibility->conditions->toCollection()
+                    ->map(fn (VisibilityConditionData $condition) => $this->buildConditionExpression($condition, $parentVisibility->mode))
+                    ->filter()
+                    ->values()
+                    ->all();
+
+                if (filled($parentJsConditions)) {
+                    $parentLogicOperator = ($parentVisibility->logic ?? Logic::ALL) === Logic::ALL ? ' && ' : ' || ';
+                    $parentConditions[] = '('.collect($parentJsConditions)->implode($parentLogicOperator).')';
+                }
+            }
+            // If parent has no conditions, it's always visible - no need to add a condition
+        }
+
+        return blank($parentConditions) ? null : collect($parentConditions)->implode(' && ');
     }
 
     private function buildConditionExpression(VisibilityConditionData $condition, object $mode): ?string
@@ -191,7 +243,7 @@ final class FieldConfigurator
 
         if (is_array($value)) {
             return Str::contains($operator, ['contains', 'not_contains']) && $targetField->type->hasMultipleValues()
-                ? collect($value)->map(fn($v) => $this->convertToOptionId($v, $targetField))->all()
+                ? collect($value)->map(fn ($v) => $this->convertToOptionId($v, $targetField))->all()
                 : $this->convertToOptionId(head($value), $targetField);
         }
 
@@ -201,7 +253,7 @@ final class FieldConfigurator
     private function convertToOptionId(mixed $value, CustomField $targetField): mixed
     {
         if (blank($value) || is_numeric($value)) {
-            return is_numeric($value) ? (int)$value : $value;
+            return is_numeric($value) ? (int) $value : $value;
         }
 
         if (filled($value) && is_string($value) && $targetField->options) {
@@ -209,7 +261,7 @@ final class FieldConfigurator
                 return filled($option->name) && Str::lower(trim($option->name)) === Str::lower(trim($value));
             });
 
-//            dd($matchingOption->id);
+            //            dd($matchingOption->id);
 
             return $matchingOption?->id ?? $value;
         }
@@ -219,14 +271,14 @@ final class FieldConfigurator
 
     private function createContainsExpression(string $fieldValue, mixed $value, ?CustomField $targetField): string
     {
-//        if ($targetField?->type?->isOptionable()) {
-//            $resolvedValue = $this->resolveOptionValue($value, $targetField, 'contains');
-//            $jsValue = $this->formatJavaScriptValue($resolvedValue);
-//
-//            return $targetField->type->hasMultipleValues()
-//                ? "Array.isArray($fieldValue) && $fieldValue.includes($jsValue)"
-//                : "$fieldValue === $jsValue";
-//        }
+        //        if ($targetField?->type?->isOptionable()) {
+        //            $resolvedValue = $this->resolveOptionValue($value, $targetField, 'contains');
+        //            $jsValue = $this->formatJavaScriptValue($resolvedValue);
+        //
+        //            return $targetField->type->hasMultipleValues()
+        //                ? "Array.isArray($fieldValue) && $fieldValue.includes($jsValue)"
+        //                : "$fieldValue === $jsValue";
+        //        }
 
         $resolvedValue = $this->resolveOptionValue($value, $targetField, 'contains');
         $jsValue = $this->formatJavaScriptValue($resolvedValue);
@@ -265,10 +317,10 @@ final class FieldConfigurator
             $value === null => 'null',
             is_bool($value) => $value ? 'true' : 'false',
             is_string($value) && in_array(Str::lower($value), ['true', 'false']) => Str::lower($value),
-            is_string($value) => "'" . addslashes($value) . "'",
-            is_numeric($value) => (string)$value,
-            is_array($value) => '[' . collect($value)->map(fn($item) => $this->formatJavaScriptValue($item))->implode(', ') . ']',
-            default => "'" . addslashes((string)$value) . "'"
+            is_string($value) => "'".addslashes($value)."'",
+            is_numeric($value) => (string) $value,
+            is_array($value) => '['.collect($value)->map(fn ($item) => $this->formatJavaScriptValue($item))->implode(', ').']',
+            default => "'".addslashes((string) $value)."'"
         };
     }
 }

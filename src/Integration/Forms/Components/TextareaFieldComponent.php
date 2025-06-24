@@ -6,6 +6,7 @@ namespace Relaticle\CustomFields\Integration\Forms\Components;
 
 use Filament\Forms\Components\Field;
 use Filament\Forms\Components\Textarea;
+use Illuminate\Support\Collection;
 use Relaticle\CustomFields\Integration\Forms\FieldConfigurator;
 use Relaticle\CustomFields\Models\CustomField;
 
@@ -16,13 +17,13 @@ final readonly class TextareaFieldComponent implements FieldComponentInterface
     /**
      * @param  array<string>  $dependentFieldCodes
      */
-    public function make(CustomField $customField, array $dependentFieldCodes = []): Field
+    public function make(CustomField $customField, array $dependentFieldCodes = [], ?Collection $allFields = null): Field
     {
         $field = Textarea::make("custom_fields.{$customField->code}")
             ->rows(3)
             ->maxLength(50000)
             ->placeholder(null);
 
-        return $this->configurator->configure($field, $customField, $dependentFieldCodes);
+        return $this->configurator->configure($field, $customField, $dependentFieldCodes, $allFields);
     }
 }

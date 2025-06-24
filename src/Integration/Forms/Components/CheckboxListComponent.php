@@ -6,6 +6,7 @@ namespace Relaticle\CustomFields\Integration\Forms\Components;
 
 use Filament\Forms\Components\CheckboxList;
 use Filament\Forms\Components\Field;
+use Illuminate\Support\Collection;
 use Relaticle\CustomFields\Integration\Forms\FieldConfigurator;
 use Relaticle\CustomFields\Models\CustomField;
 use Relaticle\CustomFields\Services\FilamentResourceService;
@@ -18,7 +19,7 @@ final readonly class CheckboxListComponent implements FieldComponentInterface
     /**
      * @param  array<string>  $dependentFieldCodes
      */
-    public function make(CustomField $customField, array $dependentFieldCodes = []): Field
+    public function make(CustomField $customField, array $dependentFieldCodes = [], ?Collection $allFields = null): Field
     {
         $field = CheckboxList::make("custom_fields.{$customField->code}");
 
@@ -50,7 +51,7 @@ final readonly class CheckboxListComponent implements FieldComponentInterface
 
         $field->options($options);
 
-        return $this->configurator->configure($field, $customField, $dependentFieldCodes);
+        return $this->configurator->configure($field, $customField, $dependentFieldCodes, $allFields);
     }
 
     /**

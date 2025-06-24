@@ -6,6 +6,7 @@ namespace Relaticle\CustomFields\Integration\Forms\Components;
 
 use Filament\Forms\Components\Field;
 use Filament\Forms\Components\ToggleButtons;
+use Illuminate\Support\Collection;
 use Relaticle\CustomFields\Integration\Forms\FieldConfigurator;
 use Relaticle\CustomFields\Models\CustomField;
 use Relaticle\CustomFields\Support\Utils;
@@ -17,7 +18,7 @@ final readonly class ToggleButtonsComponent implements FieldComponentInterface
     /**
      * @param  array<string>  $dependentFieldCodes
      */
-    public function make(CustomField $customField, array $dependentFieldCodes = []): Field
+    public function make(CustomField $customField, array $dependentFieldCodes = [], ?Collection $allFields = null): Field
     {
         $field = ToggleButtons::make("custom_fields.{$customField->code}")->inline(false);
 
@@ -36,6 +37,6 @@ final readonly class ToggleButtonsComponent implements FieldComponentInterface
             }
         }
 
-        return $this->configurator->configure($field, $customField, $dependentFieldCodes);
+        return $this->configurator->configure($field, $customField, $dependentFieldCodes, $allFields);
     }
 }
