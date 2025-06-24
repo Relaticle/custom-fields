@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Relaticle\CustomFields\Services;
 
 use Illuminate\Support\Collection;
+use Relaticle\CustomFields\CustomFields;
 use Relaticle\CustomFields\Data\VisibilityData;
 use Relaticle\CustomFields\Models\CustomField;
 
@@ -125,8 +126,7 @@ final readonly class VisibilityService
             return $rawValues;
         }
 
-        $fields = CustomField::withoutGlobalScopes()
-            ->whereIn('code', $fieldCodes)
+        $fields = CustomFields::newCustomFieldModel()::whereIn('code', $fieldCodes)
             ->with('options')
             ->get()
             ->keyBy('code');
@@ -173,8 +173,7 @@ final readonly class VisibilityService
      */
     public function getFieldOptions(string $fieldCode, string $entityType): array
     {
-        $field = CustomField::withoutGlobalScopes()
-            ->forMorphEntity($entityType)
+        $field = CustomFields::newCustomFieldModel()::forMorphEntity($entityType)
             ->where('code', $fieldCode)
             ->with('options')
             ->first();
@@ -196,8 +195,7 @@ final readonly class VisibilityService
      */
     public function getFieldMetadata(string $fieldCode, string $entityType): ?array
     {
-        $field = CustomField::withoutGlobalScopes()
-            ->forMorphEntity($entityType)
+        $field = CustomFields::newCustomFieldModel()::forMorphEntity($entityType)
             ->where('code', $fieldCode)
             ->first();
 
