@@ -25,7 +25,9 @@
       "Bash(php artisan:*)",
       "Bash(touch:*)",
       "Bash(php -l:*)",
-      "Bash(mv:*)"
+      "Bash(mv:*)",
+      "Bash(php:*)",
+      "Bash(echo:*)"
     ],
     "deny": []
   }
