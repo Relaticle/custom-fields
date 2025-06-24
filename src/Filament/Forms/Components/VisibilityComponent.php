@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Relaticle\CustomFields\Filament\Forms\Components;
 
+use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
@@ -84,8 +85,21 @@ class VisibilityComponent extends Component
                 ->required()
                 ->live()
                 ->afterStateUpdated(function (Get $get, Set $set) {
+                    $set('value', null);
+
                     $set('operator', array_key_first($this->getOperatorOptions($get)));
-                    $set('value', $this->requiresMultipleValues($get) ? [] : null);
+
+                    if ($this->requiresSingleValue($get)) {
+                        $set('text_value', null);
+                        return;
+                    }
+
+                    if ($this->requiresMultipleValues($get)) {
+                        $set('multiple_values', []);
+                        return;
+                    }
+
+                    $set('single_value', null);
                 })
                 ->columnSpan(4),
 
@@ -95,27 +109,62 @@ class VisibilityComponent extends Component
                 ->required()
                 ->live()
                 ->afterStateUpdated(function (Get $get, Set $set) {
-                    $value = $this->requiresMultipleValues($get) ? [] : null;
-                    $set('value', $value);
+                    $set('value', null);
+
+                    if ($this->requiresSingleValue($get)) {
+                        $set('text_value', null);
+                        return;
+                    }
+
+                    if ($this->requiresMultipleValues($get)) {
+                        $set('multiple_values', []);
+                        return;
+                    }
+
+                    $set('single_value', null);
                 })
                 ->columnSpan(3),
 
             // Smart value input for optionable fields
-            Select::make('value')
+            Select::make('single_value')
                 ->label('Value')
-                ->multiple(fn(Get $get) => $this->requiresMultipleValues($get))
-                ->options(fn(Get $get) => $this->getValueOptions($get))
+                ->live()
                 ->searchable()
-                ->visible(fn(Get $get) => $this->requiresValue($get) && $this->isOptionableField($get))
+                ->options(fn(Get $get) => $this->getValueOptions($get))
+                ->visible(fn(Get $get) => $this->requiresSingleValue($get) && $this->isOptionableField($get))
                 ->placeholder(fn(Get $get) => $this->getValuePlaceholder($get))
+                ->afterStateHydrated(function (Select $component, Get $get) {
+                    $component->state($get('value') ?? null);
+                })
+                ->afterStateUpdated(fn(?string $state, Set $set) => $set('value', $state))
+                ->columnSpan(5),
+
+            Select::make('multiple_values')
+                ->label('Value')
+                ->live()
+                ->searchable()
+                ->multiple()
+                ->options(fn(Get $get) => $this->getValueOptions($get))
+                ->visible(fn(Get $get) => $this->requiresMultipleValues($get) && $this->isOptionableField($get))
+                ->placeholder(fn(Get $get) => $this->getValuePlaceholder($get))
+                ->afterStateHydrated(function (Select $component, Get $get) {
+                    $component->state(Arr::wrap($get('value')));
+                })
+                ->afterStateUpdated(fn(array $state, Set $set) => $set('value', Arr::wrap($state)))
                 ->columnSpan(5),
 
             // Text input for non-optionable fields
-            TextInput::make('value')
+            TextInput::make('text_value')
                 ->label('Value')
                 ->placeholder(fn(Get $get) => $this->getValuePlaceholder($get))
                 ->visible(fn(Get $get) => $this->requiresValue($get) && !$this->isOptionableField($get))
+                ->afterStateHydrated(function (TextInput $component, Get $get) {
+                    $component->state($get('value') ?? '');
+                })
+                ->afterStateUpdated(fn(string $state, Set $set) => $set('value', $state))
                 ->columnSpan(5),
+
+            Hidden::make('value')->default(null)
         ];
     }
 
@@ -136,6 +185,36 @@ class VisibilityComponent extends Component
             return $fieldType?->isOptionable() ?? false;
         } catch (\Exception) {
             return false;
+        }
+    }
+
+    private function requiresSingleValue(Get $get): bool
+    {
+        $fieldCode = $get('field_code');
+        $operator = $get('operator');
+
+        if (!$fieldCode || !$operator) {
+            return true;
+        }
+
+        try {
+            $fieldType = $this->getFieldType($fieldCode, $get);
+
+            if (!$fieldType) {
+                return true;
+            }
+
+            // Multi-value fields require multiple selection for CONTAINS/NOT_CONTAINS
+            if ($fieldType->hasMultipleValues()) {
+                return !in_array($operator, [
+                    Operator::CONTAINS->value,
+                    Operator::NOT_CONTAINS->value,
+                ]);
+            }
+
+            return true;
+        } catch (\Exception) {
+            return true;
         }
     }
 
