@@ -49,10 +49,8 @@ class UserResource extends Resource
                     ])
                     ->columns(2),
 
-                Section::make('Custom Fields')
-                    ->schema([
-                        CustomFieldsForm::make()->columnSpanFull(),
-                    ]),
+                // Custom Fields
+                CustomFieldsForm::make()->columnSpanFull(),
             ]);
     }
 
