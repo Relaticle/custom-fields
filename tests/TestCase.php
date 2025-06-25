@@ -15,17 +15,15 @@ use Filament\Support\SupportServiceProvider;
 use Filament\Tables\TablesServiceProvider;
 use Filament\Widgets\WidgetsServiceProvider;
 use Illuminate\Database\Eloquent\Factories\Factory;
-use Illuminate\Foundation\Testing\Concerns\InteractsWithViews;
 use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Livewire\LivewireServiceProvider;
-use Orchestra\Testbench\Concerns\InteractsWithPest;
 use Orchestra\Testbench\Concerns\WithWorkbench;
-use Relaticle\CustomFields\Tests\Factories\UserFactory;
-use Relaticle\CustomFields\Tests\Models\User;
+use Orchestra\Testbench\TestCase as BaseTestCase;
+use Relaticle\CustomFields\Tests\database\factories\UserFactory;
+use Relaticle\CustomFields\Tests\Fixtures\Models\User;
+use Relaticle\CustomFields\Tests\Fixtures\Providers\AdminPanelProvider;
 use RyanChandler\BladeCaptureDirective\BladeCaptureDirectiveServiceProvider;
 use Spatie\LaravelData\LaravelDataServiceProvider;
-use Orchestra\Testbench\TestCase as BaseTestCase;
 
 class TestCase extends BaseTestCase
 {

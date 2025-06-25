@@ -12,7 +12,7 @@ use Relaticle\CustomFields\Models\CustomFieldSection;
 use Relaticle\CustomFields\Services\Visibility\BackendVisibilityService;
 use Relaticle\CustomFields\Services\Visibility\CoreVisibilityLogicService;
 use Relaticle\CustomFields\Services\Visibility\FrontendVisibilityService;
-use Relaticle\CustomFields\Tests\Models\User;
+use Relaticle\CustomFields\Tests\Fixtures\Models\User;
 
 beforeEach(function () {
     $this->section = CustomFieldSection::factory()->create([
