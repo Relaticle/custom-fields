@@ -33,7 +33,7 @@ readonly class CustomFieldsExporter
         return ExportColumn::make($customField->name)
             ->label($customField->name)
             ->state(function ($record) use ($customField, $valueResolver, $visibilityService, $allFields) {
-                // Apply same visibility logic as infolists - only export visible fields
+                // Apply the same visibility logic as infolists - only export visible fields
                 if (! $visibilityService->isFieldVisible($record, $customField, $allFields)) {
                     return null; // Don't export values for fields that should be hidden
                 }

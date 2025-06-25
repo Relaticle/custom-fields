@@ -168,21 +168,28 @@ final readonly class CoreVisibilityLogicService
 
     /**
      * Calculate field dependencies for all fields.
-     * Returns mapping of dependent field codes to their source fields.
+     * Returns mapping of source field codes to their dependent field codes.
      */
     public function calculateDependencies(Collection $allFields): array
     {
-        return $allFields
-            ->flatMap(function ($field) use ($allFields) {
-                $dependentFieldCodes = $this->getDependentFields($field);
+        $dependencies = [];
 
-                return collect($dependentFieldCodes)
-                    ->filter(fn ($dependentCode) => $allFields->firstWhere('code', $dependentCode))
-                    ->mapWithKeys(fn ($dependentCode) => [$dependentCode => $field->code]);
-            })
-            ->groupBy(fn ($sourceCode, $dependentCode) => $dependentCode)
-            ->map(fn ($sourceCodes) => $sourceCodes->values()->toArray())
-            ->toArray();
+        foreach ($allFields as $field) {
+            $dependentFieldCodes = $this->getDependentFields($field);
+
+            foreach ($dependentFieldCodes as $dependentCode) {
+                // Check if the dependent field exists in our collection
+                if ($allFields->firstWhere('code', $dependentCode)) {
+                    // Map: source field code -> array of fields that depend on it
+                    if (! isset($dependencies[$dependentCode])) {
+                        $dependencies[$dependentCode] = [];
+                    }
+                    $dependencies[$dependentCode][] = $field->code;
+                }
+            }
+        }
+
+        return $dependencies;
     }
 
     /**
