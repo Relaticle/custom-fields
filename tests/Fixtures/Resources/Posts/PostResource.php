@@ -33,9 +33,9 @@ class PostResource extends Resource
 
     protected static int $globalSearchResultsLimit = 3;
 
-    public static function form(Schema $form): Schema
+    public static function form(Schema $schema): Schema
     {
-        return $form
+        return $schema
             ->components([
                 Forms\Components\TextInput::make('title')->required(),
                 Forms\Components\MarkdownEditor::make('content'),
