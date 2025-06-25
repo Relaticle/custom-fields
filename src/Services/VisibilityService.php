@@ -94,14 +94,14 @@ final readonly class VisibilityService
 
                 return collect($dependentFieldCodes)
                     // Only include dependent fields that actually exist
-                    ->filter(fn($dependentCode) => $allFields->firstWhere('code', $dependentCode))
+                    ->filter(fn ($dependentCode) => $allFields->firstWhere('code', $dependentCode))
                     // Map: dependent field => source field that it depends on
-                    ->mapWithKeys(fn($dependentCode) => [$dependentCode => $field->code]);
+                    ->mapWithKeys(fn ($dependentCode) => [$dependentCode => $field->code]);
             })
             // Group by dependent field code
-            ->groupBy(fn($sourceCode, $dependentCode) => $dependentCode)
+            ->groupBy(fn ($sourceCode, $dependentCode) => $dependentCode)
             // Convert grouped collections to arrays
-            ->map(fn($sourceCodes) => $sourceCodes->values()->toArray())
+            ->map(fn ($sourceCodes) => $sourceCodes->values()->toArray())
             ->toArray();
     }
 

@@ -23,27 +23,25 @@ final readonly class FieldConfigurator
     public function __construct(
         private ValidationService $validationService,
         private VisibilityService $visibilityService,
-    )
-    {
-    }
+    ) {}
 
     public function configure(Field $field, CustomField $customField, array $dependentFieldCodes = [], ?Collection $allFields = null): Field
     {
         return $field
             ->name("custom_fields.{$customField->code}")
             ->label($customField->name)
-            ->afterStateHydrated(fn($component, $state, $record) => $component->state($this->getFieldValue($customField, $state, $record)))
-            ->dehydrated(fn($state) => $this->visibilityService->shouldAlwaysSave($customField) || filled($state))
+            ->afterStateHydrated(fn ($component, $state, $record) => $component->state($this->getFieldValue($customField, $state, $record)))
+            ->dehydrated(fn ($state) => $this->visibilityService->shouldAlwaysSave($customField) || filled($state))
             ->required($this->validationService->isRequired($customField))
             ->rules($this->validationService->getValidationRules($customField))
             ->columnSpan($customField->width->getSpanValue())
             ->when(
                 $this->hasVisibilityConditions($customField),
-                fn(Field $field) => $this->applyVisibility($field, $customField, $allFields)
+                fn (Field $field) => $this->applyVisibility($field, $customField, $allFields)
             )
             ->when(
                 filled($dependentFieldCodes),
-                fn(Field $field) => $field->live()
+                fn (Field $field) => $field->live()
             );
     }
 
@@ -80,7 +78,7 @@ final readonly class FieldConfigurator
     {
         $visibility = $field->settings?->visibility;
 
-        if (!$visibility?->requiresConditions() || blank($visibility->conditions)) {
+        if (! $visibility?->requiresConditions() || blank($visibility->conditions)) {
             return null;
         }
 
@@ -89,20 +87,20 @@ final readonly class FieldConfigurator
             $this->buildFieldConditions($visibility, $allFields),
         ])
             ->filter()
-            ->map(fn($condition) => "({$condition})");
+            ->map(fn ($condition) => "({$condition})");
 
         return $conditions->isNotEmpty() ? $conditions->implode(' && ') : null;
     }
 
     private function buildFieldConditions($visibility, ?Collection $allFields): ?string
     {
-        if (!$allFields) {
+        if (! $allFields) {
             return null;
         }
 
         $conditions = $visibility->conditions->toCollection()
-            ->filter(fn($condition) => $allFields->contains('code', $condition->field_code))
-            ->map(fn($condition) => $this->buildCondition($condition, $visibility->mode, $allFields))
+            ->filter(fn ($condition) => $allFields->contains('code', $condition->field_code))
+            ->map(fn ($condition) => $this->buildCondition($condition, $visibility->mode, $allFields))
             ->filter()
             ->values();
 
@@ -111,21 +109,22 @@ final readonly class FieldConfigurator
         }
 
         $operator = ($visibility->logic ?? Logic::ALL) === Logic::ALL ? ' && ' : ' || ';
+
         return $conditions->implode($operator);
     }
 
     private function buildParentConditions(CustomField $field, ?Collection $allFields): ?string
     {
-        if (!$allFields) {
+        if (! $allFields) {
             return null;
         }
 
         $parentConditions = collect($this->visibilityService->getDependentFields($field))
-            ->map(fn($code) => $allFields->firstWhere('code', $code))
+            ->map(fn ($code) => $allFields->firstWhere('code', $code))
             ->filter()
             ->pluck('settings.visibility')
-            ->filter(fn($vis) => $vis?->requiresConditions() && filled($vis->conditions))
-            ->map(fn($vis) => $this->buildFieldConditions($vis, $allFields))
+            ->filter(fn ($vis) => $vis?->requiresConditions() && filled($vis->conditions))
+            ->map(fn ($vis) => $this->buildFieldConditions($vis, $allFields))
             ->filter();
 
         return $parentConditions->isNotEmpty() ? $parentConditions->implode(' && ') : null;
@@ -143,7 +142,7 @@ final readonly class FieldConfigurator
                 $condition->value,
                 $targetField
             ),
-            fn($expression) => $mode->value === 'show_when' ? $expression : "!({$expression})"
+            fn ($expression) => $mode->value === 'show_when' ? $expression : "!({$expression})"
         );
     }
 
@@ -155,10 +154,18 @@ final readonly class FieldConfigurator
             Operator::CONTAINS => $this->buildContainsExpression($fieldValue, $value, $targetField),
             Operator::NOT_CONTAINS => transform(
                 $this->buildContainsExpression($fieldValue, $value, $targetField),
-                fn($expr) => "!({$expr})"
+                fn ($expr) => "!({$expr})"
             ),
-            Operator::GREATER_THAN => "parseFloat({$fieldValue}) > parseFloat({$this->formatJsValue($value)})",
-            Operator::LESS_THAN => "parseFloat({$fieldValue}) < parseFloat({$this->formatJsValue($value)})",
+            Operator::GREATER_THAN => "(() => {
+                const fieldVal = parseFloat({$fieldValue});
+                const compareVal = parseFloat({$this->formatJsValue($value)});
+                return !isNaN(fieldVal) && !isNaN(compareVal) && fieldVal > compareVal;
+            })()",
+            Operator::LESS_THAN => "(() => {
+                const fieldVal = parseFloat({$fieldValue});
+                const compareVal = parseFloat({$this->formatJsValue($value)});
+                return !isNaN(fieldVal) && !isNaN(compareVal) && fieldVal < compareVal;
+            })()",
             Operator::IS_EMPTY => $this->buildEmptyExpression($fieldValue, true),
             Operator::IS_NOT_EMPTY => $this->buildEmptyExpression($fieldValue, false),
         };
@@ -168,8 +175,8 @@ final readonly class FieldConfigurator
     {
         return when(
             $targetField?->type?->isOptionable(),
-            fn() => $this->buildOptionExpression($fieldValue, $value, $targetField, 'equals'),
-            fn() => $this->buildStandardEqualsExpression($fieldValue, $value)
+            fn () => $this->buildOptionExpression($fieldValue, $value, $targetField, 'equals'),
+            fn () => $this->buildStandardEqualsExpression($fieldValue, $value)
         );
     }
 
@@ -177,34 +184,59 @@ final readonly class FieldConfigurator
     {
         $jsValue = $this->formatJsValue($value);
 
-        return is_array($value)
-            ? "JSON.stringify({$fieldValue}) === JSON.stringify({$jsValue})"
-            : "{$fieldValue} === {$jsValue}";
+        if (is_array($value)) {
+            return "(() => {
+                const fieldVal = {$fieldValue};
+                const compareVal = {$jsValue};
+                if (!Array.isArray(fieldVal) || !Array.isArray(compareVal)) return false;
+                return JSON.stringify(fieldVal.sort()) === JSON.stringify(compareVal.sort());
+            })()";
+        }
+
+        return "(() => {
+            const fieldVal = {$fieldValue};
+            const compareVal = {$jsValue};
+            
+            if (typeof fieldVal === typeof compareVal) {
+                return fieldVal === compareVal;
+            }
+            
+            if ((fieldVal === null || fieldVal === undefined) && (compareVal === null || compareVal === undefined)) {
+                return true;
+            }
+            
+            if (typeof fieldVal === 'number' && typeof compareVal === 'string' && !isNaN(parseFloat(compareVal))) {
+                return fieldVal === parseFloat(compareVal);
+            }
+            
+            if (typeof fieldVal === 'string' && typeof compareVal === 'number' && !isNaN(parseFloat(fieldVal))) {
+                return parseFloat(fieldVal) === compareVal;
+            }
+            
+            return String(fieldVal) === String(compareVal);
+        })()";
     }
 
     private function buildNotEqualsExpression(string $fieldValue, mixed $value, ?CustomField $targetField): string
     {
         return when(
             $targetField?->type?->isOptionable(),
-            fn() => $this->buildOptionExpression($fieldValue, $value, $targetField, 'not_equals'),
-            fn() => $this->buildStandardNotEqualsExpression($fieldValue, $value)
+            fn () => $this->buildOptionExpression($fieldValue, $value, $targetField, 'not_equals'),
+            fn () => $this->buildStandardNotEqualsExpression($fieldValue, $value)
         );
     }
 
     private function buildStandardNotEqualsExpression(string $fieldValue, mixed $value): string
     {
-        $jsValue = $this->formatJsValue($value);
+        $equalsExpression = $this->buildStandardEqualsExpression($fieldValue, $value);
 
-        return is_array($value)
-            ? "JSON.stringify({$fieldValue}) !== JSON.stringify({$jsValue})"
-            : "{$fieldValue} !== {$jsValue}";
+        return "!({$equalsExpression})";
     }
 
     private function buildOptionExpression(string $fieldValue, mixed $value, CustomField $targetField, string $operator): string
     {
         $resolvedValue = $this->resolveOptionValue($value, $targetField);
         $jsValue = $this->formatJsValue($resolvedValue);
-
 
         $condition = $targetField->type->hasMultipleValues()
             ? $this->buildMultiValueOptionCondition($fieldValue, $resolvedValue, $jsValue)
@@ -232,7 +264,20 @@ final readonly class FieldConfigurator
         return "(() => {
             const fieldVal = {$fieldValue};
             const conditionVal = {$jsValue};
-            return String(fieldVal || '') === String(conditionVal || '');
+            
+            if (fieldVal === null || fieldVal === undefined || fieldVal === '') {
+                return conditionVal === null || conditionVal === undefined || conditionVal === '';
+            }
+            
+            if (typeof fieldVal === 'number' && typeof conditionVal === 'number') {
+                return fieldVal === conditionVal;
+            }
+            
+            if (typeof fieldVal === 'boolean' && typeof conditionVal === 'boolean') {
+                return fieldVal === conditionVal;
+            }
+            
+            return String(fieldVal) === String(conditionVal);
         })()";
     }
 
@@ -248,20 +293,24 @@ final readonly class FieldConfigurator
     private function resolveArrayOptionValue(array $value, CustomField $targetField): mixed
     {
         return $targetField->type->hasMultipleValues()
-            ? collect($value)->map(fn($v) => $this->convertOptionValue($v, $targetField))->all()
+            ? collect($value)->map(fn ($v) => $this->convertOptionValue($v, $targetField))->all()
             : $this->convertOptionValue(head($value), $targetField);
     }
 
     private function convertOptionValue(mixed $value, CustomField $targetField): mixed
     {
-        if (blank($value) || is_numeric($value)) {
-            return is_numeric($value) ? (int)$value : $value;
+        if (blank($value)) {
+            return $value;
+        }
+
+        if (is_numeric($value)) {
+            return is_float($value) || str_contains((string) $value, '.') ? (float) $value : (int) $value;
         }
 
         return rescue(function () use ($value, $targetField) {
             if (is_string($value) && $targetField->options) {
                 return $targetField->options
-                    ->first(fn($opt) => filled($opt->name) &&
+                    ->first(fn ($opt) => filled($opt->name) &&
                         Str::lower(trim($opt->name)) === Str::lower(trim($value))
                     )?->id ?? $value;
             }
@@ -299,13 +348,16 @@ final readonly class FieldConfigurator
         return match (true) {
             $value === null => 'null',
             is_bool($value) => $value ? 'true' : 'false',
-            is_string($value) && in_array(Str::lower($value), ['true', 'false']) => Str::lower($value),
-            is_string($value) => "'" . addslashes($value) . "'",
-            is_numeric($value) => (string)$value,
+            $value === 'true' => 'true',
+            $value === 'false' => 'false',
+            is_string($value) => "'".addslashes($value)."'",
+            is_int($value) => (string) $value,
+            is_float($value) => number_format($value, 10, '.', ''),
+            is_numeric($value) => is_float($value + 0) ? number_format((float) $value, 10, '.', '') : (string) ((int) $value),
             is_array($value) => collect($value)
-                ->map(fn($item) => $this->formatJsValue($item))
-                ->pipe(fn($collection) => '[' . $collection->implode(', ') . ']'),
-            default => "'" . addslashes((string)$value) . "'"
+                ->map(fn ($item) => $this->formatJsValue($item))
+                ->pipe(fn ($collection) => '['.$collection->implode(', ').']'),
+            default => "'".addslashes((string) $value)."'"
         };
     }
 }

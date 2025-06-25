@@ -66,8 +66,9 @@ final class FieldComponentFactory
     public function __construct(private readonly Container $container) {}
 
     /**
-     * @param array<string> $dependentFieldCodes
-     * @param Collection<int, CustomField>|null $allFields
+     * @param  array<string>  $dependentFieldCodes
+     * @param  Collection<int, CustomField>|null  $allFields
+     *
      * @throws BindingResolutionException
      */
     public function create(CustomField $customField, array $dependentFieldCodes = [], ?Collection $allFields = null): Field

@@ -17,7 +17,8 @@ final readonly class RadioComponent implements FieldComponentInterface
     public function __construct(private FieldConfigurator $configurator) {}
 
     /**
-     * @param array<string> $dependentFieldCodes
+     * @param  array<string>  $dependentFieldCodes
+     *
      * @throws \Throwable
      */
     public function make(CustomField $customField, array $dependentFieldCodes = [], ?Collection $allFields = null): Field

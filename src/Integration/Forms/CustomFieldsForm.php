@@ -48,6 +48,7 @@ final class CustomFieldsForm extends Component
 
     /**
      * @return array<int, Field>
+     *
      * @throws BindingResolutionException
      */
     protected function generateSchema(): array
