@@ -170,7 +170,7 @@ it('can create with custom fields', function (): void {
 });
 
 it('can create with required custom fields validation', function (): void {
-    // Create custom field section for Posts
+    // Create a custom field section for Posts
     $section = CustomFieldSection::factory()->create([
         'name' => 'Post Custom Fields',
         'entity_type' => Post::class,
@@ -181,8 +181,8 @@ it('can create with required custom fields validation', function (): void {
     // Create required custom field
     CustomField::factory()->create([
         'custom_field_section_id' => $section->id,
-        'name' => 'Required Field',
-        'code' => 'required_field',
+        'name' => 'Meta Description',
+        'code' => 'meta_description',
         'type' => CustomFieldType::TEXT,
         'sort_order' => 1,
         'entity_type' => Post::class,
@@ -203,5 +203,5 @@ it('can create with required custom fields validation', function (): void {
             // Missing required custom field
         ])
         ->call('create')
-        ->assertHasFormErrors();
+        ->assertHasFormErrors(['custom_fields.meta_description']);
 });
