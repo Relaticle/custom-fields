@@ -122,15 +122,11 @@ test('core logic service extracts visibility data consistently', function () {
     expect($conditionalVisibility)->toBeInstanceOf(VisibilityData::class)
         ->and($conditionalVisibility->mode)->toBe(Mode::SHOW_WHEN)
         ->and($conditionalVisibility->logic)->toBe(Logic::ALL)
-        ->and($conditionalVisibility->conditions)->toHaveCount(1);
-        
-    // Always visible field should have default visibility settings
-    expect($alwaysVisibleData)->toBeInstanceOf(VisibilityData::class)
+        ->and($conditionalVisibility->conditions)->toHaveCount(1)
+        ->and($alwaysVisibleData)->toBeInstanceOf(VisibilityData::class)
         ->and($alwaysVisibleData->mode)->toBe(Mode::ALWAYS_VISIBLE)
-        ->and($alwaysVisibleData->conditions)->toBeNull();
-
-    // Test visibility condition extraction
-    expect($this->coreLogic->hasVisibilityConditions($this->conditionalField))->toBeTrue()
+        ->and($alwaysVisibleData->conditions)->toBeNull()
+        ->and($this->coreLogic->hasVisibilityConditions($this->conditionalField))->toBeTrue()
         ->and($this->coreLogic->hasVisibilityConditions($this->alwaysVisibleField))->toBeFalse();
 
     // Test dependent fields
@@ -264,11 +260,11 @@ test('operator compatibility and validation work correctly', function () {
         ->and($this->coreLogic->isOperatorCompatible(Operator::IS_EMPTY, $textField))->toBeTrue()
         ->and($this->coreLogic->isOperatorCompatible(Operator::EQUALS, $selectField))->toBeTrue()
         ->and($this->coreLogic->isOperatorCompatible(Operator::NOT_EQUALS, $selectField))->toBeTrue()
-        ->and($this->coreLogic->isOperatorCompatible(Operator::CONTAINS, $selectField))->toBeFalse(); // SELECT fields don't support CONTAINS
+        ->and($this->coreLogic->isOperatorCompatible(Operator::CONTAINS, $selectField))->toBeFalse()
+        ->and($this->coreLogic->getOperatorValidationError(Operator::EQUALS, $textField))->toBeString()
+        ->and($this->coreLogic->getOperatorValidationError(Operator::IS_EMPTY, $textField))->toBeNull(); // SELECT fields don't support CONTAINS
 
     // Test validation error messages (note: current implementation incorrectly flags EQUALS as optionable-only)
-    expect($this->coreLogic->getOperatorValidationError(Operator::EQUALS, $textField))->toBeString()
-        ->and($this->coreLogic->getOperatorValidationError(Operator::IS_EMPTY, $textField))->toBeNull();
 
     // Test field metadata
     $metadata = $this->coreLogic->getFieldMetadata($this->conditionalField);
