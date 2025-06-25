@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use Filament\Facades\Filament;
 use Relaticle\CustomFields\Data\CustomFieldSectionSettingsData;
 use Relaticle\CustomFields\Data\CustomFieldSettingsData;
 use Relaticle\CustomFields\Enums\CustomFieldSectionType;
@@ -12,8 +13,16 @@ use Relaticle\CustomFields\Tests\Models\User;
 use Relaticle\CustomFields\Tests\Resources\UserResource\Pages\CreateUser;
 use Relaticle\CustomFields\Tests\Resources\UserResource\Pages\EditUser;
 use function Pest\Livewire\livewire;
+use function Pest\Laravel\actingAs;
 
 beforeEach(function () {
+    Filament::setCurrentPanel('admin');
+
+    $user = User::factory()->create();
+
+    actingAs($user);
+
+
     // Create a custom field section for testing
     $this->section = CustomFieldSection::create([
         'name' => 'Test Section',

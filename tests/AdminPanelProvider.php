@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Relaticle\CustomFields\Tests;
 
+use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\DisableBladeIconComponents;
 use Filament\Http\Middleware\DispatchServingFilamentEvent;
 use Filament\Panel;
@@ -20,17 +21,17 @@ use Relaticle\CustomFields\CustomFieldsPlugin;
 use Relaticle\CustomFields\Tests\Pages\TestCustomFieldsPage;
 use Relaticle\CustomFields\Tests\Resources\UserResource;
 
-class TestPanelProvider extends PanelProvider
+class AdminPanelProvider extends PanelProvider
 {
     public function panel(Panel $panel): Panel
     {
         return $panel
+            ->default()
             ->id('admin')
-            ->path('admin')
-            ->default() // Set as default panel
-            ->colors([
-                'primary' => Color::Amber,
-            ])
+            ->login()
+            ->registration()
+            ->passwordReset()
+            ->emailVerification()
             ->resources([
                 UserResource::class,
             ])
@@ -52,7 +53,7 @@ class TestPanelProvider extends PanelProvider
                 DispatchServingFilamentEvent::class,
             ])
             ->authMiddleware([
-                // Remove authentication for testing
+                Authenticate::class
             ]);
     }
 }
