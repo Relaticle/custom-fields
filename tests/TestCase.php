@@ -19,6 +19,7 @@ use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
 use Livewire\LivewireServiceProvider;
 use Orchestra\Testbench\Concerns\WithWorkbench;
 use Orchestra\Testbench\TestCase as BaseTestCase;
+use Relaticle\CustomFields\CustomFieldsServiceProvider;
 use Relaticle\CustomFields\Tests\database\factories\UserFactory;
 use Relaticle\CustomFields\Tests\Fixtures\Models\User;
 use Relaticle\CustomFields\Tests\Fixtures\Providers\AdminPanelProvider;
@@ -40,11 +41,14 @@ class TestCase extends BaseTestCase
                 default => 'Relaticle\\CustomFields\\Database\\Factories\\'.class_basename($modelName).'Factory'
             }
         );
+
+
+        $this->actingAs(User::factory()->create());
     }
 
     protected function getPackageProviders($app): array
     {
-        return [
+        $providers =  [
             ActionsServiceProvider::class,
             BladeCaptureDirectiveServiceProvider::class,
             BladeHeroiconsServiceProvider::class,
@@ -58,8 +62,17 @@ class TestCase extends BaseTestCase
             TablesServiceProvider::class,
             WidgetsServiceProvider::class,
             LaravelDataServiceProvider::class,
+
+            // Custom service provider for the admin panel
             AdminPanelProvider::class,
+
+            // Custom fields service provider
+            CustomFieldsServiceProvider::class,
         ];
+
+        sort($providers);
+
+        return $providers;
     }
 
     public function defineEnvironment($app): void
