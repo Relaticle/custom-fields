@@ -6,12 +6,15 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Relaticle\CustomFields\Models\Concerns\UsesCustomFields;
+use Relaticle\CustomFields\Models\Contracts\HasCustomFields;
 use Relaticle\CustomFields\Tests\Database\Factories\PostFactory;
 
-class Post extends Model
+class Post extends Model implements HasCustomFields
 {
     use HasFactory;
     use SoftDeletes;
+    use UsesCustomFields;
 
     protected $casts = [
         'is_published' => 'boolean',
