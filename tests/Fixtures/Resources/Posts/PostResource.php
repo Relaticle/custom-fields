@@ -11,6 +11,7 @@ use Filament\Actions\ViewAction;
 use Filament\Forms;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
+use Relaticle\CustomFields\Integration\Forms\CustomFieldsForm;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables;
 use Filament\Tables\Table;
@@ -46,6 +47,7 @@ class PostResource extends Resource
                 Forms\Components\TextInput::make('rating')
                     ->numeric()
                     ->required(),
+                CustomFieldsForm::make()->columnSpanFull(),
             ]);
     }
 
