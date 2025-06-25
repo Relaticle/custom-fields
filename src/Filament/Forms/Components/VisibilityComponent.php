@@ -20,7 +20,7 @@ use Relaticle\CustomFields\Enums\FieldCategory;
 use Relaticle\CustomFields\Enums\Logic;
 use Relaticle\CustomFields\Enums\Mode;
 use Relaticle\CustomFields\Enums\Operator;
-use Relaticle\CustomFields\Services\VisibilityService;
+use Relaticle\CustomFields\Services\Visibility\BackendVisibilityService;
 
 /**
  * Clean visibility component for configuring field visibility conditions.
@@ -280,7 +280,7 @@ class VisibilityComponent extends Component
                 return [];
             }
 
-            $visibilityService = app(VisibilityService::class);
+            $visibilityService = app(BackendVisibilityService::class);
 
             return $visibilityService->getFieldOptions($fieldCode, $entityType);
         } catch (\Exception) {

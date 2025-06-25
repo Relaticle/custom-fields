@@ -10,7 +10,7 @@ use Illuminate\Contracts\Container\BindingResolutionException;
 use Relaticle\CustomFields\CustomFields;
 use Relaticle\CustomFields\Models\CustomField;
 use Relaticle\CustomFields\Models\CustomFieldSection;
-use Relaticle\CustomFields\Services\VisibilityService;
+use Relaticle\CustomFields\Services\CustomFieldVisibilityService;
 
 final class CustomFieldsForm extends Component
 {
@@ -24,6 +24,7 @@ final class CustomFieldsForm extends Component
     public function __construct(
         private readonly SectionComponentFactory $sectionComponentFactory,
         private readonly FieldComponentFactory $fieldComponentFactory,
+        private readonly CustomFieldVisibilityService $visibilityService,
     ) {
         // Defer schema generation until we can safely access the record
         $this->schema(fn () => $this->getSchema());
@@ -63,7 +64,10 @@ final class CustomFieldsForm extends Component
 
         // Calculate field dependencies for all fields across all sections
         $allFields = $sections->flatMap(fn ($section) => $section->fields);
-        $fieldDependencies = app(VisibilityService::class)->calculateDependencies($allFields);
+        $fieldDependencies = $this->visibilityService->calculateDependencies($allFields);
+
+        // Export visibility logic for frontend use - enables consistent visibility across contexts
+        $visibilityData = $this->visibilityService->exportVisibilityLogicToJs($allFields);
 
         return $sections->map(function (CustomFieldSection $section) use ($fieldDependencies, $allFields) {
             return $this->sectionComponentFactory->create($section)->schema(

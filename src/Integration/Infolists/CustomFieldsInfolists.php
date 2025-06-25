@@ -9,6 +9,7 @@ use Filament\Schemas\Components\Component;
 use Relaticle\CustomFields\CustomFields;
 use Relaticle\CustomFields\Models\CustomField;
 use Relaticle\CustomFields\Models\CustomFieldSection;
+use Relaticle\CustomFields\Services\CustomFieldVisibilityService;
 
 final class CustomFieldsInfolists extends Component
 {
@@ -16,7 +17,8 @@ final class CustomFieldsInfolists extends Component
 
     public function __construct(
         private readonly SectionInfolistsFactory $sectionInfolistsFactory,
-        private readonly FieldInfolistsFactory $fieldInfolistsFactory
+        private readonly FieldInfolistsFactory $fieldInfolistsFactory,
+        private readonly CustomFieldVisibilityService $visibilityService
     ) {
         // Defer schema generation until we can safely access the record
         $this->schema(fn () => $this->generateSchema());
@@ -32,22 +34,42 @@ final class CustomFieldsInfolists extends Component
      */
     protected function generateSchema(): array
     {
-        $this->getRecord()?->load('customFieldValues.customField');
+        $record = $this->getRecord();
 
-        return CustomFields::newSectionModel()->query()
+        if (! $record) {
+            return [];
+        }
+
+        // Ensure custom field values are properly loaded
+        $record->load('customFieldValues.customField');
+
+        $sections = CustomFields::newSectionModel()->query()
             ->with(['fields' => fn ($query) => $query->visibleInView()])
-            ->forEntityType($this->getRecord()::class)
+            ->forEntityType($record::class)
             ->orderBy('sort_order')
-            ->get()
-            ->map(function (CustomFieldSection $section) {
-                return $this->sectionInfolistsFactory->create($section)->schema(
-                    function () use ($section) {
-                        return $section->fields->map(function (CustomField $customField) {
-                            return $this->fieldInfolistsFactory->create($customField);
-                        })->toArray();
-                    }
-                );
-            })
+            ->get();
+
+        // Get all fields across all sections for visibility evaluation
+        $allFields = $sections->flatMap(fn ($section) => $section->fields);
+
+        return $sections->map(function (CustomFieldSection $section) use ($record) {
+            // Filter fields to only those that should be visible based on conditional visibility
+            $visibleFields = $this->visibilityService->getVisibleFields($record, $section->fields);
+
+            // Only create section if it has visible fields
+            if ($visibleFields->isEmpty()) {
+                return null;
+            }
+
+            return $this->sectionInfolistsFactory->create($section)->schema(
+                function () use ($visibleFields) {
+                    return $visibleFields->map(function (CustomField $customField) {
+                        return $this->fieldInfolistsFactory->create($customField);
+                    })->toArray();
+                }
+            );
+        })
+            ->filter() // Remove null entries (sections with no visible fields)
             ->toArray();
     }
 }

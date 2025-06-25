@@ -10,7 +10,7 @@ use Relaticle\CustomFields\Enums\Logic;
 use Relaticle\CustomFields\Enums\Mode;
 use Relaticle\CustomFields\Enums\Operator;
 use Relaticle\CustomFields\Models\CustomField;
-use Relaticle\CustomFields\Services\VisibilityService;
+use Relaticle\CustomFields\Services\Visibility\CoreVisibilityLogicService;
 use Relaticle\CustomFields\Tests\TestCase;
 
 class ConditionalVisibilityIntegrationTest extends TestCase
@@ -22,7 +22,7 @@ class ConditionalVisibilityIntegrationTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->service = app(VisibilityService::class);
+        $this->service = app(CoreVisibilityLogicService::class);
     }
 
     public function test_it_stores_visibility_in_custom_field_settings(): void

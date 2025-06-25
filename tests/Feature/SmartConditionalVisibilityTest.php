@@ -11,17 +11,17 @@ use Relaticle\CustomFields\Enums\Mode;
 use Relaticle\CustomFields\Enums\Operator;
 use Relaticle\CustomFields\Models\CustomField;
 use Relaticle\CustomFields\Models\CustomFieldOption;
-use Relaticle\CustomFields\Services\VisibilityService;
+use Relaticle\CustomFields\Services\Visibility\BackendVisibilityService;
 use Relaticle\CustomFields\Tests\TestCase;
 
 class SmartConditionalVisibilityTest extends TestCase
 {
-    private VisibilityService $visibilityService;
+    private BackendVisibilityService $visibilityService;
 
     protected function setUp(): void
     {
         parent::setUp();
-        $this->visibilityService = app(VisibilityService::class);
+        $this->visibilityService = app(BackendVisibilityService::class);
     }
 
     #[Test]
