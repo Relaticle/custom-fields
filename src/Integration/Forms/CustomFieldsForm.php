@@ -32,6 +32,7 @@ final class CustomFieldsForm extends Component
 
     /**
      * @return array<int, Field>
+     * @throws BindingResolutionException
      */
     protected function getSchema(): array
     {
@@ -66,9 +67,6 @@ final class CustomFieldsForm extends Component
         $allFields = $sections->flatMap(fn ($section) => $section->fields);
         $fieldDependencies = $this->visibilityService->calculateDependencies($allFields);
 
-        // Export visibility logic for frontend use - enables consistent visibility across contexts
-        $visibilityData = $this->visibilityService->exportVisibilityLogicToJs($allFields);
-
         return $sections->map(function (CustomFieldSection $section) use ($fieldDependencies, $allFields) {
             return $this->sectionComponentFactory->create($section)->schema(
                 function () use ($section, $fieldDependencies, $allFields) {
@@ -76,7 +74,6 @@ final class CustomFieldsForm extends Component
                         ->map(function (CustomField $customField) use ($fieldDependencies, $allFields) {
                             // Get fields that depend on this field (makes it live)
                             $dependentFields = $fieldDependencies[$customField->code] ?? [];
-
                             return $this->fieldComponentFactory->create($customField, $dependentFields, $allFields);
                         })
                         ->toArray();

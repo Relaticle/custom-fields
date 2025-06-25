@@ -33,9 +33,9 @@ final class CustomFieldFactory extends Factory
             'name' => $this->faker->name(),
             'type' => $this->faker->randomElement(CustomFieldType::cases()),
             'entity_type' => 'App\\Models\\User',
-            'sort_order' => $this->faker->numberBetween(0, 100),
+            'sort_order' => 1,
             'validation_rules' => [],
-            'active' => $this->faker->boolean(),
+            'active' => true,
             'system_defined' => false,
             'settings' => [
                 'encrypted' => false,

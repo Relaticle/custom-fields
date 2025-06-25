@@ -47,6 +47,7 @@ class PostResource extends Resource
                 Forms\Components\TextInput::make('rating')
                     ->numeric()
                     ->required(),
+
                 CustomFieldsForm::make()->columnSpanFull(),
             ]);
     }
