@@ -85,19 +85,24 @@ final readonly class VisibilityService
     /**
      * Calculate field dependencies for multiple fields efficiently.
      */
-    public function calculateDependencies(Collection $fields): array
+    public function calculateDependencies(Collection $allFields): array
     {
-        $dependencies = [];
+        return $allFields
+            // For each field, find what other fields depend on it
+            ->flatMap(function ($field) use ($allFields) {
+                $dependentFieldCodes = $this->getDependentFields($field);
 
-        foreach ($fields as $field) {
-            $dependentFields = $this->getDependentFields($field);
-
-            foreach ($dependentFields as $dependentField) {
-                $dependencies[$dependentField][] = $field->code;
-            }
-        }
-
-        return $dependencies;
+                return collect($dependentFieldCodes)
+                    // Only include dependent fields that actually exist
+                    ->filter(fn($dependentCode) => $allFields->firstWhere('code', $dependentCode))
+                    // Map: dependent field => source field that it depends on
+                    ->mapWithKeys(fn($dependentCode) => [$dependentCode => $field->code]);
+            })
+            // Group by dependent field code
+            ->groupBy(fn($sourceCode, $dependentCode) => $dependentCode)
+            // Convert grouped collections to arrays
+            ->map(fn($sourceCodes) => $sourceCodes->values()->toArray())
+            ->toArray();
     }
 
     /**

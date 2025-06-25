@@ -6,6 +6,7 @@ namespace Relaticle\CustomFields\Integration\Forms;
 
 use Filament\Forms\Components\Field;
 use Filament\Schemas\Components\Component;
+use Illuminate\Contracts\Container\BindingResolutionException;
 use Relaticle\CustomFields\CustomFields;
 use Relaticle\CustomFields\Models\CustomField;
 use Relaticle\CustomFields\Models\CustomFieldSection;
@@ -47,6 +48,7 @@ final class CustomFieldsForm extends Component
 
     /**
      * @return array<int, Field>
+     * @throws BindingResolutionException
      */
     protected function generateSchema(): array
     {
