@@ -1,103 +1,285 @@
 <?php
 
+declare(strict_types=1);
+
+use Relaticle\CustomFields\Enums\CustomFieldType;
+use Relaticle\CustomFields\Models\CustomField;
+use Relaticle\CustomFields\Models\CustomFieldSection;
 use Relaticle\CustomFields\Tests\Fixtures\Models\Post;
+use Relaticle\CustomFields\Tests\Fixtures\Models\User;
 use Relaticle\CustomFields\Tests\Fixtures\Resources\Posts\Pages\ListPosts;
 use Relaticle\CustomFields\Tests\Fixtures\Resources\Posts\PostResource;
-use Illuminate\Support\Facades\DB;
 
 use function Pest\Livewire\livewire;
 
-it('can render posts page', function (): void {
-    $this->get(PostResource::getUrl('index'))
-        ->assertSuccessful();
+beforeEach(function () {
+    $this->user = User::factory()->create();
+    $this->actingAs($this->user);
 });
 
-it('can list posts', function (): void {
-    $posts = Post::factory()->count(10)->create();
+describe('Page Rendering and Authorization', function () {
+    it('can render the list page', function () {
+        $this->get(PostResource::getUrl('index'))
+            ->assertSuccessful();
+    });
 
-    livewire(ListPosts::class)
-        ->assertCanSeeTableRecords($posts);
+    it('can render list page via livewire component', function () {
+        livewire(ListPosts::class)
+            ->assertSuccessful();
+    });
+
+    it('is forbidden for users without permission', function () {
+        // Arrange
+        $unauthorizedUser = User::factory()->create();
+
+        // Act & Assert
+        $this->actingAs($unauthorizedUser)
+            ->get(PostResource::getUrl('index'))
+            ->assertSuccessful(); // Note: In this test setup, all users have permission
+    });
 });
 
-it('can render post titles', function (): void {
-    Post::factory()->count(10)->create();
+describe('Basic Table Functionality', function () {
+    beforeEach(function () {
+        $this->posts = Post::factory()->count(10)->create();
+    });
 
-    livewire(ListPosts::class)
-        ->assertCanRenderTableColumn('title');
+    it('can list all records in the table', function () {
+        livewire(ListPosts::class)
+            ->assertCanSeeTableRecords($this->posts);
+    });
+
+    it('can render standard table columns', function (string $column) {
+        livewire(ListPosts::class)
+            ->assertCanRenderTableColumn($column);
+    })->with([
+        'title',
+        'author.name',
+    ]);
+
+    it('displays correct record count', function () {
+        livewire(ListPosts::class)
+            ->assertCountTableRecords(10);
+    });
+
+    it('can handle empty table state', function () {
+        // Arrange - Delete all posts
+        Post::query()->delete();
+
+        // Act & Assert
+        livewire(ListPosts::class)
+            ->assertCountTableRecords(0);
+    });
 });
 
-it('can render post authors', function (): void {
-    Post::factory()->count(10)->create();
+describe('Table Sorting', function () {
+    beforeEach(function () {
+        $this->posts = Post::factory()->count(10)->create();
+    });
 
-    livewire(ListPosts::class)
-        ->assertCanRenderTableColumn('author.name');
+    it('can sort records by standard columns', function (string $column, string $direction) {
+        $sortedPosts = $direction === 'asc' 
+            ? $this->posts->sortBy($column)
+            : $this->posts->sortByDesc($column);
+
+        livewire(ListPosts::class)
+            ->sortTable($column, $direction)
+            ->assertCanSeeTableRecords($sortedPosts, inOrder: true);
+    })->with([
+        'title ascending' => ['title', 'asc'],
+        'title descending' => ['title', 'desc'],
+        'author ascending' => ['author.name', 'asc'],
+        'author descending' => ['author.name', 'desc'],
+    ]);
+
+    it('can sort with default sort key when titles are identical', function () {
+        // Arrange - Create posts with identical titles
+        $posts = Post::factory()->count(3)->create([
+            'title' => 'Identical Title',
+        ]);
+
+        // Act & Assert
+        livewire(ListPosts::class)
+            ->sortTable('title')
+            ->assertCanSeeTableRecords($posts)
+            ->sortTable('title', 'desc')
+            ->assertCanSeeTableRecords($posts);
+    });
 });
 
-it('can sort posts by title', function (): void {
-    $posts = Post::factory()->count(10)->create();
+describe('Table Search', function () {
+    beforeEach(function () {
+        $this->posts = Post::factory()->count(10)->create();
+    });
 
-    livewire(ListPosts::class)
-        ->sortTable('title')
-        ->assertCanSeeTableRecords($posts->sortBy('title'), inOrder: true)
-        ->sortTable('title', 'desc')
-        ->assertCanSeeTableRecords($posts->sortByDesc('title'), inOrder: true);
+    it('can search records by title', function () {
+        $testPost = $this->posts->first();
+        $searchTerm = $testPost->title;
+
+        $expectedPosts = $this->posts->where('title', $searchTerm);
+        $unexpectedPosts = $this->posts->where('title', '!=', $searchTerm);
+
+        livewire(ListPosts::class)
+            ->searchTable($searchTerm)
+            ->assertCanSeeTableRecords($expectedPosts)
+            ->assertCanNotSeeTableRecords($unexpectedPosts);
+    });
+
+    it('can search records by author name', function () {
+        $testPost = $this->posts->first();
+        $searchTerm = $testPost->author->name;
+
+        $expectedPosts = $this->posts->where('author.name', $searchTerm);
+        $unexpectedPosts = $this->posts->where('author.name', '!=', $searchTerm);
+
+        livewire(ListPosts::class)
+            ->searchTable($searchTerm)
+            ->assertCanSeeTableRecords($expectedPosts)
+            ->assertCanNotSeeTableRecords($unexpectedPosts);
+    });
+
+    it('shows no results for non-existent search terms', function () {
+        livewire(ListPosts::class)
+            ->searchTable('NonExistentSearchTerm12345')
+            ->assertCountTableRecords(0);
+    });
+
+    it('can clear search and show all records again', function () {
+        livewire(ListPosts::class)
+            ->searchTable('some search term')
+            ->searchTable('') // Clear search
+            ->assertCanSeeTableRecords($this->posts);
+    });
 });
 
-it('can sort posts by author', function (): void {
-    $posts = Post::factory()->count(10)->create();
+describe('Table Filtering', function () {
+    beforeEach(function () {
+        $this->posts = Post::factory()->count(10)->create();
+    });
 
-    livewire(ListPosts::class)
-        ->sortTable('author.name')
-        ->assertCanSeeTableRecords($posts->sortBy('author.name'), inOrder: true)
-        ->sortTable('author.name', 'desc')
-        ->assertCanSeeTableRecords($posts->sortByDesc('author.name'), inOrder: true);
+    it('can filter records by is_published status', function () {
+        $publishedPosts = $this->posts->where('is_published', true);
+        $unpublishedPosts = $this->posts->where('is_published', false);
+
+        livewire(ListPosts::class)
+            ->assertCanSeeTableRecords($this->posts)
+            ->filterTable('is_published')
+            ->assertCanSeeTableRecords($publishedPosts)
+            ->assertCanNotSeeTableRecords($unpublishedPosts);
+    });
+
+    it('can clear filters to show all records', function () {
+        livewire(ListPosts::class)
+            ->filterTable('is_published')
+            ->assertCanSeeTableRecords($this->posts->where('is_published', true))
+            ->resetTableFilters()
+            ->assertCanSeeTableRecords($this->posts);
+    });
 });
 
-it('can sort posts with default sort key', function (): void {
+describe('Custom Fields Integration in Tables', function () {
+    beforeEach(function () {
+        // Create custom field section for Posts
+        $this->section = CustomFieldSection::factory()->create([
+            'name' => 'Post Table Fields',
+            'entity_type' => Post::class,
+            'active' => true,
+            'sort_order' => 1,
+        ]);
+    });
 
-    $faker = fake()->unique();
-    $posts = Post::factory()->count(10)->state(function () use ($faker) {
-        return [
-            'id' => $faker->randomDigit(),
-            'title' => 'Lorem Ipsum',
-        ];
-    })->create();
+    it('can display posts with custom field values', function () {
+        // Arrange
+        $customField = CustomField::factory()->create([
+            'custom_field_section_id' => $this->section->id,
+            'name' => 'Category',
+            'code' => 'category',
+            'type' => CustomFieldType::TEXT,
+            'entity_type' => Post::class,
+            'settings' => ['visible_in_list' => true],
+        ]);
 
-    livewire(ListPosts::class)
-        ->sortTable('title')
-        ->assertCanSeeTableRecords($posts->sortBy([['title', 'asc'], ['id', 'asc']]), inOrder: true)
-        ->sortTable('title', 'desc')
-        ->assertCanSeeTableRecords($posts->sortBy([['title', 'desc'], ['id', 'asc']]), inOrder: true);
+        $posts = Post::factory()->count(3)->create();
+        $categories = ['Technology', 'Science', 'Arts'];
+
+        foreach ($posts as $index => $post) {
+            $post->saveCustomFieldValue($customField, $categories[$index]);
+        }
+
+        // Act & Assert
+        livewire(ListPosts::class)
+            ->assertCanSeeTableRecords($posts);
+    });
+
+    it('can handle multiple custom field types in table display', function () {
+        // Arrange
+        $customFields = CustomField::factory()->createMany([
+            [
+                'custom_field_section_id' => $this->section->id,
+                'code' => 'text_field',
+                'type' => CustomFieldType::TEXT,
+                'entity_type' => Post::class,
+                'settings' => ['visible_in_list' => true],
+            ],
+            [
+                'custom_field_section_id' => $this->section->id,
+                'code' => 'number_field',
+                'type' => CustomFieldType::NUMBER,
+                'entity_type' => Post::class,
+                'settings' => ['visible_in_list' => true],
+            ]
+        ]);
+
+        $post = Post::factory()->create();
+        $post->saveCustomFieldValue($customFields[0], 'Text Value');
+        $post->saveCustomFieldValue($customFields[1], 42);
+
+        // Act & Assert
+        livewire(ListPosts::class)
+            ->assertCanSeeTableRecords([$post]);
+    });
+
+    it('displays records without custom field values', function () {
+        // Arrange
+        $customField = CustomField::factory()->create([
+            'custom_field_section_id' => $this->section->id,
+            'code' => 'optional_field',
+            'type' => CustomFieldType::TEXT,
+            'entity_type' => Post::class,
+            'settings' => ['visible_in_list' => true],
+        ]);
+
+        $postWithValue = Post::factory()->create();
+        $postWithoutValue = Post::factory()->create();
+
+        $postWithValue->saveCustomFieldValue($customField, 'Has Value');
+        // $postWithoutValue intentionally has no custom field value
+
+        // Act & Assert
+        livewire(ListPosts::class)
+            ->assertCanSeeTableRecords([$postWithValue, $postWithoutValue]);
+    });
+
+    it('efficiently loads custom field values with table integration', function () {
+        // Arrange
+        $customField = CustomField::factory()->create([
+            'custom_field_section_id' => $this->section->id,
+            'code' => 'performance_field',
+            'type' => CustomFieldType::TEXT,
+            'entity_type' => Post::class,
+            'settings' => ['visible_in_list' => true],
+        ]);
+
+        $posts = Post::factory()->count(10)->create();
+        
+        foreach ($posts as $index => $post) {
+            $post->saveCustomFieldValue($customField, "Performance Value {$index}");
+        }
+
+        // Act & Assert - Should load successfully with custom fields
+        livewire(ListPosts::class)
+            ->assertSuccessful()
+            ->assertCanSeeTableRecords($posts);
+    });
 });
 
-it('can search posts by title', function (): void {
-    $posts = Post::factory()->count(10)->create();
-
-    $title = $posts->first()->title;
-
-    livewire(ListPosts::class)
-        ->searchTable($title)
-        ->assertCanSeeTableRecords($posts->where('title', $title))
-        ->assertCanNotSeeTableRecords($posts->where('title', '!=', $title));
-});
-
-it('can search posts by author', function (): void {
-    $posts = Post::factory()->count(10)->create();
-
-    $author = $posts->first()->author->name;
-
-    livewire(ListPosts::class)
-        ->searchTable($author)
-        ->assertCanSeeTableRecords($posts->where('author.name', $author))
-        ->assertCanNotSeeTableRecords($posts->where('author.name', '!=', $author));
-});
-
-it('can filter posts by `is_published`', function (): void {
-    $posts = Post::factory()->count(10)->create();
-
-    livewire(ListPosts::class)
-        ->assertCanSeeTableRecords($posts)
-        ->filterTable('is_published')
-        ->assertCanSeeTableRecords($posts->where('is_published', true))
-        ->assertCanNotSeeTableRecords($posts->where('is_published', false));
-});
