@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use Relaticle\CustomFields\Data\CustomFieldSettingsData;
 use Relaticle\CustomFields\Enums\CustomFieldType;
 use Relaticle\CustomFields\Models\CustomField;
 use Relaticle\CustomFields\Models\CustomFieldSection;
@@ -78,7 +79,7 @@ describe('Table Sorting', function () {
     });
 
     it('can sort records by standard columns', function (string $column, string $direction) {
-        $sortedPosts = $direction === 'asc' 
+        $sortedPosts = $direction === 'asc'
             ? $this->posts->sortBy($column)
             : $this->posts->sortByDesc($column);
 
@@ -188,7 +189,7 @@ describe('Custom Fields Integration in Tables', function () {
         ]);
     });
 
-    it('can display posts with custom field values', function () {
+    it('can display posts with custom field values', function ($column) {
         // Arrange
         $customField = CustomField::factory()->create([
             'custom_field_section_id' => $this->section->id,
@@ -196,7 +197,10 @@ describe('Custom Fields Integration in Tables', function () {
             'code' => 'category',
             'type' => CustomFieldType::TEXT,
             'entity_type' => Post::class,
-            'settings' => ['visible_in_list' => true],
+            'settings' => new CustomFieldSettingsData(
+                visible_in_list: true,
+                list_toggleable_hidden: false
+            ),
         ]);
 
         $posts = Post::factory()->count(3)->create();
@@ -208,10 +212,13 @@ describe('Custom Fields Integration in Tables', function () {
 
         // Act & Assert
         livewire(ListPosts::class)
+            ->assertCanRenderTableColumn($column)
             ->assertCanSeeTableRecords($posts);
-    });
+    })->with([
+        'custom_fields.category',
+    ]);
 
-    it('can handle multiple custom field types in table display', function () {
+    it('can handle multiple custom field types in table display', function ($column) {
         // Arrange
         $customFields = CustomField::factory()->createMany([
             [
@@ -219,14 +226,20 @@ describe('Custom Fields Integration in Tables', function () {
                 'code' => 'text_field',
                 'type' => CustomFieldType::TEXT,
                 'entity_type' => Post::class,
-                'settings' => ['visible_in_list' => true],
+                'settings' => new  CustomFieldSettingsData(
+                    visible_in_list: true,
+                    list_toggleable_hidden: false
+                ),
             ],
             [
                 'custom_field_section_id' => $this->section->id,
                 'code' => 'number_field',
                 'type' => CustomFieldType::NUMBER,
                 'entity_type' => Post::class,
-                'settings' => ['visible_in_list' => true],
+                'settings' => new CustomFieldSettingsData(
+                    visible_in_list: true,
+                    list_toggleable_hidden: false
+                ),
             ]
         ]);
 
@@ -236,8 +249,12 @@ describe('Custom Fields Integration in Tables', function () {
 
         // Act & Assert
         livewire(ListPosts::class)
+            ->assertCanRenderTableColumn($column)
             ->assertCanSeeTableRecords([$post]);
-    });
+    })->with([
+        'custom_fields.text_field',
+        'custom_fields.number_field',
+    ]);
 
     it('displays records without custom field values', function () {
         // Arrange
@@ -271,7 +288,7 @@ describe('Custom Fields Integration in Tables', function () {
         ]);
 
         $posts = Post::factory()->count(10)->create();
-        
+
         foreach ($posts as $index => $post) {
             $post->saveCustomFieldValue($customField, "Performance Value {$index}");
         }
