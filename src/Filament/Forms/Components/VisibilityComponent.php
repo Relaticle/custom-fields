@@ -74,12 +74,6 @@ class VisibilityComponent extends Component
                     ->columnSpanFull()
                     ->reorderable(false)
                     ->columns(12),
-
-                Toggle::make('settings.visibility.always_save')
-                    ->label('Always save field value')
-                    ->helperText('Save the field value even when hidden')
-                    ->default(false)
-                    ->visible(fn (Get $get) => $this->requiresConditions($get)),
             ]);
     }
 
