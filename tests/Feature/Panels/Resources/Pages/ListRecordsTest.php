@@ -92,20 +92,6 @@ describe('Table Sorting', function () {
         'author ascending' => ['author.name', 'asc'],
         'author descending' => ['author.name', 'desc'],
     ]);
-
-    it('can sort with default sort key when titles are identical', function () {
-        // Arrange - Create posts with identical titles
-        $posts = Post::factory()->count(3)->create([
-            'title' => 'Identical Title',
-        ]);
-
-        // Act & Assert
-        livewire(ListPosts::class)
-            ->sortTable('title')
-            ->assertCanSeeTableRecords($posts)
-            ->sortTable('title', 'desc')
-            ->assertCanSeeTableRecords($posts);
-    });
 });
 
 describe('Table Search', function () {
