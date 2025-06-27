@@ -176,4 +176,82 @@ return [
     'column_names' => [
         'tenant_foreign_key' => 'tenant_id',
     ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Custom Field Type Discovery
+    |--------------------------------------------------------------------------
+    |
+    | Configure how custom field types are discovered and registered.
+    | This allows extending the package with custom field types without
+    | modifying core files.
+    |
+    */
+    'field_type_discovery' => [
+        /*
+        | Directories to scan for custom field type definitions.
+        | All PHP files in these directories will be scanned for classes
+        | implementing FieldTypeDefinitionInterface.
+        */
+        'directories' => [
+            // app_path('CustomFields/Types'),
+        ],
+
+        /*
+        | Namespaces to scan for custom field type definitions.
+        | Uses composer's PSR-4 autoloader to locate directories.
+        */
+        'namespaces' => [
+            // 'App\\CustomFields\\Types',
+        ],
+
+        /*
+        | Explicitly registered field type classes.
+        | These classes will be loaded directly without scanning.
+        */
+        'classes' => [
+             App\CustomFields\Types\RatingFieldType::class,
+        ],
+
+        /*
+        | Enable/disable automatic discovery.
+        | When disabled, only explicitly registered classes are loaded.
+        */
+        'enabled' => true,
+
+        /*
+        | Cache discovery results for better performance.
+        | Set to false during development for immediate updates.
+        */
+        'cache' => false,
+
+        /*
+        | Cache duration in minutes.
+        */
+        'cache_duration' => 60,
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Custom Field Type Settings
+    |--------------------------------------------------------------------------
+    |
+    | Global settings that affect custom field type behavior.
+    |
+    */
+    'custom_field_types' => [
+        /*
+        | Default priority for custom field types.
+        | Lower numbers appear first in the admin panel.
+        */
+        'default_priority' => 200,
+
+        /*
+        | Validation settings for custom field types.
+        */
+        'validation' => [
+            'strict_mode' => true,
+            'validate_component_interfaces' => true,
+        ],
+    ],
 ];

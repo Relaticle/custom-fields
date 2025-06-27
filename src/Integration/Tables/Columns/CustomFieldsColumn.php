@@ -21,7 +21,7 @@ final readonly class CustomFieldsColumn
             return [];
         }
 
-        $fieldColumnFactory = new FieldColumnFactory(app());
+        $fieldColumnFactory = app(FieldColumnFactory::class);
 
         return $instance->customFields()
             ->visibleInList()

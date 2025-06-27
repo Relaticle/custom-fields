@@ -48,6 +48,10 @@ class CustomFieldsServiceProvider extends PackageServiceProvider
 
         $this->app->singleton(TenantContextService::class);
 
+        // Register field type extension services
+        $this->app->singleton(\Relaticle\CustomFields\Services\FieldTypeDiscoveryService::class);
+        $this->app->singleton(\Relaticle\CustomFields\Services\FieldTypeRegistryService::class);
+
         if (Utils::isTenantEnabled()) {
             foreach (Filament::getPanels() as $panel) {
                 if ($tenantModel = $panel->getTenantModel()) {

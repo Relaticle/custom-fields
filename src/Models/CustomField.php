@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Relaticle\CustomFields\Casts\CustomFieldTypeCast;
 use Relaticle\CustomFields\CustomFields;
 use Relaticle\CustomFields\Data\CustomFieldSettingsData;
 use Relaticle\CustomFields\Data\ValidationRuleData;
@@ -84,7 +85,7 @@ class CustomField extends Model
     protected function casts(): array
     {
         return [
-            'type' => CustomFieldType::class,
+            'type' => CustomFieldTypeCast::class,
             'width' => CustomFieldWidth::class,
             'validation_rules' => DataCollection::class.':'.ValidationRuleData::class.',default',
             'active' => 'boolean',

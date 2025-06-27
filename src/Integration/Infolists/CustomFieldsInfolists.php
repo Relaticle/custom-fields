@@ -15,13 +15,12 @@ final class CustomFieldsInfolists extends Component
     protected string $view = 'filament-schemas::components.grid';
 
     public function __construct(
-        private readonly SectionInfolistsFactory  $sectionInfolistsFactory,
-        private readonly FieldInfolistsFactory    $fieldInfolistsFactory,
+        private readonly SectionInfolistsFactory $sectionInfolistsFactory,
+        private readonly FieldInfolistsFactory $fieldInfolistsFactory,
         private readonly BackendVisibilityService $visibilityService
-    )
-    {
+    ) {
         // Defer schema generation until we can safely access the record
-        $this->schema(fn() => $this->generateSchema());
+        $this->schema(fn () => $this->generateSchema());
     }
 
     public static function make(): static
@@ -36,7 +35,7 @@ final class CustomFieldsInfolists extends Component
     {
         $record = $this->getRecord();
 
-        if (!$record) {
+        if (! $record) {
             return [];
         }
 
@@ -44,7 +43,7 @@ final class CustomFieldsInfolists extends Component
         $record->load('customFieldValues.customField');
 
         $sections = CustomFields::newSectionModel()->query()
-            ->with(['fields' => fn($query) => $query->visibleInView()])
+            ->with(['fields' => fn ($query) => $query->visibleInView()])
             ->forEntityType($record::class)
             ->orderBy('sort_order')
             ->get();

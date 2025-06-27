@@ -15,7 +15,7 @@ final readonly class FieldInfolistsConfigurator
     public function configure(Entry $field, CustomField $customField): Entry
     {
         return $field
-            ->name('custom_fields.' . $customField->code)
+            ->name('custom_fields.'.$customField->code)
             ->label($customField->name)
             ->state(function ($record) use ($customField) {
                 return $record->getCustomFieldValue($customField);

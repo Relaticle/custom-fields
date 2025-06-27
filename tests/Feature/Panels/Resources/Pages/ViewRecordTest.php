@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use Illuminate\Support\Str;
 use Relaticle\CustomFields\Data\CustomFieldSettingsData;
 use Relaticle\CustomFields\Data\VisibilityConditionData;
 use Relaticle\CustomFields\Data\VisibilityData;
@@ -13,9 +14,8 @@ use Relaticle\CustomFields\Models\CustomField;
 use Relaticle\CustomFields\Models\CustomFieldSection;
 use Relaticle\CustomFields\Tests\Fixtures\Models\Post;
 use Relaticle\CustomFields\Tests\Fixtures\Models\User;
-use Relaticle\CustomFields\Tests\Fixtures\Resources\Posts\PostResource;
 use Relaticle\CustomFields\Tests\Fixtures\Resources\Posts\Pages\ViewPost;
-use Illuminate\Support\Str;
+use Relaticle\CustomFields\Tests\Fixtures\Resources\Posts\PostResource;
 use Spatie\LaravelData\DataCollection;
 
 use function Pest\Livewire\livewire;

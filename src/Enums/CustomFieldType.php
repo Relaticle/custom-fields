@@ -58,6 +58,12 @@ enum CustomFieldType: string implements HasLabel
 
     public static function optionsForSelect(): Collection
     {
+        // Check if FieldTypeRegistryService is available and use it for extended options
+        if (app()->bound(\Relaticle\CustomFields\Services\FieldTypeRegistryService::class)) {
+            return app(\Relaticle\CustomFields\Services\FieldTypeRegistryService::class)->getFieldTypeOptions();
+        }
+
+        // Fallback to built-in types only
         return Cache::remember('custom-fields.field-types.options-for-select', 60, fn () => collect(self::options())->map(fn ($label, $value) => [
             'label' => $label,
             'value' => $value,
