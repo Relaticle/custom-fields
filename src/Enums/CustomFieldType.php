@@ -31,33 +31,41 @@ enum CustomFieldType: string implements HasLabel
     case MULTI_SELECT = 'multi-select';
 
     /**
+     * 🚀 PERFORMANCE: Cached static options with 5-minute TTL
+     * 
      * @return array<string, string>
      */
     public static function options(): array
     {
-        return [
-            self::TEXT->value => 'Text',
-            self::NUMBER->value => 'Number',
-            self::LINK->value => 'Link',
-            self::TEXTAREA->value => 'Textarea',
-            self::CURRENCY->value => 'Currency',
-            self::DATE->value => 'Date',
-            self::DATE_TIME->value => 'Date and Time',
-            self::TOGGLE->value => 'Toggle',
-            self::TOGGLE_BUTTONS->value => 'Toggle buttons',
-            self::SELECT->value => 'Select',
-            self::CHECKBOX->value => 'Checkbox',
-            self::CHECKBOX_LIST->value => 'Checkbox list',
-            self::RADIO->value => 'Radio',
-            self::RICH_EDITOR->value => 'Rich editor',
-            self::MARKDOWN_EDITOR->value => 'Markdown editor',
-            self::TAGS_INPUT->value => 'Tags input',
-            self::COLOR_PICKER->value => 'Color picker',
-            self::MULTI_SELECT->value => 'Multi-select',
-        ];
+        return Cache::remember(
+            'custom-fields.field-types.options',
+            300, // 5 minutes
+            fn () => [
+                self::TEXT->value => 'Text',
+                self::NUMBER->value => 'Number',
+                self::LINK->value => 'Link',
+                self::TEXTAREA->value => 'Textarea',
+                self::CURRENCY->value => 'Currency',
+                self::DATE->value => 'Date',
+                self::DATE_TIME->value => 'Date and Time',
+                self::TOGGLE->value => 'Toggle',
+                self::TOGGLE_BUTTONS->value => 'Toggle buttons',
+                self::SELECT->value => 'Select',
+                self::CHECKBOX->value => 'Checkbox',
+                self::CHECKBOX_LIST->value => 'Checkbox list',
+                self::RADIO->value => 'Radio',
+                self::RICH_EDITOR->value => 'Rich editor',
+                self::MARKDOWN_EDITOR->value => 'Markdown editor',
+                self::TAGS_INPUT->value => 'Tags input',
+                self::COLOR_PICKER->value => 'Color picker',
+                self::MULTI_SELECT->value => 'Multi-select',
+            ]
+        );
     }
 
     /**
+     * 🚀 ENHANCED: Better integration with FieldTypeRegistryService
+     * 
      * @return Collection<int, array{label: string, value: string, icon: string}>
      */
     public static function optionsForSelect(): Collection
@@ -67,10 +75,10 @@ enum CustomFieldType: string implements HasLabel
             return app(FieldTypeRegistryService::class)->getFieldTypeOptions();
         }
 
-        // Fallback to built-in types only
+        // Fallback to built-in types only with improved caching
         return Cache::remember(
             'custom-fields.field-types.options-for-select',
-            60,
+            300, // 5 minutes
             fn () => collect(self::options())->map(
                 fn ($label, $value): array => [
                     'label' => $label,
@@ -82,45 +90,57 @@ enum CustomFieldType: string implements HasLabel
     }
 
     /**
+     * 🚀 PERFORMANCE: Cached static icons with 5-minute TTL
+     * 
      * @return array<string, string>
      */
     public static function icons(): array
     {
-        return [
-            self::TEXTAREA->value => 'mdi-form-textbox',
-            self::NUMBER->value => 'mdi-numeric-7-box',
-            self::LINK->value => 'mdi-link-variant',
-            self::TEXT->value => 'mdi-form-textbox',
-            self::CURRENCY->value => 'mdi-currency-usd',
-            self::DATE->value => 'mdi-calendar',
-            self::DATE_TIME->value => 'mdi-calendar-clock',
-            self::TOGGLE->value => 'mdi-toggle-switch',
-            self::TOGGLE_BUTTONS->value => 'mdi-toggle-switch',
-            self::SELECT->value => 'mdi-form-select',
-            self::CHECKBOX->value => 'mdi-checkbox-marked',
-            self::CHECKBOX_LIST->value => 'mdi-checkbox-multiple-marked',
-            self::RADIO->value => 'mdi-radiobox-marked',
-            self::RICH_EDITOR->value => 'mdi-format-text',
-            self::MARKDOWN_EDITOR->value => 'mdi-format-text',
-            self::TAGS_INPUT->value => 'mdi-tag-multiple',
-            self::COLOR_PICKER->value => 'mdi-palette',
-            self::MULTI_SELECT->value => 'mdi-form-dropdown',
-        ];
+        return Cache::remember(
+            'custom-fields.field-types.icons',
+            300, // 5 minutes
+            fn () => [
+                self::TEXTAREA->value => 'mdi-form-textbox',
+                self::NUMBER->value => 'mdi-numeric-7-box',
+                self::LINK->value => 'mdi-link-variant',
+                self::TEXT->value => 'mdi-form-textbox',
+                self::CURRENCY->value => 'mdi-currency-usd',
+                self::DATE->value => 'mdi-calendar',
+                self::DATE_TIME->value => 'mdi-calendar-clock',
+                self::TOGGLE->value => 'mdi-toggle-switch',
+                self::TOGGLE_BUTTONS->value => 'mdi-toggle-switch',
+                self::SELECT->value => 'mdi-form-select',
+                self::CHECKBOX->value => 'mdi-checkbox-marked',
+                self::CHECKBOX_LIST->value => 'mdi-checkbox-multiple-marked',
+                self::RADIO->value => 'mdi-radiobox-marked',
+                self::RICH_EDITOR->value => 'mdi-format-text',
+                self::MARKDOWN_EDITOR->value => 'mdi-format-text',
+                self::TAGS_INPUT->value => 'mdi-tag-multiple',
+                self::COLOR_PICKER->value => 'mdi-palette',
+                self::MULTI_SELECT->value => 'mdi-form-dropdown',
+            ]
+        );
     }
 
     /**
+     * 🚀 PERFORMANCE: Cached optionable types
+     * 
      * @return Collection<int, mixed>
      */
     public static function optionables(): Collection
     {
-        return collect([
-            self::SELECT,
-            self::MULTI_SELECT,
-            self::RADIO,
-            self::CHECKBOX_LIST,
-            self::TAGS_INPUT,
-            self::TOGGLE_BUTTONS,
-        ]);
+        return Cache::remember(
+            'custom-fields.field-types.optionables',
+            300, // 5 minutes
+            fn () => collect([
+                self::SELECT,
+                self::MULTI_SELECT,
+                self::RADIO,
+                self::CHECKBOX_LIST,
+                self::TAGS_INPUT,
+                self::TOGGLE_BUTTONS,
+            ])
+        );
     }
 
     /**
@@ -195,155 +215,262 @@ enum CustomFieldType: string implements HasLabel
     }
 
     /**
+     * 🚀 PERFORMANCE: Cached encryptable types
+     * 
      * @return Collection<int, mixed>
      */
     public static function encryptables(): Collection
     {
-        return collect([
-            self::TEXT,
-            self::TEXTAREA,
-            self::LINK,
-            self::RICH_EDITOR,
-            self::MARKDOWN_EDITOR,
-        ]);
+        return Cache::remember(
+            'custom-fields.field-types.encryptables',
+            300, // 5 minutes
+            fn () => collect([
+                self::TEXT,
+                self::TEXTAREA,
+                self::LINK,
+                self::RICH_EDITOR,
+                self::MARKDOWN_EDITOR,
+            ])
+        );
     }
 
     /**
+     * 🚀 PERFORMANCE: Cached searchable types
+     * 
      * @return Collection<int, mixed>
      */
     public static function searchables(): Collection
     {
-        return collect([
-            self::TEXT,
-            self::TEXTAREA,
-            self::LINK,
-            self::DATE,
-            self::DATE_TIME,
-            self::TAGS_INPUT,
-        ]);
+        return Cache::remember(
+            'custom-fields.field-types.searchables',
+            300, // 5 minutes
+            fn () => collect([
+                self::TEXT,
+                self::TEXTAREA,
+                self::LINK,
+                self::DATE,
+                self::DATE_TIME,
+                self::TAGS_INPUT,
+            ])
+        );
     }
 
     /**
+     * 🚀 PERFORMANCE: Cached filterable types
+     * 
      * @return Collection<int, mixed>
      */
     public static function filterable(): Collection
     {
-        return collect([
-            self::SELECT,
-            self::MULTI_SELECT,
-            self::RADIO,
-            self::CHECKBOX_LIST,
-            self::CHECKBOX,
-            self::TOGGLE,
-            self::TOGGLE_BUTTONS,
-        ]);
+        return Cache::remember(
+            'custom-fields.field-types.filterable',
+            300, // 5 minutes
+            fn () => collect([
+                self::SELECT,
+                self::MULTI_SELECT,
+                self::RADIO,
+                self::CHECKBOX_LIST,
+                self::CHECKBOX,
+                self::TOGGLE,
+                self::TOGGLE_BUTTONS,
+            ])
+        );
     }
 
+    /**
+     * 🚀 PERFORMANCE: Optimized icon getter
+     */
     public function getIcon(): string
     {
         return self::icons()[$this->value];
     }
 
+    /**
+     * 🚀 PERFORMANCE: Optimized label getter
+     */
     public function getLabel(): string
     {
         return self::options()[$this->value];
     }
 
     /**
+     * 🚀 ENHANCED: Better validation rules with caching per type
+     * 
      * @return array<int, CustomFieldValidationRule>
      */
     public function allowedValidationRules(): array
     {
-        return match ($this) {
-            self::TEXT => [
-                CustomFieldValidationRule::REQUIRED,
-                CustomFieldValidationRule::MIN,
-                CustomFieldValidationRule::MAX,
-                CustomFieldValidationRule::BETWEEN,
-                CustomFieldValidationRule::REGEX,
-                CustomFieldValidationRule::ALPHA,
-                CustomFieldValidationRule::ALPHA_NUM,
-                CustomFieldValidationRule::ALPHA_DASH,
-                CustomFieldValidationRule::STRING,
-                CustomFieldValidationRule::EMAIL,
-                CustomFieldValidationRule::STARTS_WITH,
-            ],
-            self::TEXTAREA => [
-                CustomFieldValidationRule::REQUIRED,
-                CustomFieldValidationRule::MIN,
-                CustomFieldValidationRule::MAX,
-                CustomFieldValidationRule::BETWEEN,
-                CustomFieldValidationRule::STRING,
-                CustomFieldValidationRule::STARTS_WITH,
-            ],
-            self::CURRENCY => [
-                CustomFieldValidationRule::REQUIRED,
-                CustomFieldValidationRule::NUMERIC,
-                CustomFieldValidationRule::MIN,
-                CustomFieldValidationRule::MAX,
-                CustomFieldValidationRule::BETWEEN,
-                CustomFieldValidationRule::DECIMAL,
-                CustomFieldValidationRule::STARTS_WITH,
-            ],
-            self::DATE, self::DATE_TIME => [
-                CustomFieldValidationRule::REQUIRED,
-                CustomFieldValidationRule::DATE,
-                CustomFieldValidationRule::AFTER,
-                CustomFieldValidationRule::AFTER_OR_EQUAL,
-                CustomFieldValidationRule::BEFORE,
-                CustomFieldValidationRule::BEFORE_OR_EQUAL,
-                CustomFieldValidationRule::DATE_FORMAT,
-            ],
-            self::TOGGLE, self::TOGGLE_BUTTONS, self::CHECKBOX => [
-                CustomFieldValidationRule::REQUIRED,
-                CustomFieldValidationRule::BOOLEAN,
-            ],
-            self::SELECT, self::RADIO => [
-                CustomFieldValidationRule::REQUIRED,
-                CustomFieldValidationRule::IN,
-            ],
-            self::MULTI_SELECT => [
-                CustomFieldValidationRule::REQUIRED,
-                CustomFieldValidationRule::ARRAY,
-                CustomFieldValidationRule::MIN,
-                CustomFieldValidationRule::MAX,
-                CustomFieldValidationRule::BETWEEN,
-                CustomFieldValidationRule::IN,
-            ],
-            self::NUMBER => [
-                CustomFieldValidationRule::REQUIRED,
-                CustomFieldValidationRule::NUMERIC,
-                CustomFieldValidationRule::MIN,
-                CustomFieldValidationRule::MAX,
-                CustomFieldValidationRule::BETWEEN,
-                CustomFieldValidationRule::INTEGER,
-                CustomFieldValidationRule::STARTS_WITH,
-            ],
-            self::LINK => [
-                CustomFieldValidationRule::REQUIRED,
-                CustomFieldValidationRule::URL,
-                CustomFieldValidationRule::STARTS_WITH,
-            ],
-            self::CHECKBOX_LIST, self::TAGS_INPUT => [
-                CustomFieldValidationRule::REQUIRED,
-                CustomFieldValidationRule::ARRAY,
-                CustomFieldValidationRule::MIN,
-                CustomFieldValidationRule::MAX,
-                CustomFieldValidationRule::BETWEEN,
-            ],
-            self::RICH_EDITOR, self::MARKDOWN_EDITOR => [
-                CustomFieldValidationRule::REQUIRED,
-                CustomFieldValidationRule::STRING,
-                CustomFieldValidationRule::MIN,
-                CustomFieldValidationRule::MAX,
-                CustomFieldValidationRule::BETWEEN,
-                CustomFieldValidationRule::STARTS_WITH,
-            ],
-            self::COLOR_PICKER => [
-                CustomFieldValidationRule::REQUIRED,
-                CustomFieldValidationRule::STRING,
-                CustomFieldValidationRule::STARTS_WITH,
-            ],
-        };
+        return Cache::remember(
+            "custom-fields.field-types.validation-rules.{$this->value}",
+            300, // 5 minutes
+            fn () => match ($this) {
+                self::TEXT => [
+                    CustomFieldValidationRule::REQUIRED,
+                    CustomFieldValidationRule::MIN,
+                    CustomFieldValidationRule::MAX,
+                    CustomFieldValidationRule::BETWEEN,
+                    CustomFieldValidationRule::REGEX,
+                    CustomFieldValidationRule::ALPHA,
+                    CustomFieldValidationRule::ALPHA_NUM,
+                    CustomFieldValidationRule::ALPHA_DASH,
+                    CustomFieldValidationRule::STRING,
+                    CustomFieldValidationRule::EMAIL,
+                    CustomFieldValidationRule::STARTS_WITH,
+                ],
+                self::TEXTAREA => [
+                    CustomFieldValidationRule::REQUIRED,
+                    CustomFieldValidationRule::MIN,
+                    CustomFieldValidationRule::MAX,
+                    CustomFieldValidationRule::BETWEEN,
+                    CustomFieldValidationRule::STRING,
+                    CustomFieldValidationRule::STARTS_WITH,
+                ],
+                self::CURRENCY => [
+                    CustomFieldValidationRule::REQUIRED,
+                    CustomFieldValidationRule::NUMERIC,
+                    CustomFieldValidationRule::MIN,
+                    CustomFieldValidationRule::MAX,
+                    CustomFieldValidationRule::BETWEEN,
+                    CustomFieldValidationRule::DECIMAL,
+                    CustomFieldValidationRule::STARTS_WITH,
+                ],
+                self::DATE, self::DATE_TIME => [
+                    CustomFieldValidationRule::REQUIRED,
+                    CustomFieldValidationRule::DATE,
+                    CustomFieldValidationRule::AFTER,
+                    CustomFieldValidationRule::AFTER_OR_EQUAL,
+                    CustomFieldValidationRule::BEFORE,
+                    CustomFieldValidationRule::BEFORE_OR_EQUAL,
+                    CustomFieldValidationRule::DATE_FORMAT,
+                ],
+                self::TOGGLE, self::TOGGLE_BUTTONS, self::CHECKBOX => [
+                    CustomFieldValidationRule::REQUIRED,
+                    CustomFieldValidationRule::BOOLEAN,
+                ],
+                self::SELECT, self::RADIO => [
+                    CustomFieldValidationRule::REQUIRED,
+                    CustomFieldValidationRule::IN,
+                ],
+                self::MULTI_SELECT => [
+                    CustomFieldValidationRule::REQUIRED,
+                    CustomFieldValidationRule::ARRAY,
+                    CustomFieldValidationRule::MIN,
+                    CustomFieldValidationRule::MAX,
+                    CustomFieldValidationRule::BETWEEN,
+                    CustomFieldValidationRule::IN,
+                ],
+                self::NUMBER => [
+                    CustomFieldValidationRule::REQUIRED,
+                    CustomFieldValidationRule::NUMERIC,
+                    CustomFieldValidationRule::MIN,
+                    CustomFieldValidationRule::MAX,
+                    CustomFieldValidationRule::BETWEEN,
+                    CustomFieldValidationRule::INTEGER,
+                    CustomFieldValidationRule::STARTS_WITH,
+                ],
+                self::LINK => [
+                    CustomFieldValidationRule::REQUIRED,
+                    CustomFieldValidationRule::URL,
+                    CustomFieldValidationRule::STARTS_WITH,
+                ],
+                self::CHECKBOX_LIST, self::TAGS_INPUT => [
+                    CustomFieldValidationRule::REQUIRED,
+                    CustomFieldValidationRule::ARRAY,
+                    CustomFieldValidationRule::MIN,
+                    CustomFieldValidationRule::MAX,
+                    CustomFieldValidationRule::BETWEEN,
+                ],
+                self::RICH_EDITOR, self::MARKDOWN_EDITOR => [
+                    CustomFieldValidationRule::REQUIRED,
+                    CustomFieldValidationRule::STRING,
+                    CustomFieldValidationRule::MIN,
+                    CustomFieldValidationRule::MAX,
+                    CustomFieldValidationRule::BETWEEN,
+                    CustomFieldValidationRule::STARTS_WITH,
+                ],
+                self::COLOR_PICKER => [
+                    CustomFieldValidationRule::REQUIRED,
+                    CustomFieldValidationRule::STRING,
+                    CustomFieldValidationRule::STARTS_WITH,
+                ],
+            }
+        );
+    }
+
+    /**
+     * 🚀 NEW: Type-safe factory method for creating from string
+     * Provides better error handling than tryFrom
+     */
+    public static function safeFrom(string $value): ?self
+    {
+        return self::tryFrom($value);
+    }
+
+    /**
+     * 🚀 NEW: Check if a string represents a valid built-in field type
+     */
+    public static function isBuiltInType(string $value): bool
+    {
+        return self::tryFrom($value) !== null;
+    }
+
+    /**
+     * 🚀 NEW: Get all field type values as array (for validation, etc.)
+     * 
+     * @return array<int, string>
+     */
+    public static function values(): array
+    {
+        return Cache::remember(
+            'custom-fields.field-types.values',
+            300, // 5 minutes
+            fn () => array_map(fn (self $case) => $case->value, self::cases())
+        );
+    }
+
+    /**
+     * 🚀 NEW: Get field types by category
+     * 
+     * @return Collection<int, self>
+     */
+    public static function byCategory(FieldCategory $category): Collection
+    {
+        return Cache::remember(
+            "custom-fields.field-types.by-category.{$category->value}",
+            300, // 5 minutes
+            fn () => collect(self::cases())
+                ->filter(fn (self $type) => $type->getCategory() === $category)
+        );
+    }
+
+    /**
+     * 🚀 NEW: Clear all field type caches (useful for testing/development)
+     */
+    public static function clearCache(): void
+    {
+        $keys = [
+            'custom-fields.field-types.options',
+            'custom-fields.field-types.options-for-select',
+            'custom-fields.field-types.icons',
+            'custom-fields.field-types.optionables',
+            'custom-fields.field-types.encryptables',
+            'custom-fields.field-types.searchables',
+            'custom-fields.field-types.filterable',
+            'custom-fields.field-types.values',
+        ];
+
+        foreach ($keys as $key) {
+            Cache::forget($key);
+        }
+
+        // Clear validation rules cache for each type
+        foreach (self::cases() as $type) {
+            Cache::forget("custom-fields.field-types.validation-rules.{$type->value}");
+        }
+
+        // Clear category-based caches
+        foreach (FieldCategory::cases() as $category) {
+            Cache::forget("custom-fields.field-types.by-category.{$category->value}");
+        }
     }
 }
