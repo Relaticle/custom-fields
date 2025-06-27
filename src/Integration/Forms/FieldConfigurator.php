@@ -13,6 +13,7 @@ use Relaticle\CustomFields\Services\ValidationService;
 use Relaticle\CustomFields\Services\Visibility\CoreVisibilityLogicService;
 use Relaticle\CustomFields\Services\Visibility\FrontendVisibilityService;
 use Relaticle\CustomFields\Support\FieldTypeUtils;
+use Relaticle\CustomFields\Support\Utils;
 
 final readonly class FieldConfigurator
 {
@@ -28,16 +29,16 @@ final readonly class FieldConfigurator
             ->name("custom_fields.{$customField->code}")
             ->label($customField->name)
             ->afterStateHydrated(fn ($component, $state, $record) => $component->state($this->getFieldValue($customField, $state, $record)))
-            ->dehydrated(fn ($state) => $this->coreVisibilityLogic->shouldAlwaysSave($customField) || filled($state))
+            ->dehydrated(fn ($state) => Utils::isConditionalVisibilityFeatureEnabled() && ($this->coreVisibilityLogic->shouldAlwaysSave($customField) || filled($state)))
             ->required($this->validationService->isRequired($customField))
             ->rules($this->validationService->getValidationRules($customField))
             ->columnSpan($customField->width->getSpanValue())
             ->when(
-                $this->hasVisibilityConditions($customField),
+                Utils::isConditionalVisibilityFeatureEnabled() && $this->hasVisibilityConditions($customField),
                 fn (Field $field) => $this->applyVisibility($field, $customField, $allFields)
             )
             ->when(
-                filled($dependentFieldCodes),
+                Utils::isConditionalVisibilityFeatureEnabled() && filled($dependentFieldCodes),
                 fn (Field $field) => $field->live()
             );
     }

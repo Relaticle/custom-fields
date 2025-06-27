@@ -253,6 +253,7 @@ class FieldForm implements FormInterface
                                 ->visible(fn (Utilities\Get $get): bool => $get('options_lookup_type') === 'options' && in_array($get('type'), CustomFieldType::optionables()->pluck('value')->toArray())),
                         ]),
                     Tabs\Tab::make('Visibility')
+                        ->visible(fn (): bool => Utils::isConditionalVisibilityFeatureEnabled())
                         ->schema([
                             VisibilityComponent::make(),
                         ]),
