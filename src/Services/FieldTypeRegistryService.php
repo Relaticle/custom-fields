@@ -4,43 +4,43 @@ declare(strict_types=1);
 
 namespace Relaticle\CustomFields\Services;
 
-use Relaticle\CustomFields\Integration\Infolists\Fields\TextEntry;
-use Relaticle\CustomFields\Integration\Infolists\Fields\BooleanEntry;
-use Relaticle\CustomFields\Integration\Infolists\Fields\ColorEntry;
-use Relaticle\CustomFields\Integration\Infolists\Fields\SingleValueEntry;
-use Relaticle\CustomFields\Integration\Infolists\Fields\MultiValueEntry;
-use Relaticle\CustomFields\Integration\Infolists\Fields\HtmlEntry;
-use Relaticle\CustomFields\Integration\Forms\Components\FieldComponentInterface;
-use Relaticle\CustomFields\Integration\Tables\Columns\ColumnInterface;
-use Relaticle\CustomFields\Integration\Infolists\FieldInfolistsComponentInterface;
-use Relaticle\CustomFields\Integration\Forms\Components\TextInputComponent;
-use Relaticle\CustomFields\Integration\Forms\Components\NumberComponent;
-use Relaticle\CustomFields\Integration\Forms\Components\CheckboxComponent;
-use Relaticle\CustomFields\Integration\Forms\Components\CheckboxListComponent;
-use Relaticle\CustomFields\Integration\Forms\Components\RichEditorComponent;
-use Relaticle\CustomFields\Integration\Forms\Components\MarkdownEditorComponent;
-use Relaticle\CustomFields\Integration\Forms\Components\ToggleButtonsComponent;
-use Relaticle\CustomFields\Integration\Forms\Components\TagsInputComponent;
-use Relaticle\CustomFields\Integration\Forms\Components\LinkComponent;
-use Relaticle\CustomFields\Integration\Forms\Components\ColorPickerComponent;
-use Relaticle\CustomFields\Integration\Forms\Components\TextareaFieldComponent;
-use Relaticle\CustomFields\Integration\Forms\Components\CurrencyComponent;
-use Relaticle\CustomFields\Integration\Forms\Components\DateComponent;
-use Relaticle\CustomFields\Integration\Forms\Components\DateTimeComponent;
-use Relaticle\CustomFields\Integration\Forms\Components\ToggleComponent;
-use Relaticle\CustomFields\Integration\Forms\Components\RadioComponent;
-use Relaticle\CustomFields\Integration\Forms\Components\SelectComponent;
-use Relaticle\CustomFields\Integration\Forms\Components\MultiSelectComponent;
-use Relaticle\CustomFields\Integration\Tables\Columns\SingleValueColumn;
-use Relaticle\CustomFields\Integration\Tables\Columns\TextColumn;
-use Relaticle\CustomFields\Integration\Tables\Columns\IconColumn;
-use Relaticle\CustomFields\Integration\Tables\Columns\ColorColumn;
-use Relaticle\CustomFields\Integration\Tables\Columns\MultiValueColumn;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cache;
 use InvalidArgumentException;
 use Relaticle\CustomFields\Contracts\FieldTypeDefinitionInterface;
 use Relaticle\CustomFields\Enums\CustomFieldType;
+use Relaticle\CustomFields\Integration\Forms\Components\CheckboxComponent;
+use Relaticle\CustomFields\Integration\Forms\Components\CheckboxListComponent;
+use Relaticle\CustomFields\Integration\Forms\Components\ColorPickerComponent;
+use Relaticle\CustomFields\Integration\Forms\Components\CurrencyComponent;
+use Relaticle\CustomFields\Integration\Forms\Components\DateComponent;
+use Relaticle\CustomFields\Integration\Forms\Components\DateTimeComponent;
+use Relaticle\CustomFields\Integration\Forms\Components\FieldComponentInterface;
+use Relaticle\CustomFields\Integration\Forms\Components\LinkComponent;
+use Relaticle\CustomFields\Integration\Forms\Components\MarkdownEditorComponent;
+use Relaticle\CustomFields\Integration\Forms\Components\MultiSelectComponent;
+use Relaticle\CustomFields\Integration\Forms\Components\NumberComponent;
+use Relaticle\CustomFields\Integration\Forms\Components\RadioComponent;
+use Relaticle\CustomFields\Integration\Forms\Components\RichEditorComponent;
+use Relaticle\CustomFields\Integration\Forms\Components\SelectComponent;
+use Relaticle\CustomFields\Integration\Forms\Components\TagsInputComponent;
+use Relaticle\CustomFields\Integration\Forms\Components\TextareaFieldComponent;
+use Relaticle\CustomFields\Integration\Forms\Components\TextInputComponent;
+use Relaticle\CustomFields\Integration\Forms\Components\ToggleButtonsComponent;
+use Relaticle\CustomFields\Integration\Forms\Components\ToggleComponent;
+use Relaticle\CustomFields\Integration\Infolists\FieldInfolistsComponentInterface;
+use Relaticle\CustomFields\Integration\Infolists\Fields\BooleanEntry;
+use Relaticle\CustomFields\Integration\Infolists\Fields\ColorEntry;
+use Relaticle\CustomFields\Integration\Infolists\Fields\HtmlEntry;
+use Relaticle\CustomFields\Integration\Infolists\Fields\MultiValueEntry;
+use Relaticle\CustomFields\Integration\Infolists\Fields\SingleValueEntry;
+use Relaticle\CustomFields\Integration\Infolists\Fields\TextEntry;
+use Relaticle\CustomFields\Integration\Tables\Columns\ColorColumn;
+use Relaticle\CustomFields\Integration\Tables\Columns\ColumnInterface;
+use Relaticle\CustomFields\Integration\Tables\Columns\IconColumn;
+use Relaticle\CustomFields\Integration\Tables\Columns\MultiValueColumn;
+use Relaticle\CustomFields\Integration\Tables\Columns\SingleValueColumn;
+use Relaticle\CustomFields\Integration\Tables\Columns\TextColumn;
 use RuntimeException;
 
 /**
@@ -137,6 +137,7 @@ final class FieldTypeRegistryService
         if ($this->isBuiltInFieldType($key)) {
             return true;
         }
+
         return isset($this->customFieldTypes[$key]);
     }
 
@@ -318,7 +319,6 @@ final class FieldTypeRegistryService
         if (! class_exists($tableColumn)) {
             throw new RuntimeException("Table column class '{$tableColumn}' does not exist.");
         }
-
 
         if (! class_exists($infolistEntry)) {
             throw new RuntimeException("Infolist entry class '{$infolistEntry}' does not exist.");

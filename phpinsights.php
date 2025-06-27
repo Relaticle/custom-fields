@@ -22,11 +22,11 @@ return [
         \SlevomatCodingStandard\Sniffs\TypeHints\DisallowMixedTypeHintSniff::class,
         \SlevomatCodingStandard\Sniffs\TypeHints\DisallowArrayTypeHintSyntaxSniff::class,
         \SlevomatCodingStandard\Sniffs\Functions\UnusedParameterSniff::class,
-        
+
         // Architecture
         \NunoMaduro\PhpInsights\Domain\Insights\ForbiddenDefineGlobalConstants::class,
         \NunoMaduro\PhpInsights\Domain\Insights\ForbiddenNormalClasses::class,
-        
+
         // Style
         \PHP_CodeSniffer\Standards\Generic\Sniffs\Formatting\SpaceAfterNotSniff::class,
         \SlevomatCodingStandard\Sniffs\Commenting\DocCommentSpacingSniff::class,
@@ -49,12 +49,12 @@ return [
         \SlevomatCodingStandard\Sniffs\Commenting\UselessInheritDocCommentSniff::class => [
             'usefulAnnotations' => ['@throws', '@return', '@param'],
         ],
-        
+
         // Architecture
         \NunoMaduro\PhpInsights\Domain\Insights\CyclomaticComplexityIsHigh::class => [
             'maxComplexity' => 10,
         ],
-        
+
         // Style
         \SlevomatCodingStandard\Sniffs\Namespaces\UnusedUsesSniff::class => [
             'searchAnnotations' => true,
@@ -68,4 +68,4 @@ return [
         'disable-security-check' => false,
     ],
     'threads' => null,
-]; 
+];

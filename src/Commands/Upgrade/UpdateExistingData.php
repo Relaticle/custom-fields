@@ -30,7 +30,7 @@ class UpdateExistingData
         }
 
         // Group custom fields by entity_type and tenant_id to minimize queries
-        $customFieldsByGroup = $customFields->groupBy(fn($customField): string => $customField->entity_type.'|'.$customField->tenant_id);
+        $customFieldsByGroup = $customFields->groupBy(fn ($customField): string => $customField->entity_type.'|'.$customField->tenant_id);
 
         // Begin database transaction
         DB::transaction(function () use ($command, $isDryRun, $customFields, $customFieldsByGroup): void {

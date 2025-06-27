@@ -28,6 +28,7 @@ class CustomFieldOption extends Model
 
     /**
      * The attributes that should be visible in arrays.
+     *
      * @var array<int, string>
      */
     protected $visible = [
@@ -39,7 +40,7 @@ class CustomFieldOption extends Model
     ];
 
     /**
-     * @param array<string, mixed> $attributes
+     * @param  array<string, mixed>  $attributes
      */
     public function __construct(array $attributes = [])
     {

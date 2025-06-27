@@ -48,9 +48,10 @@ final class FilamentResourceService
     }
 
     /**
+     * @return Builder<Model>
+     *
      * @throws Throwable
      * @throws ReflectionException
-     * @return Builder<Model>
      */
     public static function getModelInstanceQuery(string $model): Builder
     {
@@ -93,14 +94,16 @@ final class FilamentResourceService
     /**
      * Get the globally searchable attributes for a given model.
      *
-     * @throws Throwable
      * @return array<string>
+     *
+     * @throws Throwable
      */
     public static function getGlobalSearchableAttributes(string $model): array
     {
         /** @var array<string> $attributes */
         /** @phpstan-ignore-next-line Dynamic call to Filament Resource method */
         $attributes = self::getResourceInstance($model)->getGloballySearchableAttributes();
+
         return $attributes;
     }
 

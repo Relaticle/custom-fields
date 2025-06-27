@@ -6,8 +6,8 @@ namespace Relaticle\CustomFields\Integration\Actions\Imports\ValueConverters;
 
 use Illuminate\Database\Eloquent\Model;
 use Relaticle\CustomFields\Enums\CustomFieldType;
-use Relaticle\CustomFields\Models\CustomField;
 use Relaticle\CustomFields\Models\Contracts\HasCustomFields;
+use Relaticle\CustomFields\Models\CustomField;
 use Relaticle\CustomFields\Services\EntityTypeService;
 
 /**

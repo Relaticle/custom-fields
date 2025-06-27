@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace Relaticle\CustomFields\Support;
 
-use Relaticle\CustomFields\Services\FieldTypeRegistryService;
 use Exception;
 use Illuminate\Support\Facades\Log;
 use Relaticle\CustomFields\Enums\CustomFieldType;
+use Relaticle\CustomFields\Services\FieldTypeRegistryService;
 
 /**
  * Handles safe conversion of values to database-compatible formats
@@ -81,12 +81,14 @@ class SafeValueConverter
             // Check bounds
             if ($floatVal > self::MAX_BIGINT) {
                 Log::warning("Integer value too large for database: {$value}, clamping to max BIGINT");
+
                 return (int) self::MAX_BIGINT;
             }
 
             // Check bounds
             if ($floatVal < self::MIN_BIGINT) {
                 Log::warning("Integer value too small for database: {$value}, clamping to min BIGINT");
+
                 return (int) self::MIN_BIGINT;
             }
 

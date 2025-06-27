@@ -51,6 +51,7 @@ abstract class AbstractOptionsService
 
     /**
      * @return array<string, string>
+     *
      * @throws BindingResolutionException
      */
     protected static function mapResourceToOption(string $resource): array

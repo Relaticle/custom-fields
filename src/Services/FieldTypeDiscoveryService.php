@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace Relaticle\CustomFields\Services;
 
-use Throwable;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\File;
 use ReflectionClass;
 use Relaticle\CustomFields\Contracts\FieldTypeDefinitionInterface;
+use Throwable;
 
 /**
  * Service for discovering custom field types automatically.

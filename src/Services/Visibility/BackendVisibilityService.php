@@ -30,7 +30,7 @@ final readonly class BackendVisibilityService
     /**
      * Extract field values from a record for visibility evaluation.
      *
-     * @param Collection<int, CustomField> $fields
+     * @param  Collection<int, CustomField>  $fields
      * @return array<string, mixed>
      */
     public function extractFieldValues(Model $record, Collection $fields): array
@@ -57,7 +57,7 @@ final readonly class BackendVisibilityService
     /**
      * Check if a field should be visible for the given record.
      *
-     * @param Collection<int, CustomField> $allFields
+     * @param  Collection<int, CustomField>  $allFields
      */
     public function isFieldVisible(Model $record, CustomField $field, Collection $allFields): bool
     {
@@ -73,7 +73,7 @@ final readonly class BackendVisibilityService
     {
         $fieldValues = $this->extractFieldValues($record, $fields);
 
-        return $fields->filter(fn(CustomField $field): bool => $this->coreLogic->evaluateVisibilityWithCascading($field, $fieldValues, $fields));
+        return $fields->filter(fn (CustomField $field): bool => $this->coreLogic->evaluateVisibilityWithCascading($field, $fieldValues, $fields));
     }
 
     /**

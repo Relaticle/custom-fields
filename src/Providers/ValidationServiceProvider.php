@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Relaticle\CustomFields\Providers;
 
-use Override;
 use Illuminate\Support\ServiceProvider;
+use Override;
 use Relaticle\CustomFields\Services\ValidationService;
 
 class ValidationServiceProvider extends ServiceProvider
@@ -16,7 +16,7 @@ class ValidationServiceProvider extends ServiceProvider
     #[Override]
     public function register(): void
     {
-        $this->app->singleton(ValidationService::class, fn($app): ValidationService => new ValidationService);
+        $this->app->singleton(ValidationService::class, fn ($app): ValidationService => new ValidationService);
     }
 
     /**

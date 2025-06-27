@@ -178,7 +178,7 @@ class CustomFieldsMigrator implements CustomsFieldsMigrators
      */
     public function delete(): void
     {
-        if (!$this->customField instanceof CustomField) {
+        if (! $this->customField instanceof CustomField) {
             throw CustomFieldDoesNotExistException::whenDeleting($this->customFieldData->code);
         }
 
@@ -190,7 +190,7 @@ class CustomFieldsMigrator implements CustomsFieldsMigrators
      */
     public function activate(): void
     {
-        if (!$this->customField instanceof CustomField) {
+        if (! $this->customField instanceof CustomField) {
             throw CustomFieldDoesNotExistException::whenActivating($this->customFieldData->code);
         }
 
@@ -206,7 +206,7 @@ class CustomFieldsMigrator implements CustomsFieldsMigrators
      */
     public function deactivate(): void
     {
-        if (!$this->customField instanceof CustomField) {
+        if (! $this->customField instanceof CustomField) {
             throw CustomFieldDoesNotExistException::whenDeactivating($this->customFieldData->code);
         }
 

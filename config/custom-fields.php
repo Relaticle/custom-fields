@@ -210,7 +210,7 @@ return [
         | These classes will be loaded directly without scanning.
         */
         'classes' => [
-//            App\CustomFields\Types\RatingFieldType::class,
+            //            App\CustomFields\Types\RatingFieldType::class,
         ],
 
         /*

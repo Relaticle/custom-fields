@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Relaticle\CustomFields\Filament\Forms\Components;
 
 use Exception;
-use ValueError;
 use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Select;
@@ -23,6 +22,7 @@ use Relaticle\CustomFields\Enums\Mode;
 use Relaticle\CustomFields\Enums\Operator;
 use Relaticle\CustomFields\Services\FieldTypeHelperService;
 use Relaticle\CustomFields\Services\Visibility\BackendVisibilityService;
+use ValueError;
 
 /**
  * Clean visibility component for configuring field visibility conditions.
@@ -209,7 +209,7 @@ class VisibilityComponent extends Component
         try {
             $fieldType = $this->getFieldType($fieldCode, $get);
 
-            if (!$fieldType instanceof CustomFieldType) {
+            if (! $fieldType instanceof CustomFieldType) {
                 return true;
             }
 
@@ -242,7 +242,7 @@ class VisibilityComponent extends Component
         try {
             $fieldType = $this->getFieldType($fieldCode, $get);
 
-            if (!$fieldType instanceof CustomFieldType) {
+            if (! $fieldType instanceof CustomFieldType) {
                 return false;
             }
 
@@ -305,7 +305,7 @@ class VisibilityComponent extends Component
         try {
             $fieldType = $this->getFieldType($fieldCode, $get);
 
-            if (!$fieldType instanceof CustomFieldType) {
+            if (! $fieldType instanceof CustomFieldType) {
                 return 'Enter comparison value';
             }
 

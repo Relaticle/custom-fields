@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Relaticle\CustomFields\Services\Visibility;
 
-use Spatie\LaravelData\DataCollection;
 use Illuminate\Support\Collection;
 use Relaticle\CustomFields\Data\VisibilityConditionData;
 use Relaticle\CustomFields\Data\VisibilityData;
@@ -13,6 +12,7 @@ use Relaticle\CustomFields\Enums\Mode;
 use Relaticle\CustomFields\Enums\Operator;
 use Relaticle\CustomFields\Models\CustomField;
 use Relaticle\CustomFields\Services\FieldTypeHelperService;
+use Spatie\LaravelData\DataCollection;
 
 /**
  * Core Visibility Logic Service - Single Source of Truth
@@ -40,9 +40,7 @@ final readonly class CoreVisibilityLogicService
 
         // Handle object settings (CustomFieldSettingsData)
         if (isset($settings->visibility)) {
-            return $settings->visibility instanceof VisibilityData
-                ? $settings->visibility
-                : null;
+            return $settings->visibility;
         }
 
         return null;
@@ -62,6 +60,8 @@ final readonly class CoreVisibilityLogicService
     /**
      * Get dependent field codes for a given field.
      * This determines which fields this field depends on for visibility.
+     *
+     * @return array<string>
      */
     public function getDependentFields(CustomField $field): array
     {
@@ -73,6 +73,8 @@ final readonly class CoreVisibilityLogicService
     /**
      * Evaluate whether a field should be visible based on field values.
      * This is the core evaluation logic used by backend implementations.
+     *
+     * @param  array<string, mixed>  $fieldValues
      */
     public function evaluateVisibility(CustomField $field, array $fieldValues): bool
     {
@@ -84,6 +86,9 @@ final readonly class CoreVisibilityLogicService
     /**
      * Evaluate visibility with cascading logic.
      * Considers parent field visibility for hierarchical dependencies.
+     *
+     * @param  array<string, mixed>  $fieldValues
+     * @param  Collection<int, CustomField>  $allFields
      */
     public function evaluateVisibilityWithCascading(CustomField $field, array $fieldValues, Collection $allFields): bool
     {
@@ -141,6 +146,8 @@ final readonly class CoreVisibilityLogicService
     /**
      * Get visibility conditions for a field.
      * Returns the array of conditions that control visibility.
+     *
+     * @return array<VisibilityConditionData>
      */
     public function getVisibilityConditions(CustomField $field): array
     {

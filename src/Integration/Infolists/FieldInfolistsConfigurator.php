@@ -11,7 +11,8 @@ final readonly class FieldInfolistsConfigurator
 {
     /**
      * @template T of Entry
-     * @param T $field
+     *
+     * @param  T  $field
      * @return T
      */
     public function configure(Entry $field, CustomField $customField): Entry
@@ -19,6 +20,6 @@ final readonly class FieldInfolistsConfigurator
         return $field
             ->name('custom_fields.'.$customField->code)
             ->label($customField->name)
-            ->state(fn($record) => $record->getCustomFieldValue($customField));
+            ->state(fn ($record) => $record->getCustomFieldValue($customField));
     }
 }

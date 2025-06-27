@@ -138,7 +138,7 @@ final class ValidationService
     private function combineRules(array $primaryRules, array $secondaryRules): array
     {
         // Extract rule names (without parameters) from primary rules
-        $primaryRuleNames = array_map(fn(string $rule): string => explode(':', $rule, 2)[0], $primaryRules);
+        $primaryRuleNames = array_map(fn (string $rule): string => explode(':', $rule, 2)[0], $primaryRules);
 
         // Filter secondary rules to only include those that don't conflict with primary rules
         $filteredSecondaryRules = array_filter($secondaryRules, function (string $rule) use ($primaryRuleNames): bool {

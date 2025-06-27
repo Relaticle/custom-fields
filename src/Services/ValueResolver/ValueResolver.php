@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Relaticle\CustomFields\Services\ValueResolver;
 
-use Illuminate\Database\Eloquent\Model;
 use Relaticle\CustomFields\Contracts\ValueResolvers;
 use Relaticle\CustomFields\Models\Contracts\HasCustomFields;
 use Relaticle\CustomFields\Models\CustomField;

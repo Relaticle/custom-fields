@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace Relaticle\CustomFields\Integration\Forms\Components;
 
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Builder;
 use Filament\Forms\Components\CheckboxList;
 use Filament\Forms\Components\Field;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;
 use Relaticle\CustomFields\Integration\Forms\FieldConfigurator;
 use Relaticle\CustomFields\Models\CustomField;

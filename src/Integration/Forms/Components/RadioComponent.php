@@ -4,16 +4,16 @@ declare(strict_types=1);
 
 namespace Relaticle\CustomFields\Integration\Forms\Components;
 
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Builder;
-use Throwable;
 use Filament\Forms\Components\Field;
 use Filament\Forms\Components\Radio;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;
 use Relaticle\CustomFields\Integration\Forms\FieldConfigurator;
 use Relaticle\CustomFields\Models\CustomField;
 use Relaticle\CustomFields\Services\FilamentResourceService;
 use Relaticle\CustomFields\Support\Utils;
+use Throwable;
 
 final readonly class RadioComponent implements FieldComponentInterface
 {

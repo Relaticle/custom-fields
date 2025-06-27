@@ -23,7 +23,7 @@ class OptimizeDatabaseCommand extends Command
 
     /**
      * The console command description.
-     * 
+     *
      * @var string|null
      */
     protected $description = 'Optimize custom fields database columns for better performance and constraint compliance';

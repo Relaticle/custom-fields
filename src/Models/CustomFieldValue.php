@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Relaticle\CustomFields\Models;
 
-use Relaticle\CustomFields\Services\FieldTypeRegistryService;
 use Illuminate\Database\Eloquent\Attributes\ScopedBy;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -16,6 +15,7 @@ use Relaticle\CustomFields\CustomFields;
 use Relaticle\CustomFields\Database\Factories\CustomFieldValueFactory;
 use Relaticle\CustomFields\Enums\CustomFieldType;
 use Relaticle\CustomFields\Models\Scopes\TenantScope;
+use Relaticle\CustomFields\Services\FieldTypeRegistryService;
 use Relaticle\CustomFields\Support\SafeValueConverter;
 
 /**
@@ -39,7 +39,7 @@ class CustomFieldValue extends Model
     protected $guarded = [];
 
     /**
-     * @param array<string, mixed> $attributes
+     * @param  array<string, mixed>  $attributes
      */
     public function __construct(array $attributes = [])
     {

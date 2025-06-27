@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Relaticle\CustomFields\Filament\Pages;
 
 use BackedEnum;
-use Override;
 use Filament\Actions\Action;
 use Filament\Facades\Filament;
 use Filament\Pages\Page;
@@ -16,6 +15,7 @@ use Illuminate\Support\Collection;
 use Livewire\Attributes\Computed;
 use Livewire\Attributes\On;
 use Livewire\Attributes\Url;
+use Override;
 use Relaticle\CustomFields\CustomFields as CustomFieldsModel;
 use Relaticle\CustomFields\CustomFieldsPlugin;
 use Relaticle\CustomFields\Enums\CustomFieldSectionType;

@@ -52,7 +52,7 @@ class CustomFieldSection extends Model
     protected $guarded = [];
 
     /**
-     * @param array<string, mixed> $attributes
+     * @param  array<string, mixed>  $attributes
      */
     public function __construct(array $attributes = [])
     {
@@ -82,7 +82,7 @@ class CustomFieldSection extends Model
     }
 
     /**
-     * @param Builder<self> $query
+     * @param  Builder<self>  $query
      * @return Builder<self>
      */
     public function scopeForEntityType(Builder $query, string $model): Builder

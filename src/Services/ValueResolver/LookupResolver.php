@@ -17,9 +17,10 @@ final readonly class LookupResolver
     /**
      * Resolve lookup values based on the custom field configuration.
      *
-     * @param array<int, mixed> $values
-     * @throws Throwable
+     * @param  array<int, mixed>  $values
      * @return Collection<int, mixed>
+     *
+     * @throws Throwable
      */
     public function resolveLookupValues(array $values, CustomField $customField): Collection
     {
@@ -37,8 +38,9 @@ final readonly class LookupResolver
     }
 
     /**
-     * @throws Throwable
      * @return array{0: mixed, 1: string}
+     *
+     * @throws Throwable
      */
     private function getLookupAttributes(string $lookupType): array
     {

@@ -2,22 +2,22 @@
 
 declare(strict_types=1);
 
-use Relaticle\CustomFields\Models\CustomField;
-use Relaticle\CustomFields\Models\CustomFieldSection;
-use Relaticle\CustomFields\Models\CustomFieldOption;
-use Relaticle\CustomFields\Models\CustomFieldValue;
-use Relaticle\CustomFields\Tests\Fixtures\Resources\Posts\PostResource;
+use Filament\Resources\Pages\Page;
+use Filament\Resources\Resource;
 use Illuminate\Database\Eloquent\Factories\Factory;
-use Relaticle\CustomFields\Tests\Fixtures\Models\Post;
-use Relaticle\CustomFields\Models\Concerns\UsesCustomFields;
+use Illuminate\Database\Eloquent\Model;
 use Relaticle\CustomFields\Commands\FilamentCustomFieldCommand;
 use Relaticle\CustomFields\Commands\OptimizeDatabaseCommand;
 use Relaticle\CustomFields\Commands\UpgradeCommand;
-use Spatie\LaravelData\Data;
-use Filament\Resources\Pages\Page;
-use Filament\Resources\Resource;
-use Illuminate\Database\Eloquent\Model;
+use Relaticle\CustomFields\Models\Concerns\UsesCustomFields;
 use Relaticle\CustomFields\Models\Contracts\HasCustomFields;
+use Relaticle\CustomFields\Models\CustomField;
+use Relaticle\CustomFields\Models\CustomFieldOption;
+use Relaticle\CustomFields\Models\CustomFieldSection;
+use Relaticle\CustomFields\Models\CustomFieldValue;
+use Relaticle\CustomFields\Tests\Fixtures\Models\Post;
+use Relaticle\CustomFields\Tests\Fixtures\Resources\Posts\PostResource;
+use Spatie\LaravelData\Data;
 
 arch('Models extend Eloquent Model')
     ->expect([

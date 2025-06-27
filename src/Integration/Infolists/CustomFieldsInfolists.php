@@ -5,10 +5,10 @@ declare(strict_types=1);
 namespace Relaticle\CustomFields\Integration\Infolists;
 
 use Filament\Infolists\Components\Entry;
-use Filament\Schemas\Components\Section;
+use Filament\Schemas\Components\Component;
 use Filament\Schemas\Components\Fieldset;
 use Filament\Schemas\Components\Grid;
-use Filament\Schemas\Components\Component;
+use Filament\Schemas\Components\Section;
 use Relaticle\CustomFields\CustomFields;
 use Relaticle\CustomFields\Models\CustomField;
 use Relaticle\CustomFields\Models\CustomFieldSection;
@@ -63,7 +63,7 @@ final class CustomFieldsInfolists extends Component
                 }
 
                 return $this->sectionInfolistsFactory->create($section)->schema(
-                    fn() => $visibleFields->map(fn(CustomField $customField): Entry => $this->fieldInfolistsFactory->create($customField)->name('custom_fields_'.$customField->code))->toArray()
+                    fn () => $visibleFields->map(fn (CustomField $customField): Entry => $this->fieldInfolistsFactory->create($customField)->name('custom_fields_'.$customField->code))->toArray()
                 );
             })
             ->filter() // Remove null entries (sections with no visible fields)

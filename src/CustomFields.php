@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace Relaticle\CustomFields;
 
 use Relaticle\CustomFields\Models\CustomField;
-use Relaticle\CustomFields\Models\CustomFieldValue;
 use Relaticle\CustomFields\Models\CustomFieldOption;
 use Relaticle\CustomFields\Models\CustomFieldSection;
+use Relaticle\CustomFields\Models\CustomFieldValue;
 
 final class CustomFields
 {
@@ -36,7 +36,7 @@ final class CustomFields
      */
     public static function customFieldModel(): string
     {
-        return static::$customFieldModel;
+        return self::$customFieldModel;
     }
 
     /**
@@ -54,9 +54,9 @@ final class CustomFields
      */
     public static function useCustomFieldModel(string $model): static
     {
-        static::$customFieldModel = $model;
+        self::$customFieldModel = $model;
 
-        return new self();
+        return new self;
     }
 
     /**
@@ -84,7 +84,7 @@ final class CustomFields
     {
         static::$valueModel = $model;
 
-        return new self();
+        return new self;
     }
 
     /**
@@ -112,7 +112,7 @@ final class CustomFields
     {
         static::$optionModel = $model;
 
-        return new self();
+        return new self;
     }
 
     /**
@@ -140,6 +140,6 @@ final class CustomFields
     {
         static::$sectionModel = $model;
 
-        return new self();
+        return new self;
     }
 }

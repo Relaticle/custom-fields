@@ -41,7 +41,7 @@ class SectionForm implements FormInterface, SectionFormInterface
                         table: CustomFields::sectionModel(),
                         column: 'name',
                         ignoreRecord: true,
-                        modifyRuleUsing: fn(Unique $rule, Get $get) => $rule
+                        modifyRuleUsing: fn (Unique $rule, Get $get) => $rule
                             ->when(
                                 Utils::isTenantEnabled(),
                                 fn (Unique $rule) => $rule->where(
@@ -71,7 +71,7 @@ class SectionForm implements FormInterface, SectionFormInterface
                         table: CustomFields::sectionModel(),
                         column: 'code',
                         ignoreRecord: true,
-                        modifyRuleUsing: fn(Unique $rule, Get $get) => $rule
+                        modifyRuleUsing: fn (Unique $rule, Get $get) => $rule
                             ->when(
                                 Utils::isTenantEnabled(),
                                 fn (Unique $rule) => $rule

@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Relaticle\CustomFields\Filament\Forms\Components;
 
-use ValueError;
 use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
@@ -17,6 +16,7 @@ use Illuminate\Support\Str;
 use Relaticle\CustomFields\Enums\CustomFieldType;
 use Relaticle\CustomFields\Enums\CustomFieldValidationRule;
 use Relaticle\CustomFields\Services\FieldTypeRegistryService;
+use ValueError;
 
 final class CustomFieldValidationComponent extends Component
 {
@@ -139,7 +139,7 @@ final class CustomFieldValidationComponent extends Component
     private function getAllowedRuleValues(Get $get): array
     {
         $fieldType = $this->getFieldType($get);
-        if (!$fieldType instanceof CustomFieldType) {
+        if (! $fieldType instanceof CustomFieldType) {
             return [];
         }
 
@@ -319,6 +319,7 @@ final class CustomFieldValidationComponent extends Component
                     continue;
                 }
             }
+
             return $validRules;
         }
 

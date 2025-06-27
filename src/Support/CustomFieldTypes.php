@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace Relaticle\CustomFields\Support;
 
-use InvalidArgumentException;
-use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Cache;
+use InvalidArgumentException;
 use Relaticle\CustomFields\Contracts\FieldTypeDefinitionInterface;
 use Relaticle\CustomFields\Services\FieldTypeRegistryService;
 

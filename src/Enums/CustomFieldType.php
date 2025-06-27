@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace Relaticle\CustomFields\Enums;
 
-use Relaticle\CustomFields\Services\FieldTypeRegistryService;
 use Filament\Support\Contracts\HasLabel;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cache;
+use Relaticle\CustomFields\Services\FieldTypeRegistryService;
 
 enum CustomFieldType: string implements HasLabel
 {
@@ -174,6 +174,7 @@ enum CustomFieldType: string implements HasLabel
     /**
      * 🚀 REVOLUTIONARY OPERATOR COMPATIBILITY
      * Delegates to category for consistent behavior.
+     *
      * @return array<int, Operator>
      */
     public function getCompatibleOperators(): array

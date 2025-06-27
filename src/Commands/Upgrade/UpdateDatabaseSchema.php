@@ -88,7 +88,7 @@ class UpdateDatabaseSchema
                 Schema::table($customFieldsTable, function (Blueprint $table) use ($columnsToAdd): void {
                     $hasCustomFieldSectionId = in_array('custom_field_section_id', $columnsToAdd, true);
                     $hasWidth = in_array('width', $columnsToAdd, true);
-                    
+
                     if ($hasCustomFieldSectionId) {
                         $table->unsignedBigInteger('custom_field_section_id')->nullable()->after('id');
                     }

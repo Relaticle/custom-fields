@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace Relaticle\CustomFields\Models\Scopes;
 
-use Override;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
+use Override;
 
 /**
  * Custom fields activable scope that also checks section activation.

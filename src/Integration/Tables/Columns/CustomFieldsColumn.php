@@ -6,7 +6,6 @@ namespace Relaticle\CustomFields\Integration\Tables\Columns;
 
 use Filament\Resources\RelationManagers\RelationManager;
 use Illuminate\Contracts\Container\BindingResolutionException;
-use Illuminate\Database\Eloquent\Model;
 use Relaticle\CustomFields\Models\Contracts\HasCustomFields;
 use Relaticle\CustomFields\Models\CustomField;
 use Relaticle\CustomFields\Support\Utils;

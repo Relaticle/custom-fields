@@ -16,7 +16,7 @@ use Spatie\LaravelData\Mappers\SnakeCaseMapper;
 class VisibilityData extends Data
 {
     /**
-     * @param DataCollection<int, VisibilityConditionData>|null $conditions
+     * @param  DataCollection<int, VisibilityConditionData>|null  $conditions
      */
     public function __construct(
         public Mode $mode = Mode::ALWAYS_VISIBLE,
@@ -32,11 +32,11 @@ class VisibilityData extends Data
     }
 
     /**
-     * @param array<string, mixed> $fieldValues
+     * @param  array<string, mixed>  $fieldValues
      */
     public function evaluate(array $fieldValues): bool
     {
-        if (! $this->requiresConditions() || !$this->conditions instanceof DataCollection) {
+        if (! $this->requiresConditions() || ! $this->conditions instanceof DataCollection) {
             return $this->mode === Mode::ALWAYS_VISIBLE;
         }
 
@@ -53,7 +53,7 @@ class VisibilityData extends Data
     }
 
     /**
-     * @param array<string, mixed> $fieldValues
+     * @param  array<string, mixed>  $fieldValues
      */
     private function evaluateCondition(VisibilityConditionData $condition, array $fieldValues): bool
     {
@@ -67,7 +67,7 @@ class VisibilityData extends Data
      */
     public function getDependentFields(): array
     {
-        if (! $this->requiresConditions() || !$this->conditions instanceof DataCollection) {
+        if (! $this->requiresConditions() || ! $this->conditions instanceof DataCollection) {
             return [];
         }
 

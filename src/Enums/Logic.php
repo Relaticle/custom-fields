@@ -23,7 +23,7 @@ enum Logic: string implements HasLabel
     }
 
     /**
-     * @param array<int, bool> $results
+     * @param  array<int, bool>  $results
      */
     public function evaluate(array $results): bool
     {

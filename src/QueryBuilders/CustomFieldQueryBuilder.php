@@ -9,6 +9,7 @@ use Relaticle\CustomFields\Services\EntityTypeService;
 
 /**
  * @template TModelClass of CustomField
+ *
  * @extends Builder<TModelClass>
  */
 class CustomFieldQueryBuilder extends Builder

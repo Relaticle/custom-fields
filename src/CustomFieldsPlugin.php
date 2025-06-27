@@ -39,7 +39,7 @@ class CustomFieldsPlugin implements Plugin
     {
         if (Utils::isTenantEnabled()) {
             Action::configureUsing(
-                fn(Action $action): Action => $action->before(
+                fn (Action $action): Action => $action->before(
                     function (Action $action): Action {
                         TenantContextService::setFromFilamentTenant();
 

@@ -20,7 +20,7 @@ class ActivableScope implements Scope
     /**
      * Apply the scope to a given Eloquent query builder.
      *
-     * @param Builder<Model> $builder
+     * @param  Builder<Model>  $builder
      */
     public function apply(Builder $builder, Model $model): void
     {
@@ -45,7 +45,7 @@ class ActivableScope implements Scope
     }
 
     /**
-     * @param Builder<Model> $builder
+     * @param  Builder<Model>  $builder
      */
     protected function addActive(Builder $builder): void
     {
@@ -55,6 +55,7 @@ class ActivableScope implements Scope
             if (method_exists($model, 'getQualifiedActiveColumn')) {
                 return $builder->where($model->getQualifiedActiveColumn(), true);
             }
+
             return $builder;
         });
     }
@@ -73,6 +74,7 @@ class ActivableScope implements Scope
                 if (method_exists($model, 'getQualifiedActiveColumn')) {
                     return $builder->where($model->getQualifiedActiveColumn(), true);
                 }
+
                 return $builder;
             }
 

@@ -12,7 +12,7 @@ use Relaticle\CustomFields\QueryBuilders\CustomFieldQueryBuilder;
 
 /**
  * Interface for models that have custom fields.
- * 
+ *
  * @phpstan-require-extends Model
  */
 interface HasCustomFields

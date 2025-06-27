@@ -9,7 +9,6 @@ use Illuminate\Database\Eloquent\Model;
 use Psr\Log\LoggerInterface;
 use Relaticle\CustomFields\CustomFields;
 use Relaticle\CustomFields\Integration\Actions\Imports\Exceptions\UnsupportedColumnTypeException;
-use Relaticle\CustomFields\Integration\Actions\Imports\Matchers\LookupMatcherInterface;
 use Relaticle\CustomFields\Integration\Actions\Imports\ValueConverters\ValueConverterInterface;
 use Relaticle\CustomFields\Models\Contracts\HasCustomFields;
 use Relaticle\CustomFields\Models\CustomField;
@@ -31,6 +30,7 @@ final readonly class CustomFieldsImporter
      *
      * @param  string  $modelClass  The fully qualified class name of the model
      * @return array<int, ImportColumn> Array of import columns for custom fields
+     *
      * @throws UnsupportedColumnTypeException
      */
     public function getColumns(string $modelClass): array

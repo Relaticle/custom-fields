@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace Relaticle\CustomFields\Integration\Forms;
 
-use Filament\Schemas\Components\Section;
-use Filament\Schemas\Components\Fieldset;
-use Filament\Schemas\Components\Grid;
 use Filament\Forms\Components\Field;
 use Filament\Schemas\Components\Component;
+use Filament\Schemas\Components\Fieldset;
+use Filament\Schemas\Components\Grid;
+use Filament\Schemas\Components\Section;
 use Illuminate\Contracts\Container\BindingResolutionException;
 use Relaticle\CustomFields\CustomFields;
 use Relaticle\CustomFields\Models\CustomField;
@@ -71,8 +71,8 @@ final class CustomFieldsForm extends Component
         $allFields = $sections->flatMap(fn ($section) => $section->fields);
         $fieldDependencies = $this->visibilityService->calculateDependencies($allFields);
 
-        return $sections->map(fn(CustomFieldSection $section): Section|Fieldset|Grid => $this->sectionComponentFactory->create($section)->schema(
-            fn() => $section->fields
+        return $sections->map(fn (CustomFieldSection $section): Section|Fieldset|Grid => $this->sectionComponentFactory->create($section)->schema(
+            fn () => $section->fields
                 ->map(function (CustomField $customField) use ($fieldDependencies, $allFields): Field {
                     // Get fields that depend on this field (makes it live)
                     $dependentFields = $fieldDependencies[$customField->code] ?? [];

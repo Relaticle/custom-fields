@@ -85,6 +85,7 @@ EOT;
     protected function resolveMigrationPaths(): array
     {
         $migrationPath = config('custom-fields.migrations_path');
+
         return ($migrationPath === null || $migrationPath === '')
             ? config('custom-fields.migrations_paths')
             : [$migrationPath];

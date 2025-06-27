@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 namespace Relaticle\CustomFields\Enums;
 
-use Illuminate\Validation\Rules\Numeric;
 use Carbon\Carbon;
 use Closure;
 use Exception;
 use Filament\Support\Contracts\HasLabel;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\Rules\Numeric;
 use InvalidArgumentException;
 
 enum CustomFieldValidationRule: string implements HasLabel
