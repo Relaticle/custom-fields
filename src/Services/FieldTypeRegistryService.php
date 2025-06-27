@@ -80,7 +80,7 @@ final class FieldTypeRegistryService
     /**
      * Get all registered field types (built-in + custom).
      *
-     * @return Collection<string, array{label: string, icon: string, category: string, validation_rules: array, form_component: string, table_column: string, infolist_entry: string, searchable: bool, filterable: bool, encryptable: bool, priority: int}>
+     * @return Collection<string, array{label: string, icon: string, category: string, validation_rules: array<string>, form_component: string, table_column: string, infolist_entry: string, searchable: bool, filterable: bool, encryptable: bool, priority: int}>
      */
     public function getAllFieldTypes(): Collection
     {

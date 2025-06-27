@@ -190,7 +190,7 @@ enum CustomFieldValidationRule: string implements HasLabel
      * Get the validation rules for a parameter of this validation rule.
      *
      * @param  int  $parameterIndex  The index of the parameter (0-based)
-     * @return array<string, mixed> The validation rules for the parameter
+     * @return list<(Closure)|Illuminate\Validation\Rules\Numeric|string> The validation rules for the parameter
      */
     public function getParameterValidationRule(int $parameterIndex = 0): array
     {
@@ -311,7 +311,7 @@ enum CustomFieldValidationRule: string implements HasLabel
      *
      * @param  string|null  $rule  The validation rule
      * @param  int  $parameterIndex  The index of the parameter (0-based)
-     * @return array<string, mixed> The validation rules for the parameter
+     * @return array<int, string> The validation rules for the parameter
      */
     public static function getParameterValidationRuleFor(?string $rule, int $parameterIndex = 0): array
     {
