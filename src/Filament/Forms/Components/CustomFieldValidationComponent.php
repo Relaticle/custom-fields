@@ -457,7 +457,7 @@ final class CustomFieldValidationComponent extends Component
         $customFieldConfig = $this->fieldTypeRegistry->getFieldType(
             $fieldTypeKey
         );
-        if ($customFieldConfig) {
+        if ($customFieldConfig !== null) {
             $validRules = [];
             foreach ($customFieldConfig["validation_rules"] as $ruleValue) {
                 try {

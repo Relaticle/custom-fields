@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Relaticle\CustomFields\Models;
 
+use Override;
 use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 use Illuminate\Database\Eloquent\Attributes\ScopedBy;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -92,9 +93,9 @@ class CustomField extends Model
     /**
      * @return CustomFieldQueryBuilder<self>
      */
+    #[Override]
     public function newEloquentBuilder($query): CustomFieldQueryBuilder
     {
-        /** @var CustomFieldQueryBuilder<CustomField> */
         return new CustomFieldQueryBuilder($query);
     }
 

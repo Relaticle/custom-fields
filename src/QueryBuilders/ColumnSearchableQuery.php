@@ -4,14 +4,15 @@ declare(strict_types=1);
 
 namespace Relaticle\CustomFields\QueryBuilders;
 
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Builder;
 use Relaticle\CustomFields\Models\CustomField;
 
 final readonly class ColumnSearchableQuery
 {
     /**
-     * @param  Builder<\Illuminate\Database\Eloquent\Model>  $builder
-     * @return Builder<\Illuminate\Database\Eloquent\Model>
+     * @param Builder<Model> $builder
+     * @return Builder<Model>
      */
     public function builder(Builder $builder, CustomField $customField, string $search): Builder
     {

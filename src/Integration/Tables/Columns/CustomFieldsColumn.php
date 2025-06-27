@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Relaticle\CustomFields\Integration\Tables\Columns;
 
+use Filament\Tables\Columns\Column;
 use Filament\Resources\RelationManagers\RelationManager;
 use Illuminate\Contracts\Container\BindingResolutionException;
 use Relaticle\CustomFields\Models\Contracts\HasCustomFields;
@@ -13,7 +14,7 @@ use Relaticle\CustomFields\Support\Utils;
 final readonly class CustomFieldsColumn
 {
     /**
-     * @return array<int, \Filament\Tables\Columns\Column>
+     * @return array<int, Column>
      *
      * @throws BindingResolutionException
      */
@@ -43,7 +44,7 @@ final readonly class CustomFieldsColumn
     }
 
     /**
-     * @return array<int, \Filament\Tables\Columns\Column>
+     * @return array<int, Column>
      */
     public static function forRelationManager(
         RelationManager $relationManager

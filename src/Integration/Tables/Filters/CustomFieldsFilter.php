@@ -21,7 +21,7 @@ final readonly class CustomFieldsFilter
      * @throws BindingResolutionException
      */
     /**
-     * @return array<\Filament\Tables\Filters\BaseFilter>
+     * @return array<BaseFilter>
      */
     public static function all(Model&HasCustomFields $instance): array
     {

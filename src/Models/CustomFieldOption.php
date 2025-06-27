@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Relaticle\CustomFields\Models;
 
+use Illuminate\Support\Carbon;
 use Illuminate\Database\Eloquent\Attributes\ScopedBy;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -20,8 +21,8 @@ use Relaticle\CustomFields\Models\Scopes\TenantScope;
  * @property ?int $sort_order
  * @property CustomFieldOptionSettingsData $settings
  * @property int $custom_field_id
- * @property \Illuminate\Support\Carbon $created_at
- * @property \Illuminate\Support\Carbon $updated_at
+ * @property Carbon $created_at
+ * @property Carbon $updated_at
  */
 #[ScopedBy([TenantScope::class, SortOrderScope::class])]
 class CustomFieldOption extends Model

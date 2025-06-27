@@ -454,7 +454,7 @@ final readonly class FrontendVisibilityService
         if (is_numeric($value)) {
             // Handle float values
             if (is_float($value)) {
-                return (float) $value;
+                return $value;
             }
             
             // Handle string values that contain decimal points
@@ -541,7 +541,7 @@ final readonly class FrontendVisibilityService
             is_string($value) => "'".addslashes($value)."'",
             is_int($value) => (string) $value,
             is_float($value) => number_format($value, 10, '.', ''),
-            is_numeric($value) => str_contains((string) $value, '.')
+            is_numeric($value) => str_contains($value, '.')
                 ? number_format((float) $value, 10, '.', '')
                 : (string) ((int) $value),
             is_array($value) => collect($value)

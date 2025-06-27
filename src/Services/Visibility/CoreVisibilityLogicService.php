@@ -38,12 +38,7 @@ final readonly class CoreVisibilityLogicService
     {
         $settings = $field->settings;
 
-        // Handle object settings (CustomFieldSettingsData)
-        if (isset($settings->visibility)) {
-            return $settings->visibility;
-        }
-
-        return null;
+        return $settings->visibility ?? null;
     }
 
     /**
