@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use Relaticle\CustomFields\Data\CustomFieldSettingsData;
+use Relaticle\CustomFields\Data\VisibilityData;
 use Relaticle\CustomFields\Enums\CustomFieldType;
 use Relaticle\CustomFields\Models\CustomField;
 use Relaticle\CustomFields\Models\CustomFieldSection;
@@ -198,6 +199,7 @@ describe('Custom Fields Integration in Tables', function () {
 
         // Act & Assert
         livewire(ListPosts::class)
+            ->assertTableColumnExists($column)
             ->assertCanRenderTableColumn($column)
             ->assertCanSeeTableRecords($posts);
     })->with([
@@ -235,6 +237,7 @@ describe('Custom Fields Integration in Tables', function () {
 
         // Act & Assert
         livewire(ListPosts::class)
+            ->assertTableColumnExists($column)
             ->assertCanRenderTableColumn($column)
             ->assertCanSeeTableRecords([$post]);
     })->with([
@@ -249,7 +252,10 @@ describe('Custom Fields Integration in Tables', function () {
             'code' => 'optional_field',
             'type' => CustomFieldType::TEXT,
             'entity_type' => Post::class,
-            'settings' => ['visible_in_list' => true],
+            'settings' => new CustomFieldSettingsData(
+                visible_in_list: true,
+                list_toggleable_hidden: false
+            ),
         ]);
 
         $postWithValue = Post::factory()->create();
@@ -263,25 +269,16 @@ describe('Custom Fields Integration in Tables', function () {
             ->assertCanSeeTableRecords([$postWithValue, $postWithoutValue]);
     });
 
-    it('efficiently loads custom field values with table integration', function () {
-        // Arrange
-        $customField = CustomField::factory()->create([
-            'custom_field_section_id' => $this->section->id,
-            'code' => 'performance_field',
-            'type' => CustomFieldType::TEXT,
-            'entity_type' => Post::class,
-            'settings' => ['visible_in_list' => true],
+    it('does not show custom fields that are not visible in list', function () {
+        CustomField::factory()->create([
+            'code' => 'hidden_field',
+            'settings' => new CustomFieldSettingsData(
+                visible_in_list: false,
+            ),
         ]);
 
-        $posts = Post::factory()->count(10)->create();
-
-        foreach ($posts as $index => $post) {
-            $post->saveCustomFieldValue($customField, "Performance Value {$index}");
-        }
-
-        // Act & Assert - Should load successfully with custom fields
+        // Act & Assert
         livewire(ListPosts::class)
-            ->assertSuccessful()
-            ->assertCanSeeTableRecords($posts);
+            ->assertTableColumnDoesNotExist('custom_fields.hidden_field');
     });
 });
