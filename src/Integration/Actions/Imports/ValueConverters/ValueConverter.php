@@ -7,6 +7,7 @@ namespace Relaticle\CustomFields\Integration\Actions\Imports\ValueConverters;
 use Illuminate\Database\Eloquent\Model;
 use Relaticle\CustomFields\Enums\CustomFieldType;
 use Relaticle\CustomFields\Models\CustomField;
+use Relaticle\CustomFields\Models\Contracts\HasCustomFields;
 use Relaticle\CustomFields\Services\EntityTypeService;
 
 /**
@@ -17,12 +18,12 @@ final class ValueConverter implements ValueConverterInterface
     /**
      * Convert custom field values from import format to storage format.
      *
-     * @param  Model  $record  The model record
+     * @param  HasCustomFields  $record  The model record
      * @param  array<string, mixed>  $customFieldsData  The custom fields data
      * @param  Model|null  $tenant  Optional tenant for multi-tenancy support
      * @return array<string, mixed> The converted custom fields data
      */
-    public function convertValues(Model $record, array $customFieldsData, ?Model $tenant = null): array
+    public function convertValues(HasCustomFields $record, array $customFieldsData, ?Model $tenant = null): array
     {
         // Get the entity type for the model
         $entityType = EntityTypeService::getEntityFromModel($record::class);

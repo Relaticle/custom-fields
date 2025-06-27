@@ -127,6 +127,7 @@ class CustomFieldValue extends Model
     {
         $column = static::getValueColumn($this->customField->type);
 
+        /** @phpstan-ignore-next-line */
         return $this->$column;
     }
 
@@ -140,6 +141,7 @@ class CustomFieldValue extends Model
             $this->customField->type
         );
 
+        /** @phpstan-ignore-next-line */
         $this->$column = $safeValue;
     }
 }

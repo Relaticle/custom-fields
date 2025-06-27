@@ -58,7 +58,7 @@ class CustomField extends Model
     use HasFieldTypeHelpers;
 
     /**
-     * @var array<string>
+     * @var array<string>|bool
      */
     protected $guarded = [];
 

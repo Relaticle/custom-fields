@@ -11,7 +11,7 @@ use Illuminate\Database\Eloquent\Scope;
 class ActivableScope implements Scope
 {
     /**
-     * All of the extensions to be added to the builder.
+     * All the extensions to be added to the builder.
      *
      * @var string[]
      */
@@ -22,7 +22,9 @@ class ActivableScope implements Scope
      */
     public function apply(Builder $builder, Model $model): void
     {
-        $builder->where($model->getQualifiedActiveColumn(), true);
+        if (method_exists($model, 'getQualifiedActiveColumn')) {
+            $builder->where($model->getQualifiedActiveColumn(), true);
+        }
     }
 
     /**
@@ -33,13 +35,24 @@ class ActivableScope implements Scope
     public function extend(Builder $builder): void
     {
         foreach ($this->extensions as $extension) {
-            $this->{"add{$extension}"}($builder);
+            $methodName = "add{$extension}";
+            if (method_exists($this, $methodName)) {
+                /** @phpstan-ignore-next-line */
+                $this->$methodName($builder);
+            }
         }
     }
 
     protected function addActive(Builder $builder): void
     {
-        $builder->macro('active', fn(Builder $builder) => $builder->where($builder->getModel()->getQualifiedActiveColumn(), true));
+        /** @phpstan-ignore-next-line */
+        $builder->macro('active', function (Builder $builder): Builder {
+            $model = $builder->getModel();
+            if (method_exists($model, 'getQualifiedActiveColumn')) {
+                return $builder->where($model->getQualifiedActiveColumn(), true);
+            }
+            return $builder;
+        });
     }
 
     /**
@@ -48,11 +61,16 @@ class ActivableScope implements Scope
      * @param Builder<*> $builder
      * @return void
      */
-    protected function addWithDeactivated(Builder $builder)
+    protected function addWithDeactivated(Builder $builder): void
     {
-        $builder->macro('withDeactivated', function (Builder $builder, $withDeactivated = true) {
+        /** @phpstan-ignore-next-line */
+        $builder->macro('withDeactivated', function (Builder $builder, bool $withDeactivated = true): Builder {
             if (! $withDeactivated) {
-                return $builder->withoutActivated();
+                $model = $builder->getModel();
+                if (method_exists($model, 'getQualifiedActiveColumn')) {
+                    return $builder->where($model->getQualifiedActiveColumn(), true);
+                }
+                return $builder;
             }
 
             return $builder->withoutGlobalScope($this);
@@ -65,14 +83,18 @@ class ActivableScope implements Scope
      * @param Builder<*> $builder
      * @return void
      */
-    protected function addWithoutDeactivated(Builder $builder)
+    protected function addWithoutDeactivated(Builder $builder): void
     {
+        /** @phpstan-ignore-next-line */
         $builder->macro('withoutDeactivated', function (Builder $builder): Builder {
             $model = $builder->getModel();
 
-            $builder->withoutGlobalScope($this)->whereNull(
-                $model->getQualifiedActiveColumn()
-            );
+            if (method_exists($model, 'getQualifiedActiveColumn')) {
+                /** @phpstan-ignore-next-line */
+                $builder->withoutGlobalScope($this)->whereNull(
+                    $model->getQualifiedActiveColumn()
+                );
+            }
 
             return $builder;
         });

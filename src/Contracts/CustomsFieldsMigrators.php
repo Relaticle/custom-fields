@@ -11,8 +11,14 @@ interface CustomsFieldsMigrators
 {
     public function setTenantId(int|string|null $tenantId = null): void;
 
+    /**
+     * @param class-string $model
+     */
     public function find(string $model, string $code): ?CustomsFieldsMigrators;
 
+    /**
+     * @param class-string $model
+     */
     public function new(string $model, CustomFieldData $fieldData): CustomsFieldsMigrators;
 
     /**
@@ -20,6 +26,9 @@ interface CustomsFieldsMigrators
      */
     public function options(array $options): CustomsFieldsMigrators;
 
+    /**
+     * @param class-string $model
+     */
     public function lookupType(string $model): CustomsFieldsMigrators;
 
     public function create(): CustomField;

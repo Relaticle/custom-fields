@@ -23,7 +23,7 @@ interface HasCustomFields
     public function customFields(): Builder;
 
     /**
-     * @return MorphMany<CustomFieldValue>
+     * @return MorphMany<CustomFieldValue, $this>
      */
     public function customFieldValues(): MorphMany;
 
