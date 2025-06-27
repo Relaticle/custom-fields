@@ -38,17 +38,8 @@ final readonly class CoreVisibilityLogicService
     {
         $settings = $field->settings;
 
-        if (! $settings) {
-            return null;
-        }
-
-        // Handle array settings (from tests or JSON)
-        if (is_array($settings) && isset($settings['visibility'])) {
-            return VisibilityData::from($settings['visibility']);
-        }
-
-        // Handle object settings
-        if (is_object($settings) && isset($settings->visibility)) {
+        // Handle object settings (CustomFieldSettingsData)
+        if (isset($settings->visibility)) {
             return $settings->visibility instanceof VisibilityData
                 ? $settings->visibility
                 : null;

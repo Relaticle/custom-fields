@@ -19,6 +19,8 @@ class ActivableScope implements Scope
 
     /**
      * Apply the scope to a given Eloquent query builder.
+     *
+     * @param Builder<Model> $builder
      */
     public function apply(Builder $builder, Model $model): void
     {
@@ -37,12 +39,14 @@ class ActivableScope implements Scope
         foreach ($this->extensions as $extension) {
             $methodName = "add{$extension}";
             if (method_exists($this, $methodName)) {
-                /** @phpstan-ignore-next-line */
                 $this->$methodName($builder);
             }
         }
     }
 
+    /**
+     * @param Builder<Model> $builder
+     */
     protected function addActive(Builder $builder): void
     {
         /** @phpstan-ignore-next-line */

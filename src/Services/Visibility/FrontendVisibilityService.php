@@ -33,6 +33,8 @@ final readonly class FrontendVisibilityService
     /**
      * Build visibility expression for a field using core logic.
      * This is the main method that generates visibleJs expressions.
+     *
+     * @param Collection<int, CustomField>|null $allFields
      */
     public function buildVisibilityExpression(CustomField $field, ?Collection $allFields): ?string
     {
@@ -52,6 +54,8 @@ final readonly class FrontendVisibilityService
 
     /**
      * Build field conditions using core visibility logic.
+     *
+     * @param Collection<int, CustomField> $allFields
      */
     private function buildFieldConditions(CustomField $field, Collection $allFields): ?string
     {
@@ -81,6 +85,8 @@ final readonly class FrontendVisibilityService
 
     /**
      * Build parent conditions for cascading visibility.
+     *
+     * @param Collection<int, CustomField> $allFields
      */
     private function buildParentConditions(CustomField $field, Collection $allFields): ?string
     {
