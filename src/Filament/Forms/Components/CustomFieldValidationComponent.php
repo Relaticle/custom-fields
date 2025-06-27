@@ -213,7 +213,7 @@ final class CustomFieldValidationComponent extends Component
         };
     }
 
-    private function hydrateParameterValue(Get $get, Set $set, $state, Component $component): void
+    private function hydrateParameterValue(Get $get, Set $set, mixed $state, Component $component): void
     {
         if ($state === null) {
             return;
@@ -234,7 +234,7 @@ final class CustomFieldValidationComponent extends Component
         $set('value', $normalizedValue);
     }
 
-    private function dehydrateParameterValue(Get $get, $state, Component $component): ?string
+    private function dehydrateParameterValue(Get $get, mixed $state, Component $component): ?string
     {
         if ($state === null) {
             return null;

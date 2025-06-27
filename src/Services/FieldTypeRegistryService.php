@@ -159,6 +159,7 @@ final class FieldTypeRegistryService
      *
      * @return Collection<int, string>
      */
+    /** @return Collection<int, string> */
     public function getSearchableFieldTypes(): Collection
     {
         return $this->getAllFieldTypes()
@@ -171,6 +172,7 @@ final class FieldTypeRegistryService
      *
      * @return Collection<int, string>
      */
+    /** @return Collection<int, string> */
     public function getFilterableFieldTypes(): Collection
     {
         return $this->getAllFieldTypes()
@@ -183,6 +185,7 @@ final class FieldTypeRegistryService
      *
      * @return Collection<int, string>
      */
+    /** @return Collection<int, string> */
     public function getEncryptableFieldTypes(): Collection
     {
         return $this->getAllFieldTypes()

@@ -117,6 +117,7 @@ class CustomField extends Model
      */
     public function section(): BelongsTo
     {
+        /** @var BelongsTo<CustomFieldSection, $this> */
         return $this->belongsTo(CustomFields::sectionModel(), 'custom_field_section_id');
     }
 
@@ -125,6 +126,7 @@ class CustomField extends Model
      */
     public function values(): HasMany
     {
+        /** @var HasMany<CustomFieldValue, $this> */
         return $this->hasMany(CustomFields::valueModel());
     }
 
@@ -133,6 +135,7 @@ class CustomField extends Model
      */
     public function options(): HasMany
     {
+        /** @var HasMany<CustomFieldOption, $this> */
         return $this->hasMany(CustomFields::optionModel());
     }
 

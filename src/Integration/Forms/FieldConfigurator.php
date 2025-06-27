@@ -43,7 +43,7 @@ final readonly class FieldConfigurator
             );
     }
 
-    private function getFieldValue(CustomField $customField, $state, $record): mixed
+    private function getFieldValue(CustomField $customField, mixed $state, mixed $record): mixed
     {
         return value(function () use ($customField, $state, $record) {
             $value = $record?->getCustomFieldValue($customField)

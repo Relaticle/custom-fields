@@ -13,11 +13,13 @@ use Relaticle\CustomFields\Services\EntityTypeService;
  */
 class CustomFieldQueryBuilder extends Builder
 {
+    /** @return CustomFieldQueryBuilder<TModelClass> */
     public function forType(CustomFieldType $type): self
     {
         return $this->where('type', $type);
     }
 
+    /** @return CustomFieldQueryBuilder<TModelClass> */
     public function forEntity(string $model): self
     {
         return $this->where(
@@ -26,11 +28,13 @@ class CustomFieldQueryBuilder extends Builder
         );
     }
 
+    /** @return CustomFieldQueryBuilder<TModelClass> */
     public function forMorphEntity(string $entity): self
     {
         return $this->where('entity_type', $entity);
     }
 
+    /** @return CustomFieldQueryBuilder<TModelClass> */
     public function encrypted(): self
     {
         return $this->whereJsonContains('settings->encrypted', true);
@@ -39,6 +43,7 @@ class CustomFieldQueryBuilder extends Builder
     /**
      * Scope to filter non-encrypted fields including NULL settings
      */
+    /** @return CustomFieldQueryBuilder<TModelClass> */
     public function nonEncrypted(): self
     {
         return $this->where(function ($query): void {
@@ -46,6 +51,7 @@ class CustomFieldQueryBuilder extends Builder
         });
     }
 
+    /** @return CustomFieldQueryBuilder<TModelClass> */
     public function visibleInList(): self
     {
         return $this->where(function ($query): void {
@@ -53,6 +59,7 @@ class CustomFieldQueryBuilder extends Builder
         });
     }
 
+    /** @return CustomFieldQueryBuilder<TModelClass> */
     public function visibleInView(): self
     {
         return $this->where(function ($query): void {
@@ -60,11 +67,13 @@ class CustomFieldQueryBuilder extends Builder
         });
     }
 
+    /** @return CustomFieldQueryBuilder<TModelClass> */
     public function searchable(): self
     {
         return $this->whereJsonContains('settings->searchable', true);
     }
 
+    /** @return CustomFieldQueryBuilder<TModelClass> */
     public function active(): self
     {
         return $this->where('active', true);

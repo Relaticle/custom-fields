@@ -55,6 +55,7 @@ class CustomFieldOption extends Model
      */
     public function customField(): BelongsTo
     {
+        /** @var BelongsTo<CustomField, $this> */
         return $this->belongsTo(CustomFields::customFieldModel());
     }
 }
