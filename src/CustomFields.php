@@ -56,7 +56,7 @@ class CustomFields
     {
         static::$customFieldModel = $model;
 
-        return new self;
+        return new static();
     }
 
     /**
@@ -84,7 +84,7 @@ class CustomFields
     {
         static::$valueModel = $model;
 
-        return new self;
+        return new static();
     }
 
     /**
@@ -112,7 +112,7 @@ class CustomFields
     {
         static::$optionModel = $model;
 
-        return new self;
+        return new static();
     }
 
     /**
@@ -140,6 +140,6 @@ class CustomFields
     {
         static::$sectionModel = $model;
 
-        return new self;
+        return new static();
     }
 }

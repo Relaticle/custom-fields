@@ -38,7 +38,8 @@
       "Bash(if [ $? -eq 0 ])",
       "Bash(then echo \"PASSED\")",
       "Bash(else echo \"FAILED\")",
-      "Bash(fi)"
+      "Bash(fi)",
+      "Bash(./vendor/bin/phpstan analyse:*)"
     ],
     "deny": []
   }

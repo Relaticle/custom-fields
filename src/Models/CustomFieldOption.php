@@ -27,6 +27,18 @@ class CustomFieldOption extends Model
     ];
 
     /**
+     * The attributes that should be visible in arrays.
+     * @var array<int, string>
+     */
+    protected $visible = [
+        'id',
+        'name',
+        'settings',
+        'sort_order',
+        'custom_field_id',
+    ];
+
+    /**
      * @param array<string, mixed> $attributes
      */
     public function __construct(array $attributes = [])

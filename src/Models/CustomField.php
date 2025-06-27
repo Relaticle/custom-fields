@@ -38,6 +38,7 @@ use Spatie\LaravelData\DataCollection;
  * @property int $sort_order
  * @property bool $active
  * @property bool $system_defined
+ * @property CustomFieldWidth $width
  * 
  * @method static CustomFieldQueryBuilder<CustomField> query()
  * @method static CustomFieldQueryBuilder<CustomField> where($column, $operator = null, $value = null, $boolean = 'and')

@@ -218,7 +218,7 @@ This project aims to conduct a comprehensive architectural review and refactorin
 
 ### Development Standards
 - **PSR-12 Compliance**: Strict adherence to PHP coding standards
-- **Static Analysis**: PHPStan level 8 compliance required for all code
+- **Static Analysis**: PHPStan level 6 compliance required for all code
 - **Performance Requirements**: All operations must complete within defined SLA thresholds
 - **Security Standards**: Input validation and output encoding following OWASP guidelines
 

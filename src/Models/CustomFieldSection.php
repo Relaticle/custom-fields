@@ -23,6 +23,7 @@ use Relaticle\CustomFields\Services\EntityTypeService;
 /**
  * @property string $name
  * @property string $code
+ * @property string $description
  * @property CustomFieldSectionType $type
  * @property string $entity_type
  * @property string $lookup_type

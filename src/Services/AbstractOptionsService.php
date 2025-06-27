@@ -31,6 +31,9 @@ abstract class AbstractOptionsService
         return static::getOptions()->keys()->first() ?? '';
     }
 
+    /**
+     * @return Collection<int, string>
+     */
     protected static function getFilteredResources(): Collection
     {
         return collect(Filament::getResources())
@@ -47,6 +50,7 @@ abstract class AbstractOptionsService
     }
 
     /**
+     * @return array<string, string>
      * @throws BindingResolutionException
      */
     protected static function mapResourceToOption(string $resource): array

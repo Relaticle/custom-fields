@@ -86,11 +86,14 @@ class UpdateDatabaseSchema
                 }
             } else {
                 Schema::table($customFieldsTable, function (Blueprint $table) use ($columnsToAdd): void {
-                    if (in_array('custom_field_section_id', $columnsToAdd, true)) {
+                    $hasCustomFieldSectionId = in_array('custom_field_section_id', $columnsToAdd, true);
+                    $hasWidth = in_array('width', $columnsToAdd, true);
+                    
+                    if ($hasCustomFieldSectionId) {
                         $table->unsignedBigInteger('custom_field_section_id')->nullable()->after('id');
                     }
-                    if (in_array('width', $columnsToAdd, true)) {
-                        $table->string('width')->nullable()->after('custom_field_section_id');
+                    if ($hasWidth) {
+                        $table->string('width')->nullable()->after($hasCustomFieldSectionId ? 'custom_field_section_id' : 'id');
                     }
                 });
                 foreach ($columnsToAdd as $column) {

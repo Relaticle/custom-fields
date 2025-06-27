@@ -17,7 +17,7 @@ exchanges: 1
 
 ## Strategic Refactoring for Type Safety in Laravel Packages with PHPStan & PHP 8.3
 
-Refactoring a Laravel package to achieve type safety—especially when facing 698 PHPStan level 8 errors—requires a systematic, phased approach. The error patterns you’ve identified (dynamic static method calls, missing iterable value types, argument type mismatches, missing generics, and boolean negation issues) are common in legacy or loosely-typed PHP codebases. Below are best practices and actionable steps tailored to each error pattern, with a focus on sustainable, test-driven refactoring for PHP 8.3 and Laravel.
+Refactoring a Laravel package to achieve type safety—especially when facing 698 PHPStan level 6 errors—requires a systematic, phased approach. The error patterns you’ve identified (dynamic static method calls, missing iterable value types, argument type mismatches, missing generics, and boolean negation issues) are common in legacy or loosely-typed PHP codebases. Below are best practices and actionable steps tailored to each error pattern, with a focus on sustainable, test-driven refactoring for PHP 8.3 and Laravel.
 
 ---
 

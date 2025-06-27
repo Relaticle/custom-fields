@@ -174,6 +174,7 @@ enum CustomFieldType: string implements HasLabel
     /**
      * 🚀 REVOLUTIONARY OPERATOR COMPATIBILITY
      * Delegates to category for consistent behavior.
+     * @return array<int, Operator>
      */
     public function getCompatibleOperators(): array
     {
