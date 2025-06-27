@@ -7,6 +7,7 @@ namespace App\CustomFields\Types;
 use Filament\Infolists\Components\Entry;
 use Filament\Infolists\Components\TextEntry;
 use Relaticle\CustomFields\Integration\Infolists\FieldInfolistsComponentInterface;
+use Relaticle\CustomFields\Integration\Infolists\FieldInfolistsConfigurator;
 use Relaticle\CustomFields\Models\CustomField;
 
 /**
@@ -16,10 +17,13 @@ use Relaticle\CustomFields\Models\CustomField;
  */
 class RatingInfolistEntry implements FieldInfolistsComponentInterface
 {
+    public function __construct(
+        private readonly FieldInfolistsConfigurator $configurator
+    ) {}
+
     public function make(CustomField $customField): Entry
     {
-        return TextEntry::make($customField->code)
-            ->label($customField->name)
+        $entry = TextEntry::make("custom_fields.{$customField->code}")
             ->formatStateUsing(function (?string $state): string {
                 if ($state === null || $state === '') {
                     return 'No rating';
@@ -50,5 +54,8 @@ class RatingInfolistEntry implements FieldInfolistsComponentInterface
                     default => 'gray',
                 };
             });
+
+        // Apply common field configuration (name, label, state handling)
+        return $this->configurator->configure($entry, $customField);
     }
 }

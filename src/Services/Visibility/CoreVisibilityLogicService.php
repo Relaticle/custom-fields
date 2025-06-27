@@ -28,6 +28,7 @@ final readonly class CoreVisibilityLogicService
     public function __construct(
         private FieldTypeHelperService $fieldTypeHelper,
     ) {}
+
     /**
      * Extract visibility data from a custom field.
      * This is the authoritative method for getting visibility configuration.

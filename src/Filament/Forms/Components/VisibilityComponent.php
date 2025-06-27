@@ -33,10 +33,6 @@ class VisibilityComponent extends Component
         private ?FieldTypeHelperService $fieldTypeHelper = null,
     ) {
         $this->fieldTypeHelper ??= app(FieldTypeHelperService::class);
-    }
-
-    public function __construct()
-    {
         $this->schema([$this->buildFieldset()]);
         $this->columnSpanFull();
     }

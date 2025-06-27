@@ -20,6 +20,7 @@ class RatingTableColumn implements ColumnInterface
     {
         return TextColumn::make("custom_fields.{$customField->code}")
             ->label($customField->name)
+            ->getStateUsing(fn ($record) => $record->getCustomFieldValue($customField))
             ->formatStateUsing(function (?string $state): string {
                 if ($state === null || $state === '') {
                     return '—';
