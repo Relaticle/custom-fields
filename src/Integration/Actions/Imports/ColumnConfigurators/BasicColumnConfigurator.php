@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Relaticle\CustomFields\Integration\Actions\Imports\ColumnConfigurators;
 
+use Carbon\Carbon;
+use Exception;
 use Filament\Actions\Imports\ImportColumn;
 use Relaticle\CustomFields\Enums\CustomFieldType;
 use Relaticle\CustomFields\Models\CustomField;
@@ -74,8 +76,8 @@ final class BasicColumnConfigurator implements ColumnConfiguratorInterface
             }
 
             try {
-                return \Carbon\Carbon::parse($state)->format('Y-m-d');
-            } catch (\Exception) {
+                return Carbon::parse($state)->format('Y-m-d');
+            } catch (Exception) {
                 return null;
             }
         });
@@ -92,8 +94,8 @@ final class BasicColumnConfigurator implements ColumnConfiguratorInterface
             }
 
             try {
-                return \Carbon\Carbon::parse($state)->format('Y-m-d H:i:s');
-            } catch (\Exception) {
+                return Carbon::parse($state)->format('Y-m-d H:i:s');
+            } catch (Exception) {
                 return null;
             }
         });

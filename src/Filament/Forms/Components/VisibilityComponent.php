@@ -191,7 +191,7 @@ class VisibilityComponent extends Component
         try {
             $fieldType = $this->getFieldType($fieldCode, $get);
 
-            return $fieldType ? $this->fieldTypeHelper->isOptionable($fieldType) : false;
+            return $fieldType instanceof CustomFieldType && $this->fieldTypeHelper->isOptionable($fieldType);
         } catch (Exception) {
             return false;
         }

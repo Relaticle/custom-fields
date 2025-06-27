@@ -103,7 +103,7 @@ enum CustomFieldType: string implements HasLabel
     }
 
     /**
-     * @return Collection<int, self>
+     * @return Collection<int, CustomFieldType>
      */
     public static function optionables(): Collection
     {
@@ -182,7 +182,7 @@ enum CustomFieldType: string implements HasLabel
     }
 
     /**
-     * @return Collection<int, self>
+     * @return Collection<int, CustomFieldType>
      */
     public static function encryptables(): Collection
     {
@@ -196,7 +196,7 @@ enum CustomFieldType: string implements HasLabel
     }
 
     /**
-     * @return Collection<int, self>
+     * @return Collection<int, CustomFieldType>
      */
     public static function searchables(): Collection
     {
@@ -211,7 +211,7 @@ enum CustomFieldType: string implements HasLabel
     }
 
     /**
-     * @return Collection<int, self>
+     * @return Collection<int, CustomFieldType>
      */
     public static function filterable(): Collection
     {

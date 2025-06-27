@@ -21,6 +21,6 @@ final readonly class ColorColumn implements ColumnInterface
                 condition: $customField->settings->searchable,
                 query: fn (Builder $query, string $search): Builder => (new ColumnSearchableQuery)->builder($query, $customField, $search),
             )
-            ->getStateUsing(fn (HasCustomFields $record) => $record->getCustomFieldValue($customField));
+            ->getStateUsing(fn (HasCustomFields $record): mixed => $record->getCustomFieldValue($customField));
     }
 }

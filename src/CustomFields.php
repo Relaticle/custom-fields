@@ -9,7 +9,7 @@ use Relaticle\CustomFields\Models\CustomFieldValue;
 use Relaticle\CustomFields\Models\CustomFieldOption;
 use Relaticle\CustomFields\Models\CustomFieldSection;
 
-class CustomFields
+final class CustomFields
 {
     /**
      * The custom field model that should be used by Custom Fields.
@@ -44,7 +44,7 @@ class CustomFields
      */
     public static function newCustomFieldModel(): mixed
     {
-        $model = static::customFieldModel();
+        $model = self::customFieldModel();
 
         return new $model;
     }
@@ -56,7 +56,7 @@ class CustomFields
     {
         static::$customFieldModel = $model;
 
-        return new static();
+        return new self();
     }
 
     /**
@@ -72,7 +72,7 @@ class CustomFields
      */
     public static function newValueModel(): mixed
     {
-        $model = static::valueModel();
+        $model = self::valueModel();
 
         return new $model;
     }
@@ -84,7 +84,7 @@ class CustomFields
     {
         static::$valueModel = $model;
 
-        return new static();
+        return new self();
     }
 
     /**
@@ -100,7 +100,7 @@ class CustomFields
      */
     public static function newOptionModel(): mixed
     {
-        $model = static::optionModel();
+        $model = self::optionModel();
 
         return new $model;
     }
@@ -112,7 +112,7 @@ class CustomFields
     {
         static::$optionModel = $model;
 
-        return new static();
+        return new self();
     }
 
     /**
@@ -128,7 +128,7 @@ class CustomFields
      */
     public static function newSectionModel(): mixed
     {
-        $model = static::sectionModel();
+        $model = self::sectionModel();
 
         return new $model;
     }
@@ -140,6 +140,6 @@ class CustomFields
     {
         static::$sectionModel = $model;
 
-        return new static();
+        return new self();
     }
 }

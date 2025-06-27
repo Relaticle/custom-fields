@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace Relaticle\CustomFields\Enums;
 
+use Illuminate\Validation\Rules\Numeric;
 use Carbon\Carbon;
+use Closure;
 use Exception;
 use Filament\Support\Contracts\HasLabel;
 use Illuminate\Validation\Rule;
@@ -190,7 +192,7 @@ enum CustomFieldValidationRule: string implements HasLabel
      * Get the validation rules for a parameter of this validation rule.
      *
      * @param  int  $parameterIndex  The index of the parameter (0-based)
-     * @return list<(Closure)|Illuminate\Validation\Rules\Numeric|string> The validation rules for the parameter
+     * @return list<Closure|Numeric|string> The validation rules for the parameter
      */
     public function getParameterValidationRule(int $parameterIndex = 0): array
     {

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Relaticle\CustomFields\Livewire;
 
+use Illuminate\Contracts\View\View;
 use Filament\Actions\Action;
 use Filament\Actions\ActionGroup;
 use Filament\Actions\Concerns\InteractsWithActions;
@@ -164,7 +165,7 @@ class ManageCustomFieldSection extends Component implements HasActions, HasForms
             ->slideOver();
     }
 
-    public function render(): \Illuminate\Contracts\View\View
+    public function render(): View
     {
         return view('custom-fields::livewire.manage-custom-field-section');
     }

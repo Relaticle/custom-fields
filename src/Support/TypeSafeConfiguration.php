@@ -4,6 +4,24 @@ declare(strict_types=1);
 
 namespace Relaticle\CustomFields\Support;
 
+use Relaticle\CustomFields\Integration\Forms\Components\TextInputComponent;
+use Relaticle\CustomFields\Integration\Forms\Components\TextareaFieldComponent;
+use Relaticle\CustomFields\Integration\Forms\Components\NumberComponent;
+use Relaticle\CustomFields\Integration\Forms\Components\CurrencyComponent;
+use Relaticle\CustomFields\Integration\Forms\Components\DateComponent;
+use Relaticle\CustomFields\Integration\Forms\Components\DateTimeComponent;
+use Relaticle\CustomFields\Integration\Forms\Components\CheckboxComponent;
+use Relaticle\CustomFields\Integration\Forms\Components\ToggleComponent;
+use Relaticle\CustomFields\Integration\Forms\Components\SelectComponent;
+use Relaticle\CustomFields\Integration\Forms\Components\MultiSelectComponent;
+use Relaticle\CustomFields\Integration\Forms\Components\RadioComponent;
+use Relaticle\CustomFields\Integration\Forms\Components\CheckboxListComponent;
+use Relaticle\CustomFields\Integration\Forms\Components\RichEditorComponent;
+use Relaticle\CustomFields\Integration\Forms\Components\MarkdownEditorComponent;
+use Relaticle\CustomFields\Integration\Forms\Components\TagsInputComponent;
+use Relaticle\CustomFields\Integration\Forms\Components\ColorPickerComponent;
+use Relaticle\CustomFields\Integration\Forms\Components\ToggleButtonsComponent;
+use Relaticle\CustomFields\Integration\Forms\Components\LinkComponent;
 use Relaticle\CustomFields\Enums\CustomFieldType;
 use Relaticle\CustomFields\Enums\FieldCategory;
 use Relaticle\CustomFields\Enums\Operator;
@@ -61,7 +79,7 @@ readonly class TypeSafeConfiguration
     public function getFieldTypesByCategory(): Collection
     {
         return collect(CustomFieldType::cases())
-            ->groupBy(fn (CustomFieldType $type) => $type->getCategory());
+            ->groupBy(fn (CustomFieldType $type): FieldCategory => $type->getCategory());
     }
 
     /**
@@ -138,24 +156,24 @@ readonly class TypeSafeConfiguration
     private function buildComponentMapping(): array
     {
         return [
-            CustomFieldType::TEXT->value => \Relaticle\CustomFields\Integration\Forms\Components\TextInputComponent::class,
-            CustomFieldType::TEXTAREA->value => \Relaticle\CustomFields\Integration\Forms\Components\TextareaFieldComponent::class,
-            CustomFieldType::NUMBER->value => \Relaticle\CustomFields\Integration\Forms\Components\NumberComponent::class,
-            CustomFieldType::CURRENCY->value => \Relaticle\CustomFields\Integration\Forms\Components\CurrencyComponent::class,
-            CustomFieldType::DATE->value => \Relaticle\CustomFields\Integration\Forms\Components\DateComponent::class,
-            CustomFieldType::DATE_TIME->value => \Relaticle\CustomFields\Integration\Forms\Components\DateTimeComponent::class,
-            CustomFieldType::CHECKBOX->value => \Relaticle\CustomFields\Integration\Forms\Components\CheckboxComponent::class,
-            CustomFieldType::TOGGLE->value => \Relaticle\CustomFields\Integration\Forms\Components\ToggleComponent::class,
-            CustomFieldType::SELECT->value => \Relaticle\CustomFields\Integration\Forms\Components\SelectComponent::class,
-            CustomFieldType::MULTI_SELECT->value => \Relaticle\CustomFields\Integration\Forms\Components\MultiSelectComponent::class,
-            CustomFieldType::RADIO->value => \Relaticle\CustomFields\Integration\Forms\Components\RadioComponent::class,
-            CustomFieldType::CHECKBOX_LIST->value => \Relaticle\CustomFields\Integration\Forms\Components\CheckboxListComponent::class,
-            CustomFieldType::RICH_EDITOR->value => \Relaticle\CustomFields\Integration\Forms\Components\RichEditorComponent::class,
-            CustomFieldType::MARKDOWN_EDITOR->value => \Relaticle\CustomFields\Integration\Forms\Components\MarkdownEditorComponent::class,
-            CustomFieldType::TAGS_INPUT->value => \Relaticle\CustomFields\Integration\Forms\Components\TagsInputComponent::class,
-            CustomFieldType::COLOR_PICKER->value => \Relaticle\CustomFields\Integration\Forms\Components\ColorPickerComponent::class,
-            CustomFieldType::TOGGLE_BUTTONS->value => \Relaticle\CustomFields\Integration\Forms\Components\ToggleButtonsComponent::class,
-            CustomFieldType::LINK->value => \Relaticle\CustomFields\Integration\Forms\Components\LinkComponent::class,
+            CustomFieldType::TEXT->value => TextInputComponent::class,
+            CustomFieldType::TEXTAREA->value => TextareaFieldComponent::class,
+            CustomFieldType::NUMBER->value => NumberComponent::class,
+            CustomFieldType::CURRENCY->value => CurrencyComponent::class,
+            CustomFieldType::DATE->value => DateComponent::class,
+            CustomFieldType::DATE_TIME->value => DateTimeComponent::class,
+            CustomFieldType::CHECKBOX->value => CheckboxComponent::class,
+            CustomFieldType::TOGGLE->value => ToggleComponent::class,
+            CustomFieldType::SELECT->value => SelectComponent::class,
+            CustomFieldType::MULTI_SELECT->value => MultiSelectComponent::class,
+            CustomFieldType::RADIO->value => RadioComponent::class,
+            CustomFieldType::CHECKBOX_LIST->value => CheckboxListComponent::class,
+            CustomFieldType::RICH_EDITOR->value => RichEditorComponent::class,
+            CustomFieldType::MARKDOWN_EDITOR->value => MarkdownEditorComponent::class,
+            CustomFieldType::TAGS_INPUT->value => TagsInputComponent::class,
+            CustomFieldType::COLOR_PICKER->value => ColorPickerComponent::class,
+            CustomFieldType::TOGGLE_BUTTONS->value => ToggleButtonsComponent::class,
+            CustomFieldType::LINK->value => LinkComponent::class,
         ];
     }
 

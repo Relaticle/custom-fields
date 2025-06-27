@@ -21,7 +21,7 @@ class CustomFieldsActivableScope extends ActivableScope
     {
         if (method_exists($model, 'getQualifiedActiveColumn')) {
             $builder->where($model->getQualifiedActiveColumn(), true)
-                ->whereHas('section', function ($query) {
+                ->whereHas('section', function ($query): void {
                     /** @phpstan-ignore-next-line */
                     $query->active();
                 });

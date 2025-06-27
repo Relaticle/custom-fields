@@ -132,7 +132,7 @@ final readonly class CustomFieldsImporter
     {
         return array_filter(
             $data,
-            fn ($key): bool => ! str_starts_with((string) $key, 'custom_fields_'),
+            fn ($key): bool => ! str_starts_with($key, 'custom_fields_'),
             ARRAY_FILTER_USE_KEY
         );
     }

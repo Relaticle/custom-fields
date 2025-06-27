@@ -59,7 +59,6 @@ class ActivableScope implements Scope
      * Add the with-trashed extension to the builder.
      *
      * @param Builder<*> $builder
-     * @return void
      */
     protected function addWithDeactivated(Builder $builder): void
     {
@@ -81,7 +80,6 @@ class ActivableScope implements Scope
      * Add the without-trashed extension to the builder.
      *
      * @param Builder<*> $builder
-     * @return void
      */
     protected function addWithoutDeactivated(Builder $builder): void
     {

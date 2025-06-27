@@ -33,6 +33,6 @@ class IconColumn implements ColumnInterface
             )
             ->searchable(false)
             ->label($customField->name)
-            ->getStateUsing(fn (HasCustomFields $record) => $record->getCustomFieldValue($customField) ?? false);
+            ->getStateUsing(fn (HasCustomFields $record): mixed => $record->getCustomFieldValue($customField) ?? false);
     }
 }

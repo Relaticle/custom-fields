@@ -31,11 +31,11 @@ use Relaticle\CustomFields\Services\EntityTypeService;
  * @property int $sort_order
  * @property bool $active
  * @property bool $system_defined
- * 
- * @method static \Illuminate\Database\Eloquent\Builder<static> active()
- * @method static \Illuminate\Database\Eloquent\Builder<static> withDeactivated(bool $withDeactivated = true)
- * @method static \Illuminate\Database\Eloquent\Builder<static> withoutDeactivated()
- * @method static \Illuminate\Database\Eloquent\Builder<static> forEntityType(string $model)
+ *
+ * @method static Builder<static> active()
+ * @method static Builder<static> withDeactivated(bool $withDeactivated = true)
+ * @method static Builder<static> withoutDeactivated()
+ * @method static Builder<static> forEntityType(string $model)
  */
 #[ScopedBy([TenantScope::class, SortOrderScope::class])]
 #[ObservedBy(CustomFieldSectionObserver::class)]

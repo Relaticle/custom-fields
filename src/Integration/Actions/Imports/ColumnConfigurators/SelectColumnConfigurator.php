@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Relaticle\CustomFields\Integration\Actions\Imports\ColumnConfigurators;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Filament\Actions\Imports\Exceptions\RowImportFailedException;
 use Filament\Actions\Imports\ImportColumn;
@@ -137,9 +138,9 @@ final readonly class SelectColumnConfigurator implements ColumnConfiguratorInter
             $recordTitleAttribute = FilamentResourceService::getRecordTitleAttribute($customField->lookup_type);
 
             // Get sample values from the lookup model
-            /** @var \Illuminate\Database\Eloquent\Builder<Model> $query */
+            /** @var Builder<Model> $query */
             $query = $entityInstance->newQuery();
-            /** @var \Illuminate\Database\Eloquent\Builder<Model> $limitedQuery */
+            /** @var Builder<Model> $limitedQuery */
             $limitedQuery = $query->limit(2);
             $sampleValues = $limitedQuery->pluck($recordTitleAttribute)->toArray();
 

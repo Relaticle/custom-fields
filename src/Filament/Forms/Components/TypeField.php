@@ -39,7 +39,7 @@ class TypeField extends Select
         }
 
         return CustomFieldType::optionsForSelect()
-            ->filter(fn (array $data): bool => stripos((string) $data['label'], $search) !== false)
+            ->filter(fn (array $data): bool => stripos($data['label'], $search) !== false)
             ->mapWithKeys(
                 fn (array $data): array => [
                     $data['value'] => $this->getHtmlOption($data),

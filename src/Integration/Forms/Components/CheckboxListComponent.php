@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Relaticle\CustomFields\Integration\Forms\Components;
 
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Builder;
 use Filament\Forms\Components\CheckboxList;
 use Filament\Forms\Components\Field;
 use Illuminate\Support\Collection;
@@ -24,11 +26,11 @@ final readonly class CheckboxListComponent implements FieldComponentInterface
         $field = CheckboxList::make("custom_fields.{$customField->code}");
 
         if ($customField->lookup_type) {
-            /** @var \Illuminate\Database\Eloquent\Model $entityInstance */
+            /** @var Model $entityInstance */
             $entityInstance = FilamentResourceService::getModelInstance($customField->lookup_type);
             $recordTitleAttribute = FilamentResourceService::getRecordTitleAttribute($customField->lookup_type);
 
-            /** @var \Illuminate\Database\Eloquent\Builder<\Illuminate\Database\Eloquent\Model> $query */
+            /** @var Builder<Model> $query */
             $query = $entityInstance->newQuery();
             $options = $query->limit(50)->pluck($recordTitleAttribute, 'id')->toArray();
         } else {

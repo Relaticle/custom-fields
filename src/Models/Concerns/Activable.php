@@ -4,16 +4,17 @@ declare(strict_types=1);
 
 namespace Relaticle\CustomFields\Models\Concerns;
 
+use Illuminate\Database\Eloquent\Builder;
 use Exception;
 use Relaticle\CustomFields\Models\Scopes\ActivableScope;
 
 /**
  * Activable trait for models that can be activated/deactivated.
- * 
+ *
  * This trait adds the following query methods via ActivableScope:
- * @method static \Illuminate\Database\Eloquent\Builder<static> active() Scope to only active records
- * @method static \Illuminate\Database\Eloquent\Builder<static> withDeactivated(bool $withDeactivated = true) Include deactivated records
- * @method static \Illuminate\Database\Eloquent\Builder<static> withoutDeactivated() Exclude deactivated records
+ * @method static Builder<static> active() Scope to only active records
+ * @method static Builder<static> withDeactivated(bool $withDeactivated = true) Include deactivated records
+ * @method static Builder<static> withoutDeactivated() Exclude deactivated records
  */
 trait Activable
 {
