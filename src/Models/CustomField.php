@@ -29,7 +29,7 @@ use Spatie\LaravelData\DataCollection;
 /**
  * @property string $name
  * @property string $code
- * @property CustomFieldType $type
+ * @property CustomFieldType|string $type
  * @property string $entity_type
  * @property string $lookup_type
  * @property DataCollection<int, ValidationRuleData> $validation_rules
