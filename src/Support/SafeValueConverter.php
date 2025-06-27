@@ -139,7 +139,7 @@ class SafeValueConverter
      * Convert a value to a safe array for JSON storage.
      *
      * @param  mixed  $value  The value to convert
-     * @return array|null The safe array value or null if invalid
+     * @return array<int, mixed>|null The safe array value or null if invalid
      */
     public static function toSafeArray(mixed $value): ?array
     {
