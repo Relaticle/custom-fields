@@ -15,13 +15,16 @@ use Filament\Schemas\Components\Utilities\Set;
 use Illuminate\Support\Str;
 use Relaticle\CustomFields\Enums\CustomFieldType;
 use Relaticle\CustomFields\Enums\CustomFieldValidationRule;
+use Relaticle\CustomFields\Services\FieldTypeRegistryService;
 
 final class CustomFieldValidationComponent extends Component
 {
     protected string $view = 'filament-schemas::components.grid';
 
-    public function __construct()
-    {
+    public function __construct(
+        private ?FieldTypeRegistryService $fieldTypeRegistry = null,
+    ) {
+        $this->fieldTypeRegistry ??= app(FieldTypeRegistryService::class);
         $this->schema([$this->buildValidationRulesRepeater()]);
         $this->columnSpanFull();
     }
@@ -114,12 +117,12 @@ final class CustomFieldValidationComponent extends Component
 
     private function getAvailableRuleOptions(Get $get): array
     {
-        $fieldType = $this->getFieldType($get);
-        if (! $fieldType) {
+        $fieldTypeKey = $get('../../type');
+        if (! $fieldTypeKey) {
             return [];
         }
 
-        $allowedRules = $fieldType->allowedValidationRules();
+        $allowedRules = $this->getAllowedValidationRulesForFieldType($fieldTypeKey);
         $existingRules = $get('../../validation_rules') ?? [];
         $currentRuleName = $get('name');
 
@@ -288,6 +291,37 @@ final class CustomFieldValidationComponent extends Component
         $parameters = $state['parameters'] ?? [];
 
         return CustomFieldValidationRule::getLabelForRule($ruleName, $parameters);
+    }
+
+    /**
+     * Get allowed validation rules for a field type (built-in or custom).
+     *
+     * @return array<int, CustomFieldValidationRule>
+     */
+    private function getAllowedValidationRulesForFieldType(string $fieldTypeKey): array
+    {
+        // Try built-in field type first
+        $builtInType = CustomFieldType::tryFrom($fieldTypeKey);
+        if ($builtInType) {
+            return $builtInType->allowedValidationRules();
+        }
+
+        // Check custom field types
+        $customFieldConfig = $this->fieldTypeRegistry->getFieldType($fieldTypeKey);
+        if ($customFieldConfig && isset($customFieldConfig['validation_rules'])) {
+            $validRules = [];
+            foreach ($customFieldConfig['validation_rules'] as $ruleValue) {
+                try {
+                    $validRules[] = CustomFieldValidationRule::from($ruleValue);
+                } catch (\ValueError $e) {
+                    // Skip invalid validation rules instead of failing
+                    continue;
+                }
+            }
+            return $validRules;
+        }
+
+        return [];
     }
 
     private function getFieldType(Get $get): ?CustomFieldType
