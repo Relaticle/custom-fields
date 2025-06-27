@@ -429,7 +429,7 @@ class FieldForm implements FormInterface
                                 $record
                             ): void {
                                 if (blank($state)) {
-                                    $optionsLookupType = $record->lookup_type
+                                    $optionsLookupType = $record?->lookup_type
                                         ? 'lookup'
                                         : 'options';
                                     $component->state($optionsLookupType);

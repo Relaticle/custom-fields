@@ -462,7 +462,7 @@ class VisibilityComponent extends Component
         }
     }
 
-    private function getFieldType(string $fieldCode, Get $get): CustomFieldType|null
+    private function getFieldType(string $fieldCode, Get $get): CustomFieldType|null|string
     {
         try {
             $entityType = $this->getEntityType($get);
