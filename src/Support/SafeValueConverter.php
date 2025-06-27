@@ -28,17 +28,37 @@ class SafeValueConverter
      * Safely convert a value to the appropriate type for database storage.
      *
      * @param  mixed  $value  The value to convert
-     * @param  CustomFieldType  $fieldType  The field type
+     * @param  CustomFieldType|string  $fieldType  The field type
      * @return mixed The converted value
      */
-    public static function toDbSafe(mixed $value, CustomFieldType $fieldType): mixed
+    public static function toDbSafe(mixed $value, CustomFieldType|string $fieldType): mixed
     {
-        return match ($fieldType) {
-            CustomFieldType::NUMBER, CustomFieldType::RADIO, CustomFieldType::SELECT => self::toSafeInteger($value),
-            CustomFieldType::CURRENCY => self::toSafeFloat($value),
-            CustomFieldType::CHECKBOX_LIST, CustomFieldType::TOGGLE_BUTTONS, CustomFieldType::TAGS_INPUT, CustomFieldType::MULTI_SELECT => self::toSafeArray($value),
-            default => $value,
-        };
+        // Handle enum types
+        if ($fieldType instanceof CustomFieldType) {
+            return match ($fieldType) {
+                CustomFieldType::NUMBER, CustomFieldType::RADIO, CustomFieldType::SELECT => self::toSafeInteger($value),
+                CustomFieldType::CURRENCY => self::toSafeFloat($value),
+                CustomFieldType::CHECKBOX_LIST, CustomFieldType::TOGGLE_BUTTONS, CustomFieldType::TAGS_INPUT, CustomFieldType::MULTI_SELECT => self::toSafeArray($value),
+                default => $value,
+            };
+        }
+
+        // Handle custom field types (strings) - determine conversion based on category
+        if (is_string($fieldType) && app()->bound(\Relaticle\CustomFields\Services\FieldTypeRegistryService::class)) {
+            $registry = app(\Relaticle\CustomFields\Services\FieldTypeRegistryService::class);
+            $fieldTypeConfig = $registry->getFieldType($fieldType);
+
+            if ($fieldTypeConfig !== null) {
+                return match ($fieldTypeConfig['category']) {
+                    'numeric' => self::toSafeInteger($value),
+                    'multi_option' => self::toSafeArray($value),
+                    default => $value,
+                };
+            }
+        }
+
+        // Fallback - return value as-is
+        return $value;
     }
 
     /**

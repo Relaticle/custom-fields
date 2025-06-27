@@ -65,18 +65,42 @@ class CustomFieldValue extends Model
         ];
     }
 
-    public static function getValueColumn(CustomFieldType $type): string
+    public static function getValueColumn(CustomFieldType|string $type): string
     {
-        return match ($type) {
-            CustomFieldType::TEXT, CustomFieldType::TEXTAREA, CustomFieldType::RICH_EDITOR, CustomFieldType::MARKDOWN_EDITOR => 'text_value',
-            CustomFieldType::LINK, CustomFieldType::COLOR_PICKER => 'string_value',
-            CustomFieldType::NUMBER, CustomFieldType::RADIO, CustomFieldType::SELECT => 'integer_value',
-            CustomFieldType::CHECKBOX, CustomFieldType::TOGGLE => 'boolean_value',
-            CustomFieldType::CHECKBOX_LIST, CustomFieldType::TOGGLE_BUTTONS, CustomFieldType::TAGS_INPUT, CustomFieldType::MULTI_SELECT => 'json_value',
-            CustomFieldType::CURRENCY => 'float_value',
-            CustomFieldType::DATE => 'date_value',
-            CustomFieldType::DATE_TIME => 'datetime_value',
-        };
+        // Handle enum types
+        if ($type instanceof CustomFieldType) {
+            return match ($type) {
+                CustomFieldType::TEXT, CustomFieldType::TEXTAREA, CustomFieldType::RICH_EDITOR, CustomFieldType::MARKDOWN_EDITOR => 'text_value',
+                CustomFieldType::LINK, CustomFieldType::COLOR_PICKER => 'string_value',
+                CustomFieldType::NUMBER, CustomFieldType::RADIO, CustomFieldType::SELECT => 'integer_value',
+                CustomFieldType::CHECKBOX, CustomFieldType::TOGGLE => 'boolean_value',
+                CustomFieldType::CHECKBOX_LIST, CustomFieldType::TOGGLE_BUTTONS, CustomFieldType::TAGS_INPUT, CustomFieldType::MULTI_SELECT => 'json_value',
+                CustomFieldType::CURRENCY => 'float_value',
+                CustomFieldType::DATE => 'date_value',
+                CustomFieldType::DATE_TIME => 'datetime_value',
+            };
+        }
+
+        // Handle custom field types (strings) - determine column based on category
+        if (is_string($type) && app()->bound(\Relaticle\CustomFields\Services\FieldTypeRegistryService::class)) {
+            $registry = app(\Relaticle\CustomFields\Services\FieldTypeRegistryService::class);
+            $fieldTypeConfig = $registry->getFieldType($type);
+
+            if ($fieldTypeConfig !== null) {
+                return match ($fieldTypeConfig['category']) {
+                    'text' => 'text_value',
+                    'numeric' => 'integer_value',
+                    'date' => 'date_value',
+                    'boolean' => 'boolean_value',
+                    'single_option' => 'integer_value',
+                    'multi_option' => 'json_value',
+                    default => 'text_value',
+                };
+            }
+        }
+
+        // Fallback for unknown types
+        return 'text_value';
     }
 
     /**

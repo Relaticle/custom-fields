@@ -18,6 +18,7 @@ use Relaticle\CustomFields\Database\Factories\CustomFieldFactory;
 use Relaticle\CustomFields\Enums\CustomFieldType;
 use Relaticle\CustomFields\Enums\CustomFieldWidth;
 use Relaticle\CustomFields\Models\Concerns\Activable;
+use Relaticle\CustomFields\Models\Concerns\HasFieldTypeHelpers;
 use Relaticle\CustomFields\Models\Scopes\CustomFieldsActivableScope;
 use Relaticle\CustomFields\Models\Scopes\SortOrderScope;
 use Relaticle\CustomFields\Models\Scopes\TenantScope;
@@ -42,9 +43,10 @@ use Spatie\LaravelData\DataCollection;
 class CustomField extends Model
 {
     use Activable;
-
     /** @use HasFactory<CustomFieldFactory> */
     use HasFactory;
+
+    use HasFieldTypeHelpers;
 
     /**
      * @var array<int, string>

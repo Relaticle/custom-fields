@@ -39,7 +39,10 @@ final class FieldFilterFactory
      */
     public function create(CustomField $customField): BaseFilter
     {
-        $customFieldType = $customField->type->value;
+        // Handle both enum and string types
+        $customFieldType = $customField->type instanceof \BackedEnum
+            ? $customField->type->value
+            : $customField->type;
 
         if (! isset($this->componentMap[$customFieldType])) {
             throw new InvalidArgumentException("No filter registered for custom field type: {$customFieldType}");

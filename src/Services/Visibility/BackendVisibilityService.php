@@ -9,6 +9,7 @@ use Illuminate\Support\Collection;
 use Relaticle\CustomFields\CustomFields;
 use Relaticle\CustomFields\Models\Contracts\HasCustomFields;
 use Relaticle\CustomFields\Models\CustomField;
+use Relaticle\CustomFields\Services\FieldTypeHelperService;
 
 /**
  * Backend Visibility Service
@@ -21,7 +22,10 @@ use Relaticle\CustomFields\Models\CustomField;
  */
 final readonly class BackendVisibilityService
 {
-    public function __construct(private CoreVisibilityLogicService $coreLogic) {}
+    public function __construct(
+        private CoreVisibilityLogicService $coreLogic,
+        private FieldTypeHelperService $fieldTypeHelper,
+    ) {}
 
     /**
      * Extract field values from a record for visibility evaluation.
@@ -110,7 +114,7 @@ final readonly class BackendVisibilityService
      */
     private function normalizeValueForEvaluation(mixed $value, ?CustomField $field): mixed
     {
-        if ($value === null || $value === '' || ! $field?->type->isOptionable()) {
+        if ($value === null || $value === '' || ! $this->fieldTypeHelper->isOptionable($field->type ?? '')) {
             return $value;
         }
 
@@ -190,7 +194,7 @@ final readonly class BackendVisibilityService
             ->with('options')
             ->first();
 
-        if (! $field || ! $field->type->isOptionable()) {
+        if (! $field || ! $this->fieldTypeHelper->isOptionable($field->type)) {
             return [];
         }
 

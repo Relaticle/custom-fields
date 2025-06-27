@@ -11,6 +11,7 @@ use Relaticle\CustomFields\Enums\Logic;
 use Relaticle\CustomFields\Enums\Mode;
 use Relaticle\CustomFields\Enums\Operator;
 use Relaticle\CustomFields\Models\CustomField;
+use Relaticle\CustomFields\Services\FieldTypeHelperService;
 
 /**
  * Core Visibility Logic Service - Single Source of Truth
@@ -24,6 +25,9 @@ use Relaticle\CustomFields\Models\CustomField;
  */
 final readonly class CoreVisibilityLogicService
 {
+    public function __construct(
+        private FieldTypeHelperService $fieldTypeHelper,
+    ) {}
     /**
      * Extract visibility data from a custom field.
      * This is the authoritative method for getting visibility configuration.
@@ -198,7 +202,7 @@ final readonly class CoreVisibilityLogicService
      */
     public function isOperatorCompatible(Operator $operator, CustomField $field): bool
     {
-        $compatibleOperators = $field->type->getCompatibleOperators();
+        $compatibleOperators = $field->getFieldTypeCompatibleOperators();
 
         return in_array($operator, $compatibleOperators, true);
     }
@@ -211,11 +215,11 @@ final readonly class CoreVisibilityLogicService
     {
         return [
             'code' => $field->code,
-            'type' => $field->type->value,
-            'category' => $field->type->getCategory()->value,
-            'is_optionable' => $field->type->isOptionable(),
-            'has_multiple_values' => $field->type->hasMultipleValues(),
-            'compatible_operators' => array_map(fn ($op) => $op->value, $field->type->getCompatibleOperators()),
+            'type' => $field->getFieldTypeValue(),
+            'category' => $field->getFieldTypeCategory(),
+            'is_optionable' => $field->isFieldTypeOptionable(),
+            'has_multiple_values' => $field->hasFieldTypeMultipleValues(),
+            'compatible_operators' => array_map(fn ($op) => $op->value, $field->getFieldTypeCompatibleOperators()),
             'has_visibility_conditions' => $this->hasVisibilityConditions($field),
             'visibility_mode' => $this->getVisibilityMode($field)->value,
             'visibility_logic' => $this->getVisibilityLogic($field)->value,
@@ -261,7 +265,7 @@ final readonly class CoreVisibilityLogicService
             return "Operator '{$operator->value}' is not compatible with field type '{$field->type->value}'";
         }
 
-        if ($this->conditionRequiresOptionableField($operator) && ! $field->type->isOptionable()) {
+        if ($this->conditionRequiresOptionableField($operator) && ! $this->fieldTypeHelper->isOptionable($field->type)) {
             return "Operator '{$operator->value}' can only be used with optionable fields (select, radio, etc.)";
         }
 

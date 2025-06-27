@@ -11,6 +11,7 @@ use Relaticle\CustomFields\Enums\Logic;
 use Relaticle\CustomFields\Enums\Mode;
 use Relaticle\CustomFields\Enums\Operator;
 use Relaticle\CustomFields\Models\CustomField;
+use Relaticle\CustomFields\Services\FieldTypeHelperService;
 
 /**
  * Frontend Visibility Service
@@ -24,7 +25,10 @@ use Relaticle\CustomFields\Models\CustomField;
  */
 final readonly class FrontendVisibilityService
 {
-    public function __construct(private CoreVisibilityLogicService $coreLogic) {}
+    public function __construct(
+        private CoreVisibilityLogicService $coreLogic,
+        private FieldTypeHelperService $fieldTypeHelper,
+    ) {}
 
     /**
      * Build visibility expression for a field using core logic.
@@ -156,7 +160,7 @@ final readonly class FrontendVisibilityService
     private function buildEqualsExpression(string $fieldValue, mixed $value, ?CustomField $targetField): string
     {
         return when(
-            $targetField?->type?->isOptionable(),
+            $this->fieldTypeHelper->isOptionable($targetField?->type ?? ''),
             fn () => $this->buildOptionExpression($fieldValue, $value, $targetField, 'equals'),
             fn () => $this->buildStandardEqualsExpression($fieldValue, $value)
         );
@@ -168,7 +172,7 @@ final readonly class FrontendVisibilityService
     private function buildNotEqualsExpression(string $fieldValue, mixed $value, ?CustomField $targetField): string
     {
         return when(
-            $targetField?->type?->isOptionable(),
+            $this->fieldTypeHelper->isOptionable($targetField?->type ?? ''),
             fn () => $this->buildOptionExpression($fieldValue, $value, $targetField, 'not_equals'),
             fn () => $this->buildStandardNotEqualsExpression($fieldValue, $value)
         );

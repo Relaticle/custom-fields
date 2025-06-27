@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Examples;
+namespace App\CustomFields\Types;
 
 use Filament\Tables\Columns\Column;
 use Filament\Tables\Columns\TextColumn;
@@ -18,9 +18,8 @@ class RatingTableColumn implements ColumnInterface
 {
     public function make(CustomField $customField): Column
     {
-        return TextColumn::make($customField->code)
+        return TextColumn::make("custom_fields.{$customField->code}")
             ->label($customField->name)
-            ->state(1)
             ->formatStateUsing(function (?string $state): string {
                 if ($state === null || $state === '') {
                     return '—';

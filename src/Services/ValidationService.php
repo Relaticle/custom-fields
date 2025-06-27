@@ -8,6 +8,7 @@ use Relaticle\CustomFields\Data\ValidationRuleData;
 use Relaticle\CustomFields\Enums\CustomFieldType;
 use Relaticle\CustomFields\Enums\CustomFieldValidationRule;
 use Relaticle\CustomFields\Models\CustomField;
+use Relaticle\CustomFields\Models\CustomFieldValue;
 use Relaticle\CustomFields\Support\DatabaseFieldConstraints;
 use Spatie\LaravelData\DataCollection;
 
@@ -32,7 +33,7 @@ final class ValidationService
         // Convert user rules to Laravel validator format
         $userRules = $this->convertUserRulesToValidatorFormat($customField->validation_rules);
 
-        // Get database constraint rules
+        // Get database constraint rules based on storage column
         $isEncrypted = $customField->settings?->encrypted ?? false;
         $databaseRules = $this->getDatabaseValidationRules($customField->type, $isEncrypted);
 
@@ -77,19 +78,23 @@ final class ValidationService
 
     /**
      * Get all database validation rules for a specific field type.
+     * Now uses database column-based validation for better extensibility.
      *
-     * @param  CustomFieldType  $fieldType  The field type
+     * @param  CustomFieldType|string  $fieldType  The field type (enum or string for custom types)
      * @param  bool  $isEncrypted  Whether the field is encrypted
      * @return array<int, string> Array of validation rules
      */
-    public function getDatabaseValidationRules(CustomFieldType $fieldType, bool $isEncrypted = false): array
+    public function getDatabaseValidationRules(CustomFieldType|string $fieldType, bool $isEncrypted = false): array
     {
-        // Get base database rules for this field type
-        $dbRules = DatabaseFieldConstraints::getValidationRulesForFieldType($fieldType, $isEncrypted);
+        // Determine the database column for this field type
+        $columnName = CustomFieldValue::getValueColumn($fieldType);
+
+        // Get base database rules for this column
+        $dbRules = DatabaseFieldConstraints::getValidationRulesForColumn($columnName, $isEncrypted);
 
         // For JSON fields, add array validation rules
-        if ($fieldType->hasMultipleValues()) {
-            $jsonRules = DatabaseFieldConstraints::getJsonValidationRules($fieldType, $isEncrypted);
+        if ($columnName === 'json_value') {
+            $jsonRules = DatabaseFieldConstraints::getJsonValidationRules($isEncrypted);
 
             return array_merge($dbRules, $jsonRules);
         }
@@ -103,13 +108,14 @@ final class ValidationService
      *
      * @param  array<int, string>  $userRules  User-defined validation rules
      * @param  array<int, string>  $databaseRules  Database constraint validation rules
-     * @param  CustomFieldType  $fieldType  The field type
+     * @param  CustomFieldType|string  $fieldType  The field type (enum or string for custom types)
      * @return array<int, string> Merged validation rules
      */
-    private function mergeValidationRules(array $userRules, array $databaseRules, CustomFieldType $fieldType): array
+    private function mergeValidationRules(array $userRules, array $databaseRules, CustomFieldType|string $fieldType): array
     {
-        // Get constraints for this field type
-        $dbConstraints = DatabaseFieldConstraints::getConstraintsForFieldType($fieldType);
+        // Get constraints for the database column used by this field type
+        $columnName = CustomFieldValue::getValueColumn($fieldType);
+        $dbConstraints = DatabaseFieldConstraints::getConstraintsForColumn($columnName);
 
         // If we have constraints, use the constraint-aware merge function
         if (! empty($dbConstraints)) {

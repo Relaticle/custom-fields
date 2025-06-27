@@ -48,11 +48,11 @@ final readonly class FieldConfigurator
         return value(function () use ($customField, $state, $record) {
             $value = $record?->getCustomFieldValue($customField)
                 ?? $state
-                ?? ($customField->type->hasMultipleValues() ? [] : null);
+                ?? ($customField->hasFieldTypeMultipleValues() ? [] : null);
 
             return $value instanceof Carbon
                 ? $value->format(
-                    $customField->type === CustomFieldType::DATE
+                    $customField->getFieldTypeValue() === CustomFieldType::DATE->value
                         ? FieldTypeUtils::getDateFormat()
                         : FieldTypeUtils::getDateTimeFormat()
                 )

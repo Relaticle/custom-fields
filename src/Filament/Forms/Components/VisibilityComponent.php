@@ -19,6 +19,7 @@ use Relaticle\CustomFields\Enums\FieldCategory;
 use Relaticle\CustomFields\Enums\Logic;
 use Relaticle\CustomFields\Enums\Mode;
 use Relaticle\CustomFields\Enums\Operator;
+use Relaticle\CustomFields\Services\FieldTypeHelperService;
 use Relaticle\CustomFields\Services\Visibility\BackendVisibilityService;
 
 /**
@@ -27,6 +28,12 @@ use Relaticle\CustomFields\Services\Visibility\BackendVisibilityService;
 class VisibilityComponent extends Component
 {
     protected string $view = 'filament-schemas::components.grid';
+
+    public function __construct(
+        private ?FieldTypeHelperService $fieldTypeHelper = null,
+    ) {
+        $this->fieldTypeHelper ??= app(FieldTypeHelperService::class);
+    }
 
     public function __construct()
     {
@@ -186,7 +193,7 @@ class VisibilityComponent extends Component
         try {
             $fieldType = $this->getFieldType($fieldCode, $get);
 
-            return $fieldType?->isOptionable() ?? false;
+            return $this->fieldTypeHelper->isOptionable($fieldType ?? '') ?? false;
         } catch (\Exception) {
             return false;
         }
@@ -304,7 +311,7 @@ class VisibilityComponent extends Component
                 return 'Enter comparison value';
             }
 
-            if ($fieldType->isOptionable()) {
+            if ($this->fieldTypeHelper->isOptionable($fieldType)) {
                 return $this->requiresMultipleValues($get)
                     ? 'Select one or more options'
                     : 'Select an option';

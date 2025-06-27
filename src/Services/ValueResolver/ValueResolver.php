@@ -17,17 +17,17 @@ readonly class ValueResolver implements ValueResolvers
 
     public function resolve(Model $record, CustomField $customField, bool $exportable = false): mixed
     {
-        if (! $customField->type->isOptionable()) {
+        if (! $customField->isFieldTypeOptionable()) {
             $value = $record->getCustomFieldValue($customField);
 
-            if ($exportable && $customField->type->isBoolean()) {
+            if ($exportable && $customField->isFieldTypeBoolean()) {
                 return $value ? 'Yes' : 'No';
             }
 
             return $value;
         }
 
-        if ($customField->type->hasMultipleValues()) {
+        if ($customField->hasFieldTypeMultipleValues()) {
             return $this->multiValueResolver->resolve($record, $customField);
         }
 

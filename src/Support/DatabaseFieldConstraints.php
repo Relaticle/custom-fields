@@ -383,6 +383,71 @@ final class DatabaseFieldConstraints
     }
 
     /**
+     * Get validation rules for a specific database column that enforce database constraints.
+     * These rules ensure that user input doesn't exceed database column limitations.
+     *
+     * @param  string  $columnName  The database column name
+     * @param  bool  $isEncrypted  Whether the field is encrypted
+     * @return array<int, string> Array of validation rules
+     */
+    public static function getValidationRulesForColumn(string $columnName, bool $isEncrypted = false): array
+    {
+        $driver = self::getDatabaseDriver();
+        $constraints = self::$constraints[$driver][$columnName] ?? null;
+
+        if (! $constraints) {
+            return [];
+        }
+
+        $rules = [];
+        $validator = $constraints['validator'] ?? null;
+
+        if (! $validator) {
+            return $rules;
+        }
+
+        // Handle validators that are arrays (multiple rules)
+        if (is_array($validator)) {
+            $rules = $validator;
+        } else {
+            // Handle single validator with its constraints
+            switch ($validator) {
+                case 'max':
+                    $maxValue = $constraints['max'] ?? 255;
+                    if ($isEncrypted) {
+                        // Encrypted values use more space, reduce max by defined safety margin
+                        $maxValue = (int) ($maxValue * self::ENCRYPTION_SAFETY_MARGIN);
+                    }
+                    $rules[] = "max:{$maxValue}";
+                    break;
+                case 'between':
+                    // Use string representation for min/max values to avoid floating point issues
+                    $minValue = $constraints['min'] ?? PHP_INT_MIN;
+                    $maxValue = $constraints['max'] ?? PHP_INT_MAX;
+
+                    // For integer_value fields, add numeric validation to ensure proper format
+                    if ($columnName === 'integer_value') {
+                        $rules[] = 'numeric';
+                        $rules[] = 'integer';
+                    }
+
+                    // Use separate min/max rules instead of a between rule to allow better merging
+                    $rules[] = "min:{$minValue}";
+                    $rules[] = "max:{$maxValue}";
+                    break;
+                default:
+                    // For other validators, just add them as is
+                    $rules[] = $validator;
+            }
+        }
+
+        // Add column-specific validations
+        $rules = array_merge($rules, self::getColumnSpecificRules($columnName));
+
+        return $rules;
+    }
+
+    /**
      * Get validation rules for a specific field type that enforce database constraints.
      * These rules ensure that user input doesn't exceed database column limitations.
      * It will return separate min/max rules instead of a between rule to allow for
@@ -391,6 +456,8 @@ final class DatabaseFieldConstraints
      * @param  CustomFieldType  $fieldType  The field type
      * @param  bool  $isEncrypted  Whether the field is encrypted
      * @return array<int, string> Array of validation rules
+     *
+     * @deprecated Use getValidationRulesForColumn() instead
      */
     public static function getValidationRulesForFieldType(CustomFieldType $fieldType, bool $isEncrypted = false): array
     {
@@ -458,10 +525,32 @@ final class DatabaseFieldConstraints
     }
 
     /**
+     * Get validation rules specific to database column data validation requirements.
+     *
+     * @param  string  $columnName  The database column name
+     * @return array<int, string> Array of validation rules
+     */
+    private static function getColumnSpecificRules(string $columnName): array
+    {
+        return match ($columnName) {
+            'integer_value' => ['numeric', 'integer'],
+            'float_value' => ['numeric'],
+            'date_value' => ['date'],
+            'datetime_value' => ['datetime'],
+            'text_value', 'string_value' => ['string'],
+            'boolean_value' => ['boolean'],
+            'json_value' => ['array'],
+            default => [],
+        };
+    }
+
+    /**
      * Get validation rules specific to field type data validation requirements.
      *
      * @param  CustomFieldType  $fieldType  The field type
      * @return array<int, string> Array of validation rules
+     *
+     * @deprecated Use getColumnSpecificRules() instead
      */
     private static function getTypeSpecificRules(CustomFieldType $fieldType): array
     {
@@ -493,14 +582,47 @@ final class DatabaseFieldConstraints
     }
 
     /**
+     * Get validation rules for JSON database column.
+     * These rules ensure JSON data fits within database constraints.
+     *
+     * @param  bool  $isEncrypted  Whether the field is encrypted
+     * @return array<int, string> Array of validation rules
+     */
+    public static function getJsonValidationRules(bool $isEncrypted = false): array
+    {
+        $driver = self::getDatabaseDriver();
+        $constraints = self::$constraints[$driver]['json_value'] ?? null;
+
+        if (! $constraints) {
+            Log::warning("No JSON constraints defined for database driver: {$driver}");
+
+            return ['array'];
+        }
+
+        $maxItems = $constraints['max_items'] ?? 500;
+        $maxItemLength = $constraints['max_item_length'] ?? 255;
+
+        if ($isEncrypted) {
+            $maxItemLength = (int) ($maxItemLength * self::ENCRYPTION_SAFETY_MARGIN);
+        }
+
+        return [
+            'array',
+            'max:'.$maxItems,
+        ];
+    }
+
+    /**
      * Get validation rules for array/json field types.
      * These rules ensure JSON data fits within database constraints.
      *
      * @param  CustomFieldType  $fieldType  The field type
      * @param  bool  $isEncrypted  Whether the field is encrypted
      * @return array<int, string> Array of validation rules
+     *
+     * @deprecated Use getJsonValidationRules() instead
      */
-    public static function getJsonValidationRules(CustomFieldType $fieldType, bool $isEncrypted = false): array
+    public static function getJsonValidationRulesForFieldType(CustomFieldType $fieldType, bool $isEncrypted = false): array
     {
         // Cache the rules to avoid repeated processing
         $cacheKey = self::CACHE_PREFIX.'_json_rules_'.$fieldType->value.'_'.($isEncrypted ? '1' : '0');
@@ -511,32 +633,7 @@ final class DatabaseFieldConstraints
                 return [];
             }
 
-            $driver = self::getDatabaseDriver();
-            $constraints = self::$constraints[$driver]['json_value'] ?? null;
-
-            if (! $constraints) {
-                Log::warning("No JSON constraints defined for database driver: {$driver}");
-
-                return ['array']; // Return basic array validation as fallback
-            }
-
-            $maxItems = $constraints['max_items'] ?? 500;
-            $maxItemLength = $constraints['max_item_length'] ?? 255;
-
-            if ($isEncrypted) {
-                // Reduce limits for encrypted values using the safety margin
-                $maxItemLength = (int) ($maxItemLength * self::ENCRYPTION_SAFETY_MARGIN);
-            }
-
-            $rules = [
-                'array',
-                'max:'.$maxItems, // Max number of items
-            ];
-
-            // Add custom rule for validating individual array items
-            // This could be extended with a more sophisticated approach if needed
-
-            return $rules;
+            return self::getJsonValidationRules($isEncrypted);
         });
     }
 
