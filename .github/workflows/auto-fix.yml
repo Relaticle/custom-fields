@@ -1,0 +1,174 @@
+name: Auto-fix Code Style
+
+on:
+  workflow_dispatch:
+  issue_comment:
+    types: [created]
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  auto-fix:
+    if: |
+      (github.event_name == 'workflow_dispatch') ||
+      (github.event_name == 'issue_comment' && 
+       github.event.issue.pull_request && 
+       contains(github.event.comment.body, '/fix') &&
+       (github.event.comment.author_association == 'OWNER' || 
+        github.event.comment.author_association == 'MEMBER' ||
+        github.event.comment.author_association == 'COLLABORATOR'))
+    
+    runs-on: ubuntu-latest
+    name: Auto-fix Code Issues
+
+    steps:
+      - name: Get PR branch
+        if: github.event_name == 'issue_comment'
+        id: pr-branch
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const pr = await github.rest.pulls.get({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: context.issue.number
+            });
+            return {
+              ref: pr.data.head.ref,
+              sha: pr.data.head.sha,
+              repo: pr.data.head.repo.full_name
+            };
+
+      - name: Checkout code (workflow_dispatch)
+        if: github.event_name == 'workflow_dispatch'
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Checkout PR branch (issue_comment)
+        if: github.event_name == 'issue_comment'
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          ref: ${{ fromJson(steps.pr-branch.outputs.result).ref }}
+          repository: ${{ fromJson(steps.pr-branch.outputs.result).repo }}
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: 8.3
+          extensions: dom, curl, libxml, mbstring, zip, pcntl, pdo, sqlite, pdo_sqlite, gd
+
+      - name: Cache Composer packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.composer/cache
+          key: ${{ runner.os }}-php-autofix-${{ hashFiles('**/composer.lock') }}
+
+      - name: Install Composer dependencies
+        run: composer install --prefer-dist --no-interaction --no-progress
+
+      - name: Run Laravel Pint (Auto-fix)
+        run: |
+          composer run format || true
+          echo "PINT_CHANGES=$(git status --porcelain | wc -l)" >> $GITHUB_ENV
+
+      - name: Run PHP Insights (Auto-fix)
+        run: |
+          composer run insights:fix || true
+          echo "INSIGHTS_CHANGES=$(git status --porcelain | wc -l)" >> $GITHUB_ENV
+
+      - name: Run Rector (Auto-fix)
+        run: |
+          composer run refactor:fix || true
+          echo "RECTOR_CHANGES=$(git status --porcelain | wc -l)" >> $GITHUB_ENV
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install npm dependencies
+        run: npm ci
+
+      - name: Fix npm audit issues
+        run: |
+          npm audit fix || true
+          echo "NPM_AUDIT_CHANGES=$(git status --porcelain | wc -l)" >> $GITHUB_ENV
+
+      - name: Check for changes
+        id: changes
+        run: |
+          if [ -n "$(git status --porcelain)" ]; then
+            echo "changes=true" >> $GITHUB_OUTPUT
+            echo "## Changes made by auto-fix:" >> changes.md
+            git status --porcelain >> changes.md
+            echo "" >> changes.md
+            echo "### Files modified:" >> changes.md
+            git diff --name-only >> changes.md
+          else
+            echo "changes=false" >> $GITHUB_OUTPUT
+            echo "No changes were made by auto-fix tools." >> changes.md
+          fi
+
+      - name: Commit changes
+        if: steps.changes.outputs.changes == 'true'
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add .
+          git commit -m "🔧 Auto-fix code style and quality issues
+
+          Applied the following fixes:
+          - Laravel Pint (code formatting)
+          - PHP Insights (code quality)  
+          - Rector (code modernization)
+          - npm audit fix (security updates)
+
+          [skip ci]"
+
+      - name: Push changes
+        if: steps.changes.outputs.changes == 'true'
+        run: |
+          git push
+
+      - name: Comment on PR (issue_comment)
+        if: github.event_name == 'issue_comment' && steps.changes.outputs.changes == 'true'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const changes = fs.readFileSync('changes.md', 'utf8');
+            
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: `🔧 **Auto-fix completed!**\n\n${changes}\n\nChanges have been pushed to this PR.`
+            });
+
+      - name: Comment on PR (no changes)
+        if: github.event_name == 'issue_comment' && steps.changes.outputs.changes == 'false'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: '✅ **Auto-fix completed!**\n\nNo changes were needed - the code is already properly formatted and follows all quality standards.'
+            });
+
+      - name: Create summary
+        run: |
+          echo "## Auto-fix Summary" >> $GITHUB_STEP_SUMMARY
+          cat changes.md >> $GITHUB_STEP_SUMMARY
+          
+          if [ "${{ steps.changes.outputs.changes }}" == "true" ]; then
+            echo "✅ Changes committed and pushed successfully" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "ℹ️ No changes were necessary" >> $GITHUB_STEP_SUMMARY
+          fi

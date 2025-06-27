@@ -1,0 +1,230 @@
+name: CI
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  code-quality:
+    runs-on: ubuntu-latest
+    name: Code Quality (PHP ${{ matrix.php }})
+
+    strategy:
+      fail-fast: false
+      matrix:
+        php: [8.3, 8.4]
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php }}
+          extensions: dom, curl, libxml, mbstring, zip, pcntl, pdo, sqlite, pdo_sqlite, gd, redis, igbinary, msgpack, lzf, zstd, lz4, memcached
+          coverage: xdebug
+
+      - name: Cache Composer packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.composer/cache
+          key: ${{ runner.os }}-php-${{ matrix.php }}-${{ hashFiles('**/composer.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-php-${{ matrix.php }}-
+
+      - name: Install Composer dependencies
+        run: composer install --prefer-dist --no-interaction --no-progress --optimize-autoloader
+
+      - name: Check PHP syntax
+        run: find src tests -name "*.php" -print0 | xargs -0 -n1 php -l
+
+      - name: Run Laravel Pint (Code Style)
+        run: composer run format-check
+
+      - name: Run PHPStan (Static Analysis)
+        run: composer run analyse
+
+      - name: Run PHP Insights (Code Quality)
+        run: composer run insights
+
+      - name: Run Rector (Code Modernization Check)
+        run: composer run refactor
+
+  tests:
+    runs-on: ${{ matrix.os }}
+    name: Tests (PHP ${{ matrix.php }} - ${{ matrix.os }})
+
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        php: [8.3, 8.4]
+        stability: [prefer-lowest, prefer-stable]
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php }}
+          extensions: dom, curl, libxml, mbstring, zip, pcntl, pdo, sqlite, pdo_sqlite, gd, redis, igbinary, msgpack, lzf, zstd, lz4, memcached
+          coverage: xdebug
+
+      - name: Cache Composer packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.composer/cache
+          key: ${{ runner.os }}-php-${{ matrix.php }}-${{ matrix.stability }}-${{ hashFiles('**/composer.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-php-${{ matrix.php }}-${{ matrix.stability }}-
+
+      - name: Install Composer dependencies
+        run: composer update --${{ matrix.stability }} --prefer-dist --no-interaction --no-progress
+
+      - name: Create SQLite database
+        run: |
+          mkdir -p database
+          touch database/database.sqlite
+
+      - name: Run Pest Tests
+        run: composer run test
+
+      - name: Run Tests with Coverage (Ubuntu + PHP 8.3 + prefer-stable only)
+        if: matrix.os == 'ubuntu-latest' && matrix.php == '8.3' && matrix.stability == 'prefer-stable'
+        run: composer run test-coverage -- --coverage-clover=coverage.xml
+
+      - name: Upload coverage reports to Codecov
+        if: matrix.os == 'ubuntu-latest' && matrix.php == '8.3' && matrix.stability == 'prefer-stable'
+        uses: codecov/codecov-action@v4
+        with:
+          file: ./coverage.xml
+          flags: unittests
+          name: codecov-umbrella
+          fail_ci_if_error: false
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+
+  frontend:
+    runs-on: ubuntu-latest
+    name: Frontend Build & Quality
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install Node.js dependencies
+        run: npm ci
+
+      - name: Build frontend assets
+        run: npm run build
+
+      - name: Check for uncommitted build files
+        run: |
+          if [ -n "$(git status --porcelain resources/dist/)" ]; then
+            echo "::error::Build files are not up to date. Please run 'npm run build' and commit the changes."
+            git status --porcelain resources/dist/
+            exit 1
+          fi
+
+  security:
+    runs-on: ubuntu-latest
+    name: Security Audit
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: 8.3
+          extensions: dom, curl, libxml, mbstring, zip
+
+      - name: Cache Composer packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.composer/cache
+          key: ${{ runner.os }}-php-security-${{ hashFiles('**/composer.lock') }}
+
+      - name: Install Composer dependencies
+        run: composer install --prefer-dist --no-interaction --no-progress
+
+      - name: Run security audit
+        run: composer audit
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install Node.js dependencies
+        run: npm ci
+
+      - name: Run npm audit
+        run: npm audit --audit-level moderate
+
+  dependency-review:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Dependency Review
+        uses: actions/dependency-review-action@v4
+        with:
+          config-file: './.github/dependency-review-config.yml'
+
+  validate-composer:
+    runs-on: ubuntu-latest
+    name: Validate Composer
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: 8.3
+
+      - name: Validate composer.json and composer.lock
+        run: composer validate --strict --no-check-all
+
+      - name: Check for unused dependencies
+        run: composer show --direct | grep -v "laravel" | grep -v "filament" | grep -v "spatie" | head -20
+
+  summary:
+    if: always()
+    runs-on: ubuntu-latest
+    name: CI Summary
+    needs: [code-quality, tests, frontend, security, dependency-review, validate-composer]
+
+    steps:
+      - name: Summary
+        run: |
+          echo "## CI Results Summary" >> $GITHUB_STEP_SUMMARY
+          echo "| Job | Status |" >> $GITHUB_STEP_SUMMARY
+          echo "|-----|--------|" >> $GITHUB_STEP_SUMMARY
+          echo "| Code Quality | ${{ needs.code-quality.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Tests | ${{ needs.tests.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Frontend | ${{ needs.frontend.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Security | ${{ needs.security.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Dependency Review | ${{ needs.dependency-review.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Validate Composer | ${{ needs.validate-composer.result }} |" >> $GITHUB_STEP_SUMMARY
