@@ -46,9 +46,7 @@
             "id": 4,
             "title": "Document and Categorize Audit Findings",
             "description": "Compile a structured report detailing all identified issues, categorizing them by severity and type (duplication, type safety, performance, PSR-12, FlexFields patterns).",
-            "dependencies": [
-              3
-            ],
+            "dependencies": [],
             "details": "Organize findings into a clear, actionable format. Include code snippets, file references, and recommended remediation steps for each issue.\n<info added on 2025-06-27T18:27:57.014Z>\nThe audit report has been organized into a comprehensive, actionable format with the following structure:\n\nPrimary deliverable created in `audit-results/comprehensive-audit-findings.md` (14KB) containing:\n- Executive Summary with metrics dashboard and strategic priorities\n- Detailed Analysis of all 623 PHPStan errors categorized by impact and frequency\n- Strategic Roadmap with 4-phase implementation plan\n- Risk Assessment for all refactoring approaches\n- Tool Documentation for the established analysis toolchain\n\nKey findings documented include an Error Pattern Hierarchy:\n1. Dynamic Static Method Calls (100) - Critical for type safety\n2. Missing Iterable Types (79) - Laravel Collections focus\n3. Argument Type Issues (58) - API contract clarity\n4. Missing Generic Types (54) - IDE and tooling support\n5. Boolean Logic Issues (53) - Strict comparison needs\n\nStrategic insights include:\n- Low Risk Baseline Approach established with PHPStan Level 6\n- 92 files ready for automated Rector improvements\n- Clear Quality Targets (90% code, 85% architecture, 95% style)\n- Prioritized File Groups (Integration > Services > Models > Filament)\n\nSupporting artifacts include:\n- `phpstan-baseline.neon` (623 errors isolated)\n- `audit-results/phpstan-patterns.txt` (error categorization)\n- `audit-results/phpinsights-scan.json` (quality metrics)\n- `audit-results/rector-scan-fixed.txt` (automation opportunities)\n\nNext steps and success metrics have been established to guide the refactoring project.\n</info added on 2025-06-27T18:27:57.014Z>",
             "status": "done",
             "testStrategy": "Review the report for completeness and clarity. Ensure each issue is properly categorized and actionable."
@@ -113,9 +111,7 @@
             "id": 4,
             "title": "Enforce Union Types and Type-Safe Transformations",
             "description": "Replace 'mixed' return types with specific union types, implement type-safe parameter handling, and utilize match expressions for safe value transformations.",
-            "dependencies": [
-              3
-            ],
+            "dependencies": [],
             "details": "Refactor method signatures and internal logic to use union types and match expressions, ensuring all field value handling is type-safe and explicit.",
             "status": "done",
             "testStrategy": "Develop integration tests for forms, tables, and infolists to validate type safety at the integration layer and confirm correct behavior for all supported type combinations."
@@ -134,19 +130,6 @@
         ]
       },
       {
-        "id": 3,
-        "title": "Establish Performance Baseline Metrics",
-        "description": "Set up a performance testing framework and establish baseline metrics for current system performance.",
-        "details": "Implement Blackfire.io for in-depth performance profiling. Create a suite of benchmark tests using PHPBench (^1.2) to measure key operations like field rendering and validation. Set up continuous performance testing in CI/CD pipeline using GitHub Actions or GitLab CI. Use Laravel Telescope for query and cache performance monitoring in development.",
-        "testStrategy": "Develop a set of representative use cases and create automated performance tests. Establish clear performance SLAs based on current metrics.",
-        "priority": "medium",
-        "dependencies": [
-          1
-        ],
-        "status": "pending",
-        "subtasks": []
-      },
-      {
         "id": 4,
         "title": "Develop Refactoring Strategy Document",
         "description": "Create a detailed plan for implementing the type system, code consolidation, and optimization phases.",
@@ -155,10 +138,9 @@
         "priority": "high",
         "dependencies": [
           1,
-          2,
-          3
+          2
         ],
-        "status": "pending",
+        "status": "in-progress",
         "subtasks": []
       },
       {
@@ -405,7 +387,7 @@
         "description": "Execute all 92 automated refactoring opportunities identified in the audit to improve type safety, code quality, and PHP 8.3+ feature usage.",
         "details": "1. Set up Rector in the project environment:\n   - Install Rector via Composer: `composer require --dev rector/rector`\n   - Create a rector.php configuration file in the project root\n   - Configure PHP 8.3 target version and relevant rule sets\n\n2. Categorize and prioritize the 92 identified refactoring opportunities:\n   - Type safety improvements (return type hints, property type declarations)\n   - Strict comparison replacements (=== instead of ==)\n   - Class import optimization (use statements)\n   - Constructor property promotion\n   - Other PHP 8.3+ feature adoptions\n\n3. Create a backup branch before applying changes:\n   - `git checkout -b pre-rector-backup`\n   - Push to remote for safekeeping\n\n4. Run Rector in dry-run mode first to verify changes:\n   - `vendor/bin/rector process --dry-run`\n   - Review the proposed changes for any potential issues\n\n5. Apply changes incrementally by category:\n   - Run Rector for each category separately\n   - After each category, run the test suite to ensure no regressions\n   - Commit changes with descriptive messages after each successful category\n\n6. Focus on specific improvements:\n   - Add return type declarations to all methods\n   - Add property type declarations to class properties\n   - Replace loose comparisons with strict comparisons\n   - Optimize use statements and class imports\n   - Implement constructor property promotion where applicable\n\n7. Document all applied changes:\n   - Create a detailed changelog of modifications\n   - Note any patterns or issues discovered during the process\n   - Document any manual interventions required\n\n8. Create a summary report of improvements:\n   - Count of type declarations added\n   - Count of comparisons made strict\n   - Count of optimized imports\n   - Count of constructor promotions applied\n   - Overall code quality metrics before and after\n<info added on 2025-06-27T18:36:31.922Z>\n## Rector Implementation Results\n\n### Quantified Improvements\n- 88 files successfully improved with automated refactoring\n- PHPStan baseline reduced from 623 to 559 errors (64 errors eliminated, 10.3% improvement)\n- Code quality score increased from 77.7% to 79.8% (+2.1 points)\n- Complexity score maintained at 88.9% (excellent low complexity)\n\n### Key Modernizations Applied\n- **PHP 8.3+ Features**: Successfully implemented match expressions, arrow functions, and constructor property promotion\n- **Type Safety**: Added return type hints, parameter type declarations, and converted to strict comparisons\n- **Code Quality**: Eliminated useless casts, improved boolean logic, and enhanced error handling\n- **Performance**: Implemented static arrow functions, optimized string operations, and simplified conditionals\n\n### Specific Improvements\n1. Converted switch statements to modern match syntax\n2. Simplified closures to arrow functions where appropriate\n3. Replaced `empty()` with explicit checks (`=== []`, `=== null`)\n4. Added `Override` attributes, return types, and parameter types\n5. Added explicit string casting for type-safe operations\n6. Implemented PHP 8.0+ constructor property promotion\n7. Replaced string class names with proper class constants\n\n### Quality Validation Results\n- PHPStan Level 6: Clean (no new errors)\n- PHP Insights: Improved across all metrics\n- Code maintainability significantly enhanced\n- Codebase now ready for advanced type system design (Task 2)\n\nThese automated improvements have established a solid foundation for implementing the advanced type system architecture, eliminated technical debt, and successfully modernized the codebase to PHP 8.3+ standards.\n</info added on 2025-06-27T18:36:31.922Z>",
         "testStrategy": "1. Automated Testing:\n   - Run the full test suite after each category of changes\n   - Ensure all tests pass with the same results as before\n   - Use PHPUnit with coverage reports to verify test coverage remains consistent\n\n2. Static Analysis Verification:\n   - Run PHPStan before and after changes to compare error counts\n   - Verify that the number of type-related warnings has decreased\n   - Run PHP CodeSniffer to ensure code style remains consistent\n\n3. Performance Testing:\n   - Benchmark key operations before and after changes\n   - Verify that performance remains the same or improves\n   - Use Blackfire.io to profile critical paths\n\n4. Manual Code Review:\n   - Conduct peer reviews of the most significant changes\n   - Verify that the semantic meaning of the code remains unchanged\n   - Check for any edge cases that automated tests might miss\n\n5. Integration Testing:\n   - Deploy to a staging environment\n   - Verify all major features work as expected\n   - Test with real-world data and scenarios\n\n6. Documentation Testing:\n   - Verify that PHPDoc comments are still aligned with the code\n   - Ensure that any generated API documentation reflects the new type information\n   - Check that example code in documentation still works",
-        "status": "in-progress",
+        "status": "done",
         "dependencies": [
           1
         ],
@@ -415,7 +397,7 @@
     ],
     "metadata": {
       "created": "2025-06-27T18:06:08.829Z",
-      "updated": "2025-06-27T22:50:35.581Z",
+      "updated": "2025-06-27T22:57:18.689Z",
       "description": "Tasks for master context"
     }
   }
