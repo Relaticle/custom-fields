@@ -35,7 +35,8 @@ class DateTimeColumn extends Component implements ColumnInterface
                         $customField->values()
                             ->select($customField->getValueColumn())
                             ->whereColumn('custom_field_values.entity_id', "$table.$key")
-                            ->limit(1),
+                            ->limit(1)
+                            ->getQuery(),
                         $direction
                     );
                 }

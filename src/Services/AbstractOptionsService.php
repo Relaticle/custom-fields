@@ -32,7 +32,7 @@ abstract class AbstractOptionsService
     }
 
     /**
-     * @return Collection<int, string>
+     * @return Collection<int, class-string>
      */
     protected static function getFilteredResources(): Collection
     {

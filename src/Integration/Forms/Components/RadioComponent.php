@@ -42,14 +42,14 @@ final readonly class RadioComponent implements FieldComponentInterface
             // Add color styling if enabled
             if (Utils::isSelectOptionColorsFeatureEnabled() && $customField->settings->enable_option_colors) {
                 $optionsWithColor = $customField->options
-                    ->filter(fn ($option) => $option->settings->color)
+                    ->filter(fn ($option) => $option->settings->color ?? false)
                     ->mapWithKeys(fn ($option) => [$option->id => $option->name])
                     ->all();
 
                 if (count($optionsWithColor) > 0) {
                     $field->descriptions(
                         array_map(
-                            fn ($optionId): string => $this->getColoredOptionDescription($optionId, $customField),
+                            fn ($optionId): string => $this->getColoredOptionDescription((string) $optionId, $customField),
                             array_keys($optionsWithColor)
                         )
                     );

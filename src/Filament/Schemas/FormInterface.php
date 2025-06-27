@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Relaticle\CustomFields\Filament\Schemas;
 
-use Filament\Forms\Components\Component;
+use Filament\Schemas\Components\Component;
 
 interface FormInterface
 {
