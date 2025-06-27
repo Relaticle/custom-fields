@@ -101,12 +101,12 @@ describe('Record Creation', function () {
 
         // Act - Create second record
         $livewireTest->fillForm([
-                'author_id' => $newData2->author->getKey(),
-                'content' => $newData2->content,
-                'tags' => $newData2->tags,
-                'title' => $newData2->title,
-                'rating' => $newData2->rating,
-            ])
+            'author_id' => $newData2->author->getKey(),
+            'content' => $newData2->content,
+            'tags' => $newData2->tags,
+            'title' => $newData2->title,
+            'rating' => $newData2->rating,
+        ])
             ->call('create');
 
         // Assert second creation
@@ -186,7 +186,7 @@ describe('Custom Fields Integration', function () {
                 'sort_order' => 2,
                 'entity_type' => Post::class,
                 'validation_rules' => [],
-            ]
+            ],
         ]);
 
         $newData = Post::factory()->make();

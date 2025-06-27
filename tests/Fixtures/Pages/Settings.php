@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Relaticle\CustomFields\Tests\Fixtures\Pages;
 
-use Filament\Pages\Page;
 use Filament\Forms\Components\TextInput;
+use Filament\Pages\Page;
 use Filament\Schemas\Schema;
 
 class Settings extends Page

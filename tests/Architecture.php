@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-use Illuminate\Database\Eloquent\Model;
-use Filament\Resources\Resource;
 use Filament\Resources\Pages\Page;
+use Filament\Resources\Resource;
+use Illuminate\Database\Eloquent\Model;
 use Relaticle\CustomFields\Models\Contracts\HasCustomFields;
 
 arch('Models extend Eloquent Model')
@@ -57,7 +57,7 @@ arch('Main commands follow naming convention')
     ->expect([
         'Relaticle\CustomFields\Commands\FilamentCustomFieldCommand',
         'Relaticle\CustomFields\Commands\OptimizeDatabaseCommand',
-        'Relaticle\CustomFields\Commands\UpgradeCommand'
+        'Relaticle\CustomFields\Commands\UpgradeCommand',
     ])
     ->toHaveSuffix('Command');
 

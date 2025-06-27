@@ -23,7 +23,7 @@ trait UsesCustomFields
 {
     public function __construct($attributes = [])
     {
-        if(count($this->getFillable()) !== 0) {
+        if (count($this->getFillable()) !== 0) {
             $this->mergeFillable(['custom_fields']);
         }
 
@@ -152,7 +152,7 @@ trait UsesCustomFields
     }
 
     /**
-     * @param array<string, mixed> $customFields
+     * @param  array<string, mixed>  $customFields
      */
     public function saveCustomFields(array $customFields, ?Model $tenant = null): void
     {

@@ -8,7 +8,7 @@ use Filament\Actions\Exports\ExportColumn;
 use Illuminate\Support\Collection;
 use Relaticle\CustomFields\Contracts\ValueResolvers;
 use Relaticle\CustomFields\Models\CustomField;
-use Relaticle\CustomFields\Services\CustomFieldVisibilityService;
+use Relaticle\CustomFields\Services\Visibility\BackendVisibilityService;
 
 readonly class CustomFieldsExporter
 {
@@ -16,7 +16,7 @@ readonly class CustomFieldsExporter
     {
         $model = app($modelInstance);
         $valueResolver = app(ValueResolvers::class);
-        $visibilityService = app(CustomFieldVisibilityService::class);
+        $visibilityService = app(BackendVisibilityService::class);
 
         $allFields = $model->customFields()
             ->with('options')
@@ -28,7 +28,7 @@ readonly class CustomFieldsExporter
             ->toArray();
     }
 
-    public static function create(CustomField $customField, $valueResolver, CustomFieldVisibilityService $visibilityService, Collection $allFields): ExportColumn
+    public static function create(CustomField $customField, $valueResolver, BackendVisibilityService $visibilityService, Collection $allFields): ExportColumn
     {
         return ExportColumn::make($customField->name)
             ->label($customField->name)

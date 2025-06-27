@@ -3,6 +3,8 @@
 declare(strict_types=1);
 
 use Filament\Actions\DeleteAction;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 use Relaticle\CustomFields\Data\ValidationRuleData;
 use Relaticle\CustomFields\Enums\CustomFieldType;
 use Relaticle\CustomFields\Models\CustomField;
@@ -11,11 +13,9 @@ use Relaticle\CustomFields\Tests\Fixtures\Models\Post;
 use Relaticle\CustomFields\Tests\Fixtures\Models\User;
 use Relaticle\CustomFields\Tests\Fixtures\Resources\Posts\Pages\EditPost;
 use Relaticle\CustomFields\Tests\Fixtures\Resources\Posts\PostResource;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Str;
 
-use function Pest\Livewire\livewire;
 use function Pest\Laravel\assertSoftDeleted;
+use function Pest\Livewire\livewire;
 
 beforeEach(function () {
     $this->user = User::factory()->create();
@@ -207,7 +207,7 @@ describe('Custom Fields Integration', function () {
                 'code' => 'view_count',
                 'type' => CustomFieldType::NUMBER,
                 'entity_type' => Post::class,
-            ]
+            ],
         ]);
 
         $this->post->saveCustomFieldValue($customFields->first(), 'Original SEO Title');
@@ -380,7 +380,7 @@ describe('Custom Fields Integration', function () {
                 'code' => 'date_field',
                 'type' => CustomFieldType::DATE,
                 'entity_type' => Post::class,
-            ]
+            ],
         ]);
 
         // Act

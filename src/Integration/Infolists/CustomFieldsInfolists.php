@@ -9,7 +9,7 @@ use Filament\Schemas\Components\Component;
 use Relaticle\CustomFields\CustomFields;
 use Relaticle\CustomFields\Models\CustomField;
 use Relaticle\CustomFields\Models\CustomFieldSection;
-use Relaticle\CustomFields\Services\CustomFieldVisibilityService;
+use Relaticle\CustomFields\Services\Visibility\BackendVisibilityService;
 
 final class CustomFieldsInfolists extends Component
 {
@@ -18,7 +18,7 @@ final class CustomFieldsInfolists extends Component
     public function __construct(
         private readonly SectionInfolistsFactory $sectionInfolistsFactory,
         private readonly FieldInfolistsFactory $fieldInfolistsFactory,
-        private readonly CustomFieldVisibilityService $visibilityService
+        private readonly BackendVisibilityService $visibilityService
     ) {
         // Defer schema generation until we can safely access the record
         $this->schema(fn () => $this->generateSchema());

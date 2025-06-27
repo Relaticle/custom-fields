@@ -4,9 +4,9 @@ namespace Relaticle\CustomFields\Tests\Fixtures\Resources\Posts\Pages;
 
 use Filament\Actions;
 use Filament\Resources\Pages\EditRecord;
+use Illuminate\Support\Facades\DB;
 use Relaticle\CustomFields\Tests\Fixtures\Models\Post;
 use Relaticle\CustomFields\Tests\Fixtures\Resources\Posts\PostResource;
-use Illuminate\Support\Facades\DB;
 use RuntimeException;
 
 class EditPost extends EditRecord

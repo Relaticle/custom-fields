@@ -212,7 +212,7 @@ describe('Custom Fields Integration in Tables', function () {
                 'code' => 'text_field',
                 'type' => CustomFieldType::TEXT,
                 'entity_type' => Post::class,
-                'settings' => new  CustomFieldSettingsData(
+                'settings' => new CustomFieldSettingsData(
                     visible_in_list: true,
                     list_toggleable_hidden: false
                 ),
@@ -226,7 +226,7 @@ describe('Custom Fields Integration in Tables', function () {
                     visible_in_list: true,
                     list_toggleable_hidden: false
                 ),
-            ]
+            ],
         ]);
 
         $post = Post::factory()->create();
@@ -285,4 +285,3 @@ describe('Custom Fields Integration in Tables', function () {
             ->assertCanSeeTableRecords($posts);
     });
 });
-

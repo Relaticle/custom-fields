@@ -145,7 +145,7 @@ test('backend and frontend services use identical core logic', function () {
 
     // Test scenario 1: status = "active" - use core logic directly to bypass model issues
     $fieldValues = ['status' => 'active'];
-    
+
     // Test core logic directly
     expect($this->coreLogic->evaluateVisibility($this->conditionalField, $fieldValues))->toBeTrue() // show_when active
         ->and($this->coreLogic->evaluateVisibility($this->hideWhenField, $fieldValues))->toBeTrue() // hide_when disabled (so visible)
@@ -154,7 +154,7 @@ test('backend and frontend services use identical core logic', function () {
 
     // Test scenario 2: status = "disabled"
     $fieldValues = ['status' => 'disabled'];
-    
+
     expect($this->coreLogic->evaluateVisibility($this->conditionalField, $fieldValues))->toBeFalse() // show_when active (not met)
         ->and($this->coreLogic->evaluateVisibility($this->hideWhenField, $fieldValues))->toBeFalse() // hide_when disabled (hidden)
         ->and($this->coreLogic->evaluateVisibility($this->multiConditionField, $fieldValues))->toBeFalse() // any logic: neither active nor pending
@@ -162,7 +162,7 @@ test('backend and frontend services use identical core logic', function () {
 
     // Test scenario 3: status = "pending"
     $fieldValues = ['status' => 'pending'];
-    
+
     expect($this->coreLogic->evaluateVisibility($this->conditionalField, $fieldValues))->toBeFalse() // show_when active (not met)
         ->and($this->coreLogic->evaluateVisibility($this->hideWhenField, $fieldValues))->toBeTrue() // hide_when disabled (not disabled, so visible)
         ->and($this->coreLogic->evaluateVisibility($this->multiConditionField, $fieldValues))->toBeTrue() // any logic: pending
@@ -228,7 +228,7 @@ test('complex conditions work identically in backend and frontend', function () 
         'status' => 'active',
         'details' => 'Some details',
     ];
-    
+
     // All fields should be visible
     expect($this->coreLogic->evaluateVisibility($this->triggerField, $fieldValues))->toBeTrue() // always visible
         ->and($this->coreLogic->evaluateVisibility($this->conditionalField, $fieldValues))->toBeTrue() // show_when status=active
@@ -245,7 +245,7 @@ test('complex conditions work identically in backend and frontend', function () 
         'status' => 'active',
         'details' => '',
     ];
-    
+
     // Dependent should be hidden when details is empty
     expect($this->coreLogic->evaluateVisibility($dependentField, $fieldValues))->toBeFalse();
 });
@@ -306,11 +306,11 @@ test('empty and null value handling is consistent', function () {
 
     // Test with no field values set (null/empty values)
     $fieldValues = ['status' => null];
-    
+
     // Only always visible field should show (conditional should be hidden)
     expect($this->coreLogic->evaluateVisibility($this->conditionalField, $fieldValues))->toBeFalse() // show_when status=active (null != active)
         ->and($this->coreLogic->evaluateVisibility($this->alwaysVisibleField, $fieldValues))->toBeTrue(); // always visible
-    
+
     // Test with empty string values
     $fieldValues = ['status' => ''];
     expect($this->coreLogic->evaluateVisibility($this->conditionalField, $fieldValues))->toBeFalse(); // show_when status=active ('' != active)

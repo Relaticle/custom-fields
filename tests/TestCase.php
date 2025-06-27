@@ -43,13 +43,12 @@ class TestCase extends BaseTestCase
             }
         );
 
-
         $this->actingAs(User::factory()->create());
     }
 
     protected function getPackageProviders($app): array
     {
-        $providers =  [
+        $providers = [
             ActionsServiceProvider::class,
             BladeCaptureDirectiveServiceProvider::class,
             BladeHeroiconsServiceProvider::class,
@@ -84,7 +83,7 @@ class TestCase extends BaseTestCase
         $app['config']->set('auth.providers.users.model', User::class);
         $app['config']->set('view.paths', [
             ...$app['config']->get('view.paths'),
-            __DIR__ . '/../resources/views',
+            __DIR__.'/../resources/views',
         ]);
 
         // Database configuration

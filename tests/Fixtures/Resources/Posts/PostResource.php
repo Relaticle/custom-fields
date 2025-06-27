@@ -11,14 +11,14 @@ use Filament\Actions\ViewAction;
 use Filament\Forms;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
-use Relaticle\CustomFields\Integration\Forms\CustomFieldsForm;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables;
 use Filament\Tables\Table;
-use Relaticle\CustomFields\Tests\Fixtures\Models\Post;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
+use Relaticle\CustomFields\Integration\Forms\CustomFieldsForm;
+use Relaticle\CustomFields\Tests\Fixtures\Models\Post;
 use RuntimeException;
 use UnitEnum;
 
@@ -26,9 +26,9 @@ class PostResource extends Resource
 {
     protected static ?string $model = Post::class;
 
-    protected static string | UnitEnum | null $navigationGroup = 'Blog';
+    protected static string|UnitEnum|null $navigationGroup = 'Blog';
 
-    protected static string | BackedEnum | null $navigationIcon = Heroicon::OutlinedDocumentText;
+    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedDocumentText;
 
     protected static ?string $recordTitleAttribute = 'title';
 

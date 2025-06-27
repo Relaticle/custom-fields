@@ -1,10 +1,9 @@
 <?php
 
 use Filament\Facades\Filament;
+use Illuminate\Database\Eloquent\Builder;
 use Relaticle\CustomFields\Tests\Fixtures\Models\Post;
 use Relaticle\CustomFields\Tests\Fixtures\Resources\Posts\PostResource;
-use Illuminate\Database\Eloquent\Builder;
-
 
 it('can retrieve Eloquent query for model', function (): void {
     expect(PostResource::getEloquentQuery())
@@ -35,7 +34,6 @@ it('can generate a plural label based on the model name and locale', function ()
 
     app()->setLocale($originalLocale);
 });
-
 
 it('can retrieve a record\'s title', function (): void {
     $post = Post::factory()->create();
