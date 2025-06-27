@@ -34,7 +34,7 @@ final class ValidationService
         $userRules = $this->convertUserRulesToValidatorFormat($customField->validation_rules);
 
         // Get database constraint rules based on storage column
-        $isEncrypted = $customField->settings?->encrypted ?? false;
+        $isEncrypted = $customField->settings?->encrypted ?: false;
         $databaseRules = $this->getDatabaseValidationRules($customField->type, $isEncrypted);
 
         // Determine which rules take precedence

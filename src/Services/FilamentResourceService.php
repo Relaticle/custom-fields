@@ -50,6 +50,7 @@ final class FilamentResourceService
     /**
      * @throws Throwable
      * @throws ReflectionException
+     * @return Builder<Model>
      */
     public static function getModelInstanceQuery(string $model): Builder
     {
@@ -108,7 +109,7 @@ final class FilamentResourceService
      *
      * @param  resource  $resource  The resource instance or class name
      * @param  string  $methodName  The name of the method to call
-     * @param  array  $args  The arguments to pass to the method
+     * @param  array<string, mixed>  $args  The arguments to pass to the method
      * @return mixed The return value from the method
      *
      * @throws ReflectionException

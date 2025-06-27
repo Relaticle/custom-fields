@@ -16,6 +16,7 @@ final readonly class LookupMultiValueResolver implements ValueResolvers
 
     /**
      * @throws Throwable
+     * @return array<int, mixed>
      */
     public function resolve(HasCustomFields $record, CustomField $customField, bool $exportable = false): array
     {

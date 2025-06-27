@@ -114,7 +114,7 @@ final class FieldTypeRegistryService
     /**
      * Get a specific field type configuration.
      *
-     * @return array{label: string, icon: string, category: string, validation_rules: array, form_component: string, table_column: string, infolist_entry: string, searchable: bool, filterable: bool, encryptable: bool, priority: int}|null
+     * @return array{label: string, icon: string, category: string, validation_rules: array<int, string>, form_component: string, table_column: string, infolist_entry: string, searchable: bool, filterable: bool, encryptable: bool, priority: int}|null
      */
     public function getFieldType(string $key): ?array
     {
@@ -156,6 +156,8 @@ final class FieldTypeRegistryService
 
     /**
      * Get searchable field types.
+     *
+     * @return Collection<int, string>
      */
     public function getSearchableFieldTypes(): Collection
     {
@@ -166,6 +168,8 @@ final class FieldTypeRegistryService
 
     /**
      * Get filterable field types.
+     *
+     * @return Collection<int, string>
      */
     public function getFilterableFieldTypes(): Collection
     {
@@ -176,6 +180,8 @@ final class FieldTypeRegistryService
 
     /**
      * Get encryptable field types.
+     *
+     * @return Collection<int, string>
      */
     public function getEncryptableFieldTypes(): Collection
     {
