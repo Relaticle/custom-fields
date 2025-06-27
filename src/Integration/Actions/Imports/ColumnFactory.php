@@ -80,7 +80,7 @@ final class ColumnFactory
      */
     private function configureColumnByFieldType(ImportColumn $column, CustomField $customField): void
     {
-        $fieldType = $customField->type->value;
+        $fieldType = $customField->getFieldTypeValue();
 
         if (isset($this->configurators[$fieldType])) {
             $this->configurators[$fieldType]->configure($column, $customField);

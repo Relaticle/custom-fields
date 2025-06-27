@@ -27,7 +27,7 @@ final class FieldInfolistsFactory
     public function create(CustomField $customField): Entry
     {
         // Get the field type value (enum value or string)
-        $customFieldType = $customField->type->value ?? $customField->type;
+        $customFieldType = $customField->getFieldTypeValue();
 
         $fieldTypeConfig = $this->fieldTypeRegistry->getFieldType($customFieldType);
 

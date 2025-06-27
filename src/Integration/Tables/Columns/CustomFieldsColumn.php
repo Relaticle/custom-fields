@@ -48,8 +48,12 @@ final readonly class CustomFieldsColumn
     public static function forRelationManager(
         RelationManager $relationManager
     ): array {
-        return CustomFieldsColumn::all(
-            $relationManager->getRelationship()->getModel()
-        );
+        $model = $relationManager->getRelationship()->getModel();
+        
+        if (! $model instanceof HasCustomFields) {
+            return [];
+        }
+        
+        return CustomFieldsColumn::all($model);
     }
 }

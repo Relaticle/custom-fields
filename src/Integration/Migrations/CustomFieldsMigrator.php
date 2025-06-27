@@ -313,12 +313,6 @@ class CustomFieldsMigrator implements CustomsFieldsMigrators
 
     protected function isCustomFieldTypeOptionable(): bool
     {
-        // Handle both enum and string types
-        $typeValue =
-            $this->customFieldData->type instanceof BackedEnum
-                ? $this->customFieldData->type->value
-                : $this->customFieldData->type;
-
-        return CustomFieldType::optionables()->contains('value', $typeValue);
+        return CustomFieldType::optionables()->contains('value', $this->customFieldData->type->value);
     }
 }

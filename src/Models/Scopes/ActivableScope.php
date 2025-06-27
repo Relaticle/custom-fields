@@ -49,7 +49,6 @@ class ActivableScope implements Scope
      */
     protected function addActive(Builder $builder): void
     {
-        /** @phpstan-ignore-next-line */
         $builder->macro('active', function (Builder $builder): Builder {
             $model = $builder->getModel();
             if (method_exists($model, 'getQualifiedActiveColumn')) {
@@ -68,7 +67,6 @@ class ActivableScope implements Scope
     protected function addWithDeactivated(Builder $builder): void
     {
         $scope = $this;
-        /** @phpstan-ignore-next-line */
         $builder->macro('withDeactivated', function (Builder $builder, bool $withDeactivated = true) use ($scope): Builder {
             if (! $withDeactivated) {
                 $model = $builder->getModel();
@@ -91,12 +89,10 @@ class ActivableScope implements Scope
     protected function addWithoutDeactivated(Builder $builder): void
     {
         $scope = $this;
-        /** @phpstan-ignore-next-line */
         $builder->macro('withoutDeactivated', function (Builder $builder) use ($scope): Builder {
             $model = $builder->getModel();
 
             if (method_exists($model, 'getQualifiedActiveColumn')) {
-                /** @phpstan-ignore-next-line */
                 $builder->withoutGlobalScope($scope)->whereNull(
                     $model->getQualifiedActiveColumn()
                 );

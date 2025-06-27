@@ -80,7 +80,6 @@ final class FilamentResourceService
     {
         $resourceInstance = self::getResourceInstance($model);
         /** @var string|null $recordTitleAttribute */
-        /** @phpstan-ignore-next-line Dynamic call to Filament Resource method */
         $recordTitleAttribute = $resourceInstance->getRecordTitleAttribute();
 
         throw_if($recordTitleAttribute === null, new InvalidArgumentException(sprintf(
@@ -101,7 +100,6 @@ final class FilamentResourceService
     public static function getGlobalSearchableAttributes(string $model): array
     {
         /** @var array<string> $attributes */
-        /** @phpstan-ignore-next-line Dynamic call to Filament Resource method */
         $attributes = self::getResourceInstance($model)->getGloballySearchableAttributes();
 
         return $attributes;
@@ -125,7 +123,7 @@ final class FilamentResourceService
             $method = $reflectionClass->getMethod($methodName);
             $method->setAccessible(true);
 
-            return $method->invoke(is_object($resource) ? $resource : null, ...$args);
+            return $method->invoke($resource, ...$args);
         }
 
         return null;

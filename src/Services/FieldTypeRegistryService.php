@@ -364,7 +364,7 @@ final class FieldTypeRegistryService
             CustomFieldType::MULTI_SELECT->value => MultiSelectComponent::class,
         ];
 
-        return $map[$type->value] ?? throw new RuntimeException("No form component mapped for type: {$type->value}");
+        return $map[$type->value];
     }
 
     /**
@@ -393,7 +393,7 @@ final class FieldTypeRegistryService
             CustomFieldType::MARKDOWN_EDITOR->value => 'Relaticle\CustomFields\Integration\Tables\Columns\HtmlColumn',
         ];
 
-        return $map[$type->value] ?? throw new RuntimeException("No table column mapped for type: {$type->value}");
+        return $map[$type->value];
     }
 
     /**
@@ -422,6 +422,6 @@ final class FieldTypeRegistryService
             CustomFieldType::MARKDOWN_EDITOR->value => HtmlEntry::class,
         ];
 
-        return $map[$type->value] ?? throw new RuntimeException("No infolist entry mapped for type: {$type->value}");
+        return $map[$type->value];
     }
 }

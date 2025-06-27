@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Relaticle\CustomFields\Integration\Tables\Columns;
 
-use BackedEnum;
 use Filament\Tables\Columns\Column;
 use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Contracts\Container\Container;
@@ -30,10 +29,7 @@ final class FieldColumnFactory
      */
     public function create(CustomField $customField): Column
     {
-        // Handle both enum and string types
-        $customFieldType = $customField->type instanceof BackedEnum
-            ? $customField->type->value
-            : $customField->type;
+        $customFieldType = $customField->getFieldTypeValue();
 
         $fieldTypeConfig = $this->fieldTypeRegistry->getFieldType($customFieldType);
 

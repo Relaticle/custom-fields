@@ -53,7 +53,7 @@ final readonly class FieldTypeHelperService
         }
 
         // Fallback to the raw type value
-        return is_string($type) ? ucwords(str_replace(['_', '-'], ' ', $type)) : 'Unknown';
+        return ucwords(str_replace(['_', '-'], ' ', $type));
     }
 
     /**

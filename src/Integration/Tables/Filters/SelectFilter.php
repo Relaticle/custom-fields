@@ -58,9 +58,9 @@ final readonly class SelectFilter implements FilterInterface
                 $query = $entityInstance->newQuery();
 
                 FilamentResourceService::invokeMethodByReflection($resource, 'applyGlobalSearchAttributeConstraints', [
-                    $query,
-                    $search,
-                    $globalSearchableAttributes,
+                    'query' => $query,
+                    'search' => $search,
+                    'searchableAttributes' => $globalSearchableAttributes,
                 ]);
 
                 return $query->limit(50)

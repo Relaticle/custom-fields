@@ -95,7 +95,9 @@ final readonly class SelectComponent implements FieldComponentInterface
             })
             ->getSearchResultsUsing(function (string $search) use ($entityInstanceQuery, $entityInstanceKeyName, $recordTitleAttribute, $globalSearchableAttributes, $resource): array {
                 FilamentResourceService::invokeMethodByReflection($resource, 'applyGlobalSearchAttributeConstraints', [
-                    $entityInstanceQuery, $search, $globalSearchableAttributes,
+                    'query' => $entityInstanceQuery, 
+                    'search' => $search, 
+                    'searchableAttributes' => $globalSearchableAttributes,
                 ]);
 
                 return $entityInstanceQuery

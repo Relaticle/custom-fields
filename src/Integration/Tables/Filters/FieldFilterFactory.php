@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Relaticle\CustomFields\Integration\Tables\Filters;
 
-use BackedEnum;
 use Filament\Tables\Filters\BaseFilter;
 use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Contracts\Container\Container;
@@ -40,10 +39,7 @@ final class FieldFilterFactory
      */
     public function create(CustomField $customField): BaseFilter
     {
-        // Handle both enum and string types
-        $customFieldType = $customField->type instanceof BackedEnum
-            ? $customField->type->value
-            : $customField->type;
+        $customFieldType = $customField->getFieldTypeValue();
 
         if (! isset($this->componentMap[$customFieldType])) {
             throw new InvalidArgumentException("No filter registered for custom field type: {$customFieldType}");

@@ -36,7 +36,7 @@ final class FieldComponentFactory
     public function create(CustomField $customField, array $dependentFieldCodes = [], ?Collection $allFields = null): Field
     {
         // Get the field type value (enum value or string)
-        $customFieldType = $customField->type->value ?? $customField->type;
+        $customFieldType = $customField->getFieldTypeValue();
 
         $fieldTypeConfig = $this->fieldTypeRegistry->getFieldType($customFieldType);
 

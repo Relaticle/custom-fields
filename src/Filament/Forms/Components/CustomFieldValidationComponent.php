@@ -513,21 +513,19 @@ final class CustomFieldValidationComponent extends Component
 
         // Try to get index from container state
         $container = $component->getContainer();
-        if (method_exists($container, "getParentComponent")) {
-            $repeater = $container->getParentComponent();
-            $parameters = $repeater->getState();
+        $repeater = $container->getParentComponent();
+        $parameters = $repeater->getState();
 
-            if (is_array($parameters)) {
-                $keys = array_keys($parameters);
-                $index = array_search($key, $keys, true);
+        if (is_array($parameters)) {
+            $keys = array_keys($parameters);
+            $index = array_search($key, $keys, true);
 
-                if ($index !== false) {
-                    return (int) $index;
-                }
+            if ($index !== false) {
+                return (int) $index;
+            }
 
-                if (is_numeric($key)) {
-                    return (int) $key;
-                }
+            if (is_numeric($key)) {
+                return (int) $key;
             }
         }
 
