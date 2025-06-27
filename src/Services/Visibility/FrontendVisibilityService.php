@@ -467,7 +467,7 @@ final readonly class FrontendVisibilityService
         }
 
         return rescue(function () use ($value, $targetField) {
-            if (is_string($value) && $targetField->options) {
+            if (is_string($value) && $targetField->options->isNotEmpty()) {
                 return $targetField->options->first(
                     fn ($opt): bool => Str::lower(trim((string) $opt->name)) ===
                         Str::lower(trim($value))
