@@ -16,8 +16,8 @@ use Relaticle\CustomFields\Models\Scopes\TenantScope;
 
 /**
  * @property int $id
- * @property string $name
- * @property int $sort_order
+ * @property ?string $name
+ * @property ?int $sort_order
  * @property CustomFieldOptionSettingsData $settings
  * @property int $custom_field_id
  * @property \Illuminate\Support\Carbon $created_at
@@ -32,20 +32,20 @@ class CustomFieldOption extends Model
     protected $guarded = [];
 
     protected $casts = [
-        "settings" => CustomFieldOptionSettingsData::class . ":default",
+        'settings' => CustomFieldOptionSettingsData::class.':default',
     ];
 
     /**
      * The attributes that should be visible in arrays.
      *
-     * @var array<int, string>
+     * @var list<string>
      */
     protected $visible = [
-        "id",
-        "name",
-        "settings",
-        "sort_order",
-        "custom_field_id",
+        'id',
+        'name',
+        'settings',
+        'sort_order',
+        'custom_field_id',
     ];
 
     /**
@@ -55,7 +55,7 @@ class CustomFieldOption extends Model
     {
         if ($this->table === null) {
             $this->setTable(
-                config("custom-fields.table_names.custom_field_options")
+                config('custom-fields.table_names.custom_field_options')
             );
         }
 
@@ -63,11 +63,11 @@ class CustomFieldOption extends Model
     }
 
     /**
-     * @return BelongsTo<CustomField, $this>
+     * @return BelongsTo<CustomField, self>
      */
     public function customField(): BelongsTo
     {
-        /** @var BelongsTo<CustomField, $this> */
+        /** @var BelongsTo<CustomField, self> */
         return $this->belongsTo(CustomFields::customFieldModel());
     }
 }

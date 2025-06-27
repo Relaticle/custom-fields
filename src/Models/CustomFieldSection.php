@@ -73,11 +73,11 @@ class CustomFieldSection extends Model
     }
 
     /**
-     * @return HasMany<CustomField, $this>
+     * @return HasMany<CustomField, self>
      */
     public function fields(): HasMany
     {
-        /** @var HasMany<CustomField, $this> */
+        /** @var HasMany<CustomField, self> */
         return $this->hasMany(CustomFields::customFieldModel());
     }
 

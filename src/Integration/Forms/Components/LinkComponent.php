@@ -22,6 +22,6 @@ final readonly class LinkComponent implements FieldComponentInterface
         $field = TextInput::make("custom_fields.{$customField->code}")
             ->url();
 
-        return $this->configurator->configure($field, $customField, $dependentFieldCodes, $allFields);
+        return $this->configurator->configure($field, $customField, $allFields, $dependentFieldCodes);
     }
 }

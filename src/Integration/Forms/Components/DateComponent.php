@@ -26,6 +26,6 @@ final readonly class DateComponent implements FieldComponentInterface
             ->displayFormat(FieldTypeUtils::getDateFormat())
             ->placeholder(FieldTypeUtils::getDateFormat());
 
-        return $this->configurator->configure($field, $customField, $dependentFieldCodes, $allFields);
+        return $this->configurator->configure($field, $customField, $allFields, $dependentFieldCodes);
     }
 }

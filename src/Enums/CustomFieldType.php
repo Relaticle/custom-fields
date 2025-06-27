@@ -68,11 +68,17 @@ enum CustomFieldType: string implements HasLabel
         }
 
         // Fallback to built-in types only
-        return Cache::remember('custom-fields.field-types.options-for-select', 60, fn () => collect(self::options())->map(fn ($label, $value): array => [
-            'label' => $label,
-            'value' => $value,
-            'icon' => self::icons()[$value],
-        ]));
+        return Cache::remember(
+            'custom-fields.field-types.options-for-select',
+            60,
+            fn () => collect(self::options())->map(
+                fn ($label, $value): array => [
+                    'label' => $label,
+                    'value' => $value,
+                    'icon' => self::icons()[$value],
+                ]
+            )
+        );
     }
 
     /**
@@ -103,17 +109,17 @@ enum CustomFieldType: string implements HasLabel
     }
 
     /**
-     * @return Collection<int, self>
+     * @return Collection<int, mixed>
      */
     public static function optionables(): Collection
     {
         return collect([
             self::SELECT,
             self::MULTI_SELECT,
+            self::RADIO,
             self::CHECKBOX_LIST,
             self::TAGS_INPUT,
             self::TOGGLE_BUTTONS,
-            self::RADIO,
         ]);
     }
 
@@ -124,8 +130,12 @@ enum CustomFieldType: string implements HasLabel
     public function getCategory(): FieldCategory
     {
         return match ($this) {
-            self::TEXT, self::TEXTAREA, self::LINK, self::RICH_EDITOR,
-            self::MARKDOWN_EDITOR, self::COLOR_PICKER => FieldCategory::TEXT,
+            self::TEXT,
+            self::TEXTAREA,
+            self::LINK,
+            self::RICH_EDITOR,
+            self::MARKDOWN_EDITOR,
+            self::COLOR_PICKER => FieldCategory::TEXT,
 
             self::NUMBER, self::CURRENCY => FieldCategory::NUMERIC,
 
@@ -135,7 +145,9 @@ enum CustomFieldType: string implements HasLabel
 
             self::SELECT, self::RADIO => FieldCategory::SINGLE_OPTION,
 
-            self::MULTI_SELECT, self::CHECKBOX_LIST, self::TAGS_INPUT,
+            self::MULTI_SELECT,
+            self::CHECKBOX_LIST,
+            self::TAGS_INPUT,
             self::TOGGLE_BUTTONS => FieldCategory::MULTI_OPTION,
         };
     }
@@ -183,21 +195,21 @@ enum CustomFieldType: string implements HasLabel
     }
 
     /**
-     * @return Collection<int, self>
+     * @return Collection<int, mixed>
      */
     public static function encryptables(): Collection
     {
         return collect([
             self::TEXT,
             self::TEXTAREA,
+            self::LINK,
             self::RICH_EDITOR,
             self::MARKDOWN_EDITOR,
-            self::LINK,
         ]);
     }
 
     /**
-     * @return Collection<int, self>
+     * @return Collection<int, mixed>
      */
     public static function searchables(): Collection
     {
@@ -205,25 +217,25 @@ enum CustomFieldType: string implements HasLabel
             self::TEXT,
             self::TEXTAREA,
             self::LINK,
-            self::TAGS_INPUT,
             self::DATE,
             self::DATE_TIME,
+            self::TAGS_INPUT,
         ]);
     }
 
     /**
-     * @return Collection<int, self>
+     * @return Collection<int, mixed>
      */
     public static function filterable(): Collection
     {
         return collect([
-            self::CHECKBOX,
-            self::CHECKBOX_LIST,
             self::SELECT,
             self::MULTI_SELECT,
+            self::RADIO,
+            self::CHECKBOX_LIST,
+            self::CHECKBOX,
             self::TOGGLE,
             self::TOGGLE_BUTTONS,
-            self::RADIO,
         ]);
     }
 

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Relaticle\CustomFields\Models\Concerns;
 
+use Relaticle\CustomFields\Enums\Operator;
 use Relaticle\CustomFields\Services\FieldTypeHelperService;
 
 /**
@@ -71,7 +72,7 @@ trait HasFieldTypeHelpers
     /**
      * Get compatible operators for this field type.
      *
-     * @return array<int, string>
+     * @return array<int, Operator>
      */
     public function getFieldTypeCompatibleOperators(): array
     {

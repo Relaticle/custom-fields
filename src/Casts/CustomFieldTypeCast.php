@@ -6,7 +6,6 @@ namespace Relaticle\CustomFields\Casts;
 
 use Illuminate\Contracts\Database\Eloquent\CastsAttributes;
 use Illuminate\Database\Eloquent\Model;
-use InvalidArgumentException;
 use Relaticle\CustomFields\Enums\CustomFieldType;
 use Relaticle\CustomFields\Services\FieldTypeRegistryService;
 
@@ -22,8 +21,12 @@ class CustomFieldTypeCast implements CastsAttributes
      *
      * @param  array<string, mixed>  $attributes
      */
-    public function get(Model $model, string $key, mixed $value, array $attributes): CustomFieldType|string|null
-    {
+    public function get(
+        Model $model,
+        string $key,
+        mixed $value,
+        array $attributes
+    ): CustomFieldType|string|null {
         if ($value === null) {
             return null;
         }
@@ -51,8 +54,12 @@ class CustomFieldTypeCast implements CastsAttributes
      *
      * @param  array<string, mixed>  $attributes
      */
-    public function set(Model $model, string $key, mixed $value, array $attributes): ?string
-    {
+    public function set(
+        Model $model,
+        string $key,
+        mixed $value,
+        array $attributes
+    ): ?string {
         if ($value === null) {
             return null;
         }
@@ -62,11 +69,7 @@ class CustomFieldTypeCast implements CastsAttributes
             return $value->value;
         }
 
-        // Handle string values (for custom types)
-        if (is_string($value)) {
-            return $value;
-        }
-
-        throw new InvalidArgumentException('Field type must be a CustomFieldType enum or string value.');
+        // All other values should be strings, convert to string if needed
+        return (string) $value;
     }
 }

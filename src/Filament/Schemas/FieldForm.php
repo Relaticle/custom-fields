@@ -7,6 +7,7 @@ namespace Relaticle\CustomFields\Filament\Schemas;
 use Exception;
 use Filament\Facades\Filament;
 use Filament\Forms\Components\ColorPicker;
+use Filament\Schemas\Components\Component;
 use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Repeater\TableColumn;
@@ -33,48 +34,47 @@ use Relaticle\CustomFields\Support\Utils;
 class FieldForm implements FormInterface
 {
     /**
+     * @return array<int, Component>
+     *
      * @throws Exception
-     */
-    /**
-     * @return array<int, \Filament\Forms\Components\Component>
      */
     public static function schema(bool $withOptionsRelationship = true): array
     {
-        $optionsRepeater = Repeater::make("options")
+        $optionsRepeater = Repeater::make('options')
             ->table([
-                TableColumn::make("Color")->width("150px")->hiddenHeaderLabel(),
-                TableColumn::make("Name")->hiddenHeaderLabel(),
+                TableColumn::make('Color')->width('150px')->hiddenHeaderLabel(),
+                TableColumn::make('Name')->hiddenHeaderLabel(),
             ])
             ->schema([
-                ColorPicker::make("settings.color")
+                ColorPicker::make('settings.color')
                     ->columnSpan(3)
                     ->hexColor()
                     ->visible(
-                        fn(
+                        fn (
                             Get $get
                         ): bool => Utils::isSelectOptionColorsFeatureEnabled() &&
-                            $get("../../settings.enable_option_colors")
+                            $get('../../settings.enable_option_colors')
                     ),
-                TextInput::make("name")->required()->columnSpan(9)->distinct(),
+                TextInput::make('name')->required()->columnSpan(9)->distinct(),
             ])
             ->columns(12)
             ->columnSpanFull()
-            ->requiredUnless("type", CustomFieldType::TAGS_INPUT->value)
+            ->requiredUnless('type', CustomFieldType::TAGS_INPUT->value)
             ->hiddenLabel()
             ->defaultItems(1)
             ->minItems(1)
             ->addActionLabel(
-                __("custom-fields::custom-fields.field.form.options.add")
+                __('custom-fields::custom-fields.field.form.options.add')
             )
             ->columnSpanFull()
-            ->label(__("custom-fields::custom-fields.field.form.options.label"))
+            ->label(__('custom-fields::custom-fields.field.form.options.label'))
             ->visible(
-                fn(Get $get): bool => $get("options_lookup_type") ===
-                    "options" &&
+                fn (Get $get): bool => $get('options_lookup_type') ===
+                    'options' &&
                     in_array(
-                        $get("type")?->value ?? $get("type"),
+                        $get('type')->value ?? $get('type'),
                         CustomFieldType::optionables()
-                            ->pluck("value")
+                            ->pluck('value')
                             ->toArray()
                     )
             )
@@ -83,7 +83,7 @@ class FieldForm implements FormInterface
             ): array {
                 if (Utils::isTenantEnabled()) {
                     $data[
-                        config("custom-fields.column_names.tenant_foreign_key")
+                        config('custom-fields.column_names.tenant_foreign_key')
                     ] = Filament::getTenant()?->getKey();
                 }
 
@@ -94,37 +94,37 @@ class FieldForm implements FormInterface
             $optionsRepeater = $optionsRepeater->relationship();
         }
 
-        $optionsRepeater->reorderable()->orderColumn("sort_order");
+        $optionsRepeater->reorderable()->orderColumn('sort_order');
 
         return [
             Tabs::make()
                 ->tabs([
                     Tab::make(
-                        __("custom-fields::custom-fields.field.form.general")
+                        __('custom-fields::custom-fields.field.form.general')
                     )->schema([
-                        Select::make("entity_type")
+                        Select::make('entity_type')
                             ->label(
                                 __(
-                                    "custom-fields::custom-fields.field.form.entity_type"
+                                    'custom-fields::custom-fields.field.form.entity_type'
                                 )
                             )
                             ->options(EntityTypeService::getOptions())
                             ->disabled()
                             ->default(
-                                fn() => request(
-                                    "entityType",
+                                fn () => request(
+                                    'entityType',
                                     EntityTypeService::getDefaultOption()
                                 )
                             )
                             ->required(),
-                        TypeField::make("type")
+                        TypeField::make('type')
                             ->label(
                                 __(
-                                    "custom-fields::custom-fields.field.form.type"
+                                    'custom-fields::custom-fields.field.form.type'
                                 )
                             )
                             ->disabled(
-                                fn(
+                                fn (
                                     ?CustomField $record
                                 ): bool => (bool) $record?->exists
                             )
@@ -136,47 +136,47 @@ class FieldForm implements FormInterface
                             ): void {
                                 if (blank($state)) {
                                     $component->state(
-                                        $record?->type ??
+                                        $record->type ??
                                             CustomFieldType::TEXT->value
                                     );
                                 }
                             })
                             ->required(),
-                        TextInput::make("name")
+                        TextInput::make('name')
                             ->label(
                                 __(
-                                    "custom-fields::custom-fields.field.form.name"
+                                    'custom-fields::custom-fields.field.form.name'
                                 )
                             )
                             ->helperText(
                                 __(
-                                    "custom-fields::custom-fields.field.form.name_helper_text"
+                                    'custom-fields::custom-fields.field.form.name_helper_text'
                                 )
                             )
                             ->live(onBlur: true)
                             ->required()
                             ->maxLength(50)
                             ->disabled(
-                                fn(
+                                fn (
                                     ?CustomField $record
                                 ): bool => (bool) $record?->system_defined
                             )
                             ->unique(
                                 table: CustomFields::customFieldModel(),
-                                column: "name",
+                                column: 'name',
                                 ignoreRecord: true,
-                                modifyRuleUsing: fn(
+                                modifyRuleUsing: fn (
                                     Unique $rule,
                                     Get $get
                                 ) => $rule
-                                    ->where("entity_type", $get("entity_type"))
+                                    ->where('entity_type', $get('entity_type'))
                                     ->when(
                                         Utils::isTenantEnabled(),
-                                        fn(Unique $rule) => $rule->where(
+                                        fn (Unique $rule) => $rule->where(
                                             config(
-                                                "custom-fields.column_names.tenant_foreign_key"
+                                                'custom-fields.column_names.tenant_foreign_key'
                                             ),
-                                            Filament::getTenant()?->id
+                                            Filament::getTenant()?->getKey()
                                         )
                                     )
                             )
@@ -186,30 +186,30 @@ class FieldForm implements FormInterface
                                 ?string $old,
                                 ?string $state
                             ): void {
-                                $old ??= "";
-                                $state ??= "";
+                                $old ??= '';
+                                $state ??= '';
 
                                 if (
-                                    ($get("code") ?? "") !==
-                                    Str::of($old)->slug("_")->toString()
+                                    ($get('code') ?? '') !==
+                                    Str::of($old)->slug('_')->toString()
                                 ) {
                                     return;
                                 }
 
                                 $set(
-                                    "code",
-                                    Str::of($state)->slug("_")->toString()
+                                    'code',
+                                    Str::of($state)->slug('_')->toString()
                                 );
                             }),
-                        TextInput::make("code")
+                        TextInput::make('code')
                             ->label(
                                 __(
-                                    "custom-fields::custom-fields.field.form.code"
+                                    'custom-fields::custom-fields.field.form.code'
                                 )
                             )
                             ->helperText(
                                 __(
-                                    "custom-fields::custom-fields.field.form.code_helper_text"
+                                    'custom-fields::custom-fields.field.form.code_helper_text'
                                 )
                             )
                             ->live(onBlur: true)
@@ -217,26 +217,26 @@ class FieldForm implements FormInterface
                             ->alphaDash()
                             ->maxLength(50)
                             ->disabled(
-                                fn(
+                                fn (
                                     ?CustomField $record
                                 ): bool => (bool) $record?->system_defined
                             )
                             ->unique(
                                 table: CustomFields::customFieldModel(),
-                                column: "code",
+                                column: 'code',
                                 ignoreRecord: true,
-                                modifyRuleUsing: fn(
+                                modifyRuleUsing: fn (
                                     Unique $rule,
                                     Get $get
                                 ) => $rule
-                                    ->where("entity_type", $get("entity_type"))
+                                    ->where('entity_type', $get('entity_type'))
                                     ->when(
                                         Utils::isTenantEnabled(),
-                                        fn(Unique $rule) => $rule->where(
+                                        fn (Unique $rule) => $rule->where(
                                             config(
-                                                "custom-fields.column_names.tenant_foreign_key"
+                                                'custom-fields.column_names.tenant_foreign_key'
                                             ),
-                                            Filament::getTenant()?->id
+                                            Filament::getTenant()?->getKey()
                                         )
                                     )
                             )
@@ -245,25 +245,25 @@ class FieldForm implements FormInterface
                                 ?string $state
                             ): void {
                                 $set(
-                                    "code",
-                                    Str::of($state)->slug("_")->toString()
+                                    'code',
+                                    Str::of($state)->slug('_')->toString()
                                 );
                             }),
                         Fieldset::make(
                             __(
-                                "custom-fields::custom-fields.field.form.settings"
+                                'custom-fields::custom-fields.field.form.settings'
                             )
                         )
                             ->columnSpanFull()
                             ->columns(2)
                             ->schema([
                                 // Visibility settings
-                                Toggle::make("settings.visible_in_list")
+                                Toggle::make('settings.visible_in_list')
                                     ->inline(false)
                                     ->live()
                                     ->label(
                                         __(
-                                            "custom-fields::custom-fields.field.form.visible_in_list"
+                                            'custom-fields::custom-fields.field.form.visible_in_list'
                                         )
                                     )
                                     ->afterStateHydrated(function (
@@ -274,11 +274,11 @@ class FieldForm implements FormInterface
                                             $component->state(true);
                                         }
                                     }),
-                                Toggle::make("settings.visible_in_view")
+                                Toggle::make('settings.visible_in_view')
                                     ->inline(false)
                                     ->label(
                                         __(
-                                            "custom-fields::custom-fields.field.form.visible_in_view"
+                                            'custom-fields::custom-fields.field.form.visible_in_view'
                                         )
                                     )
                                     ->afterStateHydrated(function (
@@ -289,21 +289,21 @@ class FieldForm implements FormInterface
                                             $component->state(true);
                                         }
                                     }),
-                                Toggle::make("settings.list_toggleable_hidden")
+                                Toggle::make('settings.list_toggleable_hidden')
                                     ->inline(false)
                                     ->label(
                                         __(
-                                            "custom-fields::custom-fields.field.form.list_toggleable_hidden"
+                                            'custom-fields::custom-fields.field.form.list_toggleable_hidden'
                                         )
                                     )
                                     ->helperText(
                                         __(
-                                            "custom-fields::custom-fields.field.form.list_toggleable_hidden_hint"
+                                            'custom-fields::custom-fields.field.form.list_toggleable_hidden_hint'
                                         )
                                     )
                                     ->visible(
-                                        fn(Get $get): bool => $get(
-                                            "settings.visible_in_list"
+                                        fn (Get $get): bool => $get(
+                                            'settings.visible_in_list'
                                         ) &&
                                             Utils::isTableColumnsToggleableEnabled() &&
                                             Utils::isTableColumnsToggleableUserControlEnabled()
@@ -319,24 +319,24 @@ class FieldForm implements FormInterface
                                         }
                                     }),
                                 // Data settings
-                                Toggle::make("settings.searchable")
+                                Toggle::make('settings.searchable')
                                     ->inline(false)
                                     ->visible(
-                                        fn(
+                                        fn (
                                             Get $get
                                         ): bool => CustomFieldType::searchables()->contains(
-                                            "value",
-                                            $get("type")
+                                            'value',
+                                            $get('type')
                                         )
                                     )
                                     ->disabled(
-                                        fn(Get $get): bool => $get(
-                                            "settings.encrypted"
+                                        fn (Get $get): bool => $get(
+                                            'settings.encrypted'
                                         ) === true
                                     )
                                     ->label(
                                         __(
-                                            "custom-fields::custom-fields.field.form.searchable"
+                                            'custom-fields::custom-fields.field.form.searchable'
                                         )
                                     )
                                     ->afterStateHydrated(function (
@@ -347,81 +347,80 @@ class FieldForm implements FormInterface
                                             $component->state(false);
                                         }
                                     }),
-                                Toggle::make("settings.encrypted")
+                                Toggle::make('settings.encrypted')
                                     ->inline(false)
                                     ->live()
                                     ->disabled(
-                                        fn(
+                                        fn (
                                             ?CustomField $record
                                         ): bool => (bool) $record?->exists
                                     )
                                     ->label(
                                         __(
-                                            "custom-fields::custom-fields.field.form.encrypted"
+                                            'custom-fields::custom-fields.field.form.encrypted'
                                         )
                                     )
                                     ->visible(
-                                        fn(
+                                        fn (
                                             Get $get
                                         ): bool => Utils::isValuesEncryptionFeatureEnabled() &&
                                             CustomFieldType::encryptables()->contains(
-                                                "value",
-                                                $get("type")
+                                                'value',
+                                                $get('type')
                                             )
                                     )
                                     ->default(false),
                                 // Appearance settings
-                                Toggle::make("settings.enable_option_colors")
+                                Toggle::make('settings.enable_option_colors')
                                     ->inline(false)
                                     ->live()
                                     ->label(
                                         __(
-                                            "custom-fields::custom-fields.field.form.enable_option_colors"
+                                            'custom-fields::custom-fields.field.form.enable_option_colors'
                                         )
                                     )
                                     ->helperText(
                                         __(
-                                            "custom-fields::custom-fields.field.form.enable_option_colors_help"
+                                            'custom-fields::custom-fields.field.form.enable_option_colors_help'
                                         )
                                     )
                                     ->visible(
-                                        fn(
+                                        fn (
                                             Get $get
                                         ): bool => Utils::isSelectOptionColorsFeatureEnabled() &&
-                                            in_array($get("type"), [
-                                                CustomFieldType::SELECT->value,
-                                                CustomFieldType::MULTI_SELECT
-                                                    ->value,
+                                            in_array($get('type'), [
+                                                CustomFieldType::SELECT,
+                                                CustomFieldType::MULTI_SELECT,
                                             ])
                                     ),
                             ]),
 
-                        Select::make("options_lookup_type")
+                        Select::make('options_lookup_type')
                             ->label(
                                 __(
-                                    "custom-fields::custom-fields.field.form.options_lookup_type.label"
+                                    'custom-fields::custom-fields.field.form.options_lookup_type.label'
                                 )
                             )
                             ->visible(
-                                fn(Get $get): bool => in_array(
-                                    $get("type"),
+                                fn (Get $get): bool => in_array(
+                                    $get('type'),
                                     CustomFieldType::optionables()
-                                        ->pluck("value")
+                                        ->pluck('value')
                                         ->toArray()
                                 )
                             )
                             ->disabled(
-                                fn(
+                                fn (
                                     ?CustomField $record
                                 ): bool => (bool) $record?->system_defined
                             )
                             ->live()
                             ->options([
-                                "options" => __(
-                                    "custom-fields::custom-fields.field.form.options_lookup_type.options"
+                                'options' => __(
+                                    'custom-fields::custom-fields.field.form.options_lookup_type.options'
                                 ),
-                                "lookup" => __(
-                                    "custom-fields::custom-fields.field.form.options_lookup_type.lookup"
+                                'lookup' => __(
+                                    'custom-fields::custom-fields.field.form.options_lookup_type.lookup'
                                 ),
                             ])
                             ->afterStateHydrated(function (
@@ -430,9 +429,9 @@ class FieldForm implements FormInterface
                                 $record
                             ): void {
                                 if (blank($state)) {
-                                    $optionsLookupType = $record?->lookup_type
-                                        ? "lookup"
-                                        : "options";
+                                    $optionsLookupType = $record->lookup_type
+                                        ? 'lookup'
+                                        : 'options';
                                     $component->state($optionsLookupType);
                                 }
                             })
@@ -442,44 +441,44 @@ class FieldForm implements FormInterface
                                 Set $set,
                                 $record
                             ): void {
-                                if ($state === "options") {
-                                    $set("lookup_type", null, true, true);
+                                if ($state === 'options') {
+                                    $set('lookup_type', null, true, true);
                                 } else {
                                     $set(
-                                        "lookup_type",
-                                        $record?->lookup_type ??
+                                        'lookup_type',
+                                        $record->lookup_type ??
                                             LookupTypeService::getDefaultOption()
                                     );
                                 }
                             })
                             ->dehydrated(false)
                             ->required(),
-                        Select::make("lookup_type")
+                        Select::make('lookup_type')
                             ->label(
                                 __(
-                                    "custom-fields::custom-fields.field.form.lookup_type.label"
+                                    'custom-fields::custom-fields.field.form.lookup_type.label'
                                 )
                             )
                             ->visible(
-                                fn(Get $get): bool => $get(
-                                    "options_lookup_type"
-                                ) === "lookup"
+                                fn (Get $get): bool => $get(
+                                    'options_lookup_type'
+                                ) === 'lookup'
                             )
                             ->live()
                             ->options(LookupTypeService::getOptions())
                             ->default(LookupTypeService::getDefaultOption())
                             ->required(),
-                        Hidden::make("lookup_type"),
+                        Hidden::make('lookup_type'),
                         $optionsRepeater,
                     ]),
-                    Tab::make("Visibility")
+                    Tab::make('Visibility')
                         ->visible(
-                            fn(): bool => Utils::isConditionalVisibilityFeatureEnabled()
+                            fn (): bool => Utils::isConditionalVisibilityFeatureEnabled()
                         )
                         ->schema([VisibilityComponent::make()]),
                     Tab::make(
                         __(
-                            "custom-fields::custom-fields.field.form.validation.label"
+                            'custom-fields::custom-fields.field.form.validation.label'
                         )
                     )->schema([CustomFieldValidationComponent::make()]),
                 ])

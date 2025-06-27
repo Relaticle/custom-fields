@@ -82,6 +82,8 @@ class CustomFieldTypes
 
     /**
      * Get all registered field types.
+     *
+     * @return Collection<string, array<string, mixed>>
      */
     public static function getAllFieldTypes(): Collection
     {

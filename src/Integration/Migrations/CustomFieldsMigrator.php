@@ -35,7 +35,8 @@ class CustomFieldsMigrator implements CustomsFieldsMigrators
 
     public function find(string $model, string $code): CustomFieldsMigrator
     {
-        $this->customField = CustomFields::newCustomFieldModel()->query()
+        $this->customField = CustomFields::newCustomFieldModel()
+            ->query()
             ->forMorphEntity(EntityTypeService::getEntityFromModel($model))
             ->where('code', $code)
             ->firstOrFail();
@@ -48,8 +49,10 @@ class CustomFieldsMigrator implements CustomsFieldsMigrators
     /**
      * @param  class-string  $model
      */
-    public function new(string $model, CustomFieldData $fieldData): CustomFieldsMigrator
-    {
+    public function new(
+        string $model,
+        CustomFieldData $fieldData
+    ): CustomFieldsMigrator {
         $entityType = EntityTypeService::getEntityFromModel($model);
 
         $fieldData->entityType = $fieldData->section->entityType = $entityType;
@@ -82,7 +85,9 @@ class CustomFieldsMigrator implements CustomsFieldsMigrators
             throw new FieldTypeNotOptionableException;
         }
 
-        $this->customFieldData->lookupType = LookupTypeService::getEntityFromModel($model);
+        $this->customFieldData->lookupType = LookupTypeService::getEntityFromModel(
+            $model
+        );
 
         return $this;
     }
@@ -93,14 +98,24 @@ class CustomFieldsMigrator implements CustomsFieldsMigrators
      */
     public function create(): CustomField
     {
-        if ($this->isCustomFieldExists($this->customFieldData->entityType, $this->customFieldData->code, $this->tenantId)) {
-            throw CustomFieldAlreadyExistsException::whenAdding($this->customFieldData->code);
+        if (
+            $this->isCustomFieldExists(
+                $this->customFieldData->entityType,
+                $this->customFieldData->code,
+                $this->tenantId
+            )
+        ) {
+            throw CustomFieldAlreadyExistsException::whenAdding(
+                $this->customFieldData->code
+            );
         }
 
         try {
             DB::beginTransaction();
 
-            $data = $this->customFieldData->except('section', 'options')->toArray();
+            $data = $this->customFieldData
+                ->except('section', 'options')
+                ->toArray();
 
             $sectionData = $this->customFieldData->section->toArray();
             $sectionAttributes = [
@@ -109,9 +124,14 @@ class CustomFieldsMigrator implements CustomsFieldsMigrators
             ];
 
             if (Utils::isTenantEnabled()) {
-                $data[config('custom-fields.column_names.tenant_foreign_key')] = $this->tenantId;
-                $sectionData[config('custom-fields.column_names.tenant_foreign_key')] = $this->tenantId;
-                $sectionAttributes[config('custom-fields.column_names.tenant_foreign_key')] = $this->tenantId;
+                $data[config('custom-fields.column_names.tenant_foreign_key')] =
+                    $this->tenantId;
+                $sectionData[
+                    config('custom-fields.column_names.tenant_foreign_key')
+                ] = $this->tenantId;
+                $sectionAttributes[
+                    config('custom-fields.column_names.tenant_foreign_key')
+                ] = $this->tenantId;
             }
 
             $section = CustomFields::newSectionModel()->updateOrCreate(
@@ -121,10 +141,19 @@ class CustomFieldsMigrator implements CustomsFieldsMigrators
 
             $data['custom_field_section_id'] = $section->getKey();
 
-            $customField = CustomFields::newCustomFieldModel()->query()->create($data);
+            $customField = CustomFields::newCustomFieldModel()
+                ->query()
+                ->create($data);
 
-            if ($this->isCustomFieldTypeOptionable() && ($this->customFieldData->options !== null && $this->customFieldData->options !== [])) {
-                $this->createOptions($customField, $this->customFieldData->options);
+            if (
+                $this->isCustomFieldTypeOptionable() &&
+                ($this->customFieldData->options !== null &&
+                    $this->customFieldData->options !== [])
+            ) {
+                $this->createOptions(
+                    $customField,
+                    $this->customFieldData->options
+                );
             }
 
             DB::commit();
@@ -142,7 +171,9 @@ class CustomFieldsMigrator implements CustomsFieldsMigrators
     public function update(array $data): void
     {
         if (! $this->customField->exists) {
-            throw CustomFieldDoesNotExistException::whenUpdating($this->customFieldData->code);
+            throw CustomFieldDoesNotExistException::whenUpdating(
+                $this->customFieldData->code
+            );
         }
 
         try {
@@ -156,14 +187,23 @@ class CustomFieldsMigrator implements CustomsFieldsMigrators
             $updateData = $this->customFieldData->toArray();
 
             if (Utils::isTenantEnabled()) {
-                $updateData[config('custom-fields.column_names.tenant_foreign_key')] = $this->tenantId;
+                $updateData[
+                    config('custom-fields.column_names.tenant_foreign_key')
+                ] = $this->tenantId;
             }
 
             $this->customField->update($updateData);
 
-            if ($this->isCustomFieldTypeOptionable() && ($this->customFieldData->options !== null && $this->customFieldData->options !== [])) {
+            if (
+                $this->isCustomFieldTypeOptionable() &&
+                ($this->customFieldData->options !== null &&
+                    $this->customFieldData->options !== [])
+            ) {
                 $this->customField->options()->delete();
-                $this->createOptions($this->customField, $this->customFieldData->options);
+                $this->createOptions(
+                    $this->customField,
+                    $this->customFieldData->options
+                );
             }
 
             DB::commit();
@@ -179,7 +219,9 @@ class CustomFieldsMigrator implements CustomsFieldsMigrators
     public function delete(): void
     {
         if (! $this->customField instanceof CustomField) {
-            throw CustomFieldDoesNotExistException::whenDeleting($this->customFieldData->code);
+            throw CustomFieldDoesNotExistException::whenDeleting(
+                $this->customFieldData->code
+            );
         }
 
         $this->customField->delete();
@@ -191,7 +233,9 @@ class CustomFieldsMigrator implements CustomsFieldsMigrators
     public function activate(): void
     {
         if (! $this->customField instanceof CustomField) {
-            throw CustomFieldDoesNotExistException::whenActivating($this->customFieldData->code);
+            throw CustomFieldDoesNotExistException::whenActivating(
+                $this->customFieldData->code
+            );
         }
 
         if ($this->customField->isActive()) {
@@ -207,7 +251,9 @@ class CustomFieldsMigrator implements CustomsFieldsMigrators
     public function deactivate(): void
     {
         if (! $this->customField instanceof CustomField) {
-            throw CustomFieldDoesNotExistException::whenDeactivating($this->customFieldData->code);
+            throw CustomFieldDoesNotExistException::whenDeactivating(
+                $this->customFieldData->code
+            );
         }
 
         if (! $this->customField->isActive()) {
@@ -217,8 +263,13 @@ class CustomFieldsMigrator implements CustomsFieldsMigrators
         $this->customField->deactivate();
     }
 
-    protected function createOptions(CustomField $customField, array $options): void
-    {
+    /**
+     * @param  array<string, mixed>  $options
+     */
+    protected function createOptions(
+        CustomField $customField,
+        array $options
+    ): void {
         $customField->options()->createMany(
             collect($options)
                 ->map(function ($value, int $key) {
@@ -228,7 +279,11 @@ class CustomFieldsMigrator implements CustomsFieldsMigrators
                     ];
 
                     if (Utils::isTenantEnabled()) {
-                        $data[config('custom-fields.column_names.tenant_foreign_key')] = $this->tenantId;
+                        $data[
+                            config(
+                                'custom-fields.column_names.tenant_foreign_key'
+                            )
+                        ] = $this->tenantId;
                     }
 
                     return $data;
@@ -237,21 +292,32 @@ class CustomFieldsMigrator implements CustomsFieldsMigrators
         );
     }
 
-    protected function isCustomFieldExists(string $model, string $code, int|string|null $tenantId = null): bool
-    {
-        return CustomFields::newCustomFieldModel()->query()
+    protected function isCustomFieldExists(
+        string $model,
+        string $code,
+        int|string|null $tenantId = null
+    ): bool {
+        return CustomFields::newCustomFieldModel()
+            ->query()
             ->forMorphEntity($model)
             ->where('code', $code)
-            ->when(Utils::isTenantEnabled() && $tenantId, fn ($query) => $query->where(config('custom-fields.column_names.tenant_foreign_key'), $tenantId))
+            ->when(
+                Utils::isTenantEnabled() && $tenantId,
+                fn ($query) => $query->where(
+                    config('custom-fields.column_names.tenant_foreign_key'),
+                    $tenantId
+                )
+            )
             ->exists();
     }
 
     protected function isCustomFieldTypeOptionable(): bool
     {
         // Handle both enum and string types
-        $typeValue = $this->customFieldData->type instanceof BackedEnum
-            ? $this->customFieldData->type->value
-            : $this->customFieldData->type;
+        $typeValue =
+            $this->customFieldData->type instanceof BackedEnum
+                ? $this->customFieldData->type->value
+                : $this->customFieldData->type;
 
         return CustomFieldType::optionables()->contains('value', $typeValue);
     }

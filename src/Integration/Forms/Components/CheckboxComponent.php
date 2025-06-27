@@ -21,6 +21,6 @@ final readonly class CheckboxComponent implements FieldComponentInterface
     {
         $field = Checkbox::make("custom_fields.{$customField->code}")->inline(false);
 
-        return $this->configurator->configure($field, $customField, $dependentFieldCodes, $allFields);
+        return $this->configurator->configure($field, $customField, $allFields, $dependentFieldCodes);
     }
 }

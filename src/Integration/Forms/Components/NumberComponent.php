@@ -23,6 +23,6 @@ final readonly class NumberComponent implements FieldComponentInterface
             ->numeric()
             ->placeholder(null);
 
-        return $this->configurator->configure($field, $customField, $dependentFieldCodes, $allFields);
+        return $this->configurator->configure($field, $customField, $allFields, $dependentFieldCodes);
     }
 }

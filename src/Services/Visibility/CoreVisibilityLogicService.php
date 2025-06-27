@@ -129,7 +129,7 @@ final readonly class CoreVisibilityLogicService
     {
         $visibility = $this->getVisibilityData($field);
 
-        return $visibility?->mode ?? Mode::ALWAYS_VISIBLE;
+        return $visibility->mode ?? Mode::ALWAYS_VISIBLE;
     }
 
     /**
@@ -140,7 +140,7 @@ final readonly class CoreVisibilityLogicService
     {
         $visibility = $this->getVisibilityData($field);
 
-        return $visibility?->logic ?? Logic::ALL;
+        return $visibility->logic ?? Logic::ALL;
     }
 
     /**
@@ -167,12 +167,13 @@ final readonly class CoreVisibilityLogicService
     {
         $visibility = $this->getVisibilityData($field);
 
-        return $visibility?->alwaysSave ?? false;
+        return $visibility->alwaysSave ?? false;
     }
 
     /**
      * Calculate field dependencies for all fields.
      * Returns mapping of source field codes to their dependent field codes.
+     *
      * @param  Collection<int, CustomField>  $allFields
      * @return array<string, array<string>>
      */
@@ -212,6 +213,7 @@ final readonly class CoreVisibilityLogicService
     /**
      * Get metadata for a field that's needed for visibility evaluation.
      * This is used by frontend services to build JavaScript expressions.
+     *
      * @return array<string, mixed>
      */
     public function getFieldMetadata(CustomField $field): array
@@ -235,6 +237,7 @@ final readonly class CoreVisibilityLogicService
     /**
      * Normalize a single condition for consistent evaluation.
      * Ensures conditions are in the expected format across contexts.
+     *
      * @return array<string, mixed>
      */
     public function normalizeCondition(VisibilityConditionData $condition): array
@@ -279,6 +282,7 @@ final readonly class CoreVisibilityLogicService
     /**
      * Filter visible fields from a collection based on field values.
      * Uses core evaluation logic without cascading.
+     *
      * @param  Collection<int, CustomField>  $fields
      * @param  array<string, mixed>  $fieldValues
      * @return Collection<int, CustomField>
@@ -290,6 +294,7 @@ final readonly class CoreVisibilityLogicService
 
     /**
      * Get fields that should be saved regardless of visibility.
+     *
      * @param  Collection<int, CustomField>  $fields
      * @return Collection<int, CustomField>
      */
@@ -301,6 +306,7 @@ final readonly class CoreVisibilityLogicService
     /**
      * Legacy method aliases for backward compatibility.
      * These delegates to the main methods with consistent naming.
+     *
      * @param  array<string, mixed>  $fieldValues
      */
     public function shouldShowField(CustomField $field, array $fieldValues): bool

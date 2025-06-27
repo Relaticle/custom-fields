@@ -51,7 +51,7 @@ class CustomFieldValue extends Model
     {
         if ($this->table === null) {
             $this->setTable(
-                config("custom-fields.table_names.custom_field_values")
+                config('custom-fields.table_names.custom_field_values')
             );
         }
 
@@ -66,14 +66,14 @@ class CustomFieldValue extends Model
     protected function casts(): array
     {
         return [
-            "string_value" => "string",
-            "text_value" => "string",
-            "integer_value" => "integer",
-            "float_value" => "float",
-            "json_value" => "collection",
-            "boolean_value" => "boolean",
-            "date_value" => "date",
-            "datetime_value" => "datetime",
+            'string_value' => 'string',
+            'text_value' => 'string',
+            'integer_value' => 'integer',
+            'float_value' => 'float',
+            'json_value' => 'collection',
+            'boolean_value' => 'boolean',
+            'date_value' => 'date',
+            'datetime_value' => 'datetime',
         ];
     }
 
@@ -85,26 +85,21 @@ class CustomFieldValue extends Model
                 CustomFieldType::TEXT,
                 CustomFieldType::TEXTAREA,
                 CustomFieldType::RICH_EDITOR,
-                CustomFieldType::MARKDOWN_EDITOR
-                    => "text_value",
+                CustomFieldType::MARKDOWN_EDITOR => 'text_value',
                 CustomFieldType::LINK,
-                CustomFieldType::COLOR_PICKER
-                    => "string_value",
+                CustomFieldType::COLOR_PICKER => 'string_value',
                 CustomFieldType::NUMBER,
                 CustomFieldType::RADIO,
-                CustomFieldType::SELECT
-                    => "integer_value",
+                CustomFieldType::SELECT => 'integer_value',
                 CustomFieldType::CHECKBOX,
-                CustomFieldType::TOGGLE
-                    => "boolean_value",
+                CustomFieldType::TOGGLE => 'boolean_value',
                 CustomFieldType::CHECKBOX_LIST,
                 CustomFieldType::TOGGLE_BUTTONS,
                 CustomFieldType::TAGS_INPUT,
-                CustomFieldType::MULTI_SELECT
-                    => "json_value",
-                CustomFieldType::CURRENCY => "float_value",
-                CustomFieldType::DATE => "date_value",
-                CustomFieldType::DATE_TIME => "datetime_value",
+                CustomFieldType::MULTI_SELECT => 'json_value',
+                CustomFieldType::CURRENCY => 'float_value',
+                CustomFieldType::DATE => 'date_value',
+                CustomFieldType::DATE_TIME => 'datetime_value',
             };
         }
 
@@ -114,28 +109,28 @@ class CustomFieldValue extends Model
             $fieldTypeConfig = $registry->getFieldType($type);
 
             if ($fieldTypeConfig !== null) {
-                return match ($fieldTypeConfig["category"]) {
-                    "text" => "text_value",
-                    "numeric" => "integer_value",
-                    "date" => "date_value",
-                    "boolean" => "boolean_value",
-                    "single_option" => "integer_value",
-                    "multi_option" => "json_value",
-                    default => "text_value",
+                return match ($fieldTypeConfig['category']) {
+                    'text' => 'text_value',
+                    'numeric' => 'integer_value',
+                    'date' => 'date_value',
+                    'boolean' => 'boolean_value',
+                    'single_option' => 'integer_value',
+                    'multi_option' => 'json_value',
+                    default => 'text_value',
                 };
             }
         }
 
         // Fallback for unknown types
-        return "text_value";
+        return 'text_value';
     }
 
     /**
-     * @return BelongsTo<CustomField, $this>
+     * @return BelongsTo<CustomField, self>
      */
     public function customField(): BelongsTo
     {
-        /** @var BelongsTo<CustomField, $this> */
+        /** @var BelongsTo<CustomField, self> */
         return $this->belongsTo(CustomFields::customFieldModel());
     }
 

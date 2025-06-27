@@ -24,6 +24,6 @@ final readonly class ToggleComponent implements FieldComponentInterface
             ->offColor('danger')
             ->inline(false);
 
-        return $this->configurator->configure($field, $customField, $dependentFieldCodes, $allFields);
+        return $this->configurator->configure($field, $customField, $allFields, $dependentFieldCodes);
     }
 }

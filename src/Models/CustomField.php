@@ -10,7 +10,6 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Override;
 use Relaticle\CustomFields\Casts\CustomFieldTypeCast;
 use Relaticle\CustomFields\CustomFields;
 use Relaticle\CustomFields\Data\CustomFieldSettingsData;
@@ -90,9 +89,12 @@ class CustomField extends Model
         static::addGlobalScope(new CustomFieldsActivableScope);
     }
 
-    #[Override]
+    /**
+     * @return CustomFieldQueryBuilder<self>
+     */
     public function newEloquentBuilder($query): CustomFieldQueryBuilder
     {
+        /** @var CustomFieldQueryBuilder<CustomField> */
         return new CustomFieldQueryBuilder($query);
     }
 
@@ -114,29 +116,29 @@ class CustomField extends Model
     }
 
     /**
-     * @return BelongsTo<CustomFieldSection, $this>
+     * @return BelongsTo<CustomFieldSection, self>
      */
     public function section(): BelongsTo
     {
-        /** @var BelongsTo<CustomFieldSection, $this> */
+        /** @var BelongsTo<CustomFieldSection, self> */
         return $this->belongsTo(CustomFields::sectionModel(), 'custom_field_section_id');
     }
 
     /**
-     * @return HasMany<CustomFieldValue, $this>
+     * @return HasMany<CustomFieldValue, self>
      */
     public function values(): HasMany
     {
-        /** @var HasMany<CustomFieldValue, $this> */
+        /** @var HasMany<CustomFieldValue, self> */
         return $this->hasMany(CustomFields::valueModel());
     }
 
     /**
-     * @return HasMany<CustomFieldOption, $this>
+     * @return HasMany<CustomFieldOption, self>
      */
     public function options(): HasMany
     {
-        /** @var HasMany<CustomFieldOption, $this> */
+        /** @var HasMany<CustomFieldOption, self> */
         return $this->hasMany(CustomFields::optionModel());
     }
 

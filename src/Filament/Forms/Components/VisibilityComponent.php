@@ -29,7 +29,7 @@ use ValueError;
  */
 class VisibilityComponent extends Component
 {
-    protected string $view = "filament-schemas::components.grid";
+    protected string $view = 'filament-schemas::components.grid';
 
     public function __construct(
         private ?FieldTypeHelperService $fieldTypeHelper = null
@@ -41,14 +41,14 @@ class VisibilityComponent extends Component
 
     public static function make(): self
     {
-        return new self();
+        return new self;
     }
 
     private function buildFieldset(): Fieldset
     {
-        return Fieldset::make("Conditional Visibility")->schema([
-            Select::make("settings.visibility.mode")
-                ->label("Visibility")
+        return Fieldset::make('Conditional Visibility')->schema([
+            Select::make('settings.visibility.mode')
+                ->label('Visibility')
                 ->options(Mode::class)
                 ->default(Mode::ALWAYS_VISIBLE)
                 ->required()
@@ -60,8 +60,8 @@ class VisibilityComponent extends Component
                 })
                 ->live(),
 
-            Select::make("settings.visibility.logic")
-                ->label("Condition Logic")
+            Select::make('settings.visibility.logic')
+                ->label('Condition Logic')
                 ->options(Logic::class)
                 ->default(Logic::ALL)
                 ->required()
@@ -72,13 +72,13 @@ class VisibilityComponent extends Component
                     $component->state($state ?? Logic::ALL);
                 })
                 ->visible(
-                    fn(Get $get): bool => $this->requiresConditions($get)
+                    fn (Get $get): bool => $this->requiresConditions($get)
                 ),
 
-            Repeater::make("settings.visibility.conditions")
-                ->label("Conditions")
+            Repeater::make('settings.visibility.conditions')
+                ->label('Conditions')
                 ->schema($this->buildConditionSchema())
-                ->visible(fn(Get $get): bool => $this->requiresConditions($get))
+                ->visible(fn (Get $get): bool => $this->requiresConditions($get))
                 ->defaultItems(1)
                 ->minItems(1)
                 ->maxItems(10)
@@ -89,139 +89,139 @@ class VisibilityComponent extends Component
     }
 
     /**
-     * @return array<int, \Filament\Forms\Components\Component>
+     * @return array<int, Component>
      */
     private function buildConditionSchema(): array
     {
         return [
-            Select::make("field_code")
-                ->label("Field")
-                ->options(fn(Get $get): array => $this->getFieldOptions($get))
+            Select::make('field_code')
+                ->label('Field')
+                ->options(fn (Get $get): array => $this->getFieldOptions($get))
                 ->required()
                 ->live()
                 ->afterStateUpdated(function (Get $get, Set $set): void {
-                    $set("value", null);
+                    $set('value', null);
 
                     $set(
-                        "operator",
+                        'operator',
                         array_key_first($this->getOperatorOptions($get))
                     );
 
                     if ($this->requiresSingleValue($get)) {
-                        $set("text_value", null);
+                        $set('text_value', null);
 
                         return;
                     }
 
                     if ($this->requiresMultipleValues($get)) {
-                        $set("multiple_values", []);
+                        $set('multiple_values', []);
 
                         return;
                     }
 
-                    $set("single_value", null);
+                    $set('single_value', null);
                 })
                 ->columnSpan(4),
 
-            Select::make("operator")
-                ->label("Operator")
+            Select::make('operator')
+                ->label('Operator')
                 ->options(
-                    fn(Get $get): array => $this->getOperatorOptions($get)
+                    fn (Get $get): array => $this->getOperatorOptions($get)
                 )
                 ->required()
                 ->live()
                 ->afterStateUpdated(function (Get $get, Set $set): void {
-                    $set("value", null);
+                    $set('value', null);
 
                     if ($this->requiresSingleValue($get)) {
-                        $set("text_value", null);
+                        $set('text_value', null);
 
                         return;
                     }
 
                     if ($this->requiresMultipleValues($get)) {
-                        $set("multiple_values", []);
+                        $set('multiple_values', []);
 
                         return;
                     }
 
-                    $set("single_value", null);
+                    $set('single_value', null);
                 })
                 ->columnSpan(3),
 
             // Smart value input for optionable fields
-            Select::make("single_value")
-                ->label("Value")
+            Select::make('single_value')
+                ->label('Value')
                 ->live()
                 ->searchable()
-                ->options(fn(Get $get): array => $this->getValueOptions($get))
+                ->options(fn (Get $get): array => $this->getValueOptions($get))
                 ->visible(
-                    fn(Get $get): bool => $this->requiresSingleValue($get) &&
+                    fn (Get $get): bool => $this->requiresSingleValue($get) &&
                         $this->isOptionableField($get)
                 )
                 ->placeholder(
-                    fn(Get $get): string => $this->getValuePlaceholder($get)
+                    fn (Get $get): string => $this->getValuePlaceholder($get)
                 )
                 ->afterStateHydrated(function (
                     Select $component,
                     Get $get
                 ): void {
-                    $component->state($get("value") ?? null);
+                    $component->state($get('value') ?? null);
                 })
                 ->afterStateUpdated(
-                    fn(?string $state, Set $set): mixed => $set("value", $state)
+                    fn (?string $state, Set $set): mixed => $set('value', $state)
                 )
                 ->columnSpan(5),
 
-            Select::make("multiple_values")
-                ->label("Value")
+            Select::make('multiple_values')
+                ->label('Value')
                 ->live()
                 ->searchable()
                 ->multiple()
-                ->options(fn(Get $get): array => $this->getValueOptions($get))
+                ->options(fn (Get $get): array => $this->getValueOptions($get))
                 ->visible(
-                    fn(Get $get): bool => $this->requiresMultipleValues($get) &&
+                    fn (Get $get): bool => $this->requiresMultipleValues($get) &&
                         $this->isOptionableField($get)
                 )
                 ->placeholder(
-                    fn(Get $get): string => $this->getValuePlaceholder($get)
+                    fn (Get $get): string => $this->getValuePlaceholder($get)
                 )
                 ->afterStateHydrated(function (
                     Select $component,
                     Get $get
                 ): void {
-                    $component->state(Arr::wrap($get("value")));
+                    $component->state(Arr::wrap($get('value')));
                 })
                 ->afterStateUpdated(
-                    fn(array $state, Set $set): mixed => $set(
-                        "value",
+                    fn (array $state, Set $set): mixed => $set(
+                        'value',
                         Arr::wrap($state)
                     )
                 )
                 ->columnSpan(5),
 
             // Text input for non-optionable fields
-            TextInput::make("text_value")
-                ->label("Value")
+            TextInput::make('text_value')
+                ->label('Value')
                 ->placeholder(
-                    fn(Get $get): string => $this->getValuePlaceholder($get)
+                    fn (Get $get): string => $this->getValuePlaceholder($get)
                 )
                 ->visible(
-                    fn(Get $get): bool => $this->requiresValue($get) &&
-                        !$this->isOptionableField($get)
+                    fn (Get $get): bool => $this->requiresValue($get) &&
+                        ! $this->isOptionableField($get)
                 )
                 ->afterStateHydrated(function (
                     TextInput $component,
                     Get $get
                 ): void {
-                    $component->state($get("value") ?? "");
+                    $component->state($get('value') ?? '');
                 })
                 ->afterStateUpdated(
-                    fn(string $state, Set $set): mixed => $set("value", $state)
+                    fn (string $state, Set $set): mixed => $set('value', $state)
                 )
                 ->columnSpan(5),
 
-            Hidden::make("value")->default(null),
+            Hidden::make('value')->default(null),
         ];
     }
 
@@ -230,9 +230,9 @@ class VisibilityComponent extends Component
      */
     private function isOptionableField(Get $get): bool
     {
-        $fieldCode = $get("field_code");
+        $fieldCode = $get('field_code');
 
-        if (!$fieldCode) {
+        if (! $fieldCode) {
             return false;
         }
 
@@ -248,23 +248,23 @@ class VisibilityComponent extends Component
 
     private function requiresSingleValue(Get $get): bool
     {
-        $fieldCode = $get("field_code");
-        $operator = $get("operator");
+        $fieldCode = $get('field_code');
+        $operator = $get('operator');
 
-        if (!$fieldCode || !$operator) {
+        if (! $fieldCode || ! $operator) {
             return true;
         }
 
         try {
             $fieldType = $this->getFieldType($fieldCode, $get);
 
-            if (!$fieldType instanceof CustomFieldType) {
+            if (! $fieldType instanceof CustomFieldType) {
                 return true;
             }
 
             // Multi-value fields require multiple selection for CONTAINS/NOT_CONTAINS
             if ($fieldType->hasMultipleValues()) {
-                return !in_array($operator, [
+                return ! in_array($operator, [
                     Operator::CONTAINS->value,
                     Operator::NOT_CONTAINS->value,
                 ]);
@@ -281,17 +281,17 @@ class VisibilityComponent extends Component
      */
     private function requiresMultipleValues(Get $get): bool
     {
-        $fieldCode = $get("field_code");
-        $operator = $get("operator");
+        $fieldCode = $get('field_code');
+        $operator = $get('operator');
 
-        if (!$fieldCode || !$operator) {
+        if (! $fieldCode || ! $operator) {
             return false;
         }
 
         try {
             $fieldType = $this->getFieldType($fieldCode, $get);
 
-            if (!$fieldType instanceof CustomFieldType) {
+            if (! $fieldType instanceof CustomFieldType) {
                 return false;
             }
 
@@ -310,13 +310,16 @@ class VisibilityComponent extends Component
     }
 
     /**
-     * Get value options for optionable fields.
+     * @return array<string, mixed>
+     */
+    /**
+     * @return array<string, string>
      */
     private function getValueOptions(Get $get): array
     {
-        $fieldCode = $get("field_code");
+        $fieldCode = $get('field_code');
 
-        if (!$fieldCode) {
+        if (! $fieldCode) {
             return [];
         }
 
@@ -325,8 +328,8 @@ class VisibilityComponent extends Component
 
             if (
                 $entityType === null ||
-                $entityType === "" ||
-                $entityType === "0"
+                $entityType === '' ||
+                $entityType === '0'
             ) {
                 return [];
             }
@@ -344,46 +347,46 @@ class VisibilityComponent extends Component
      */
     private function getValuePlaceholder(Get $get): string
     {
-        $fieldCode = $get("field_code");
-        $operator = $get("operator");
+        $fieldCode = $get('field_code');
+        $operator = $get('operator');
 
-        if (!$fieldCode) {
-            return "Select a field first";
+        if (! $fieldCode) {
+            return 'Select a field first';
         }
 
-        if (!$operator) {
-            return "Select an operator first";
+        if (! $operator) {
+            return 'Select an operator first';
         }
 
         try {
             $fieldType = $this->getFieldType($fieldCode, $get);
 
-            if (!$fieldType instanceof CustomFieldType) {
-                return "Enter comparison value";
+            if (! $fieldType instanceof CustomFieldType) {
+                return 'Enter comparison value';
             }
 
             if ($this->fieldTypeHelper->isOptionable($fieldType)) {
                 return $this->requiresMultipleValues($get)
-                    ? "Select one or more options"
-                    : "Select an option";
+                    ? 'Select one or more options'
+                    : 'Select an option';
             }
 
             return match ($fieldType->getCategory()) {
-                FieldCategory::NUMERIC => "Enter a number",
-                FieldCategory::DATE => "Enter a date (YYYY-MM-DD)",
-                FieldCategory::BOOLEAN => "true or false",
-                default => "Enter comparison value",
+                FieldCategory::NUMERIC => 'Enter a number',
+                FieldCategory::DATE => 'Enter a date (YYYY-MM-DD)',
+                FieldCategory::BOOLEAN => 'true or false',
+                default => 'Enter comparison value',
             };
         } catch (Exception) {
-            return "Enter comparison value";
+            return 'Enter comparison value';
         }
     }
 
     private function requiresConditions(Get $get): bool
     {
-        $mode = $get("settings.visibility.mode");
+        $mode = $get('settings.visibility.mode');
 
-        if (!$mode) {
+        if (! $mode) {
             return false;
         }
 
@@ -396,9 +399,9 @@ class VisibilityComponent extends Component
 
     private function requiresValue(Get $get): bool
     {
-        $operator = $get("operator");
+        $operator = $get('operator');
 
-        if (!$operator) {
+        if (! $operator) {
             return true;
         }
 
@@ -409,37 +412,42 @@ class VisibilityComponent extends Component
         }
     }
 
+    /**
+     * @return array<string, string>
+     */
     private function getFieldOptions(Get $get): array
     {
         try {
             $entityType = $this->getEntityType($get);
-            $currentFieldCode = $get("../../../../code");
+            $currentFieldCode = $get('../../../../code');
 
             if (
                 $entityType === null ||
-                $entityType === "" ||
-                $entityType === "0"
+                $entityType === '' ||
+                $entityType === '0'
             ) {
                 return [];
             }
 
-            return CustomFields::customFieldModel()
-                ::query()
+            return CustomFields::customFieldModel()::query()
                 ->forMorphEntity($entityType)
-                ->where("code", "!=", $currentFieldCode)
-                ->orderBy("name")
-                ->pluck("name", "code")
+                ->where('code', '!=', $currentFieldCode)
+                ->orderBy('name')
+                ->pluck('name', 'code')
                 ->toArray();
         } catch (Exception) {
             return [];
         }
     }
 
+    /**
+     * @return array<string, string>
+     */
     private function getOperatorOptions(Get $get): array
     {
-        $fieldCode = $get("field_code");
+        $fieldCode = $get('field_code');
 
-        if (!$fieldCode) {
+        if (! $fieldCode) {
             return Operator::options();
         }
 
@@ -461,16 +469,15 @@ class VisibilityComponent extends Component
 
             if (
                 $entityType === null ||
-                $entityType === "" ||
-                $entityType === "0"
+                $entityType === '' ||
+                $entityType === '0'
             ) {
                 return null;
             }
 
-            $field = CustomFields::customFieldModel()
-                ::query()
+            $field = CustomFields::customFieldModel()::query()
                 ->forMorphEntity($entityType)
-                ->where("code", $fieldCode)
+                ->where('code', $fieldCode)
                 ->first();
 
             return $field?->type;
@@ -481,7 +488,7 @@ class VisibilityComponent extends Component
 
     private function getEntityType(Get $get): ?string
     {
-        return $get("../../../../entity_type") ??
-            (request("entityType") ?? request()->route("entityType"));
+        return $get('../../../../entity_type') ??
+            (request('entityType') ?? request()->route('entityType'));
     }
 }

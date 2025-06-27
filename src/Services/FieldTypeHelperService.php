@@ -121,6 +121,7 @@ final readonly class FieldTypeHelperService
 
     /**
      * Get compatible operators for a field type (works with both enum and string types).
+     *
      * @return array<Operator>
      */
     public function getCompatibleOperators(CustomFieldType|string $type): array

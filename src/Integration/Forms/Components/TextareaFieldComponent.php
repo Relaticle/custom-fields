@@ -24,6 +24,6 @@ final readonly class TextareaFieldComponent implements FieldComponentInterface
             ->maxLength(50000)
             ->placeholder(null);
 
-        return $this->configurator->configure($field, $customField, $dependentFieldCodes, $allFields);
+        return $this->configurator->configure($field, $customField, $allFields, $dependentFieldCodes);
     }
 }

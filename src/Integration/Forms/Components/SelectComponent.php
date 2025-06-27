@@ -68,7 +68,7 @@ final readonly class SelectComponent implements FieldComponentInterface
         }
 
         /** @var Select */
-        return $this->configurator->configure($field, $customField, $dependentFieldCodes, $allFields);
+        return $this->configurator->configure($field, $customField, $allFields, $dependentFieldCodes);
     }
 
     /**

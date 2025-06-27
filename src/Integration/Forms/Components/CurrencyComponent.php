@@ -31,6 +31,6 @@ final readonly class CurrencyComponent implements FieldComponentInterface
             ->formatStateUsing(fn ($state): string => number_format((float) $state, 2))
             ->dehydrateStateUsing(fn ($state) => Str::of($state)->replace(['$', ','], '')->toFloat());
 
-        return $this->configurator->configure($field, $customField, $dependentFieldCodes, $allFields);
+        return $this->configurator->configure($field, $customField, $allFields, $dependentFieldCodes);
     }
 }

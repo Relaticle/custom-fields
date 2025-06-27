@@ -23,6 +23,6 @@ final readonly class TextInputComponent implements FieldComponentInterface
             ->maxLength(255)
             ->placeholder(null);
 
-        return $this->configurator->configure($field, $customField, $dependentFieldCodes, $allFields);
+        return $this->configurator->configure($field, $customField, $allFields, $dependentFieldCodes);
     }
 }

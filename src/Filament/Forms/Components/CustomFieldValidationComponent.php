@@ -139,10 +139,7 @@ final class CustomFieldValidationComponent extends Component
                         fn(
                             Get $get,
                             Component $component
-                        ): array => $this->getParameterValidationRules(
-                            $get,
-                            $component
-                        )
+                        ): array => $this->getParameterValidationRules($get, $component)
                     )
                     ->hint(
                         fn(
@@ -428,6 +425,9 @@ final class CustomFieldValidationComponent extends Component
         );
     }
 
+    /**
+     * @param array<string, mixed> $state
+     */
     private function generateRuleLabel(array $state): string
     {
         $ruleName = $state["name"] ?? "";
@@ -484,12 +484,13 @@ final class CustomFieldValidationComponent extends Component
         return empty($fieldType) ? null : CustomFieldType::tryFrom($fieldType);
     }
 
-    private function isRuleDuplicate(
-        array $existingRules,
-        string $newRule
-    ): bool {
+    /**
+     * @param array<string, mixed> $existingRules
+     */
+    private function isRuleDuplicate(array $existingRules, string $rule): bool
+    {
         return collect($existingRules)->contains(
-            fn(array $rule): bool => ($rule["name"] ?? "") === $newRule
+            fn(array $existingRule): bool => ($existingRule["name"] ?? "") === $rule
         );
     }
 

@@ -37,6 +37,6 @@ final readonly class ToggleButtonsComponent implements FieldComponentInterface
             }
         }
 
-        return $this->configurator->configure($field, $customField, $dependentFieldCodes, $allFields);
+        return $this->configurator->configure($field, $customField, $allFields, $dependentFieldCodes);
     }
 }

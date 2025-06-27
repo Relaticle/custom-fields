@@ -17,7 +17,11 @@ final readonly class CustomFieldsFilter
 {
     /**
      * @return array<BaseFilter>
+     *
      * @throws BindingResolutionException
+     */
+    /**
+     * @return array<\Filament\Tables\Filters\BaseFilter>
      */
     public static function all(Model&HasCustomFields $instance): array
     {
@@ -27,21 +31,30 @@ final readonly class CustomFieldsFilter
 
         $fieldFilterFactory = new FieldFilterFactory(app());
 
-        return $instance->customFields()
+        return $instance
+            ->customFields()
             ->with('options')
             ->whereIn('type', CustomFieldType::filterable()->pluck('value'))
             ->nonEncrypted()
             ->get()
-            ->map(fn (CustomField $customField): BaseFilter => $fieldFilterFactory->create($customField))
+            ->map(
+                fn (
+                    CustomField $customField
+                ): BaseFilter => $fieldFilterFactory->create($customField)
+            )
             ->toArray();
     }
 
     /**
      * @return array<BaseFilter>
+     *
      * @throws BindingResolutionException
      */
-    public static function forRelationManager(RelationManager $relationManager): array
-    {
-        return CustomFieldsFilter::all($relationManager->getRelationship()->getModel());
+    public static function forRelationManager(
+        RelationManager $relationManager
+    ): array {
+        return CustomFieldsFilter::all(
+            $relationManager->getRelationship()->getModel()
+        );
     }
 }

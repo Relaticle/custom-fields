@@ -21,6 +21,6 @@ final readonly class RichEditorComponent implements FieldComponentInterface
     {
         $field = RichEditor::make("custom_fields.{$customField->code}");
 
-        return $this->configurator->configure($field, $customField, $dependentFieldCodes, $allFields);
+        return $this->configurator->configure($field, $customField, $allFields, $dependentFieldCodes);
     }
 }

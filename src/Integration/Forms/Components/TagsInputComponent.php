@@ -39,6 +39,6 @@ final readonly class TagsInputComponent implements FieldComponentInterface
 
         $field->suggestions($suggestions);
 
-        return $this->configurator->configure($field, $customField, $dependentFieldCodes, $allFields);
+        return $this->configurator->configure($field, $customField, $allFields, $dependentFieldCodes);
     }
 }

@@ -18,41 +18,76 @@ use Relaticle\CustomFields\Support\Utils;
 final readonly class FieldConfigurator
 {
     public function __construct(
-        private ValidationService $validationService,
+        private ValidationService          $validationService,
         private CoreVisibilityLogicService $coreVisibilityLogic,
-        private FrontendVisibilityService $frontendVisibilityService,
-    ) {}
+        private FrontendVisibilityService  $frontendVisibilityService
+    )
+    {
+    }
 
-    public function configure(Field $field, CustomField $customField, array $dependentFieldCodes = [], ?Collection $allFields = null): Field
+    /**
+     * @param Collection<int, CustomField> $allFields
+     * @param array<string> $dependentFieldCodes
+     */
+    public function configure(
+        Field       $field,
+        CustomField $customField,
+        Collection  $allFields,
+        array       $dependentFieldCodes
+    ): Field
     {
         return $field
             ->name("custom_fields.{$customField->code}")
             ->label($customField->name)
-            ->afterStateHydrated(fn ($component, $state, $record) => $component->state($this->getFieldValue($customField, $state, $record)))
-            ->dehydrated(fn ($state): bool => Utils::isConditionalVisibilityFeatureEnabled() && ($this->coreVisibilityLogic->shouldAlwaysSave($customField) || filled($state)))
+            ->afterStateHydrated(
+                fn($component, $state, $record) => $component->state(
+                    $this->getFieldValue($customField, $state, $record)
+                )
+            )
+            ->dehydrated(
+                fn(
+                    $state
+                ): bool => Utils::isConditionalVisibilityFeatureEnabled() &&
+                    ($this->coreVisibilityLogic->shouldAlwaysSave(
+                            $customField
+                        ) ||
+                        filled($state))
+            )
             ->required($this->validationService->isRequired($customField))
             ->rules($this->validationService->getValidationRules($customField))
             ->columnSpan($customField->width->getSpanValue())
             ->when(
-                Utils::isConditionalVisibilityFeatureEnabled() && $this->hasVisibilityConditions($customField),
-                fn (Field $field): Field => $this->applyVisibility($field, $customField, $allFields)
+                Utils::isConditionalVisibilityFeatureEnabled() &&
+                $this->hasVisibilityConditions($customField),
+                fn(Field $field): Field => $this->applyVisibility(
+                    $field,
+                    $customField,
+                    $allFields
+                )
             )
             ->when(
-                Utils::isConditionalVisibilityFeatureEnabled() && filled($dependentFieldCodes),
-                fn (Field $field): Field => $field->live()
+                Utils::isConditionalVisibilityFeatureEnabled() &&
+                filled($dependentFieldCodes),
+                fn(Field $field): Field => $field->live()
             );
     }
 
-    private function getFieldValue(CustomField $customField, mixed $state, mixed $record): mixed
+    private function getFieldValue(
+        CustomField $customField,
+        mixed       $state,
+        mixed       $record
+    ): mixed
     {
         return value(function () use ($customField, $state, $record) {
-            $value = $record?->getCustomFieldValue($customField)
-                ?? $state
-                ?? ($customField->hasFieldTypeMultipleValues() ? [] : null);
+            $value =
+                $record?->getCustomFieldValue($customField) ??
+                ($state ??
+                    ($customField->hasFieldTypeMultipleValues() ? [] : null));
 
             return $value instanceof Carbon
                 ? $value->format(
-                    $customField->getFieldTypeValue() === CustomFieldType::DATE->value
+                    $customField->getFieldTypeValue() ===
+                    CustomFieldType::DATE->value
                         ? FieldTypeUtils::getDateFormat()
                         : FieldTypeUtils::getDateTimeFormat()
                 )
@@ -62,14 +97,28 @@ final readonly class FieldConfigurator
 
     private function hasVisibilityConditions(CustomField $customField): bool
     {
-        return $this->coreVisibilityLogic->hasVisibilityConditions($customField);
+        return $this->coreVisibilityLogic->hasVisibilityConditions(
+            $customField
+        );
     }
 
-    private function applyVisibility(Field $field, CustomField $customField, ?Collection $allFields): Field
+    /**
+     * @param Collection<int, CustomField> $allFields
+     */
+    private function applyVisibility(
+        Field       $field,
+        CustomField $customField,
+        Collection  $allFields
+    ): Field
     {
-        $jsExpression = $this->frontendVisibilityService->buildVisibilityExpression($customField, $allFields);
+        $jsExpression = $this->frontendVisibilityService->buildVisibilityExpression(
+            $customField,
+            $allFields
+        );
 
-        return $jsExpression !== null && $jsExpression !== '' && $jsExpression !== '0'
+        return $jsExpression !== null &&
+        $jsExpression !== '' &&
+        $jsExpression !== '0'
             ? $field->live()->visibleJs($jsExpression)
             : $field;
     }
