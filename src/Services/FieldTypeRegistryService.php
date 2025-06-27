@@ -397,7 +397,7 @@ final class FieldTypeRegistryService
             CustomFieldType::CHECKBOX->value => 'Relaticle\CustomFields\Integration\Infolists\Fields\BooleanEntry',
             CustomFieldType::TOGGLE->value => 'Relaticle\CustomFields\Integration\Infolists\Fields\BooleanEntry',
             CustomFieldType::COLOR_PICKER->value => 'Relaticle\CustomFields\Integration\Infolists\Fields\ColorEntry',
-            CustomFieldType::SELECT->value => 'Relaticle\CustomFields\Integration\Infolists\Fields\TextEntry',
+            CustomFieldType::SELECT->value => 'Relaticle\CustomFields\Integration\Infolists\Fields\SingleValueEntry',
             CustomFieldType::RADIO->value => 'Relaticle\CustomFields\Integration\Infolists\Fields\TextEntry',
             CustomFieldType::MULTI_SELECT->value => 'Relaticle\CustomFields\Integration\Infolists\Fields\MultiValueEntry',
             CustomFieldType::CHECKBOX_LIST->value => 'Relaticle\CustomFields\Integration\Infolists\Fields\MultiValueEntry',

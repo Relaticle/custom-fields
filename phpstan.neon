@@ -35,6 +35,12 @@ parameters:
         - '#Dynamic call to static method Illuminate\\Database\\Eloquent\\Builder.*::#'
         - '#Dynamic call to static method Relaticle\\CustomFields\\QueryBuilders\\CustomFieldQueryBuilder.*::#'
         
+        # Allow Laravel scope methods on relationships
+        - '#Call to an undefined method Illuminate\\Database\\Eloquent\\Relations\\HasMany.*::withDeactivated\(\)#'
+        
+        # Allow unused traits that are part of public API
+        - '#Trait .* is used zero times and is not analysed#'
+        
         # Relax some overly strict rules
         - '#^Construct empty\(\) is not allowed\. Use more strict comparison\.$#'
         - '#^Call to function in_array\(\) requires parameter \#3 to be set\.$#'

@@ -103,7 +103,7 @@ final readonly class SelectComponent implements FieldComponentInterface
                     ->pluck($recordTitleAttribute, $entityInstanceKeyName)
                     ->toArray();
             })
-            ->getOptionLabelUsing(fn ($value) => $entityInstanceQuery->find($value)?->{$recordTitleAttribute})
+            ->getOptionLabelUsing(fn ($value) => $entityInstanceQuery->find($value)?->getAttribute($recordTitleAttribute))
             ->getOptionLabelsUsing(fn(array $values): array => $entityInstanceQuery
                 ->whereIn($entityInstanceKeyName, $values)
                 ->pluck($recordTitleAttribute, $entityInstanceKeyName)

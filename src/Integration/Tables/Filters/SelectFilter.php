@@ -55,7 +55,7 @@ final readonly class SelectFilter implements FilterInterface
 
         return $select
             ->getSearchResultsUsing(function (string $search) use ($entityInstance, $recordTitleAttribute, $globalSearchableAttributes, $resource): array {
-                $query = $entityInstance->query();
+                $query = $entityInstance->newQuery();
 
                 FilamentResourceService::invokeMethodByReflection($resource, 'applyGlobalSearchAttributeConstraints', [
                     $query,
@@ -67,8 +67,8 @@ final readonly class SelectFilter implements FilterInterface
                     ->pluck($recordTitleAttribute, 'id')
                     ->toArray();
             })
-            ->getOptionLabelUsing(fn ($value) => $entityInstance::query()->find($value)?->{$recordTitleAttribute})
-            ->getOptionLabelsUsing(fn (array $values): array => $entityInstance::query()
+            ->getOptionLabelUsing(fn ($value) => $entityInstance->newQuery()->find($value)?->getAttribute($recordTitleAttribute))
+            ->getOptionLabelsUsing(fn (array $values): array => $entityInstance->newQuery()
                 ->whereIn('id', $values)
                 ->pluck($recordTitleAttribute, 'id')
                 ->toArray());

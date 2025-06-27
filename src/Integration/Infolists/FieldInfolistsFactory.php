@@ -43,7 +43,6 @@ final class FieldInfolistsFactory
             $component = $this->container->make($componentClass);
 
             if (! $component instanceof FieldInfolistsComponentInterface) {
-                dd($component);
                 throw new RuntimeException("Infolists component class {$componentClass} must implement FieldInfolistsComponentInterface");
             }
 

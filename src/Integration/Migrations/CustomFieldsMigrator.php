@@ -148,15 +148,18 @@ class CustomFieldsMigrator implements CustomsFieldsMigrators
         try {
             DB::beginTransaction();
 
-            collect($data)->each(fn ($value, $key) => $this->customFieldData->$key = $value);
+            // Create a new CustomFieldData instance with the updated data
+            $existingData = $this->customFieldData->toArray();
+            $mergedData = array_merge($existingData, $data);
+            $this->customFieldData = CustomFieldData::from($mergedData);
 
-            $data = $this->customFieldData->toArray();
+            $updateData = $this->customFieldData->toArray();
 
             if (Utils::isTenantEnabled()) {
-                $data[config('custom-fields.column_names.tenant_foreign_key')] = $this->tenantId;
+                $updateData[config('custom-fields.column_names.tenant_foreign_key')] = $this->tenantId;
             }
 
-            $this->customField->update($data);
+            $this->customField->update($updateData);
 
             if ($this->isCustomFieldTypeOptionable() && ($this->customFieldData->options !== null && $this->customFieldData->options !== [])) {
                 $this->customField->options()->delete();
@@ -176,7 +179,7 @@ class CustomFieldsMigrator implements CustomsFieldsMigrators
     public function delete(): void
     {
         if (!$this->customField instanceof CustomField) {
-            throw CustomFieldDoesNotExistException::whenDeleting($this->customField->code);
+            throw CustomFieldDoesNotExistException::whenDeleting($this->customFieldData->code);
         }
 
         $this->customField->delete();
@@ -188,7 +191,7 @@ class CustomFieldsMigrator implements CustomsFieldsMigrators
     public function activate(): void
     {
         if (!$this->customField instanceof CustomField) {
-            throw CustomFieldDoesNotExistException::whenActivating($this->customField->code);
+            throw CustomFieldDoesNotExistException::whenActivating($this->customFieldData->code);
         }
 
         if ($this->customField->isActive()) {
@@ -204,7 +207,7 @@ class CustomFieldsMigrator implements CustomsFieldsMigrators
     public function deactivate(): void
     {
         if (!$this->customField instanceof CustomField) {
-            throw CustomFieldDoesNotExistException::whenDeactivating($this->customField->code);
+            throw CustomFieldDoesNotExistException::whenDeactivating($this->customFieldData->code);
         }
 
         if (! $this->customField->isActive()) {

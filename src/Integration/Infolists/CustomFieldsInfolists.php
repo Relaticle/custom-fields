@@ -39,7 +39,7 @@ final class CustomFieldsInfolists extends Component
     {
         $record = $this->getRecord();
 
-        if (! $record) {
+        if (! $record || ! is_object($record)) {
             return [];
         }
 
