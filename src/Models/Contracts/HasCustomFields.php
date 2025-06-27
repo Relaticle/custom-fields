@@ -23,7 +23,7 @@ interface HasCustomFields
     public function customFields(): CustomFieldQueryBuilder;
 
     /**
-     * @return MorphMany<CustomFieldValue>
+     * @return MorphMany<CustomFieldValue, Model>
      */
     public function customFieldValues(): MorphMany;
 

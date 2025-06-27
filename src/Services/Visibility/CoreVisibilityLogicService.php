@@ -221,7 +221,7 @@ final readonly class CoreVisibilityLogicService
             'category' => $field->getFieldTypeCategory(),
             'is_optionable' => $field->isFieldTypeOptionable(),
             'has_multiple_values' => $field->hasFieldTypeMultipleValues(),
-            'compatible_operators' => array_map(fn ($op) => $op->value, $field->getFieldTypeCompatibleOperators()),
+            'compatible_operators' => $field->getFieldTypeCompatibleOperators(),
             'has_visibility_conditions' => $this->hasVisibilityConditions($field),
             'visibility_mode' => $this->getVisibilityMode($field)->value,
             'visibility_logic' => $this->getVisibilityLogic($field)->value,

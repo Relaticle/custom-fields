@@ -37,10 +37,8 @@
         "pestphp/pest-plugin-arch": "^3.0",
         "pestphp/pest-plugin-laravel": "^3.0",
         "pestphp/pest-plugin-livewire": "^3.0",
-        "phpstan/extension-installer": "^1.4",
         "phpstan/phpstan-deprecation-rules": "*",
         "phpstan/phpstan-phpunit": "^2.0",
-        "phpstan/phpstan-strict-rules": "*",
         "rector/rector": "*",
         "spatie/laravel-ray": "^1.26"
     },
@@ -58,7 +56,6 @@
     "scripts": {
         "post-autoload-dump": "@php ./vendor/bin/testbench package:discover --ansi",
         "analyse": "vendor/bin/phpstan analyse",
-        "analyse:strict": "vendor/bin/phpstan analyse --level=8",
         "insights": "vendor/bin/phpinsights",
         "insights:fix": "vendor/bin/phpinsights --fix",
         "refactor": "vendor/bin/rector process --dry-run",

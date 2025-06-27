@@ -1,292 +1,490 @@
 parameters:
 	ignoreErrors:
 		-
-			message: '#^Method Relaticle\\CustomFields\\Enums\\CustomFieldType\:\:getLabel\(\) never returns null so it can be removed from the return type\.$#'
-			identifier: return.unusedType
+			message: '#^Unreachable statement \- code above always terminates\.$#'
+			identifier: deadCode.unreachable
+			count: 1
+			path: src/Casts/CustomFieldTypeCast.php
+
+		-
+			message: '#^Call to function in_array\(\) with arguments ''width'', array\{0\: ''custom_field…''\|''width'', 1\?\: ''width''\} and true will always evaluate to true\.$#'
+			identifier: function.alreadyNarrowedType
+			count: 1
+			path: src/Commands/Upgrade/UpdateDatabaseSchema.php
+
+		-
+			message: '#^Method Relaticle\\CustomFields\\CustomFields\:\:useCustomFieldModel\(\) should return static\(Relaticle\\CustomFields\\CustomFields\) but returns Relaticle\\CustomFields\\CustomFields\.$#'
+			identifier: return.type
+			count: 1
+			path: src/CustomFields.php
+
+		-
+			message: '#^Method Relaticle\\CustomFields\\CustomFields\:\:useOptionModel\(\) should return static\(Relaticle\\CustomFields\\CustomFields\) but returns Relaticle\\CustomFields\\CustomFields\.$#'
+			identifier: return.type
+			count: 1
+			path: src/CustomFields.php
+
+		-
+			message: '#^Method Relaticle\\CustomFields\\CustomFields\:\:useSectionModel\(\) should return static\(Relaticle\\CustomFields\\CustomFields\) but returns Relaticle\\CustomFields\\CustomFields\.$#'
+			identifier: return.type
+			count: 1
+			path: src/CustomFields.php
+
+		-
+			message: '#^Method Relaticle\\CustomFields\\CustomFields\:\:useValueModel\(\) should return static\(Relaticle\\CustomFields\\CustomFields\) but returns Relaticle\\CustomFields\\CustomFields\.$#'
+			identifier: return.type
+			count: 1
+			path: src/CustomFields.php
+
+		-
+			message: '#^Method Relaticle\\CustomFields\\Enums\\CustomFieldType\:\:encryptables\(\) should return Illuminate\\Support\\Collection\<int, Relaticle\\CustomFields\\Enums\\CustomFieldType\> but returns Illuminate\\Support\\Collection\<int, Relaticle\\CustomFields\\Enums\\CustomFieldType\:\:LINK\|Relaticle\\CustomFields\\Enums\\CustomFieldType\:\:MARKDOWN_EDITOR\|Relaticle\\CustomFields\\Enums\\CustomFieldType\:\:RICH_EDITOR\|Relaticle\\CustomFields\\Enums\\CustomFieldType\:\:TEXT\|Relaticle\\CustomFields\\Enums\\CustomFieldType\:\:TEXTAREA\>\.$#'
+			identifier: return.type
 			count: 1
 			path: src/Enums/CustomFieldType.php
 
 		-
-			message: '#^Expression on left side of \?\? is not nullable\.$#'
-			identifier: nullCoalesce.expr
+			message: '#^Method Relaticle\\CustomFields\\Enums\\CustomFieldType\:\:filterable\(\) should return Illuminate\\Support\\Collection\<int, Relaticle\\CustomFields\\Enums\\CustomFieldType\> but returns Illuminate\\Support\\Collection\<int, Relaticle\\CustomFields\\Enums\\CustomFieldType\:\:CHECKBOX\|Relaticle\\CustomFields\\Enums\\CustomFieldType\:\:CHECKBOX_LIST\|Relaticle\\CustomFields\\Enums\\CustomFieldType\:\:MULTI_SELECT\|Relaticle\\CustomFields\\Enums\\CustomFieldType\:\:RADIO\|Relaticle\\CustomFields\\Enums\\CustomFieldType\:\:SELECT\|Relaticle\\CustomFields\\Enums\\CustomFieldType\:\:TOGGLE\|Relaticle\\CustomFields\\Enums\\CustomFieldType\:\:TOGGLE_BUTTONS\>\.$#'
+			identifier: return.type
+			count: 1
+			path: src/Enums/CustomFieldType.php
+
+		-
+			message: '#^Method Relaticle\\CustomFields\\Enums\\CustomFieldType\:\:getCompatibleOperators\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Enums/CustomFieldType.php
+
+		-
+			message: '#^Method Relaticle\\CustomFields\\Enums\\CustomFieldType\:\:optionables\(\) should return Illuminate\\Support\\Collection\<int, Relaticle\\CustomFields\\Enums\\CustomFieldType\> but returns Illuminate\\Support\\Collection\<int, Relaticle\\CustomFields\\Enums\\CustomFieldType\:\:CHECKBOX_LIST\|Relaticle\\CustomFields\\Enums\\CustomFieldType\:\:MULTI_SELECT\|Relaticle\\CustomFields\\Enums\\CustomFieldType\:\:RADIO\|Relaticle\\CustomFields\\Enums\\CustomFieldType\:\:SELECT\|Relaticle\\CustomFields\\Enums\\CustomFieldType\:\:TAGS_INPUT\|Relaticle\\CustomFields\\Enums\\CustomFieldType\:\:TOGGLE_BUTTONS\>\.$#'
+			identifier: return.type
+			count: 1
+			path: src/Enums/CustomFieldType.php
+
+		-
+			message: '#^Method Relaticle\\CustomFields\\Enums\\CustomFieldType\:\:searchables\(\) should return Illuminate\\Support\\Collection\<int, Relaticle\\CustomFields\\Enums\\CustomFieldType\> but returns Illuminate\\Support\\Collection\<int, Relaticle\\CustomFields\\Enums\\CustomFieldType\:\:DATE\|Relaticle\\CustomFields\\Enums\\CustomFieldType\:\:DATE_TIME\|Relaticle\\CustomFields\\Enums\\CustomFieldType\:\:LINK\|Relaticle\\CustomFields\\Enums\\CustomFieldType\:\:TAGS_INPUT\|Relaticle\\CustomFields\\Enums\\CustomFieldType\:\:TEXT\|Relaticle\\CustomFields\\Enums\\CustomFieldType\:\:TEXTAREA\>\.$#'
+			identifier: return.type
+			count: 1
+			path: src/Enums/CustomFieldType.php
+
+		-
+			message: '#^Method Relaticle\\CustomFields\\Enums\\CustomFieldValidationRule\:\:getParameterValidationRule\(\) should return array\<string, mixed\> but returns list\<\(Closure\)\|Illuminate\\Validation\\Rules\\Numeric\|string\>\.$#'
+			identifier: return.type
+			count: 1
+			path: src/Enums/CustomFieldValidationRule.php
+
+		-
+			message: '#^Method Relaticle\\CustomFields\\Enums\\CustomFieldValidationRule\:\:getParameterValidationRuleFor\(\) should return array\<string, mixed\> but returns array\<int, string\>\.$#'
+			identifier: return.type
+			count: 1
+			path: src/Enums/CustomFieldValidationRule.php
+
+		-
+			message: '#^Call to function method_exists\(\) with Filament\\Schemas\\Schema and ''getParentComponent'' will always evaluate to true\.$#'
+			identifier: function.alreadyNarrowedType
+			count: 1
+			path: src/Filament/Forms/Components/CustomFieldValidationComponent.php
+
+		-
+			message: '#^Method Relaticle\\CustomFields\\Filament\\Forms\\Components\\CustomFieldValidationComponent\:\:dehydrateParameterValue\(\) has parameter \$state with no type specified\.$#'
+			identifier: missingType.parameter
+			count: 1
+			path: src/Filament/Forms/Components/CustomFieldValidationComponent.php
+
+		-
+			message: '#^Method Relaticle\\CustomFields\\Filament\\Forms\\Components\\CustomFieldValidationComponent\:\:generateRuleLabel\(\) has parameter \$state with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Filament/Forms/Components/CustomFieldValidationComponent.php
+
+		-
+			message: '#^Method Relaticle\\CustomFields\\Filament\\Forms\\Components\\CustomFieldValidationComponent\:\:getAllowedRuleValues\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Filament/Forms/Components/CustomFieldValidationComponent.php
+
+		-
+			message: '#^Method Relaticle\\CustomFields\\Filament\\Forms\\Components\\CustomFieldValidationComponent\:\:getAvailableRuleOptions\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Filament/Forms/Components/CustomFieldValidationComponent.php
+
+		-
+			message: '#^Method Relaticle\\CustomFields\\Filament\\Forms\\Components\\CustomFieldValidationComponent\:\:getParameterValidationRules\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Filament/Forms/Components/CustomFieldValidationComponent.php
+
+		-
+			message: '#^Method Relaticle\\CustomFields\\Filament\\Forms\\Components\\CustomFieldValidationComponent\:\:hydrateParameterValue\(\) has parameter \$state with no type specified\.$#'
+			identifier: missingType.parameter
+			count: 1
+			path: src/Filament/Forms/Components/CustomFieldValidationComponent.php
+
+		-
+			message: '#^Method Relaticle\\CustomFields\\Filament\\Forms\\Components\\CustomFieldValidationComponent\:\:isRuleDuplicate\(\) has parameter \$existingRules with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Filament/Forms/Components/CustomFieldValidationComponent.php
+
+		-
+			message: '#^Offset ''validation_rules'' on array\{label\: string, icon\: string, category\: string, validation_rules\: array, form_component\: string, table_column\: string, infolist_entry\: string, searchable\: bool, \.\.\.\} in isset\(\) always exists and is not nullable\.$#'
+			identifier: isset.offset
+			count: 1
+			path: src/Filament/Forms/Components/CustomFieldValidationComponent.php
+
+		-
+			message: '#^Method Relaticle\\CustomFields\\Filament\\Forms\\Components\\VisibilityComponent\:\:buildConditionSchema\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
 			count: 1
 			path: src/Filament/Forms/Components/VisibilityComponent.php
 
 		-
-			message: '#^Dynamic call to static method Relaticle\\CustomFields\\Filament\\Schemas\\SectionForm\:\:schema\(\)\.$#'
-			identifier: staticMethod.dynamicCall
+			message: '#^Method Relaticle\\CustomFields\\Filament\\Forms\\Components\\VisibilityComponent\:\:getFieldOptions\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
 			count: 1
-			path: src/Filament/Pages/CustomFieldsPage.php
+			path: src/Filament/Forms/Components/VisibilityComponent.php
 
 		-
-			message: '#^Property Relaticle\\CustomFields\\Filament\\Pages\\CustomFieldsPage\:\:\$currentEntityType has no type specified\.$#'
-			identifier: missingType.property
+			message: '#^Method Relaticle\\CustomFields\\Filament\\Forms\\Components\\VisibilityComponent\:\:getOperatorOptions\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
 			count: 1
-			path: src/Filament/Pages/CustomFieldsPage.php
+			path: src/Filament/Forms/Components/VisibilityComponent.php
 
 		-
-			message: '#^Call to an undefined method Filament\\Actions\\Imports\\ImportColumn\:\:date\(\)\.$#'
-			identifier: method.notFound
+			message: '#^Method Relaticle\\CustomFields\\Filament\\Forms\\Components\\VisibilityComponent\:\:getValueOptions\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
 			count: 1
-			path: src/Integration/Actions/Imports/ColumnConfigurators/BasicColumnConfigurator.php
+			path: src/Filament/Forms/Components/VisibilityComponent.php
 
 		-
-			message: '#^Call to an undefined method Filament\\Actions\\Imports\\ImportColumn\:\:dateTime\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: src/Integration/Actions/Imports/ColumnConfigurators/BasicColumnConfigurator.php
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$id\.$#'
+			identifier: property.notFound
+			count: 2
+			path: src/Filament/Schemas/FieldForm.php
 
 		-
-			message: '#^Dynamic call to static method Illuminate\\Database\\Eloquent\\Builder\<Illuminate\\Database\\Eloquent\\Model\>\:\:limit\(\)\.$#'
-			identifier: staticMethod.dynamicCall
+			message: '#^Method Relaticle\\CustomFields\\Filament\\Schemas\\FieldForm\:\:schema\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
 			count: 1
-			path: src/Integration/Actions/Imports/ColumnConfigurators/MultiSelectColumnConfigurator.php
+			path: src/Filament/Schemas/FieldForm.php
 
 		-
-			message: '#^Dynamic call to static method Illuminate\\Database\\Eloquent\\Builder\<Illuminate\\Database\\Eloquent\\Model\>\:\:limit\(\)\.$#'
-			identifier: staticMethod.dynamicCall
+			message: '#^Using nullsafe property access "\?\-\>lookup_type" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
+			identifier: nullsafe.neverNull
+			count: 1
+			path: src/Filament/Schemas/FieldForm.php
+
+		-
+			message: '#^Using nullsafe property access "\?\-\>type" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
+			identifier: nullsafe.neverNull
+			count: 1
+			path: src/Filament/Schemas/FieldForm.php
+
+		-
+			message: '#^Method Relaticle\\CustomFields\\Filament\\Schemas\\FormInterface\:\:schema\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Filament/Schemas/FormInterface.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$id\.$#'
+			identifier: property.notFound
+			count: 2
+			path: src/Filament/Schemas/SectionForm.php
+
+		-
+			message: '#^Method Relaticle\\CustomFields\\Filament\\Schemas\\SectionForm\:\:schema\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Filament/Schemas/SectionForm.php
+
+		-
+			message: '#^Method Relaticle\\CustomFields\\Integration\\Actions\\Exports\\CustomFieldsExporter\:\:create\(\) has parameter \$allFields with generic class Illuminate\\Support\\Collection but does not specify its types\: TKey, TValue$#'
+			identifier: missingType.generics
+			count: 1
+			path: src/Integration/Actions/Exports/CustomFieldsExporter.php
+
+		-
+			message: '#^Method Relaticle\\CustomFields\\Integration\\Actions\\Exports\\CustomFieldsExporter\:\:create\(\) has parameter \$valueResolver with no type specified\.$#'
+			identifier: missingType.parameter
+			count: 1
+			path: src/Integration/Actions/Exports/CustomFieldsExporter.php
+
+		-
+			message: '#^Method Relaticle\\CustomFields\\Integration\\Actions\\Exports\\CustomFieldsExporter\:\:getColumns\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Integration/Actions/Exports/CustomFieldsExporter.php
+
+		-
+			message: '#^Access to an undefined property Relaticle\\CustomFields\\Models\\CustomFieldOption\:\:\$name\.$#'
+			identifier: property.notFound
 			count: 1
 			path: src/Integration/Actions/Imports/ColumnConfigurators/SelectColumnConfigurator.php
 
 		-
-			message: '#^Using nullsafe method call on non\-nullable type Spatie\\LaravelData\\DataCollection\<int, Relaticle\\CustomFields\\Data\\ValidationRuleData\>\. Use \-\> instead\.$#'
-			identifier: nullsafe.neverNull
-			count: 1
-			path: src/Integration/Actions/Imports/ColumnFactory.php
-
-		-
-			message: '#^Call to an undefined method Illuminate\\Database\\Eloquent\\Model\:\:saveCustomFields\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: src/Integration/Actions/Imports/CustomFieldsImporter.php
-
-		-
-			message: '#^Dynamic call to static method Relaticle\\CustomFields\\QueryBuilders\\CustomFieldQueryBuilder\:\:whereIn\(\)\.$#'
-			identifier: staticMethod.dynamicCall
-			count: 1
+			message: '#^Access to an undefined property Relaticle\\CustomFields\\Models\\CustomFieldOption\:\:\$name\.$#'
+			identifier: property.notFound
+			count: 2
 			path: src/Integration/Actions/Imports/ValueConverters/ValueConverter.php
 
 		-
-			message: '#^Dynamic call to static method Illuminate\\Database\\Eloquent\\Builder\<Illuminate\\Database\\Eloquent\\Model\>\:\:limit\(\)\.$#'
-			identifier: staticMethod.dynamicCall
+			message: '#^Access to an undefined property Relaticle\\CustomFields\\Models\\CustomFieldOption\:\:\$name\.$#'
+			identifier: property.notFound
 			count: 1
 			path: src/Integration/Forms/Components/CheckboxListComponent.php
 
 		-
-			message: '#^Dynamic call to static method Illuminate\\Database\\Eloquent\\Model\:\:query\(\)\.$#'
-			identifier: staticMethod.dynamicCall
+			message: '#^Access to an undefined property Relaticle\\CustomFields\\Models\\CustomFieldOption\:\:\$settings\.$#'
+			identifier: property.notFound
+			count: 2
+			path: src/Integration/Forms/Components/CheckboxListComponent.php
+
+		-
+			message: '#^Parameter \#1 \$optionId of method Relaticle\\CustomFields\\Integration\\Forms\\Components\\CheckboxListComponent\:\:getColoredOptionDescription\(\) expects string, int given\.$#'
+			identifier: argument.type
 			count: 1
 			path: src/Integration/Forms/Components/CheckboxListComponent.php
 
 		-
-			message: '#^Dynamic call to static method Illuminate\\Database\\Eloquent\\Builder\<Illuminate\\Database\\Eloquent\\Model\>\:\:limit\(\)\.$#'
-			identifier: staticMethod.dynamicCall
+			message: '#^Unable to resolve the template type TMapWithKeysValue in call to method Illuminate\\Database\\Eloquent\\Collection\<int,Relaticle\\CustomFields\\Models\\CustomFieldOption\>\:\:mapWithKeys\(\)$#'
+			identifier: argument.templateType
+			count: 1
+			path: src/Integration/Forms/Components/CheckboxListComponent.php
+
+		-
+			message: '#^Access to an undefined property Relaticle\\CustomFields\\Models\\CustomFieldOption\:\:\$name\.$#'
+			identifier: property.notFound
 			count: 1
 			path: src/Integration/Forms/Components/RadioComponent.php
 
 		-
-			message: '#^Dynamic call to static method Illuminate\\Database\\Eloquent\\Model\:\:query\(\)\.$#'
-			identifier: staticMethod.dynamicCall
+			message: '#^Access to an undefined property Relaticle\\CustomFields\\Models\\CustomFieldOption\:\:\$settings\.$#'
+			identifier: property.notFound
+			count: 2
+			path: src/Integration/Forms/Components/RadioComponent.php
+
+		-
+			message: '#^Parameter \#1 \$optionId of method Relaticle\\CustomFields\\Integration\\Forms\\Components\\RadioComponent\:\:getColoredOptionDescription\(\) expects string, int given\.$#'
+			identifier: argument.type
 			count: 1
 			path: src/Integration/Forms/Components/RadioComponent.php
 
 		-
-			message: '#^Dynamic call to static method Illuminate\\Database\\Eloquent\\Builder\<Illuminate\\Database\\Eloquent\\Model\>\:\:limit\(\)\.$#'
-			identifier: staticMethod.dynamicCall
+			message: '#^Unable to resolve the template type TMapWithKeysValue in call to method Illuminate\\Database\\Eloquent\\Collection\<int,Relaticle\\CustomFields\\Models\\CustomFieldOption\>\:\:mapWithKeys\(\)$#'
+			identifier: argument.templateType
+			count: 1
+			path: src/Integration/Forms/Components/RadioComponent.php
+
+		-
+			message: '#^Access to an undefined property Relaticle\\CustomFields\\Models\\CustomFieldOption\:\:\$name\.$#'
+			identifier: property.notFound
 			count: 1
 			path: src/Integration/Forms/Components/SelectComponent.php
 
 		-
-			message: '#^Dynamic call to static method Illuminate\\Database\\Eloquent\\Builder\<Illuminate\\Database\\Eloquent\\Model\>\:\:whereIn\(\)\.$#'
-			identifier: staticMethod.dynamicCall
+			message: '#^Access to an undefined property Relaticle\\CustomFields\\Models\\CustomFieldOption\:\:\$settings\.$#'
+			identifier: property.notFound
 			count: 1
 			path: src/Integration/Forms/Components/SelectComponent.php
 
 		-
-			message: '#^Variable property access on Illuminate\\Database\\Eloquent\\Collection\<int, Illuminate\\Database\\Eloquent\\Model\>\|Illuminate\\Database\\Eloquent\\Model\.$#'
-			identifier: property.dynamicName
+			message: '#^Unable to resolve the template type TMapWithKeysValue in call to method Illuminate\\Database\\Eloquent\\Collection\<int,Relaticle\\CustomFields\\Models\\CustomFieldOption\>\:\:mapWithKeys\(\)$#'
+			identifier: argument.templateType
 			count: 1
 			path: src/Integration/Forms/Components/SelectComponent.php
 
 		-
-			message: '#^Cannot access constant class on array\<string, mixed\>\|Illuminate\\Database\\Eloquent\\Model\.$#'
-			identifier: classConstant.nonObject
-			count: 1
-			path: src/Integration/Infolists/CustomFieldsInfolists.php
+			message: '#^Access to an undefined property Relaticle\\CustomFields\\Models\\CustomFieldOption\:\:\$settings\.$#'
+			identifier: property.notFound
+			count: 2
+			path: src/Integration/Forms/Components/ToggleButtonsComponent.php
 
 		-
-			message: '#^Template type T of method Relaticle\\CustomFields\\Integration\\Infolists\\FieldInfolistsConfigurator\:\:configure\(\) is not referenced in a parameter\.$#'
-			identifier: method.templateTypeNotInParameter
+			message: '#^Instanceof between Relaticle\\CustomFields\\Enums\\CustomFieldType and BackedEnum will always evaluate to true\.$#'
+			identifier: instanceof.alwaysTrue
 			count: 1
-			path: src/Integration/Infolists/FieldInfolistsConfigurator.php
+			path: src/Integration/Forms/FieldComponentFactory.php
 
 		-
-			message: '#^Anonymous function never returns null so it can be removed from the return type\.$#'
-			identifier: return.unusedType
+			message: '#^Access to an undefined property Relaticle\\CustomFields\\Models\\CustomField\:\:\$width\.$#'
+			identifier: property.notFound
+			count: 1
+			path: src/Integration/Forms/FieldConfigurator.php
+
+		-
+			message: '#^Method Relaticle\\CustomFields\\Integration\\Forms\\FieldConfigurator\:\:applyVisibility\(\) has parameter \$allFields with generic class Illuminate\\Support\\Collection but does not specify its types\: TKey, TValue$#'
+			identifier: missingType.generics
+			count: 1
+			path: src/Integration/Forms/FieldConfigurator.php
+
+		-
+			message: '#^Method Relaticle\\CustomFields\\Integration\\Forms\\FieldConfigurator\:\:configure\(\) has parameter \$allFields with generic class Illuminate\\Support\\Collection but does not specify its types\: TKey, TValue$#'
+			identifier: missingType.generics
+			count: 1
+			path: src/Integration/Forms/FieldConfigurator.php
+
+		-
+			message: '#^Method Relaticle\\CustomFields\\Integration\\Forms\\FieldConfigurator\:\:configure\(\) has parameter \$dependentFieldCodes with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Integration/Forms/FieldConfigurator.php
+
+		-
+			message: '#^Method Relaticle\\CustomFields\\Integration\\Forms\\FieldConfigurator\:\:getFieldValue\(\) has parameter \$record with no type specified\.$#'
+			identifier: missingType.parameter
+			count: 1
+			path: src/Integration/Forms/FieldConfigurator.php
+
+		-
+			message: '#^Method Relaticle\\CustomFields\\Integration\\Forms\\FieldConfigurator\:\:getFieldValue\(\) has parameter \$state with no type specified\.$#'
+			identifier: missingType.parameter
+			count: 1
+			path: src/Integration/Forms/FieldConfigurator.php
+
+		-
+			message: '#^Access to an undefined property Relaticle\\CustomFields\\Models\\CustomFieldSection\:\:\$description\.$#'
+			identifier: property.notFound
+			count: 1
+			path: src/Integration/Forms/SectionComponentFactory.php
+
+		-
+			message: '#^Match arm comparison between ''headless'' and ''headless'' is always true\.$#'
+			identifier: match.alwaysTrue
+			count: 1
+			path: src/Integration/Forms/SectionComponentFactory.php
+
+		-
+			message: '#^Access to an undefined property Relaticle\\CustomFields\\Models\\CustomField\:\:\$width\.$#'
+			identifier: property.notFound
+			count: 1
+			path: src/Integration/Infolists/FieldInfolistsFactory.php
+
+		-
+			message: '#^Instanceof between Relaticle\\CustomFields\\Enums\\CustomFieldType and BackedEnum will always evaluate to true\.$#'
+			identifier: instanceof.alwaysTrue
+			count: 1
+			path: src/Integration/Infolists/FieldInfolistsFactory.php
+
+		-
+			message: '#^Access to an undefined property Relaticle\\CustomFields\\Models\\CustomFieldOption\:\:\$settings\.$#'
+			identifier: property.notFound
 			count: 1
 			path: src/Integration/Infolists/Fields/MultiValueEntry.php
 
 		-
-			message: '#^Anonymous function never returns null so it can be removed from the return type\.$#'
-			identifier: return.unusedType
+			message: '#^Access to an undefined property Relaticle\\CustomFields\\Models\\CustomFieldOption\:\:\$settings\.$#'
+			identifier: property.notFound
 			count: 1
 			path: src/Integration/Infolists/Fields/SingleValueEntry.php
 
 		-
-			message: '#^Method Relaticle\\CustomFields\\Integration\\Migrations\\CustomFieldsMigration\:\:up\(\) has no return type specified\.$#'
-			identifier: missingType.return
+			message: '#^Access to an undefined property Relaticle\\CustomFields\\Models\\CustomFieldSection\:\:\$description\.$#'
+			identifier: property.notFound
 			count: 1
-			path: src/Integration/Migrations/CustomFieldsMigration.php
+			path: src/Integration/Infolists/Sections/SectionInfolistsComponent.php
 
 		-
-			message: '#^Cannot access property \$code on null\.$#'
-			identifier: property.nonObject
-			count: 3
-			path: src/Integration/Migrations/CustomFieldsMigrator.php
-
-		-
-			message: '#^Dynamic call to static method Illuminate\\Database\\Eloquent\\Builder\<Relaticle\\CustomFields\\Models\\CustomFieldOption\>\:\:delete\(\)\.$#'
-			identifier: staticMethod.dynamicCall
+			message: '#^Instanceof between Relaticle\\CustomFields\\Enums\\CustomFieldType and BackedEnum will always evaluate to true\.$#'
+			identifier: instanceof.alwaysTrue
 			count: 1
 			path: src/Integration/Migrations/CustomFieldsMigrator.php
 
 		-
-			message: '#^Parameter \#1 \$model \(class\-string\) of method Relaticle\\CustomFields\\Integration\\Migrations\\CustomFieldsMigrator\:\:new\(\) should be contravariant with parameter \$model \(string\) of method Relaticle\\CustomFields\\Contracts\\CustomsFieldsMigrators\:\:new\(\)$#'
-			identifier: method.childParameterType
+			message: '#^Method Relaticle\\CustomFields\\Integration\\Migrations\\CustomFieldsMigrator\:\:createOptions\(\) has parameter \$options with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
 			count: 1
 			path: src/Integration/Migrations/CustomFieldsMigrator.php
 
 		-
-			message: '#^Variable property access on Relaticle\\CustomFields\\Data\\CustomFieldData\.$#'
-			identifier: property.dynamicName
-			count: 1
-			path: src/Integration/Migrations/CustomFieldsMigrator.php
-
-		-
-			message: '#^Call to an undefined method Illuminate\\Database\\Eloquent\\Model\:\:customFields\(\)\.$#'
-			identifier: method.notFound
+			message: '#^Method Relaticle\\CustomFields\\Integration\\Tables\\Columns\\CustomFieldsColumn\:\:all\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
 			count: 1
 			path: src/Integration/Tables/Columns/CustomFieldsColumn.php
 
 		-
-			message: '#^Dynamic call to static method Illuminate\\Database\\Eloquent\\Builder\<Illuminate\\Database\\Eloquent\\Model\>\:\:orderBy\(\)\.$#'
-			identifier: staticMethod.dynamicCall
+			message: '#^Method Relaticle\\CustomFields\\Integration\\Tables\\Columns\\CustomFieldsColumn\:\:forRelationManager\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Integration/Tables/Columns/CustomFieldsColumn.php
+
+		-
+			message: '#^Parameter \#1 \$instance of static method Relaticle\\CustomFields\\Integration\\Tables\\Columns\\CustomFieldsColumn\:\:all\(\) expects Relaticle\\CustomFields\\Models\\Contracts\\HasCustomFields, Illuminate\\Database\\Eloquent\\Model given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Integration/Tables/Columns/CustomFieldsColumn.php
+
+		-
+			message: '#^Parameter \#1 \$column of method Illuminate\\Database\\Eloquent\\Builder\<Illuminate\\Database\\Eloquent\\Model\>\:\:orderBy\(\) expects Closure\|Illuminate\\Contracts\\Database\\Query\\Expression\|Illuminate\\Database\\Eloquent\\Builder\<\*\>\|Illuminate\\Database\\Query\\Builder\|string, Illuminate\\Database\\Eloquent\\Relations\\HasMany\<Relaticle\\CustomFields\\Models\\CustomFieldValue, Relaticle\\CustomFields\\Models\\CustomField\> given\.$#'
+			identifier: argument.type
 			count: 1
 			path: src/Integration/Tables/Columns/DateTimeColumn.php
 
 		-
-			message: '#^Dynamic call to static method Illuminate\\Database\\Eloquent\\Builder\<Relaticle\\CustomFields\\Models\\CustomFieldValue\>\:\:select\(\)\.$#'
-			identifier: staticMethod.dynamicCall
+			message: '#^Access to an undefined property Relaticle\\CustomFields\\Models\\CustomField\:\:\$width\.$#'
+			identifier: property.notFound
 			count: 1
-			path: src/Integration/Tables/Columns/DateTimeColumn.php
+			path: src/Integration/Tables/Columns/FieldColumnFactory.php
 
 		-
-			message: '#^Dynamic call to static method Illuminate\\Database\\Eloquent\\Builder\<Relaticle\\CustomFields\\Models\\CustomFieldValue\>\:\:whereColumn\(\)\.$#'
-			identifier: staticMethod.dynamicCall
+			message: '#^Instanceof between Relaticle\\CustomFields\\Enums\\CustomFieldType and BackedEnum will always evaluate to true\.$#'
+			identifier: instanceof.alwaysTrue
 			count: 1
-			path: src/Integration/Tables/Columns/DateTimeColumn.php
+			path: src/Integration/Tables/Columns/FieldColumnFactory.php
 
 		-
-			message: '#^Dynamic call to static method Illuminate\\Database\\Eloquent\\Builder\<Illuminate\\Database\\Eloquent\\Model\>\:\:orderBy\(\)\.$#'
-			identifier: staticMethod.dynamicCall
-			count: 1
-			path: src/Integration/Tables/Columns/IconColumn.php
-
-		-
-			message: '#^Dynamic call to static method Illuminate\\Database\\Eloquent\\Builder\<Relaticle\\CustomFields\\Models\\CustomFieldValue\>\:\:select\(\)\.$#'
-			identifier: staticMethod.dynamicCall
+			message: '#^Parameter \#1 \$column of method Illuminate\\Database\\Eloquent\\Builder\<Illuminate\\Database\\Eloquent\\Model\>\:\:orderBy\(\) expects Closure\|Illuminate\\Contracts\\Database\\Query\\Expression\|Illuminate\\Database\\Eloquent\\Builder\<\*\>\|Illuminate\\Database\\Query\\Builder\|string, Illuminate\\Database\\Eloquent\\Relations\\HasMany\<Relaticle\\CustomFields\\Models\\CustomFieldValue, Relaticle\\CustomFields\\Models\\CustomField\> given\.$#'
+			identifier: argument.type
 			count: 1
 			path: src/Integration/Tables/Columns/IconColumn.php
 
 		-
-			message: '#^Dynamic call to static method Illuminate\\Database\\Eloquent\\Builder\<Relaticle\\CustomFields\\Models\\CustomFieldValue\>\:\:whereColumn\(\)\.$#'
-			identifier: staticMethod.dynamicCall
-			count: 1
-			path: src/Integration/Tables/Columns/IconColumn.php
-
-		-
-			message: '#^Anonymous function never returns null so it can be removed from the return type\.$#'
-			identifier: return.unusedType
+			message: '#^Access to an undefined property Relaticle\\CustomFields\\Models\\CustomFieldOption\:\:\$settings\.$#'
+			identifier: property.notFound
 			count: 1
 			path: src/Integration/Tables/Columns/MultiValueColumn.php
 
 		-
-			message: '#^Anonymous function never returns null so it can be removed from the return type\.$#'
-			identifier: return.unusedType
+			message: '#^Access to an undefined property Relaticle\\CustomFields\\Models\\CustomFieldOption\:\:\$settings\.$#'
+			identifier: property.notFound
 			count: 1
 			path: src/Integration/Tables/Columns/SingleValueColumn.php
 
 		-
-			message: '#^Dynamic call to static method Illuminate\\Database\\Eloquent\\Builder\<Illuminate\\Database\\Eloquent\\Model\>\:\:orderBy\(\)\.$#'
-			identifier: staticMethod.dynamicCall
+			message: '#^Parameter \#1 \$column of method Illuminate\\Database\\Eloquent\\Builder\<Illuminate\\Database\\Eloquent\\Model\>\:\:orderBy\(\) expects Closure\|Illuminate\\Contracts\\Database\\Query\\Expression\|Illuminate\\Database\\Eloquent\\Builder\<\*\>\|Illuminate\\Database\\Query\\Builder\|string, Illuminate\\Database\\Eloquent\\Relations\\HasMany\<Relaticle\\CustomFields\\Models\\CustomFieldValue, Relaticle\\CustomFields\\Models\\CustomField\> given\.$#'
+			identifier: argument.type
 			count: 1
 			path: src/Integration/Tables/Columns/SingleValueColumn.php
 
 		-
-			message: '#^Dynamic call to static method Illuminate\\Database\\Eloquent\\Builder\<Relaticle\\CustomFields\\Models\\CustomFieldValue\>\:\:select\(\)\.$#'
-			identifier: staticMethod.dynamicCall
-			count: 1
-			path: src/Integration/Tables/Columns/SingleValueColumn.php
-
-		-
-			message: '#^Dynamic call to static method Illuminate\\Database\\Eloquent\\Builder\<Relaticle\\CustomFields\\Models\\CustomFieldValue\>\:\:whereColumn\(\)\.$#'
-			identifier: staticMethod.dynamicCall
-			count: 1
-			path: src/Integration/Tables/Columns/SingleValueColumn.php
-
-		-
-			message: '#^Dynamic call to static method Illuminate\\Database\\Eloquent\\Builder\<Illuminate\\Database\\Eloquent\\Model\>\:\:orderBy\(\)\.$#'
-			identifier: staticMethod.dynamicCall
+			message: '#^Parameter \#1 \$column of method Illuminate\\Database\\Eloquent\\Builder\<Illuminate\\Database\\Eloquent\\Model\>\:\:orderBy\(\) expects Closure\|Illuminate\\Contracts\\Database\\Query\\Expression\|Illuminate\\Database\\Eloquent\\Builder\<\*\>\|Illuminate\\Database\\Query\\Builder\|string, Illuminate\\Database\\Eloquent\\Relations\\HasMany\<Relaticle\\CustomFields\\Models\\CustomFieldValue, Relaticle\\CustomFields\\Models\\CustomField\> given\.$#'
+			identifier: argument.type
 			count: 1
 			path: src/Integration/Tables/Columns/TextColumn.php
 
 		-
-			message: '#^Dynamic call to static method Illuminate\\Database\\Eloquent\\Builder\<Relaticle\\CustomFields\\Models\\CustomFieldValue\>\:\:select\(\)\.$#'
-			identifier: staticMethod.dynamicCall
-			count: 1
-			path: src/Integration/Tables/Columns/TextColumn.php
-
-		-
-			message: '#^Dynamic call to static method Illuminate\\Database\\Eloquent\\Builder\<Relaticle\\CustomFields\\Models\\CustomFieldValue\>\:\:whereColumn\(\)\.$#'
-			identifier: staticMethod.dynamicCall
-			count: 1
-			path: src/Integration/Tables/Columns/TextColumn.php
-
-		-
-			message: '#^Call to an undefined method Illuminate\\Database\\Eloquent\\Model\:\:customFields\(\)\.$#'
-			identifier: method.notFound
+			message: '#^Method Relaticle\\CustomFields\\Integration\\Tables\\Filters\\CustomFieldsFilter\:\:all\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
 			count: 1
 			path: src/Integration/Tables/Filters/CustomFieldsFilter.php
 
 		-
-			message: '#^Dynamic call to static method Illuminate\\Database\\Eloquent\\Builder\<Illuminate\\Database\\Eloquent\\Model\>\:\:limit\(\)\.$#'
-			identifier: staticMethod.dynamicCall
+			message: '#^Method Relaticle\\CustomFields\\Integration\\Tables\\Filters\\CustomFieldsFilter\:\:forRelationManager\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
 			count: 1
-			path: src/Integration/Tables/Filters/SelectFilter.php
+			path: src/Integration/Tables/Filters/CustomFieldsFilter.php
 
 		-
-			message: '#^Dynamic call to static method Illuminate\\Database\\Eloquent\\Builder\<Illuminate\\Database\\Eloquent\\Model\>\:\:whereIn\(\)\.$#'
-			identifier: staticMethod.dynamicCall
-			count: 2
-			path: src/Integration/Tables/Filters/SelectFilter.php
+			message: '#^Parameter \#1 \$instance of static method Relaticle\\CustomFields\\Integration\\Tables\\Filters\\CustomFieldsFilter\:\:all\(\) expects Illuminate\\Database\\Eloquent\\Model&Relaticle\\CustomFields\\Models\\Contracts\\HasCustomFields, Illuminate\\Database\\Eloquent\\Model given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Integration/Tables/Filters/CustomFieldsFilter.php
 
 		-
-			message: '#^Dynamic call to static method Illuminate\\Database\\Eloquent\\Builder\<Illuminate\\Database\\Eloquent\\Model\>\:\:whereJsonContains\(\)\.$#'
-			identifier: staticMethod.dynamicCall
+			message: '#^Instanceof between Relaticle\\CustomFields\\Enums\\CustomFieldType and BackedEnum will always evaluate to true\.$#'
+			identifier: instanceof.alwaysTrue
 			count: 1
-			path: src/Integration/Tables/Filters/SelectFilter.php
-
-		-
-			message: '#^Dynamic call to static method Illuminate\\Database\\Eloquent\\Model\:\:query\(\)\.$#'
-			identifier: staticMethod.dynamicCall
-			count: 1
-			path: src/Integration/Tables/Filters/SelectFilter.php
-
-		-
-			message: '#^Variable property access on Illuminate\\Database\\Eloquent\\Collection\<int, Illuminate\\Database\\Eloquent\\Model\>\|Illuminate\\Database\\Eloquent\\Model\.$#'
-			identifier: property.dynamicName
-			count: 1
-			path: src/Integration/Tables/Filters/SelectFilter.php
+			path: src/Integration/Tables/Filters/FieldFilterFactory.php
 
 		-
 			message: '#^Trait Relaticle\\CustomFields\\Integration\\Tables\\InteractsWithCustomFields is used zero times and is not analysed\.$#'
@@ -301,166 +499,118 @@ parameters:
 			path: src/Jobs/Concerns/TenantAware.php
 
 		-
-			message: '#^Call to an undefined method Illuminate\\Database\\Eloquent\\Relations\\HasMany\<Relaticle\\CustomFields\\Models\\CustomField, Relaticle\\CustomFields\\Models\\CustomFieldSection\>\:\:withDeactivated\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: src/Livewire/ManageCustomFieldSection.php
-
-		-
-			message: '#^Dynamic call to static method Relaticle\\CustomFields\\Filament\\Schemas\\SectionForm\:\:schema\(\)\.$#'
-			identifier: staticMethod.dynamicCall
-			count: 1
-			path: src/Livewire/ManageCustomFieldSection.php
-
-		-
-			message: '#^Method Relaticle\\CustomFields\\Livewire\\ManageCustomFieldSection\:\:fields\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: src/Livewire/ManageCustomFieldSection.php
-
-		-
-			message: '#^Method Relaticle\\CustomFields\\Livewire\\ManageCustomFieldSection\:\:render\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: src/Livewire/ManageCustomFieldSection.php
-
-		-
-			message: '#^Method Relaticle\\CustomFields\\Livewire\\ManageCustomFieldWidth\:\:render\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: src/Livewire/ManageCustomFieldWidth.php
-
-		-
-			message: '#^Property Relaticle\\CustomFields\\Livewire\\ManageCustomFieldWidth\:\:\$fieldId has no type specified\.$#'
-			identifier: missingType.property
-			count: 1
-			path: src/Livewire/ManageCustomFieldWidth.php
-
-		-
-			message: '#^Property Relaticle\\CustomFields\\Livewire\\ManageCustomFieldWidth\:\:\$selectedWidth has no type specified\.$#'
-			identifier: missingType.property
-			count: 1
-			path: src/Livewire/ManageCustomFieldWidth.php
-
-		-
-			message: '#^Property Relaticle\\CustomFields\\Livewire\\ManageCustomFieldWidth\:\:\$widthMap has no type specified\.$#'
-			identifier: missingType.property
-			count: 1
-			path: src/Livewire/ManageCustomFieldWidth.php
-
-		-
-			message: '#^Property Relaticle\\CustomFields\\Livewire\\ManageCustomFieldWidth\:\:\$widthOptions has no type specified\.$#'
-			identifier: missingType.property
-			count: 1
-			path: src/Livewire/ManageCustomFieldWidth.php
-
-		-
 			message: '#^Trait Relaticle\\CustomFields\\Models\\Concerns\\UsesCustomFields is used zero times and is not analysed\.$#'
 			identifier: trait.unused
 			count: 1
 			path: src/Models/Concerns/UsesCustomFields.php
 
 		-
-			message: '#^Type \$this\(Relaticle\\CustomFields\\Models\\Contracts\\HasCustomFields\) in generic type Illuminate\\Database\\Eloquent\\Relations\\MorphMany\<Relaticle\\CustomFields\\Models\\CustomFieldValue, \$this\(Relaticle\\CustomFields\\Models\\Contracts\\HasCustomFields\)\> in PHPDoc tag @return is not subtype of template type TDeclaringModel of Illuminate\\Database\\Eloquent\\Model of class Illuminate\\Database\\Eloquent\\Relations\\MorphMany\.$#'
-			identifier: generics.notSubtype
-			count: 1
-			path: src/Models/Contracts/HasCustomFields.php
-
-		-
-			message: '#^PHPDoc type array\<int, string\> of property Relaticle\\CustomFields\\Models\\CustomField\:\:\$guarded is not the same as PHPDoc type array\<string\>\|bool of overridden property Illuminate\\Database\\Eloquent\\Model\:\:\$guarded\.$#'
-			identifier: property.phpDocType
+			message: '#^Method Relaticle\\CustomFields\\Models\\CustomField\:\:newEloquentBuilder\(\) return type with generic class Relaticle\\CustomFields\\QueryBuilders\\CustomFieldQueryBuilder does not specify its types\: TModelClass$#'
+			identifier: missingType.generics
 			count: 1
 			path: src/Models/CustomField.php
 
 		-
-			message: '#^Variable property access on \$this\(Relaticle\\CustomFields\\Models\\CustomField\)\.$#'
-			identifier: property.dynamicName
-			count: 3
+			message: '#^Method Relaticle\\CustomFields\\Models\\CustomField\:\:options\(\) should return Illuminate\\Database\\Eloquent\\Relations\\HasMany\<Relaticle\\CustomFields\\Models\\CustomFieldOption, \$this\(Relaticle\\CustomFields\\Models\\CustomField\)\> but returns Illuminate\\Database\\Eloquent\\Relations\\HasMany\<Illuminate\\Database\\Eloquent\\Model, \$this\(Relaticle\\CustomFields\\Models\\CustomField\)\>\.$#'
+			identifier: return.type
+			count: 1
 			path: src/Models/CustomField.php
 
 		-
-			message: '#^PHPDoc type array\<int, string\> of property Relaticle\\CustomFields\\Models\\CustomFieldSection\:\:\$guarded is not the same as PHPDoc type array\<string\>\|bool of overridden property Illuminate\\Database\\Eloquent\\Model\:\:\$guarded\.$#'
-			identifier: property.phpDocType
+			message: '#^Method Relaticle\\CustomFields\\Models\\CustomField\:\:section\(\) should return Illuminate\\Database\\Eloquent\\Relations\\BelongsTo\<Relaticle\\CustomFields\\Models\\CustomFieldSection, \$this\(Relaticle\\CustomFields\\Models\\CustomField\)\> but returns Illuminate\\Database\\Eloquent\\Relations\\BelongsTo\<Illuminate\\Database\\Eloquent\\Model, \$this\(Relaticle\\CustomFields\\Models\\CustomField\)\>\.$#'
+			identifier: return.type
 			count: 1
-			path: src/Models/CustomFieldSection.php
+			path: src/Models/CustomField.php
 
 		-
-			message: '#^Variable property access on \$this\(Relaticle\\CustomFields\\Models\\CustomFieldSection\)\.$#'
-			identifier: property.dynamicName
-			count: 3
-			path: src/Models/CustomFieldSection.php
+			message: '#^Method Relaticle\\CustomFields\\Models\\CustomField\:\:values\(\) should return Illuminate\\Database\\Eloquent\\Relations\\HasMany\<Relaticle\\CustomFields\\Models\\CustomFieldValue, \$this\(Relaticle\\CustomFields\\Models\\CustomField\)\> but returns Illuminate\\Database\\Eloquent\\Relations\\HasMany\<Illuminate\\Database\\Eloquent\\Model, \$this\(Relaticle\\CustomFields\\Models\\CustomField\)\>\.$#'
+			identifier: return.type
+			count: 1
+			path: src/Models/CustomField.php
 
 		-
-			message: '#^Variable property access on \$this\(Relaticle\\CustomFields\\Models\\CustomFieldValue\)\.$#'
-			identifier: property.dynamicName
+			message: '#^Unable to resolve the template type TRelatedModel in call to method Illuminate\\Database\\Eloquent\\Model\:\:belongsTo\(\)$#'
+			identifier: argument.templateType
+			count: 1
+			path: src/Models/CustomField.php
+
+		-
+			message: '#^Unable to resolve the template type TRelatedModel in call to method Illuminate\\Database\\Eloquent\\Model\:\:hasMany\(\)$#'
+			identifier: argument.templateType
 			count: 2
+			path: src/Models/CustomField.php
+
+		-
+			message: '#^Method Relaticle\\CustomFields\\Models\\CustomFieldOption\:\:customField\(\) should return Illuminate\\Database\\Eloquent\\Relations\\BelongsTo\<Relaticle\\CustomFields\\Models\\CustomField, \$this\(Relaticle\\CustomFields\\Models\\CustomFieldOption\)\> but returns Illuminate\\Database\\Eloquent\\Relations\\BelongsTo\<Illuminate\\Database\\Eloquent\\Model, \$this\(Relaticle\\CustomFields\\Models\\CustomFieldOption\)\>\.$#'
+			identifier: return.type
+			count: 1
+			path: src/Models/CustomFieldOption.php
+
+		-
+			message: '#^Unable to resolve the template type TRelatedModel in call to method Illuminate\\Database\\Eloquent\\Model\:\:belongsTo\(\)$#'
+			identifier: argument.templateType
+			count: 1
+			path: src/Models/CustomFieldOption.php
+
+		-
+			message: '#^Method Relaticle\\CustomFields\\Models\\CustomFieldSection\:\:fields\(\) should return Illuminate\\Database\\Eloquent\\Relations\\HasMany\<Relaticle\\CustomFields\\Models\\CustomField, \$this\(Relaticle\\CustomFields\\Models\\CustomFieldSection\)\> but returns Illuminate\\Database\\Eloquent\\Relations\\HasMany\<Illuminate\\Database\\Eloquent\\Model, \$this\(Relaticle\\CustomFields\\Models\\CustomFieldSection\)\>\.$#'
+			identifier: return.type
+			count: 1
+			path: src/Models/CustomFieldSection.php
+
+		-
+			message: '#^Unable to resolve the template type TRelatedModel in call to method Illuminate\\Database\\Eloquent\\Model\:\:hasMany\(\)$#'
+			identifier: argument.templateType
+			count: 1
+			path: src/Models/CustomFieldSection.php
+
+		-
+			message: '#^Method Relaticle\\CustomFields\\Models\\CustomFieldValue\:\:customField\(\) should return Illuminate\\Database\\Eloquent\\Relations\\BelongsTo\<Relaticle\\CustomFields\\Models\\CustomField, \$this\(Relaticle\\CustomFields\\Models\\CustomFieldValue\)\> but returns Illuminate\\Database\\Eloquent\\Relations\\BelongsTo\<Illuminate\\Database\\Eloquent\\Model, \$this\(Relaticle\\CustomFields\\Models\\CustomFieldValue\)\>\.$#'
+			identifier: return.type
+			count: 1
 			path: src/Models/CustomFieldValue.php
 
 		-
-			message: '#^Call to an undefined method Illuminate\\Database\\Eloquent\\Builder\:\:withoutActivated\(\)\.$#'
-			identifier: method.notFound
+			message: '#^Unable to resolve the template type TRelatedModel in call to method Illuminate\\Database\\Eloquent\\Model\:\:belongsTo\(\)$#'
+			identifier: argument.templateType
+			count: 1
+			path: src/Models/CustomFieldValue.php
+
+		-
+			message: '#^Method Relaticle\\CustomFields\\Models\\Scopes\\ActivableScope\:\:addActive\(\) has parameter \$builder with generic class Illuminate\\Database\\Eloquent\\Builder but does not specify its types\: TModel$#'
+			identifier: missingType.generics
 			count: 1
 			path: src/Models/Scopes/ActivableScope.php
 
 		-
-			message: '#^Call to an undefined method Illuminate\\Database\\Eloquent\\Model\:\:getQualifiedActiveColumn\(\)\.$#'
-			identifier: method.notFound
-			count: 3
-			path: src/Models/Scopes/ActivableScope.php
-
-		-
-			message: '#^Dynamic call to static method Illuminate\\Database\\Eloquent\\Builder\<\*\>\:\:macro\(\)\.$#'
-			identifier: staticMethod.dynamicCall
-			count: 2
-			path: src/Models/Scopes/ActivableScope.php
-
-		-
-			message: '#^Dynamic call to static method Illuminate\\Database\\Eloquent\\Builder\<Illuminate\\Database\\Eloquent\\Model\>\:\:macro\(\)\.$#'
-			identifier: staticMethod.dynamicCall
+			message: '#^Method Relaticle\\CustomFields\\Models\\Scopes\\ActivableScope\:\:apply\(\) has parameter \$builder with generic class Illuminate\\Database\\Eloquent\\Builder but does not specify its types\: TModel$#'
+			identifier: missingType.generics
 			count: 1
 			path: src/Models/Scopes/ActivableScope.php
 
 		-
-			message: '#^Dynamic call to static method Illuminate\\Database\\Eloquent\\Builder\<Illuminate\\Database\\Eloquent\\Model\>\:\:whereNull\(\)\.$#'
-			identifier: staticMethod.dynamicCall
+			message: '#^Parameter \#1 \$scope of method Illuminate\\Database\\Eloquent\\Builder\<Illuminate\\Database\\Eloquent\\Model\>\:\:withoutGlobalScope\(\) expects Illuminate\\Database\\Eloquent\\Scope\|string, Illuminate\\Database\\Eloquent\\Builder\<\*\> given\.$#'
+			identifier: argument.type
 			count: 1
 			path: src/Models/Scopes/ActivableScope.php
 
 		-
-			message: '#^Variable method call on \$this\(Relaticle\\CustomFields\\Models\\Scopes\\ActivableScope\)\.$#'
-			identifier: method.dynamicName
-			count: 1
-			path: src/Models/Scopes/ActivableScope.php
-
-		-
-			message: '#^Call to an undefined method Illuminate\\Database\\Eloquent\\Builder\<Illuminate\\Database\\Eloquent\\Model\>\:\:active\(\)\.$#'
-			identifier: method.notFound
+			message: '#^Method Relaticle\\CustomFields\\Models\\Scopes\\CustomFieldsActivableScope\:\:apply\(\) has parameter \$builder with generic class Illuminate\\Database\\Eloquent\\Builder but does not specify its types\: TModel$#'
+			identifier: missingType.generics
 			count: 1
 			path: src/Models/Scopes/CustomFieldsActivableScope.php
 
 		-
-			message: '#^Call to an undefined method Illuminate\\Database\\Eloquent\\Model\:\:getQualifiedActiveColumn\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: src/Models/Scopes/CustomFieldsActivableScope.php
-
-		-
-			message: '#^Dynamic call to static method Illuminate\\Database\\Eloquent\\Builder\<Illuminate\\Database\\Eloquent\\Model\>\:\:orderBy\(\)\.$#'
-			identifier: staticMethod.dynamicCall
+			message: '#^Method Relaticle\\CustomFields\\Models\\Scopes\\SortOrderScope\:\:apply\(\) has parameter \$builder with generic class Illuminate\\Database\\Eloquent\\Builder but does not specify its types\: TModel$#'
+			identifier: missingType.generics
 			count: 1
 			path: src/Models/Scopes/SortOrderScope.php
 
 		-
-			message: '#^Dynamic call to static method Illuminate\\Database\\Eloquent\\Builder\<Relaticle\\CustomFields\\Models\\CustomFieldOption\>\:\:delete\(\)\.$#'
-			identifier: staticMethod.dynamicCall
+			message: '#^Method Relaticle\\CustomFields\\Models\\Scopes\\TenantScope\:\:apply\(\) has parameter \$builder with generic class Illuminate\\Database\\Eloquent\\Builder but does not specify its types\: TModel$#'
+			identifier: missingType.generics
 			count: 1
-			path: src/Observers/CustomFieldObserver.php
-
-		-
-			message: '#^Dynamic call to static method Illuminate\\Database\\Eloquent\\Builder\<Relaticle\\CustomFields\\Models\\CustomFieldValue\>\:\:delete\(\)\.$#'
-			identifier: staticMethod.dynamicCall
-			count: 1
-			path: src/Observers/CustomFieldObserver.php
+			path: src/Models/Scopes/TenantScope.php
 
 		-
 			message: '#^Call to an undefined method Illuminate\\Database\\Eloquent\\Relations\\HasMany\<Relaticle\\CustomFields\\Models\\CustomField, Relaticle\\CustomFields\\Models\\CustomFieldSection\>\:\:withDeactivated\(\)\.$#'
@@ -469,127 +619,607 @@ parameters:
 			path: src/Observers/CustomFieldSectionObserver.php
 
 		-
-			message: '#^Class Relaticle\\CustomFields\\Integration\\Actions\\Imports\\CustomFieldsImporter constructor invoked with 4 parameters, 3 required\.$#'
-			identifier: arguments.count
-			count: 1
-			path: src/Providers/ImportsServiceProvider.php
-
-		-
-			message: '#^Dynamic call to static method Illuminate\\Database\\Eloquent\\Builder\<Illuminate\\Database\\Eloquent\\Model\>\:\:whereColumn\(\)\.$#'
-			identifier: staticMethod.dynamicCall
+			message: '#^Method Relaticle\\CustomFields\\QueryBuilders\\ColumnSearchableQuery\:\:builder\(\) has parameter \$builder with generic class Illuminate\\Database\\Eloquent\\Builder but does not specify its types\: TModel$#'
+			identifier: missingType.generics
 			count: 1
 			path: src/QueryBuilders/ColumnSearchableQuery.php
 
 		-
-			message: '#^Class Relaticle\\CustomFields\\QueryBuilders\\CustomFieldQueryBuilder extends generic class Illuminate\\Database\\Eloquent\\Builder but does not specify its types\: TModel$#'
+			message: '#^Method Relaticle\\CustomFields\\QueryBuilders\\ColumnSearchableQuery\:\:builder\(\) return type with generic class Illuminate\\Database\\Eloquent\\Builder does not specify its types\: TModel$#'
+			identifier: missingType.generics
+			count: 1
+			path: src/QueryBuilders/ColumnSearchableQuery.php
+
+		-
+			message: '#^Method Relaticle\\CustomFields\\QueryBuilders\\CustomFieldQueryBuilder\:\:active\(\) return type with generic class Relaticle\\CustomFields\\QueryBuilders\\CustomFieldQueryBuilder does not specify its types\: TModelClass$#'
 			identifier: missingType.generics
 			count: 1
 			path: src/QueryBuilders/CustomFieldQueryBuilder.php
 
 		-
-			message: '#^Dynamic call to static method Relaticle\\CustomFields\\QueryBuilders\\CustomFieldQueryBuilder\:\:orWhereJsonDoesntContain\(\)\.$#'
-			identifier: staticMethod.dynamicCall
-			count: 3
+			message: '#^Method Relaticle\\CustomFields\\QueryBuilders\\CustomFieldQueryBuilder\:\:encrypted\(\) return type with generic class Relaticle\\CustomFields\\QueryBuilders\\CustomFieldQueryBuilder does not specify its types\: TModelClass$#'
+			identifier: missingType.generics
+			count: 1
 			path: src/QueryBuilders/CustomFieldQueryBuilder.php
 
 		-
-			message: '#^Dynamic call to static method Relaticle\\CustomFields\\QueryBuilders\\CustomFieldQueryBuilder\:\:whereJsonContains\(\)\.$#'
-			identifier: staticMethod.dynamicCall
-			count: 2
+			message: '#^Method Relaticle\\CustomFields\\QueryBuilders\\CustomFieldQueryBuilder\:\:forEntity\(\) return type with generic class Relaticle\\CustomFields\\QueryBuilders\\CustomFieldQueryBuilder does not specify its types\: TModelClass$#'
+			identifier: missingType.generics
+			count: 1
 			path: src/QueryBuilders/CustomFieldQueryBuilder.php
 
 		-
-			message: '#^Dynamic call to static method Relaticle\\CustomFields\\QueryBuilders\\CustomFieldQueryBuilder\:\:whereNull\(\)\.$#'
-			identifier: staticMethod.dynamicCall
-			count: 3
+			message: '#^Method Relaticle\\CustomFields\\QueryBuilders\\CustomFieldQueryBuilder\:\:forMorphEntity\(\) return type with generic class Relaticle\\CustomFields\\QueryBuilders\\CustomFieldQueryBuilder does not specify its types\: TModelClass$#'
+			identifier: missingType.generics
+			count: 1
 			path: src/QueryBuilders/CustomFieldQueryBuilder.php
 
 		-
-			message: '#^Short ternary operator is not allowed\. Use null coalesce operator if applicable or consider using long ternary\.$#'
-			identifier: ternary.shortNotAllowed
+			message: '#^Method Relaticle\\CustomFields\\QueryBuilders\\CustomFieldQueryBuilder\:\:forType\(\) return type with generic class Relaticle\\CustomFields\\QueryBuilders\\CustomFieldQueryBuilder does not specify its types\: TModelClass$#'
+			identifier: missingType.generics
+			count: 1
+			path: src/QueryBuilders/CustomFieldQueryBuilder.php
+
+		-
+			message: '#^Method Relaticle\\CustomFields\\QueryBuilders\\CustomFieldQueryBuilder\:\:nonEncrypted\(\) return type with generic class Relaticle\\CustomFields\\QueryBuilders\\CustomFieldQueryBuilder does not specify its types\: TModelClass$#'
+			identifier: missingType.generics
+			count: 1
+			path: src/QueryBuilders/CustomFieldQueryBuilder.php
+
+		-
+			message: '#^Method Relaticle\\CustomFields\\QueryBuilders\\CustomFieldQueryBuilder\:\:searchable\(\) return type with generic class Relaticle\\CustomFields\\QueryBuilders\\CustomFieldQueryBuilder does not specify its types\: TModelClass$#'
+			identifier: missingType.generics
+			count: 1
+			path: src/QueryBuilders/CustomFieldQueryBuilder.php
+
+		-
+			message: '#^Method Relaticle\\CustomFields\\QueryBuilders\\CustomFieldQueryBuilder\:\:visibleInList\(\) return type with generic class Relaticle\\CustomFields\\QueryBuilders\\CustomFieldQueryBuilder does not specify its types\: TModelClass$#'
+			identifier: missingType.generics
+			count: 1
+			path: src/QueryBuilders/CustomFieldQueryBuilder.php
+
+		-
+			message: '#^Method Relaticle\\CustomFields\\QueryBuilders\\CustomFieldQueryBuilder\:\:visibleInView\(\) return type with generic class Relaticle\\CustomFields\\QueryBuilders\\CustomFieldQueryBuilder does not specify its types\: TModelClass$#'
+			identifier: missingType.generics
+			count: 1
+			path: src/QueryBuilders/CustomFieldQueryBuilder.php
+
+		-
+			message: '#^Method Relaticle\\CustomFields\\Services\\AbstractOptionsService\:\:getFilteredResources\(\) return type with generic class Illuminate\\Support\\Collection does not specify its types\: TKey, TValue$#'
+			identifier: missingType.generics
 			count: 1
 			path: src/Services/AbstractOptionsService.php
 
 		-
-			message: '#^Property Relaticle\\CustomFields\\Services\\FieldTypeRegistryService\:\:\$cachedOptions type has no value type specified in iterable type array\.$#'
+			message: '#^Method Relaticle\\CustomFields\\Services\\AbstractOptionsService\:\:mapResourceToOption\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Services/AbstractOptionsService.php
+
+		-
+			message: '#^Call to function is_string\(\) with string will always evaluate to true\.$#'
+			identifier: function.alreadyNarrowedType
+			count: 1
+			path: src/Services/FieldTypeHelperService.php
+
+		-
+			message: '#^Method Relaticle\\CustomFields\\Services\\FieldTypeHelperService\:\:getCompatibleOperators\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Services/FieldTypeHelperService.php
+
+		-
+			message: '#^Method Relaticle\\CustomFields\\Services\\FieldTypeHelperService\:\:getFieldCompatibleOperators\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Services/FieldTypeHelperService.php
+
+		-
+			message: '#^Method Relaticle\\CustomFields\\Services\\FieldTypeRegistryService\:\:getAllFieldTypes\(\) return type has no value type specified in iterable type array\.$#'
 			identifier: missingType.iterableValue
 			count: 1
 			path: src/Services/FieldTypeRegistryService.php
 
 		-
-			message: '#^Dynamic call to static method Filament\\Resources\\Resource\:\:getGloballySearchableAttributes\(\)\.$#'
-			identifier: staticMethod.dynamicCall
+			message: '#^Method Relaticle\\CustomFields\\Services\\FieldTypeRegistryService\:\:getAllFieldTypes\(\) should return Illuminate\\Support\\Collection\<string, array\{label\: string, icon\: string, category\: string, validation_rules\: array, form_component\: string, table_column\: string, infolist_entry\: string, searchable\: bool, \.\.\.\}\> but returns Illuminate\\Support\\Collection\<string, array\{label\: string, icon\: string, category\: string, validation_rules\: array\<string\>, form_component\: string, table_column\: string, infolist_entry\: string, searchable\: bool, \.\.\.\}\>\.$#'
+			identifier: return.type
+			count: 1
+			path: src/Services/FieldTypeRegistryService.php
+
+		-
+			message: '#^Method Relaticle\\CustomFields\\Services\\FieldTypeRegistryService\:\:getEncryptableFieldTypes\(\) return type with generic class Illuminate\\Support\\Collection does not specify its types\: TKey, TValue$#'
+			identifier: missingType.generics
+			count: 1
+			path: src/Services/FieldTypeRegistryService.php
+
+		-
+			message: '#^Method Relaticle\\CustomFields\\Services\\FieldTypeRegistryService\:\:getFieldType\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Services/FieldTypeRegistryService.php
+
+		-
+			message: '#^Method Relaticle\\CustomFields\\Services\\FieldTypeRegistryService\:\:getFilterableFieldTypes\(\) return type with generic class Illuminate\\Support\\Collection does not specify its types\: TKey, TValue$#'
+			identifier: missingType.generics
+			count: 1
+			path: src/Services/FieldTypeRegistryService.php
+
+		-
+			message: '#^Method Relaticle\\CustomFields\\Services\\FieldTypeRegistryService\:\:getSearchableFieldTypes\(\) return type with generic class Illuminate\\Support\\Collection does not specify its types\: TKey, TValue$#'
+			identifier: missingType.generics
+			count: 1
+			path: src/Services/FieldTypeRegistryService.php
+
+		-
+			message: '#^Offset ''checkbox''\|''checkbox\-list''\|''color\-picker''\|''currency''\|''date''\|''date\-time''\|''link''\|''markdown\-editor''\|''multi\-select''\|''number''\|''radio''\|''rich\-editor''\|''select''\|''tags\-input''\|''text''\|''textarea''\|''toggle''\|''toggle\-buttons'' on array\{text\: ''Relaticle\\\\CustomFields\\\\Integration\\\\Forms\\\\Components\\\\TextInputComponent'', number\: ''Relaticle\\\\CustomFields\\\\Integration\\\\Forms\\\\Components\\\\NumberComponent'', checkbox\: ''Relaticle\\\\CustomFields\\\\Integration\\\\Forms\\\\Components\\\\CheckboxComponent'', checkbox\-list\: ''Relaticle\\\\CustomFields\\\\Integration\\\\Forms\\\\Components\\\\CheckboxListComponent'', rich\-editor\: ''Relaticle\\\\CustomFields\\\\Integration\\\\Forms\\\\Components\\\\RichEditorComponent'', markdown\-editor\: ''Relaticle\\\\CustomFields\\\\Integration\\\\Forms\\\\Components\\\\MarkdownEditorComponent'', toggle\-buttons\: ''Relaticle\\\\CustomFields\\\\Integration\\\\Forms\\\\Components\\\\ToggleButtonsComponent'', tags\-input\: ''Relaticle\\\\CustomFields\\\\Integration\\\\Forms\\\\Components\\\\TagsInputComponent'', \.\.\.\} on left side of \?\? always exists and is not nullable\.$#'
+			identifier: nullCoalesce.offset
+			count: 1
+			path: src/Services/FieldTypeRegistryService.php
+
+		-
+			message: '#^Offset ''checkbox''\|''checkbox\-list''\|''color\-picker''\|''currency''\|''date''\|''date\-time''\|''link''\|''markdown\-editor''\|''multi\-select''\|''number''\|''radio''\|''rich\-editor''\|''select''\|''tags\-input''\|''text''\|''textarea''\|''toggle''\|''toggle\-buttons'' on array\{text\: ''Relaticle\\\\CustomFields\\\\Integration\\\\Tables\\\\Columns\\\\TextColumn'', textarea\: ''Relaticle\\\\CustomFields\\\\Integration\\\\Tables\\\\Columns\\\\TextColumn'', number\: ''Relaticle\\\\CustomFields\\\\Integration\\\\Tables\\\\Columns\\\\TextColumn'', currency\: ''Relaticle\\\\CustomFields\\\\Integration\\\\Tables\\\\Columns\\\\TextColumn'', date\: ''Relaticle\\\\CustomFields\\\\Integration\\\\Tables\\\\Columns\\\\TextColumn'', date\-time\: ''Relaticle\\\\CustomFields\\\\Integration\\\\Tables\\\\Columns\\\\TextColumn'', link\: ''Relaticle\\\\CustomFields\\\\Integration\\\\Tables\\\\Columns\\\\TextColumn'', checkbox\: ''Relaticle\\\\CustomFields\\\\Integration\\\\Tables\\\\Columns\\\\IconColumn'', \.\.\.\} on left side of \?\? always exists and is not nullable\.$#'
+			identifier: nullCoalesce.offset
+			count: 1
+			path: src/Services/FieldTypeRegistryService.php
+
+		-
+			message: '#^Offset ''checkbox''\|''checkbox\-list''\|''color\-picker''\|''currency''\|''date''\|''date\-time''\|''link''\|''markdown\-editor''\|''multi\-select''\|''number''\|''radio''\|''rich\-editor''\|''select''\|''tags\-input''\|''text''\|''textarea''\|''toggle''\|''toggle\-buttons'' on array\{text\: ''Relaticle…'', textarea\: ''Relaticle…'', number\: ''Relaticle…'', currency\: ''Relaticle…'', date\: ''Relaticle…'', date\-time\: ''Relaticle…'', link\: ''Relaticle…'', checkbox\: ''Relaticle…'', \.\.\.\} on left side of \?\? always exists and is not nullable\.$#'
+			identifier: nullCoalesce.offset
+			count: 1
+			path: src/Services/FieldTypeRegistryService.php
+
+		-
+			message: '#^Call to function is_object\(\) with Filament\\Resources\\Resource will always evaluate to true\.$#'
+			identifier: function.alreadyNarrowedType
 			count: 1
 			path: src/Services/FilamentResourceService.php
 
 		-
-			message: '#^Dynamic call to static method Filament\\Resources\\Resource\:\:getRecordTitleAttribute\(\)\.$#'
-			identifier: staticMethod.dynamicCall
+			message: '#^Method Relaticle\\CustomFields\\Services\\FilamentResourceService\:\:getModelInstanceQuery\(\) return type with generic class Illuminate\\Database\\Eloquent\\Builder does not specify its types\: TModel$#'
+			identifier: missingType.generics
 			count: 1
 			path: src/Services/FilamentResourceService.php
 
 		-
-			message: '#^Short ternary operator is not allowed\. Use null coalesce operator if applicable or consider using long ternary\.$#'
-			identifier: ternary.shortNotAllowed
+			message: '#^Method Relaticle\\CustomFields\\Services\\FilamentResourceService\:\:invokeMethodByReflection\(\) has parameter \$args with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
 			count: 1
 			path: src/Services/FilamentResourceService.php
 
 		-
-			message: '#^Call to an undefined method Illuminate\\Database\\Eloquent\\Model\:\:getCustomFieldValue\(\)\.$#'
-			identifier: method.notFound
+			message: '#^Expression on left side of \?\? is not nullable\.$#'
+			identifier: nullCoalesce.expr
+			count: 1
+			path: src/Services/ValidationService.php
+
+		-
+			message: '#^Method Relaticle\\CustomFields\\Services\\ValueResolver\\LookupMultiValueResolver\:\:resolve\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
 			count: 1
 			path: src/Services/ValueResolver/LookupMultiValueResolver.php
 
 		-
-			message: '#^Short ternary operator is not allowed\. Use null coalesce operator if applicable or consider using long ternary\.$#'
-			identifier: ternary.shortNotAllowed
+			message: '#^Method Relaticle\\CustomFields\\Services\\ValueResolver\\LookupResolver\:\:getLookupAttributes\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
 			count: 1
 			path: src/Services/ValueResolver/LookupResolver.php
 
 		-
-			message: '#^Call to an undefined method Illuminate\\Database\\Eloquent\\Model\:\:getCustomFieldValue\(\)\.$#'
-			identifier: method.notFound
+			message: '#^Method Relaticle\\CustomFields\\Services\\ValueResolver\\LookupResolver\:\:resolveLookupValues\(\) has parameter \$values with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
 			count: 1
-			path: src/Services/ValueResolver/ValueResolver.php
+			path: src/Services/ValueResolver/LookupResolver.php
 
 		-
-			message: '#^Cannot access property \$value on string\.$#'
-			identifier: property.nonObject
+			message: '#^Method Relaticle\\CustomFields\\Services\\ValueResolver\\LookupResolver\:\:resolveLookupValues\(\) return type with generic class Illuminate\\Support\\Collection does not specify its types\: TKey, TValue$#'
+			identifier: missingType.generics
+			count: 1
+			path: src/Services/ValueResolver/LookupResolver.php
+
+		-
+			message: '#^Method Relaticle\\CustomFields\\Services\\Visibility\\BackendVisibilityService\:\:calculateDependencies\(\) has parameter \$allFields with generic class Illuminate\\Support\\Collection but does not specify its types\: TKey, TValue$#'
+			identifier: missingType.generics
+			count: 1
+			path: src/Services/Visibility/BackendVisibilityService.php
+
+		-
+			message: '#^Method Relaticle\\CustomFields\\Services\\Visibility\\BackendVisibilityService\:\:calculateDependencies\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Services/Visibility/BackendVisibilityService.php
+
+		-
+			message: '#^Method Relaticle\\CustomFields\\Services\\Visibility\\BackendVisibilityService\:\:extractFieldValues\(\) has parameter \$fields with generic class Illuminate\\Support\\Collection but does not specify its types\: TKey, TValue$#'
+			identifier: missingType.generics
+			count: 1
+			path: src/Services/Visibility/BackendVisibilityService.php
+
+		-
+			message: '#^Method Relaticle\\CustomFields\\Services\\Visibility\\BackendVisibilityService\:\:extractFieldValues\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Services/Visibility/BackendVisibilityService.php
+
+		-
+			message: '#^Method Relaticle\\CustomFields\\Services\\Visibility\\BackendVisibilityService\:\:filterVisibleFields\(\) has parameter \$fieldValues with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Services/Visibility/BackendVisibilityService.php
+
+		-
+			message: '#^Method Relaticle\\CustomFields\\Services\\Visibility\\BackendVisibilityService\:\:filterVisibleFields\(\) has parameter \$fields with generic class Illuminate\\Support\\Collection but does not specify its types\: TKey, TValue$#'
+			identifier: missingType.generics
+			count: 1
+			path: src/Services/Visibility/BackendVisibilityService.php
+
+		-
+			message: '#^Method Relaticle\\CustomFields\\Services\\Visibility\\BackendVisibilityService\:\:filterVisibleFields\(\) return type with generic class Illuminate\\Support\\Collection does not specify its types\: TKey, TValue$#'
+			identifier: missingType.generics
+			count: 1
+			path: src/Services/Visibility/BackendVisibilityService.php
+
+		-
+			message: '#^Method Relaticle\\CustomFields\\Services\\Visibility\\BackendVisibilityService\:\:getAlwaysSaveFields\(\) has parameter \$fields with generic class Illuminate\\Support\\Collection but does not specify its types\: TKey, TValue$#'
+			identifier: missingType.generics
+			count: 1
+			path: src/Services/Visibility/BackendVisibilityService.php
+
+		-
+			message: '#^Method Relaticle\\CustomFields\\Services\\Visibility\\BackendVisibilityService\:\:getAlwaysSaveFields\(\) return type with generic class Illuminate\\Support\\Collection does not specify its types\: TKey, TValue$#'
+			identifier: missingType.generics
+			count: 1
+			path: src/Services/Visibility/BackendVisibilityService.php
+
+		-
+			message: '#^Method Relaticle\\CustomFields\\Services\\Visibility\\BackendVisibilityService\:\:getFieldMetadata\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Services/Visibility/BackendVisibilityService.php
+
+		-
+			message: '#^Method Relaticle\\CustomFields\\Services\\Visibility\\BackendVisibilityService\:\:getFieldOptions\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Services/Visibility/BackendVisibilityService.php
+
+		-
+			message: '#^Method Relaticle\\CustomFields\\Services\\Visibility\\BackendVisibilityService\:\:getNormalizedFieldValues\(\) has parameter \$fields with generic class Illuminate\\Support\\Collection but does not specify its types\: TKey, TValue$#'
+			identifier: missingType.generics
+			count: 1
+			path: src/Services/Visibility/BackendVisibilityService.php
+
+		-
+			message: '#^Method Relaticle\\CustomFields\\Services\\Visibility\\BackendVisibilityService\:\:getNormalizedFieldValues\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Services/Visibility/BackendVisibilityService.php
+
+		-
+			message: '#^Method Relaticle\\CustomFields\\Services\\Visibility\\BackendVisibilityService\:\:getVisibleFields\(\) has parameter \$fields with generic class Illuminate\\Support\\Collection but does not specify its types\: TKey, TValue$#'
+			identifier: missingType.generics
+			count: 1
+			path: src/Services/Visibility/BackendVisibilityService.php
+
+		-
+			message: '#^Method Relaticle\\CustomFields\\Services\\Visibility\\BackendVisibilityService\:\:getVisibleFields\(\) return type with generic class Illuminate\\Support\\Collection does not specify its types\: TKey, TValue$#'
+			identifier: missingType.generics
+			count: 1
+			path: src/Services/Visibility/BackendVisibilityService.php
+
+		-
+			message: '#^Method Relaticle\\CustomFields\\Services\\Visibility\\BackendVisibilityService\:\:isFieldVisible\(\) has parameter \$allFields with generic class Illuminate\\Support\\Collection but does not specify its types\: TKey, TValue$#'
+			identifier: missingType.generics
+			count: 1
+			path: src/Services/Visibility/BackendVisibilityService.php
+
+		-
+			message: '#^Method Relaticle\\CustomFields\\Services\\Visibility\\BackendVisibilityService\:\:normalizeFieldValues\(\) has parameter \$fieldCodes with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Services/Visibility/BackendVisibilityService.php
+
+		-
+			message: '#^Method Relaticle\\CustomFields\\Services\\Visibility\\BackendVisibilityService\:\:normalizeFieldValues\(\) has parameter \$rawValues with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Services/Visibility/BackendVisibilityService.php
+
+		-
+			message: '#^Method Relaticle\\CustomFields\\Services\\Visibility\\BackendVisibilityService\:\:normalizeFieldValues\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Services/Visibility/BackendVisibilityService.php
+
+		-
+			message: '#^Method Relaticle\\CustomFields\\Services\\Visibility\\BackendVisibilityService\:\:validateVisibilityConsistency\(\) has parameter \$fields with generic class Illuminate\\Support\\Collection but does not specify its types\: TKey, TValue$#'
+			identifier: missingType.generics
+			count: 1
+			path: src/Services/Visibility/BackendVisibilityService.php
+
+		-
+			message: '#^Method Relaticle\\CustomFields\\Services\\Visibility\\BackendVisibilityService\:\:validateVisibilityConsistency\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Services/Visibility/BackendVisibilityService.php
+
+		-
+			message: '#^Unable to resolve the template type TMapValue in call to method Illuminate\\Support\\Collection\<\(int\|string\),mixed\>\:\:map\(\)$#'
+			identifier: argument.templateType
+			count: 1
+			path: src/Services/Visibility/BackendVisibilityService.php
+
+		-
+			message: '#^Using nullsafe property access "\?\-\>name" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
+			identifier: nullsafe.neverNull
+			count: 2
+			path: src/Services/Visibility/BackendVisibilityService.php
+
+		-
+			message: '#^Call to function in_array\(\) with arguments Relaticle\\CustomFields\\Enums\\Operator, array\<int, string\> and true will always evaluate to false\.$#'
+			identifier: function.impossibleType
 			count: 1
 			path: src/Services/Visibility/CoreVisibilityLogicService.php
 
 		-
-			message: '#^Type Relaticle\\CustomFields\\Enums\\FieldCategory in generic type Illuminate\\Support\\Collection\<Relaticle\\CustomFields\\Enums\\FieldCategory, Illuminate\\Support\\Collection\<int, Relaticle\\CustomFields\\Enums\\CustomFieldType\>\> in PHPDoc tag @return is not subtype of template type TKey of \(int\|string\) of class Illuminate\\Support\\Collection\.$#'
-			identifier: generics.notSubtype
+			message: '#^Call to function is_array\(\) with Relaticle\\CustomFields\\Data\\CustomFieldSettingsData will always evaluate to false\.$#'
+			identifier: function.impossibleType
+			count: 1
+			path: src/Services/Visibility/CoreVisibilityLogicService.php
+
+		-
+			message: '#^Call to function is_object\(\) with Relaticle\\CustomFields\\Data\\CustomFieldSettingsData will always evaluate to true\.$#'
+			identifier: function.alreadyNarrowedType
+			count: 1
+			path: src/Services/Visibility/CoreVisibilityLogicService.php
+
+		-
+			message: '#^Instanceof between Relaticle\\CustomFields\\Data\\VisibilityData and Relaticle\\CustomFields\\Data\\VisibilityData will always evaluate to true\.$#'
+			identifier: instanceof.alwaysTrue
+			count: 1
+			path: src/Services/Visibility/CoreVisibilityLogicService.php
+
+		-
+			message: '#^Method Relaticle\\CustomFields\\Services\\Visibility\\CoreVisibilityLogicService\:\:calculateDependencies\(\) has parameter \$allFields with generic class Illuminate\\Support\\Collection but does not specify its types\: TKey, TValue$#'
+			identifier: missingType.generics
+			count: 1
+			path: src/Services/Visibility/CoreVisibilityLogicService.php
+
+		-
+			message: '#^Method Relaticle\\CustomFields\\Services\\Visibility\\CoreVisibilityLogicService\:\:calculateDependencies\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Services/Visibility/CoreVisibilityLogicService.php
+
+		-
+			message: '#^Method Relaticle\\CustomFields\\Services\\Visibility\\CoreVisibilityLogicService\:\:evaluateVisibility\(\) has parameter \$fieldValues with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Services/Visibility/CoreVisibilityLogicService.php
+
+		-
+			message: '#^Method Relaticle\\CustomFields\\Services\\Visibility\\CoreVisibilityLogicService\:\:evaluateVisibilityWithCascading\(\) has parameter \$allFields with generic class Illuminate\\Support\\Collection but does not specify its types\: TKey, TValue$#'
+			identifier: missingType.generics
+			count: 1
+			path: src/Services/Visibility/CoreVisibilityLogicService.php
+
+		-
+			message: '#^Method Relaticle\\CustomFields\\Services\\Visibility\\CoreVisibilityLogicService\:\:evaluateVisibilityWithCascading\(\) has parameter \$fieldValues with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Services/Visibility/CoreVisibilityLogicService.php
+
+		-
+			message: '#^Method Relaticle\\CustomFields\\Services\\Visibility\\CoreVisibilityLogicService\:\:filterVisibleFields\(\) has parameter \$fieldValues with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Services/Visibility/CoreVisibilityLogicService.php
+
+		-
+			message: '#^Method Relaticle\\CustomFields\\Services\\Visibility\\CoreVisibilityLogicService\:\:filterVisibleFields\(\) has parameter \$fields with generic class Illuminate\\Support\\Collection but does not specify its types\: TKey, TValue$#'
+			identifier: missingType.generics
+			count: 1
+			path: src/Services/Visibility/CoreVisibilityLogicService.php
+
+		-
+			message: '#^Method Relaticle\\CustomFields\\Services\\Visibility\\CoreVisibilityLogicService\:\:filterVisibleFields\(\) return type with generic class Illuminate\\Support\\Collection does not specify its types\: TKey, TValue$#'
+			identifier: missingType.generics
+			count: 1
+			path: src/Services/Visibility/CoreVisibilityLogicService.php
+
+		-
+			message: '#^Method Relaticle\\CustomFields\\Services\\Visibility\\CoreVisibilityLogicService\:\:getAlwaysSaveFields\(\) has parameter \$fields with generic class Illuminate\\Support\\Collection but does not specify its types\: TKey, TValue$#'
+			identifier: missingType.generics
+			count: 1
+			path: src/Services/Visibility/CoreVisibilityLogicService.php
+
+		-
+			message: '#^Method Relaticle\\CustomFields\\Services\\Visibility\\CoreVisibilityLogicService\:\:getAlwaysSaveFields\(\) return type with generic class Illuminate\\Support\\Collection does not specify its types\: TKey, TValue$#'
+			identifier: missingType.generics
+			count: 1
+			path: src/Services/Visibility/CoreVisibilityLogicService.php
+
+		-
+			message: '#^Method Relaticle\\CustomFields\\Services\\Visibility\\CoreVisibilityLogicService\:\:getDependentFields\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Services/Visibility/CoreVisibilityLogicService.php
+
+		-
+			message: '#^Method Relaticle\\CustomFields\\Services\\Visibility\\CoreVisibilityLogicService\:\:getFieldMetadata\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Services/Visibility/CoreVisibilityLogicService.php
+
+		-
+			message: '#^Method Relaticle\\CustomFields\\Services\\Visibility\\CoreVisibilityLogicService\:\:getVisibilityConditions\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Services/Visibility/CoreVisibilityLogicService.php
+
+		-
+			message: '#^Method Relaticle\\CustomFields\\Services\\Visibility\\CoreVisibilityLogicService\:\:normalizeCondition\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Services/Visibility/CoreVisibilityLogicService.php
+
+		-
+			message: '#^Method Relaticle\\CustomFields\\Services\\Visibility\\CoreVisibilityLogicService\:\:shouldShowField\(\) has parameter \$fieldValues with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Services/Visibility/CoreVisibilityLogicService.php
+
+		-
+			message: '#^Method Relaticle\\CustomFields\\Services\\Visibility\\CoreVisibilityLogicService\:\:shouldShowFieldWithCascading\(\) has parameter \$allFields with generic class Illuminate\\Support\\Collection but does not specify its types\: TKey, TValue$#'
+			identifier: missingType.generics
+			count: 1
+			path: src/Services/Visibility/CoreVisibilityLogicService.php
+
+		-
+			message: '#^Method Relaticle\\CustomFields\\Services\\Visibility\\CoreVisibilityLogicService\:\:shouldShowFieldWithCascading\(\) has parameter \$fieldValues with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Services/Visibility/CoreVisibilityLogicService.php
+
+		-
+			message: '#^Negated boolean expression is always false\.$#'
+			identifier: booleanNot.alwaysFalse
+			count: 1
+			path: src/Services/Visibility/CoreVisibilityLogicService.php
+
+		-
+			message: '#^Offset ''visibility'' on \*NEVER\* in isset\(\) always exists and is not nullable\.$#'
+			identifier: isset.offset
+			count: 1
+			path: src/Services/Visibility/CoreVisibilityLogicService.php
+
+		-
+			message: '#^Result of && is always false\.$#'
+			identifier: booleanAnd.alwaysFalse
+			count: 1
+			path: src/Services/Visibility/CoreVisibilityLogicService.php
+
+		-
+			message: '#^Using nullsafe property access "\?\-\>alwaysSave" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
+			identifier: nullsafe.neverNull
+			count: 1
+			path: src/Services/Visibility/CoreVisibilityLogicService.php
+
+		-
+			message: '#^Using nullsafe property access "\?\-\>logic" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
+			identifier: nullsafe.neverNull
+			count: 1
+			path: src/Services/Visibility/CoreVisibilityLogicService.php
+
+		-
+			message: '#^Using nullsafe property access "\?\-\>mode" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
+			identifier: nullsafe.neverNull
+			count: 1
+			path: src/Services/Visibility/CoreVisibilityLogicService.php
+
+		-
+			message: '#^Access to an undefined property Relaticle\\CustomFields\\Models\\CustomFieldOption\:\:\$name\.$#'
+			identifier: property.notFound
+			count: 1
+			path: src/Services/Visibility/FrontendVisibilityService.php
+
+		-
+			message: '#^Method Relaticle\\CustomFields\\Services\\Visibility\\FrontendVisibilityService\:\:buildCondition\(\) has parameter \$allFields with generic class Illuminate\\Support\\Collection but does not specify its types\: TKey, TValue$#'
+			identifier: missingType.generics
+			count: 1
+			path: src/Services/Visibility/FrontendVisibilityService.php
+
+		-
+			message: '#^Method Relaticle\\CustomFields\\Services\\Visibility\\FrontendVisibilityService\:\:buildCondition\(\) has parameter \$conditionData with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Services/Visibility/FrontendVisibilityService.php
+
+		-
+			message: '#^Method Relaticle\\CustomFields\\Services\\Visibility\\FrontendVisibilityService\:\:buildFieldConditions\(\) has parameter \$allFields with generic class Illuminate\\Support\\Collection but does not specify its types\: TKey, TValue$#'
+			identifier: missingType.generics
+			count: 1
+			path: src/Services/Visibility/FrontendVisibilityService.php
+
+		-
+			message: '#^Method Relaticle\\CustomFields\\Services\\Visibility\\FrontendVisibilityService\:\:buildParentConditions\(\) has parameter \$allFields with generic class Illuminate\\Support\\Collection but does not specify its types\: TKey, TValue$#'
+			identifier: missingType.generics
+			count: 1
+			path: src/Services/Visibility/FrontendVisibilityService.php
+
+		-
+			message: '#^Method Relaticle\\CustomFields\\Services\\Visibility\\FrontendVisibilityService\:\:buildVisibilityExpression\(\) has parameter \$allFields with generic class Illuminate\\Support\\Collection but does not specify its types\: TKey, TValue$#'
+			identifier: missingType.generics
+			count: 1
+			path: src/Services/Visibility/FrontendVisibilityService.php
+
+		-
+			message: '#^Method Relaticle\\CustomFields\\Services\\Visibility\\FrontendVisibilityService\:\:exportVisibilityLogicToJs\(\) has parameter \$fields with generic class Illuminate\\Support\\Collection but does not specify its types\: TKey, TValue$#'
+			identifier: missingType.generics
+			count: 1
+			path: src/Services/Visibility/FrontendVisibilityService.php
+
+		-
+			message: '#^Method Relaticle\\CustomFields\\Services\\Visibility\\FrontendVisibilityService\:\:exportVisibilityLogicToJs\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Services/Visibility/FrontendVisibilityService.php
+
+		-
+			message: '#^Method Relaticle\\CustomFields\\Services\\Visibility\\FrontendVisibilityService\:\:resolveArrayOptionValue\(\) has parameter \$value with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Services/Visibility/FrontendVisibilityService.php
+
+		-
+			message: '#^Right side of && is always true\.$#'
+			identifier: booleanAnd.rightAlwaysTrue
+			count: 1
+			path: src/Services/Visibility/FrontendVisibilityService.php
+
+		-
+			message: '#^Using nullsafe property access "\?\-\>id" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
+			identifier: nullsafe.neverNull
+			count: 1
+			path: src/Services/Visibility/FrontendVisibilityService.php
+
+		-
+			message: '#^Using nullsafe property access "\?\-\>type" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
+			identifier: nullsafe.neverNull
+			count: 2
+			path: src/Services/Visibility/FrontendVisibilityService.php
+
+		-
+			message: '#^Instanceof between Relaticle\\CustomFields\\Contracts\\FieldTypeDefinitionInterface and Relaticle\\CustomFields\\Contracts\\FieldTypeDefinitionInterface will always evaluate to true\.$#'
+			identifier: instanceof.alwaysTrue
+			count: 1
+			path: src/Support/CustomFieldTypes.php
+
+		-
+			message: '#^Method Relaticle\\CustomFields\\Support\\CustomFieldTypes\:\:getAllFieldTypes\(\) return type with generic class Illuminate\\Support\\Collection does not specify its types\: TKey, TValue$#'
+			identifier: missingType.generics
+			count: 1
+			path: src/Support/CustomFieldTypes.php
+
+		-
+			message: '#^Method Relaticle\\CustomFields\\Support\\SafeValueConverter\:\:toSafeArray\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Support/SafeValueConverter.php
+
+		-
+			message: '#^Method Relaticle\\CustomFields\\Support\\TypeSafeConfiguration\:\:getFieldTypesByCategory\(\) should return Illuminate\\Support\\Collection\<string, Illuminate\\Support\\Collection\<int, Relaticle\\CustomFields\\Enums\\CustomFieldType\>\> but returns Illuminate\\Support\\Collection\<\(int\|string\), Illuminate\\Support\\Collection\<int, Relaticle\\CustomFields\\Enums\\CustomFieldType\:\:CHECKBOX\|Relaticle\\CustomFields\\Enums\\CustomFieldType\:\:CHECKBOX_LIST\|Relaticle\\CustomFields\\Enums\\CustomFieldType\:\:COLOR_PICKER\|Relaticle\\CustomFields\\Enums\\CustomFieldType\:\:CURRENCY\|Relaticle\\CustomFields\\Enums\\CustomFieldType\:\:DATE\|Relaticle\\CustomFields\\Enums\\CustomFieldType\:\:DATE_TIME\|Relaticle\\CustomFields\\Enums\\CustomFieldType\:\:LINK\|Relaticle\\CustomFields\\Enums\\CustomFieldType\:\:MARKDOWN_EDITOR\|Relaticle\\CustomFields\\Enums\\CustomFieldType\:\:MULTI_SELECT\|Relaticle\\CustomFields\\Enums\\CustomFieldType\:\:NUMBER\|Relaticle\\CustomFields\\Enums\\CustomFieldType\:\:RADIO\|Relaticle\\CustomFields\\Enums\\CustomFieldType\:\:RICH_EDITOR\|Relaticle\\CustomFields\\Enums\\CustomFieldType\:\:SELECT\|Relaticle\\CustomFields\\Enums\\CustomFieldType\:\:TAGS_INPUT\|Relaticle\\CustomFields\\Enums\\CustomFieldType\:\:TEXT\|Relaticle\\CustomFields\\Enums\\CustomFieldType\:\:TEXTAREA\|Relaticle\\CustomFields\\Enums\\CustomFieldType\:\:TOGGLE\|Relaticle\\CustomFields\\Enums\\CustomFieldType\:\:TOGGLE_BUTTONS\>\>\.$#'
+			identifier: return.type
 			count: 1
 			path: src/Support/TypeSafeConfiguration.php
 
 		-
-			message: '#^Dynamic call to static method Illuminate\\Testing\\TestResponse\<Symfony\\Component\\HttpFoundation\\Response\>\:\:assertSuccessful\(\)\.$#'
-			identifier: staticMethod.dynamicCall
+			message: '#^Parameter \#1 \$groupBy of method Illuminate\\Support\\Collection\<int,Relaticle\\CustomFields\\Enums\\CustomFieldType\:\:CHECKBOX\|Relaticle\\CustomFields\\Enums\\CustomFieldType\:\:CHECKBOX_LIST\|Relaticle\\CustomFields\\Enums\\CustomFieldType\:\:COLOR_PICKER\|Relaticle\\CustomFields\\Enums\\CustomFieldType\:\:CURRENCY\|Relaticle\\CustomFields\\Enums\\CustomFieldType\:\:DATE\|Relaticle\\CustomFields\\Enums\\CustomFieldType\:\:DATE_TIME\|Relaticle\\CustomFields\\Enums\\CustomFieldType\:\:LINK\|Relaticle\\CustomFields\\Enums\\CustomFieldType\:\:MARKDOWN_EDITOR\|Relaticle\\CustomFields\\Enums\\CustomFieldType\:\:MULTI_SELECT\|Relaticle\\CustomFields\\Enums\\CustomFieldType\:\:NUMBER\|Relaticle\\CustomFields\\Enums\\CustomFieldType\:\:RADIO\|Relaticle\\CustomFields\\Enums\\CustomFieldType\:\:RICH_EDITOR\|Relaticle\\CustomFields\\Enums\\CustomFieldType\:\:SELECT\|Relaticle\\CustomFields\\Enums\\CustomFieldType\:\:TAGS_INPUT\|Relaticle\\CustomFields\\Enums\\CustomFieldType\:\:TEXT\|Relaticle\\CustomFields\\Enums\\CustomFieldType\:\:TEXTAREA\|Relaticle\\CustomFields\\Enums\\CustomFieldType\:\:TOGGLE\|Relaticle\\CustomFields\\Enums\\CustomFieldType\:\:TOGGLE_BUTTONS\>\:\:groupBy\(\) expects \(callable\(Relaticle\\CustomFields\\Enums\\CustomFieldType\:\:CHECKBOX\|Relaticle\\CustomFields\\Enums\\CustomFieldType\:\:CHECKBOX_LIST\|Relaticle\\CustomFields\\Enums\\CustomFieldType\:\:COLOR_PICKER\|Relaticle\\CustomFields\\Enums\\CustomFieldType\:\:CURRENCY\|Relaticle\\CustomFields\\Enums\\CustomFieldType\:\:DATE\|Relaticle\\CustomFields\\Enums\\CustomFieldType\:\:DATE_TIME\|Relaticle\\CustomFields\\Enums\\CustomFieldType\:\:LINK\|Relaticle\\CustomFields\\Enums\\CustomFieldType\:\:MARKDOWN_EDITOR\|Relaticle\\CustomFields\\Enums\\CustomFieldType\:\:MULTI_SELECT\|Relaticle\\CustomFields\\Enums\\CustomFieldType\:\:NUMBER\|Relaticle\\CustomFields\\Enums\\CustomFieldType\:\:RADIO\|Relaticle\\CustomFields\\Enums\\CustomFieldType\:\:RICH_EDITOR\|Relaticle\\CustomFields\\Enums\\CustomFieldType\:\:SELECT\|Relaticle\\CustomFields\\Enums\\CustomFieldType\:\:TAGS_INPUT\|Relaticle\\CustomFields\\Enums\\CustomFieldType\:\:TEXT\|Relaticle\\CustomFields\\Enums\\CustomFieldType\:\:TEXTAREA\|Relaticle\\CustomFields\\Enums\\CustomFieldType\:\:TOGGLE\|Relaticle\\CustomFields\\Enums\\CustomFieldType\:\:TOGGLE_BUTTONS, int\)\: \(int\|string\)\)\|list\<Closure\|string\>\|string, Closure\(Relaticle\\CustomFields\\Enums\\CustomFieldType\)\: Relaticle\\CustomFields\\Enums\\FieldCategory given\.$#'
+			identifier: argument.type
 			count: 1
-			path: tests/Feature/Panels/Resources/Pages/CreateRecordTest.php
+			path: src/Support/TypeSafeConfiguration.php
 
 		-
-			message: '#^Dynamic call to static method Illuminate\\Testing\\TestResponse\<Symfony\\Component\\HttpFoundation\\Response\>\:\:assertSuccessful\(\)\.$#'
-			identifier: staticMethod.dynamicCall
+			message: '#^Unable to resolve the template type TGroupKey in call to method Illuminate\\Support\\Collection\<int,Relaticle\\CustomFields\\Enums\\CustomFieldType\:\:CHECKBOX\|Relaticle\\CustomFields\\Enums\\CustomFieldType\:\:CHECKBOX_LIST\|Relaticle\\CustomFields\\Enums\\CustomFieldType\:\:COLOR_PICKER\|Relaticle\\CustomFields\\Enums\\CustomFieldType\:\:CURRENCY\|Relaticle\\CustomFields\\Enums\\CustomFieldType\:\:DATE\|Relaticle\\CustomFields\\Enums\\CustomFieldType\:\:DATE_TIME\|Relaticle\\CustomFields\\Enums\\CustomFieldType\:\:LINK\|Relaticle\\CustomFields\\Enums\\CustomFieldType\:\:MARKDOWN_EDITOR\|Relaticle\\CustomFields\\Enums\\CustomFieldType\:\:MULTI_SELECT\|Relaticle\\CustomFields\\Enums\\CustomFieldType\:\:NUMBER\|Relaticle\\CustomFields\\Enums\\CustomFieldType\:\:RADIO\|Relaticle\\CustomFields\\Enums\\CustomFieldType\:\:RICH_EDITOR\|Relaticle\\CustomFields\\Enums\\CustomFieldType\:\:SELECT\|Relaticle\\CustomFields\\Enums\\CustomFieldType\:\:TAGS_INPUT\|Relaticle\\CustomFields\\Enums\\CustomFieldType\:\:TEXT\|Relaticle\\CustomFields\\Enums\\CustomFieldType\:\:TEXTAREA\|Relaticle\\CustomFields\\Enums\\CustomFieldType\:\:TOGGLE\|Relaticle\\CustomFields\\Enums\\CustomFieldType\:\:TOGGLE_BUTTONS\>\:\:groupBy\(\)$#'
+			identifier: argument.templateType
 			count: 1
-			path: tests/Feature/Panels/Resources/Pages/EditRecordTest.php
-
-		-
-			message: '#^Dynamic call to static method Illuminate\\Testing\\TestResponse\<Symfony\\Component\\HttpFoundation\\Response\>\:\:assertSuccessful\(\)\.$#'
-			identifier: staticMethod.dynamicCall
-			count: 1
-			path: tests/Feature/Panels/Resources/Pages/ListRecordsTest.php
-
-		-
-			message: '#^Call to an undefined method Pest\\Expectation\<Illuminate\\Database\\Eloquent\\Model\|null\>\:\:toBeSameModel\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: tests/Feature/Panels/Resources/ResourceTest.php
-
-		-
-			message: '#^Call to an undefined method Pest\\Mixins\\Expectation\<Illuminate\\Database\\Eloquent\\Builder\|null\>\:\:getModel\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: tests/Feature/Panels/Resources/ResourceTest.php
+			path: src/Support/TypeSafeConfiguration.php

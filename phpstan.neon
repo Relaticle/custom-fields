@@ -1,4 +1,5 @@
 includes:
+    - vendor/larastan/larastan/extension.neon
 
 parameters:
     level: 6
@@ -8,64 +9,4 @@ parameters:
     excludePaths:
         - src/Filament/Pages/CustomFieldsPage.php
         - src/Livewire
-        - tests/Fixtures
-        - tests/database
-    tmpDir: build/phpstan
-    checkOctaneCompatibility: true
-    checkModelProperties: true
-    
-    # Relax strict rules to be more reasonable
-    treatPhpDocTypesAsCertain: false
-    checkTooWideReturnTypesInProtectedAndPublicMethods: false
-    checkUninitializedProperties: false
-    checkDynamicProperties: false
-    checkExplicitMixedMissingReturn: false
-    checkFunctionNameCase: false
-    checkInternalClassCaseSensitivity: false
-    checkImplicitMixed: false
-    polluteScopeWithLoopInitialAssignments: true
-    polluteScopeWithAlwaysIterableForeach: true
-    checkBenevolentUnionTypes: true
-
-    ignoreErrors:
-        # Allow dynamic properties on models for testing
-        - '#Access to an undefined property [a-zA-Z0-9\\_]+::\$[a-zA-Z0-9_]+#'
-        
-        # Allow Laravel query builder dynamic calls
-        - '#Dynamic call to static method Illuminate\\Database\\Eloquent\\Builder.*::#'
-        - '#Dynamic call to static method Relaticle\\CustomFields\\QueryBuilders\\CustomFieldQueryBuilder.*::#'
-        
-        # Allow Laravel scope methods on relationships
-        - '#Call to an undefined method Illuminate\\Database\\Eloquent\\Relations\\HasMany.*::withDeactivated\(\)#'
-        
-        # Allow unused traits that are part of public API
-        - '#Trait .* is used zero times and is not analysed#'
-        
-        # Relax some overly strict rules
-        - '#^Construct empty\(\) is not allowed\. Use more strict comparison\.$#'
-        - '#^Call to function in_array\(\) requires parameter \#3 to be set\.$#'
-        - '#^Only booleans are allowed in#'
-        - '#^Using nullsafe .* is unnecessary\. Use .* instead\.$#'
-        - '#^Casting to .* something that.*s already .*\.$#'
-        - '#will always evaluate to (true|false)\.$#'
-        - '#^Result of && is always (true|false)\.$#'
-        - '#^Instanceof between .* will always evaluate to true\.$#'
-        - '#^Call to function .* will always evaluate to (true|false)\.$#'
-        
-        # Allow test-related dynamic calls
-        - '#^Call to an undefined method .*Test.*::#'
-        - '#^Dynamic call to static method .*Testable::#'
-        - '#^Call to method .* on an unknown class static\.$#'
-        - '#^Class .* referenced with incorrect case:#'
-        - '#^Undefined variable: \$this#'
-        
-        # Allow missing generics in common cases
-        - '#does not specify its types: TKey, TValue$#'
-        - '#return type has no value type specified in iterable type array#'
-        - '#has parameter .* with no value type specified in iterable type array#'
-        - '#has parameter .* with no type specified#'
-        - '#return type with generic class .* does not specify its types#'
-        - '#has parameter .* with generic class .* but does not specify its types#'
-        - '#^Unable to resolve the template type .* in call to#'
-        - '#^Method .* should return .* but returns .*\.$#'
-        - '#^Parameter .* expects .*, .* given\.$#'
+        - tests

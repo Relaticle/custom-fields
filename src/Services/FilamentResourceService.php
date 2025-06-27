@@ -77,6 +77,8 @@ final class FilamentResourceService
     public static function getRecordTitleAttribute(string $model): string
     {
         $resourceInstance = self::getResourceInstance($model);
+        /** @var string|null $recordTitleAttribute */
+        /** @phpstan-ignore-next-line Dynamic call to Filament Resource method */
         $recordTitleAttribute = $resourceInstance->getRecordTitleAttribute();
 
         throw_if($recordTitleAttribute === null, new InvalidArgumentException(sprintf(
@@ -91,10 +93,14 @@ final class FilamentResourceService
      * Get the globally searchable attributes for a given model.
      *
      * @throws Throwable
+     * @return array<string>
      */
     public static function getGlobalSearchableAttributes(string $model): array
     {
-        return self::getResourceInstance($model)->getGloballySearchableAttributes();
+        /** @var array<string> $attributes */
+        /** @phpstan-ignore-next-line Dynamic call to Filament Resource method */
+        $attributes = self::getResourceInstance($model)->getGloballySearchableAttributes();
+        return $attributes;
     }
 
     /**
