@@ -56,7 +56,7 @@ class ManageCustomField extends Component implements HasActions, HasForms
             ->model(CustomFields::customFieldModel())
             ->record($this->field)
             ->visible(fn (CustomField $record): bool => ! $record->isActive())
-            ->action(fn () => $this->field->activate());
+            ->action(fn (): bool => $this->field->activate());
     }
 
     public function deactivateAction(): Action
@@ -66,7 +66,7 @@ class ManageCustomField extends Component implements HasActions, HasForms
             ->model(CustomFields::customFieldModel())
             ->record($this->field)
             ->visible(fn (CustomField $record): bool => $record->isActive())
-            ->action(fn () => $this->field->deactivate());
+            ->action(fn (): bool => $this->field->deactivate());
     }
 
     public function deleteAction(): Action
@@ -77,7 +77,7 @@ class ManageCustomField extends Component implements HasActions, HasForms
             ->model(CustomFields::customFieldModel())
             ->record($this->field)
             ->visible(fn (CustomField $record): bool => ! $record->isActive() && ! $record->isSystemDefined())
-            ->action(fn () => $this->field->delete() && $this->dispatch('field-deleted'));
+            ->action(fn (): bool => $this->field->delete() && $this->dispatch('field-deleted'));
     }
 
     public function setWidth(int|string $fieldId, int $width): void

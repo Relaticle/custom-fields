@@ -35,13 +35,13 @@ final readonly class SingleValueColumn implements ColumnInterface
                     );
                 }
             )
-            ->getStateUsing(fn ($record) => $this->valueResolver->resolve($record, $customField))
+            ->getStateUsing(fn ($record): string => $this->valueResolver->resolve($record, $customField))
             ->searchable(false);
 
         // Use colored badge for field with enabled option colors
         if (Utils::isSelectOptionColorsFeatureEnabled() && $customField->settings->enable_option_colors && ! $customField->lookup_type) {
             $column->badge()
-                ->color(function ($state) use ($customField): ?array {
+                ->color(function ($state) use ($customField): array {
                     $color = $customField->options->where('name', $state)->first()?->settings->color;
 
                     return Color::hex($color ?? '#000000');

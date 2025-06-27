@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Relaticle\CustomFields\Filament\Forms\Components;
 
+use ValueError;
 use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
@@ -65,11 +66,11 @@ final class CustomFieldValidationComponent extends Component
         return Select::make('name')
             ->label(__('custom-fields::custom-fields.field.form.validation.rule'))
             ->placeholder(__('custom-fields::custom-fields.field.form.validation.select_rule_placeholder'))
-            ->options(fn (Get $get) => $this->getAvailableRuleOptions($get))
+            ->options(fn (Get $get): array => $this->getAvailableRuleOptions($get))
             ->searchable()
             ->required()
             ->live()
-            ->in(fn (Get $get) => $this->getAllowedRuleValues($get))
+            ->in(fn (Get $get): array => $this->getAllowedRuleValues($get))
             ->afterStateUpdated(fn (Get $get, Set $set, ?string $state, ?string $old) => $this->handleRuleChange($set, $state, $old)
             )
             ->columnSpan(1);
@@ -99,7 +100,7 @@ final class CustomFieldValidationComponent extends Component
                     )
                     ->afterStateHydrated(fn (Get $get, Set $set, $state, Component $component) => $this->hydrateParameterValue($get, $set, $state, $component)
                     )
-                    ->dehydrateStateUsing(fn (Get $get, $state, Component $component) => $this->dehydrateParameterValue($get, $state, $component)
+                    ->dehydrateStateUsing(fn (Get $get, $state, Component $component): ?string => $this->dehydrateParameterValue($get, $state, $component)
                     ),
             )
             ->columnSpanFull()
@@ -110,7 +111,7 @@ final class CustomFieldValidationComponent extends Component
             ->reorderable(false)
             ->deletable(fn (Get $get): bool => $this->canDeleteParameter($get))
             ->defaultItems(fn (Get $get): int => $this->getParameterCount($get))
-            ->hint(fn (Get $get) => $this->getParameterHint($get))
+            ->hint(fn (Get $get): string => $this->getParameterHint($get))
             ->hintColor('danger')
             ->addActionLabel(__('custom-fields::custom-fields.field.form.validation.add_parameter'));
     }
@@ -138,7 +139,7 @@ final class CustomFieldValidationComponent extends Component
     private function getAllowedRuleValues(Get $get): array
     {
         $fieldType = $this->getFieldType($get);
-        if (! $fieldType) {
+        if (!$fieldType instanceof CustomFieldType) {
             return [];
         }
 
@@ -155,7 +156,7 @@ final class CustomFieldValidationComponent extends Component
 
         $set('parameters', []);
 
-        if (empty($state)) {
+        if ($state === null || $state === '' || $state === '0') {
             return;
         }
 
@@ -185,7 +186,7 @@ final class CustomFieldValidationComponent extends Component
             return '';
         }
 
-        if ($component) {
+        if ($component instanceof Component) {
             $parameterIndex = $this->getParameterIndex($component);
 
             return CustomFieldValidationRule::getParameterHelpTextFor($ruleName, $parameterIndex);
@@ -313,7 +314,7 @@ final class CustomFieldValidationComponent extends Component
             foreach ($customFieldConfig['validation_rules'] as $ruleValue) {
                 try {
                     $validRules[] = CustomFieldValidationRule::from($ruleValue);
-                } catch (\ValueError $e) {
+                } catch (ValueError) {
                     // Skip invalid validation rules instead of failing
                     continue;
                 }
@@ -342,7 +343,7 @@ final class CustomFieldValidationComponent extends Component
     {
         $statePath = $component->getStatePath();
 
-        if (! preg_match('/parameters\.([^.]+)/', $statePath, $matches)) {
+        if (in_array(preg_match('/parameters\.([^.]+)/', (string) $statePath, $matches), [0, false], true)) {
             return 0;
         }
 
@@ -369,7 +370,7 @@ final class CustomFieldValidationComponent extends Component
         }
 
         // Fallback: extract from component ID
-        $idParts = explode('-', $component->getId());
+        $idParts = explode('-', (string) $component->getId());
         if (count($idParts) > 1) {
             $lastPart = end($idParts);
             if (is_numeric($lastPart)) {

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Relaticle\CustomFields\Livewire;
 
+use Illuminate\Contracts\View\View;
 use Livewire\Component;
 
 class ManageCustomFieldWidth extends Component
@@ -31,7 +32,7 @@ class ManageCustomFieldWidth extends Component
         $this->fieldId = $fieldId;
     }
 
-    public function render()
+    public function render(): View
     {
         return view('custom-fields::livewire.manage-custom-field-width');
     }

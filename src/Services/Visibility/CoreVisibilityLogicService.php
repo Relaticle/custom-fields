@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Relaticle\CustomFields\Services\Visibility;
 
+use Spatie\LaravelData\DataCollection;
 use Illuminate\Support\Collection;
 use Relaticle\CustomFields\Data\VisibilityConditionData;
 use Relaticle\CustomFields\Data\VisibilityData;
@@ -154,7 +155,7 @@ final readonly class CoreVisibilityLogicService
     {
         $visibility = $this->getVisibilityData($field);
 
-        if (! $visibility || ! $visibility->conditions) {
+        if (! $visibility instanceof VisibilityData || ! $visibility->conditions instanceof DataCollection) {
             return [];
         }
 
@@ -279,7 +280,7 @@ final readonly class CoreVisibilityLogicService
      */
     public function filterVisibleFields(Collection $fields, array $fieldValues): Collection
     {
-        return $fields->filter(fn (CustomField $field) => $this->evaluateVisibility($field, $fieldValues));
+        return $fields->filter(fn (CustomField $field): bool => $this->evaluateVisibility($field, $fieldValues));
     }
 
     /**
@@ -287,7 +288,7 @@ final readonly class CoreVisibilityLogicService
      */
     public function getAlwaysSaveFields(Collection $fields): Collection
     {
-        return $fields->filter(fn (CustomField $field) => $this->shouldAlwaysSave($field));
+        return $fields->filter(fn (CustomField $field): bool => $this->shouldAlwaysSave($field));
     }
 
     /**

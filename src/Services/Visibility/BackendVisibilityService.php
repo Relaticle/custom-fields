@@ -68,9 +68,7 @@ final readonly class BackendVisibilityService
     {
         $fieldValues = $this->extractFieldValues($record, $fields);
 
-        return $fields->filter(function (CustomField $field) use ($fieldValues, $fields) {
-            return $this->coreLogic->evaluateVisibilityWithCascading($field, $fieldValues, $fields);
-        });
+        return $fields->filter(fn(CustomField $field): bool => $this->coreLogic->evaluateVisibilityWithCascading($field, $fieldValues, $fields));
     }
 
     /**
@@ -90,7 +88,7 @@ final readonly class BackendVisibilityService
      */
     public function normalizeFieldValues(array $fieldCodes, array $rawValues): array
     {
-        if (empty($fieldCodes)) {
+        if ($fieldCodes === []) {
             return $rawValues;
         }
 
@@ -154,7 +152,7 @@ final readonly class BackendVisibilityService
             'hidden_fields' => $fields->count() - $visibleFields->count(),
             'field_values_extracted' => count($fieldValues),
             'normalized_values' => count($normalizedValues),
-            'has_visibility_conditions' => $fields->filter(fn ($f) => $this->coreLogic->hasVisibilityConditions($f))->count(),
+            'has_visibility_conditions' => $fields->filter(fn ($f): bool => $this->coreLogic->hasVisibilityConditions($f))->count(),
             'visible_field_codes' => $visibleFields->pluck('code')->toArray(),
             'dependencies' => $this->coreLogic->calculateDependencies($fields),
         ];
@@ -165,7 +163,7 @@ final readonly class BackendVisibilityService
      */
     public function getAlwaysSaveFields(Collection $fields): Collection
     {
-        return $fields->filter(fn (CustomField $field) => $this->coreLogic->shouldAlwaysSave($field));
+        return $fields->filter(fn (CustomField $field): bool => $this->coreLogic->shouldAlwaysSave($field));
     }
 
     /**
@@ -173,7 +171,7 @@ final readonly class BackendVisibilityService
      */
     public function filterVisibleFields(Collection $fields, array $fieldValues): Collection
     {
-        return $fields->filter(fn (CustomField $field) => $this->coreLogic->evaluateVisibility($field, $fieldValues));
+        return $fields->filter(fn (CustomField $field): bool => $this->coreLogic->evaluateVisibility($field, $fieldValues));
     }
 
     /**

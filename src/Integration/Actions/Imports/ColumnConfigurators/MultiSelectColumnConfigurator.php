@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Relaticle\CustomFields\Integration\Actions\Imports\ColumnConfigurators;
 
+use Illuminate\Database\Eloquent\Model;
 use Filament\Actions\Imports\Exceptions\RowImportFailedException;
 use Filament\Actions\Imports\ImportColumn;
 use Relaticle\CustomFields\Integration\Actions\Imports\Matchers\LookupMatcherInterface;
@@ -14,13 +15,13 @@ use Throwable;
 /**
  * Configures multi-select columns that use either lookup relationships or options.
  */
-final class MultiSelectColumnConfigurator implements ColumnConfiguratorInterface
+final readonly class MultiSelectColumnConfigurator implements ColumnConfiguratorInterface
 {
     /**
      * Constructor with dependency injection.
      */
     public function __construct(
-        private readonly LookupMatcherInterface $lookupMatcher
+        private LookupMatcherInterface $lookupMatcher
     ) {}
 
     /**
@@ -69,7 +70,7 @@ final class MultiSelectColumnConfigurator implements ColumnConfiguratorInterface
                         value: (string) $value
                     );
 
-                    if ($record) {
+                    if ($record instanceof Model) {
                         $foundIds[] = (int) $record->getKey();
                     } else {
                         $missingValues[] = $value;
@@ -77,7 +78,7 @@ final class MultiSelectColumnConfigurator implements ColumnConfiguratorInterface
                 }
 
                 // Check if all values were found
-                if (! empty($missingValues)) {
+                if ($missingValues !== []) {
                     throw new RowImportFailedException(
                         "Could not find {$customField->lookup_type} records with values: ".
                         implode(', ', $missingValues)
@@ -122,8 +123,8 @@ final class MultiSelectColumnConfigurator implements ColumnConfiguratorInterface
             $options = $customField->options->toArray();
 
             // Map of lowercase option names to their IDs for case-insensitive matching
-            $optionsLowercaseMap = array_reduce($options, function ($map, $option) {
-                $map[strtolower($option['name'])] = $option['id'];
+            $optionsLowercaseMap = array_reduce($options, function (array $map, array $option) {
+                $map[strtolower((string) $option['name'])] = $option['id'];
 
                 return $map;
             }, []);
@@ -145,7 +146,7 @@ final class MultiSelectColumnConfigurator implements ColumnConfiguratorInterface
             }
 
             // Check if all values were found
-            if (! empty($missingValues)) {
+            if ($missingValues !== []) {
                 throw new RowImportFailedException(
                     "Invalid option values for {$customField->name}: ".
                     implode(', ', $missingValues).'. Valid options are: '.
@@ -178,7 +179,7 @@ final class MultiSelectColumnConfigurator implements ColumnConfiguratorInterface
                 ->pluck($recordTitleAttribute)
                 ->toArray();
 
-            if (! empty($sampleValues)) {
+            if ($sampleValues !== []) {
                 $column->example(implode(', ', $sampleValues));
                 $column->helperText('Separate multiple values with commas');
             }
@@ -199,7 +200,7 @@ final class MultiSelectColumnConfigurator implements ColumnConfiguratorInterface
     {
         $options = $customField->options->pluck('name')->toArray();
 
-        if (! empty($options)) {
+        if ($options !== []) {
             // Get up to 2 options for the example
             $exampleOptions = array_slice($options, 0, 2);
             $column->example(implode(', ', $exampleOptions));

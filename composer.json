@@ -31,14 +31,17 @@
         "larastan/larastan": "^3.0",
         "laravel/pint": "^1.0",
         "nunomaduro/collision": "^8.1",
+        "nunomaduro/phpinsights": "*",
         "orchestra/testbench": "^9.0",
         "pestphp/pest": "^3.0",
         "pestphp/pest-plugin-arch": "^3.0",
         "pestphp/pest-plugin-laravel": "^3.0",
         "pestphp/pest-plugin-livewire": "^3.0",
         "phpstan/extension-installer": "^1.4",
-        "phpstan/phpstan-deprecation-rules": "^2.0",
+        "phpstan/phpstan-deprecation-rules": "*",
         "phpstan/phpstan-phpunit": "^2.0",
+        "phpstan/phpstan-strict-rules": "*",
+        "rector/rector": "*",
         "spatie/laravel-ray": "^1.26"
     },
     "autoload": {
@@ -55,15 +58,27 @@
     "scripts": {
         "post-autoload-dump": "@php ./vendor/bin/testbench package:discover --ansi",
         "analyse": "vendor/bin/phpstan analyse",
+        "analyse:strict": "vendor/bin/phpstan analyse --level=8",
+        "insights": "vendor/bin/phpinsights",
+        "insights:fix": "vendor/bin/phpinsights --fix",
+        "refactor": "vendor/bin/rector process --dry-run",
+        "refactor:fix": "vendor/bin/rector process",
+        "code-audit": [
+            "@analyse",
+            "@insights",
+            "@refactor"
+        ],
         "test": "vendor/bin/pest",
         "test-coverage": "vendor/bin/pest --coverage",
-        "format": "vendor/bin/pint"
+        "format": "vendor/bin/pint",
+        "format-check": "vendor/bin/pint --test"
     },
     "config": {
         "sort-packages": true,
         "allow-plugins": {
             "pestphp/pest-plugin": true,
-            "phpstan/extension-installer": true
+            "phpstan/extension-installer": true,
+            "dealerdirect/phpcodesniffer-composer-installer": true
         }
     },
     "extra": {

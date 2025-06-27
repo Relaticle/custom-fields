@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Relaticle\CustomFields\Enums;
 
+use Relaticle\CustomFields\Services\FieldTypeRegistryService;
 use Filament\Support\Contracts\HasLabel;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cache;
@@ -56,21 +57,27 @@ enum CustomFieldType: string implements HasLabel
         ];
     }
 
+    /**
+     * @return Collection<int, array{label: string, value: string, icon: string}>
+     */
     public static function optionsForSelect(): Collection
     {
         // Check if FieldTypeRegistryService is available and use it for extended options
-        if (app()->bound(\Relaticle\CustomFields\Services\FieldTypeRegistryService::class)) {
-            return app(\Relaticle\CustomFields\Services\FieldTypeRegistryService::class)->getFieldTypeOptions();
+        if (app()->bound(FieldTypeRegistryService::class)) {
+            return app(FieldTypeRegistryService::class)->getFieldTypeOptions();
         }
 
         // Fallback to built-in types only
-        return Cache::remember('custom-fields.field-types.options-for-select', 60, fn () => collect(self::options())->map(fn ($label, $value) => [
+        return Cache::remember('custom-fields.field-types.options-for-select', 60, fn () => collect(self::options())->map(fn ($label, $value): array => [
             'label' => $label,
             'value' => $value,
             'icon' => self::icons()[$value],
         ]));
     }
 
+    /**
+     * @return array<string, string>
+     */
     public static function icons(): array
     {
         return [
@@ -95,6 +102,9 @@ enum CustomFieldType: string implements HasLabel
         ];
     }
 
+    /**
+     * @return Collection<int, self>
+     */
     public static function optionables(): Collection
     {
         return collect([
@@ -170,6 +180,9 @@ enum CustomFieldType: string implements HasLabel
         return $this->getCategory()->getCompatibleOperators();
     }
 
+    /**
+     * @return Collection<int, self>
+     */
     public static function encryptables(): Collection
     {
         return collect([
@@ -181,6 +194,9 @@ enum CustomFieldType: string implements HasLabel
         ]);
     }
 
+    /**
+     * @return Collection<int, self>
+     */
     public static function searchables(): Collection
     {
         return collect([
@@ -193,6 +209,9 @@ enum CustomFieldType: string implements HasLabel
         ]);
     }
 
+    /**
+     * @return Collection<int, self>
+     */
     public static function filterable(): Collection
     {
         return collect([
@@ -211,7 +230,7 @@ enum CustomFieldType: string implements HasLabel
         return self::icons()[$this->value];
     }
 
-    public function getLabel(): ?string
+    public function getLabel(): string
     {
         return self::options()[$this->value];
     }

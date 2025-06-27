@@ -27,14 +27,10 @@ final readonly class FieldTypeHelperService
         if ($type instanceof CustomFieldType) {
             return $type->getIcon();
         }
-
         // If type is a string (custom field type), get icon from registry
-        if (is_string($type)) {
-            $fieldTypeConfig = $this->fieldTypeRegistry->getFieldType($type);
-
-            if ($fieldTypeConfig !== null) {
-                return $fieldTypeConfig['icon'];
-            }
+        $fieldTypeConfig = $this->fieldTypeRegistry->getFieldType($type);
+        if ($fieldTypeConfig !== null) {
+            return $fieldTypeConfig['icon'];
         }
 
         // Fallback icon for unknown types
@@ -50,14 +46,10 @@ final readonly class FieldTypeHelperService
         if ($type instanceof CustomFieldType) {
             return $type->getLabel();
         }
-
         // If type is a string (custom field type), get label from registry
-        if (is_string($type)) {
-            $fieldTypeConfig = $this->fieldTypeRegistry->getFieldType($type);
-
-            if ($fieldTypeConfig !== null) {
-                return $fieldTypeConfig['label'];
-            }
+        $fieldTypeConfig = $this->fieldTypeRegistry->getFieldType($type);
+        if ($fieldTypeConfig !== null) {
+            return $fieldTypeConfig['label'];
         }
 
         // Fallback to the raw type value
@@ -73,14 +65,10 @@ final readonly class FieldTypeHelperService
         if ($type instanceof CustomFieldType) {
             return $type->getCategory()->value;
         }
-
         // If type is a string (custom field type), get category from registry
-        if (is_string($type)) {
-            $fieldTypeConfig = $this->fieldTypeRegistry->getFieldType($type);
-
-            if ($fieldTypeConfig !== null) {
-                return $fieldTypeConfig['category'];
-            }
+        $fieldTypeConfig = $this->fieldTypeRegistry->getFieldType($type);
+        if ($fieldTypeConfig !== null) {
+            return $fieldTypeConfig['category'];
         }
 
         // Fallback to text category

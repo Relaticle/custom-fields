@@ -25,7 +25,7 @@ final readonly class LookupResolver
             return collect($values);
         }
 
-        if (! isset($customField->lookup_type)) {
+        if ($customField->lookup_type === null) {
             return $customField->options->whereIn('id', $values)->pluck('name');
         }
 
@@ -39,7 +39,7 @@ final readonly class LookupResolver
      */
     private function getLookupAttributes(string $lookupType): array
     {
-        $lookupModelPath = Relation::getMorphedModel($lookupType) ?: $lookupType;
+        $lookupModelPath = Relation::getMorphedModel($lookupType) ?? $lookupType;
         $lookupInstance = app($lookupModelPath);
 
         $resourcePath = Filament::getModelResource($lookupModelPath);

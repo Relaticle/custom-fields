@@ -22,11 +22,11 @@ final readonly class MultiValueColumn implements ColumnInterface
             ->sortable(false)
             ->searchable(false);
 
-        $column->getStateUsing(fn ($record) => $this->valueResolver->resolve($record, $customField));
+        $column->getStateUsing(fn ($record): array => $this->valueResolver->resolve($record, $customField));
 
         if (Utils::isSelectOptionColorsFeatureEnabled() && $customField->settings->enable_option_colors && ! $customField->lookup_type) {
             $column->badge()
-                ->color(function ($state) use ($customField): ?array {
+                ->color(function ($state) use ($customField): array {
                     $color = $customField->options->where('name', $state)->first()?->settings->color;
 
                     return Color::hex($color ?? '#000000');

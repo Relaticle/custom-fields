@@ -41,13 +41,16 @@ class CustomFieldSection extends Model
     use HasFactory;
 
     /**
-     * @var array<int, string>
+     * @var array<string>
      */
     protected $guarded = [];
 
+    /**
+     * @param array<string, mixed> $attributes
+     */
     public function __construct(array $attributes = [])
     {
-        if (! isset($this->table)) {
+        if ($this->table === null) {
             $this->setTable(config('custom-fields.table_names.custom_field_sections'));
         }
 
@@ -63,12 +66,19 @@ class CustomFieldSection extends Model
         ];
     }
 
+    /**
+     * @return HasMany<CustomField, $this>
+     */
     public function fields(): HasMany
     {
         return $this->hasMany(CustomFields::customFieldModel());
     }
 
-    public function scopeForEntityType(Builder $query, string $model)
+    /**
+     * @param Builder<self> $query
+     * @return Builder<self>
+     */
+    public function scopeForEntityType(Builder $query, string $model): Builder
     {
         return $query->where('entity_type', EntityTypeService::getEntityFromModel($model));
     }

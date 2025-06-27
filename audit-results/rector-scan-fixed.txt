@@ -1,0 +1,7 @@
+
+ [ERROR] These rules from "$rectorConfig->skip()" do not exist - remove them or 
+         fix their names:                                                       
+          *                                                                     
+         Rector\Privatization\Rector\Class_\FinalizeClassesWithoutChildrenRector
+
+Script vendor/bin/rector process --dry-run handling the refactor event returned with error code 1

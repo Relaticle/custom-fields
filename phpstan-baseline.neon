@@ -1,0 +1,595 @@
+parameters:
+	ignoreErrors:
+		-
+			message: '#^Method Relaticle\\CustomFields\\Enums\\CustomFieldType\:\:getLabel\(\) never returns null so it can be removed from the return type\.$#'
+			identifier: return.unusedType
+			count: 1
+			path: src/Enums/CustomFieldType.php
+
+		-
+			message: '#^Expression on left side of \?\? is not nullable\.$#'
+			identifier: nullCoalesce.expr
+			count: 1
+			path: src/Filament/Forms/Components/VisibilityComponent.php
+
+		-
+			message: '#^Dynamic call to static method Relaticle\\CustomFields\\Filament\\Schemas\\SectionForm\:\:schema\(\)\.$#'
+			identifier: staticMethod.dynamicCall
+			count: 1
+			path: src/Filament/Pages/CustomFieldsPage.php
+
+		-
+			message: '#^Property Relaticle\\CustomFields\\Filament\\Pages\\CustomFieldsPage\:\:\$currentEntityType has no type specified\.$#'
+			identifier: missingType.property
+			count: 1
+			path: src/Filament/Pages/CustomFieldsPage.php
+
+		-
+			message: '#^Call to an undefined method Filament\\Actions\\Imports\\ImportColumn\:\:date\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: src/Integration/Actions/Imports/ColumnConfigurators/BasicColumnConfigurator.php
+
+		-
+			message: '#^Call to an undefined method Filament\\Actions\\Imports\\ImportColumn\:\:dateTime\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: src/Integration/Actions/Imports/ColumnConfigurators/BasicColumnConfigurator.php
+
+		-
+			message: '#^Dynamic call to static method Illuminate\\Database\\Eloquent\\Builder\<Illuminate\\Database\\Eloquent\\Model\>\:\:limit\(\)\.$#'
+			identifier: staticMethod.dynamicCall
+			count: 1
+			path: src/Integration/Actions/Imports/ColumnConfigurators/MultiSelectColumnConfigurator.php
+
+		-
+			message: '#^Dynamic call to static method Illuminate\\Database\\Eloquent\\Builder\<Illuminate\\Database\\Eloquent\\Model\>\:\:limit\(\)\.$#'
+			identifier: staticMethod.dynamicCall
+			count: 1
+			path: src/Integration/Actions/Imports/ColumnConfigurators/SelectColumnConfigurator.php
+
+		-
+			message: '#^Using nullsafe method call on non\-nullable type Spatie\\LaravelData\\DataCollection\<int, Relaticle\\CustomFields\\Data\\ValidationRuleData\>\. Use \-\> instead\.$#'
+			identifier: nullsafe.neverNull
+			count: 1
+			path: src/Integration/Actions/Imports/ColumnFactory.php
+
+		-
+			message: '#^Call to an undefined method Illuminate\\Database\\Eloquent\\Model\:\:saveCustomFields\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: src/Integration/Actions/Imports/CustomFieldsImporter.php
+
+		-
+			message: '#^Dynamic call to static method Relaticle\\CustomFields\\QueryBuilders\\CustomFieldQueryBuilder\:\:whereIn\(\)\.$#'
+			identifier: staticMethod.dynamicCall
+			count: 1
+			path: src/Integration/Actions/Imports/ValueConverters/ValueConverter.php
+
+		-
+			message: '#^Dynamic call to static method Illuminate\\Database\\Eloquent\\Builder\<Illuminate\\Database\\Eloquent\\Model\>\:\:limit\(\)\.$#'
+			identifier: staticMethod.dynamicCall
+			count: 1
+			path: src/Integration/Forms/Components/CheckboxListComponent.php
+
+		-
+			message: '#^Dynamic call to static method Illuminate\\Database\\Eloquent\\Model\:\:query\(\)\.$#'
+			identifier: staticMethod.dynamicCall
+			count: 1
+			path: src/Integration/Forms/Components/CheckboxListComponent.php
+
+		-
+			message: '#^Dynamic call to static method Illuminate\\Database\\Eloquent\\Builder\<Illuminate\\Database\\Eloquent\\Model\>\:\:limit\(\)\.$#'
+			identifier: staticMethod.dynamicCall
+			count: 1
+			path: src/Integration/Forms/Components/RadioComponent.php
+
+		-
+			message: '#^Dynamic call to static method Illuminate\\Database\\Eloquent\\Model\:\:query\(\)\.$#'
+			identifier: staticMethod.dynamicCall
+			count: 1
+			path: src/Integration/Forms/Components/RadioComponent.php
+
+		-
+			message: '#^Dynamic call to static method Illuminate\\Database\\Eloquent\\Builder\<Illuminate\\Database\\Eloquent\\Model\>\:\:limit\(\)\.$#'
+			identifier: staticMethod.dynamicCall
+			count: 1
+			path: src/Integration/Forms/Components/SelectComponent.php
+
+		-
+			message: '#^Dynamic call to static method Illuminate\\Database\\Eloquent\\Builder\<Illuminate\\Database\\Eloquent\\Model\>\:\:whereIn\(\)\.$#'
+			identifier: staticMethod.dynamicCall
+			count: 1
+			path: src/Integration/Forms/Components/SelectComponent.php
+
+		-
+			message: '#^Variable property access on Illuminate\\Database\\Eloquent\\Collection\<int, Illuminate\\Database\\Eloquent\\Model\>\|Illuminate\\Database\\Eloquent\\Model\.$#'
+			identifier: property.dynamicName
+			count: 1
+			path: src/Integration/Forms/Components/SelectComponent.php
+
+		-
+			message: '#^Cannot access constant class on array\<string, mixed\>\|Illuminate\\Database\\Eloquent\\Model\.$#'
+			identifier: classConstant.nonObject
+			count: 1
+			path: src/Integration/Infolists/CustomFieldsInfolists.php
+
+		-
+			message: '#^Template type T of method Relaticle\\CustomFields\\Integration\\Infolists\\FieldInfolistsConfigurator\:\:configure\(\) is not referenced in a parameter\.$#'
+			identifier: method.templateTypeNotInParameter
+			count: 1
+			path: src/Integration/Infolists/FieldInfolistsConfigurator.php
+
+		-
+			message: '#^Anonymous function never returns null so it can be removed from the return type\.$#'
+			identifier: return.unusedType
+			count: 1
+			path: src/Integration/Infolists/Fields/MultiValueEntry.php
+
+		-
+			message: '#^Anonymous function never returns null so it can be removed from the return type\.$#'
+			identifier: return.unusedType
+			count: 1
+			path: src/Integration/Infolists/Fields/SingleValueEntry.php
+
+		-
+			message: '#^Method Relaticle\\CustomFields\\Integration\\Migrations\\CustomFieldsMigration\:\:up\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: src/Integration/Migrations/CustomFieldsMigration.php
+
+		-
+			message: '#^Cannot access property \$code on null\.$#'
+			identifier: property.nonObject
+			count: 3
+			path: src/Integration/Migrations/CustomFieldsMigrator.php
+
+		-
+			message: '#^Dynamic call to static method Illuminate\\Database\\Eloquent\\Builder\<Relaticle\\CustomFields\\Models\\CustomFieldOption\>\:\:delete\(\)\.$#'
+			identifier: staticMethod.dynamicCall
+			count: 1
+			path: src/Integration/Migrations/CustomFieldsMigrator.php
+
+		-
+			message: '#^Parameter \#1 \$model \(class\-string\) of method Relaticle\\CustomFields\\Integration\\Migrations\\CustomFieldsMigrator\:\:new\(\) should be contravariant with parameter \$model \(string\) of method Relaticle\\CustomFields\\Contracts\\CustomsFieldsMigrators\:\:new\(\)$#'
+			identifier: method.childParameterType
+			count: 1
+			path: src/Integration/Migrations/CustomFieldsMigrator.php
+
+		-
+			message: '#^Variable property access on Relaticle\\CustomFields\\Data\\CustomFieldData\.$#'
+			identifier: property.dynamicName
+			count: 1
+			path: src/Integration/Migrations/CustomFieldsMigrator.php
+
+		-
+			message: '#^Call to an undefined method Illuminate\\Database\\Eloquent\\Model\:\:customFields\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: src/Integration/Tables/Columns/CustomFieldsColumn.php
+
+		-
+			message: '#^Dynamic call to static method Illuminate\\Database\\Eloquent\\Builder\<Illuminate\\Database\\Eloquent\\Model\>\:\:orderBy\(\)\.$#'
+			identifier: staticMethod.dynamicCall
+			count: 1
+			path: src/Integration/Tables/Columns/DateTimeColumn.php
+
+		-
+			message: '#^Dynamic call to static method Illuminate\\Database\\Eloquent\\Builder\<Relaticle\\CustomFields\\Models\\CustomFieldValue\>\:\:select\(\)\.$#'
+			identifier: staticMethod.dynamicCall
+			count: 1
+			path: src/Integration/Tables/Columns/DateTimeColumn.php
+
+		-
+			message: '#^Dynamic call to static method Illuminate\\Database\\Eloquent\\Builder\<Relaticle\\CustomFields\\Models\\CustomFieldValue\>\:\:whereColumn\(\)\.$#'
+			identifier: staticMethod.dynamicCall
+			count: 1
+			path: src/Integration/Tables/Columns/DateTimeColumn.php
+
+		-
+			message: '#^Dynamic call to static method Illuminate\\Database\\Eloquent\\Builder\<Illuminate\\Database\\Eloquent\\Model\>\:\:orderBy\(\)\.$#'
+			identifier: staticMethod.dynamicCall
+			count: 1
+			path: src/Integration/Tables/Columns/IconColumn.php
+
+		-
+			message: '#^Dynamic call to static method Illuminate\\Database\\Eloquent\\Builder\<Relaticle\\CustomFields\\Models\\CustomFieldValue\>\:\:select\(\)\.$#'
+			identifier: staticMethod.dynamicCall
+			count: 1
+			path: src/Integration/Tables/Columns/IconColumn.php
+
+		-
+			message: '#^Dynamic call to static method Illuminate\\Database\\Eloquent\\Builder\<Relaticle\\CustomFields\\Models\\CustomFieldValue\>\:\:whereColumn\(\)\.$#'
+			identifier: staticMethod.dynamicCall
+			count: 1
+			path: src/Integration/Tables/Columns/IconColumn.php
+
+		-
+			message: '#^Anonymous function never returns null so it can be removed from the return type\.$#'
+			identifier: return.unusedType
+			count: 1
+			path: src/Integration/Tables/Columns/MultiValueColumn.php
+
+		-
+			message: '#^Anonymous function never returns null so it can be removed from the return type\.$#'
+			identifier: return.unusedType
+			count: 1
+			path: src/Integration/Tables/Columns/SingleValueColumn.php
+
+		-
+			message: '#^Dynamic call to static method Illuminate\\Database\\Eloquent\\Builder\<Illuminate\\Database\\Eloquent\\Model\>\:\:orderBy\(\)\.$#'
+			identifier: staticMethod.dynamicCall
+			count: 1
+			path: src/Integration/Tables/Columns/SingleValueColumn.php
+
+		-
+			message: '#^Dynamic call to static method Illuminate\\Database\\Eloquent\\Builder\<Relaticle\\CustomFields\\Models\\CustomFieldValue\>\:\:select\(\)\.$#'
+			identifier: staticMethod.dynamicCall
+			count: 1
+			path: src/Integration/Tables/Columns/SingleValueColumn.php
+
+		-
+			message: '#^Dynamic call to static method Illuminate\\Database\\Eloquent\\Builder\<Relaticle\\CustomFields\\Models\\CustomFieldValue\>\:\:whereColumn\(\)\.$#'
+			identifier: staticMethod.dynamicCall
+			count: 1
+			path: src/Integration/Tables/Columns/SingleValueColumn.php
+
+		-
+			message: '#^Dynamic call to static method Illuminate\\Database\\Eloquent\\Builder\<Illuminate\\Database\\Eloquent\\Model\>\:\:orderBy\(\)\.$#'
+			identifier: staticMethod.dynamicCall
+			count: 1
+			path: src/Integration/Tables/Columns/TextColumn.php
+
+		-
+			message: '#^Dynamic call to static method Illuminate\\Database\\Eloquent\\Builder\<Relaticle\\CustomFields\\Models\\CustomFieldValue\>\:\:select\(\)\.$#'
+			identifier: staticMethod.dynamicCall
+			count: 1
+			path: src/Integration/Tables/Columns/TextColumn.php
+
+		-
+			message: '#^Dynamic call to static method Illuminate\\Database\\Eloquent\\Builder\<Relaticle\\CustomFields\\Models\\CustomFieldValue\>\:\:whereColumn\(\)\.$#'
+			identifier: staticMethod.dynamicCall
+			count: 1
+			path: src/Integration/Tables/Columns/TextColumn.php
+
+		-
+			message: '#^Call to an undefined method Illuminate\\Database\\Eloquent\\Model\:\:customFields\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: src/Integration/Tables/Filters/CustomFieldsFilter.php
+
+		-
+			message: '#^Dynamic call to static method Illuminate\\Database\\Eloquent\\Builder\<Illuminate\\Database\\Eloquent\\Model\>\:\:limit\(\)\.$#'
+			identifier: staticMethod.dynamicCall
+			count: 1
+			path: src/Integration/Tables/Filters/SelectFilter.php
+
+		-
+			message: '#^Dynamic call to static method Illuminate\\Database\\Eloquent\\Builder\<Illuminate\\Database\\Eloquent\\Model\>\:\:whereIn\(\)\.$#'
+			identifier: staticMethod.dynamicCall
+			count: 2
+			path: src/Integration/Tables/Filters/SelectFilter.php
+
+		-
+			message: '#^Dynamic call to static method Illuminate\\Database\\Eloquent\\Builder\<Illuminate\\Database\\Eloquent\\Model\>\:\:whereJsonContains\(\)\.$#'
+			identifier: staticMethod.dynamicCall
+			count: 1
+			path: src/Integration/Tables/Filters/SelectFilter.php
+
+		-
+			message: '#^Dynamic call to static method Illuminate\\Database\\Eloquent\\Model\:\:query\(\)\.$#'
+			identifier: staticMethod.dynamicCall
+			count: 1
+			path: src/Integration/Tables/Filters/SelectFilter.php
+
+		-
+			message: '#^Variable property access on Illuminate\\Database\\Eloquent\\Collection\<int, Illuminate\\Database\\Eloquent\\Model\>\|Illuminate\\Database\\Eloquent\\Model\.$#'
+			identifier: property.dynamicName
+			count: 1
+			path: src/Integration/Tables/Filters/SelectFilter.php
+
+		-
+			message: '#^Trait Relaticle\\CustomFields\\Integration\\Tables\\InteractsWithCustomFields is used zero times and is not analysed\.$#'
+			identifier: trait.unused
+			count: 1
+			path: src/Integration/Tables/InteractsWithCustomFields.php
+
+		-
+			message: '#^Trait Relaticle\\CustomFields\\Jobs\\Concerns\\TenantAware is used zero times and is not analysed\.$#'
+			identifier: trait.unused
+			count: 1
+			path: src/Jobs/Concerns/TenantAware.php
+
+		-
+			message: '#^Call to an undefined method Illuminate\\Database\\Eloquent\\Relations\\HasMany\<Relaticle\\CustomFields\\Models\\CustomField, Relaticle\\CustomFields\\Models\\CustomFieldSection\>\:\:withDeactivated\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: src/Livewire/ManageCustomFieldSection.php
+
+		-
+			message: '#^Dynamic call to static method Relaticle\\CustomFields\\Filament\\Schemas\\SectionForm\:\:schema\(\)\.$#'
+			identifier: staticMethod.dynamicCall
+			count: 1
+			path: src/Livewire/ManageCustomFieldSection.php
+
+		-
+			message: '#^Method Relaticle\\CustomFields\\Livewire\\ManageCustomFieldSection\:\:fields\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: src/Livewire/ManageCustomFieldSection.php
+
+		-
+			message: '#^Method Relaticle\\CustomFields\\Livewire\\ManageCustomFieldSection\:\:render\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: src/Livewire/ManageCustomFieldSection.php
+
+		-
+			message: '#^Method Relaticle\\CustomFields\\Livewire\\ManageCustomFieldWidth\:\:render\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: src/Livewire/ManageCustomFieldWidth.php
+
+		-
+			message: '#^Property Relaticle\\CustomFields\\Livewire\\ManageCustomFieldWidth\:\:\$fieldId has no type specified\.$#'
+			identifier: missingType.property
+			count: 1
+			path: src/Livewire/ManageCustomFieldWidth.php
+
+		-
+			message: '#^Property Relaticle\\CustomFields\\Livewire\\ManageCustomFieldWidth\:\:\$selectedWidth has no type specified\.$#'
+			identifier: missingType.property
+			count: 1
+			path: src/Livewire/ManageCustomFieldWidth.php
+
+		-
+			message: '#^Property Relaticle\\CustomFields\\Livewire\\ManageCustomFieldWidth\:\:\$widthMap has no type specified\.$#'
+			identifier: missingType.property
+			count: 1
+			path: src/Livewire/ManageCustomFieldWidth.php
+
+		-
+			message: '#^Property Relaticle\\CustomFields\\Livewire\\ManageCustomFieldWidth\:\:\$widthOptions has no type specified\.$#'
+			identifier: missingType.property
+			count: 1
+			path: src/Livewire/ManageCustomFieldWidth.php
+
+		-
+			message: '#^Trait Relaticle\\CustomFields\\Models\\Concerns\\UsesCustomFields is used zero times and is not analysed\.$#'
+			identifier: trait.unused
+			count: 1
+			path: src/Models/Concerns/UsesCustomFields.php
+
+		-
+			message: '#^Type \$this\(Relaticle\\CustomFields\\Models\\Contracts\\HasCustomFields\) in generic type Illuminate\\Database\\Eloquent\\Relations\\MorphMany\<Relaticle\\CustomFields\\Models\\CustomFieldValue, \$this\(Relaticle\\CustomFields\\Models\\Contracts\\HasCustomFields\)\> in PHPDoc tag @return is not subtype of template type TDeclaringModel of Illuminate\\Database\\Eloquent\\Model of class Illuminate\\Database\\Eloquent\\Relations\\MorphMany\.$#'
+			identifier: generics.notSubtype
+			count: 1
+			path: src/Models/Contracts/HasCustomFields.php
+
+		-
+			message: '#^PHPDoc type array\<int, string\> of property Relaticle\\CustomFields\\Models\\CustomField\:\:\$guarded is not the same as PHPDoc type array\<string\>\|bool of overridden property Illuminate\\Database\\Eloquent\\Model\:\:\$guarded\.$#'
+			identifier: property.phpDocType
+			count: 1
+			path: src/Models/CustomField.php
+
+		-
+			message: '#^Variable property access on \$this\(Relaticle\\CustomFields\\Models\\CustomField\)\.$#'
+			identifier: property.dynamicName
+			count: 3
+			path: src/Models/CustomField.php
+
+		-
+			message: '#^PHPDoc type array\<int, string\> of property Relaticle\\CustomFields\\Models\\CustomFieldSection\:\:\$guarded is not the same as PHPDoc type array\<string\>\|bool of overridden property Illuminate\\Database\\Eloquent\\Model\:\:\$guarded\.$#'
+			identifier: property.phpDocType
+			count: 1
+			path: src/Models/CustomFieldSection.php
+
+		-
+			message: '#^Variable property access on \$this\(Relaticle\\CustomFields\\Models\\CustomFieldSection\)\.$#'
+			identifier: property.dynamicName
+			count: 3
+			path: src/Models/CustomFieldSection.php
+
+		-
+			message: '#^Variable property access on \$this\(Relaticle\\CustomFields\\Models\\CustomFieldValue\)\.$#'
+			identifier: property.dynamicName
+			count: 2
+			path: src/Models/CustomFieldValue.php
+
+		-
+			message: '#^Call to an undefined method Illuminate\\Database\\Eloquent\\Builder\:\:withoutActivated\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: src/Models/Scopes/ActivableScope.php
+
+		-
+			message: '#^Call to an undefined method Illuminate\\Database\\Eloquent\\Model\:\:getQualifiedActiveColumn\(\)\.$#'
+			identifier: method.notFound
+			count: 3
+			path: src/Models/Scopes/ActivableScope.php
+
+		-
+			message: '#^Dynamic call to static method Illuminate\\Database\\Eloquent\\Builder\<\*\>\:\:macro\(\)\.$#'
+			identifier: staticMethod.dynamicCall
+			count: 2
+			path: src/Models/Scopes/ActivableScope.php
+
+		-
+			message: '#^Dynamic call to static method Illuminate\\Database\\Eloquent\\Builder\<Illuminate\\Database\\Eloquent\\Model\>\:\:macro\(\)\.$#'
+			identifier: staticMethod.dynamicCall
+			count: 1
+			path: src/Models/Scopes/ActivableScope.php
+
+		-
+			message: '#^Dynamic call to static method Illuminate\\Database\\Eloquent\\Builder\<Illuminate\\Database\\Eloquent\\Model\>\:\:whereNull\(\)\.$#'
+			identifier: staticMethod.dynamicCall
+			count: 1
+			path: src/Models/Scopes/ActivableScope.php
+
+		-
+			message: '#^Variable method call on \$this\(Relaticle\\CustomFields\\Models\\Scopes\\ActivableScope\)\.$#'
+			identifier: method.dynamicName
+			count: 1
+			path: src/Models/Scopes/ActivableScope.php
+
+		-
+			message: '#^Call to an undefined method Illuminate\\Database\\Eloquent\\Builder\<Illuminate\\Database\\Eloquent\\Model\>\:\:active\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: src/Models/Scopes/CustomFieldsActivableScope.php
+
+		-
+			message: '#^Call to an undefined method Illuminate\\Database\\Eloquent\\Model\:\:getQualifiedActiveColumn\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: src/Models/Scopes/CustomFieldsActivableScope.php
+
+		-
+			message: '#^Dynamic call to static method Illuminate\\Database\\Eloquent\\Builder\<Illuminate\\Database\\Eloquent\\Model\>\:\:orderBy\(\)\.$#'
+			identifier: staticMethod.dynamicCall
+			count: 1
+			path: src/Models/Scopes/SortOrderScope.php
+
+		-
+			message: '#^Dynamic call to static method Illuminate\\Database\\Eloquent\\Builder\<Relaticle\\CustomFields\\Models\\CustomFieldOption\>\:\:delete\(\)\.$#'
+			identifier: staticMethod.dynamicCall
+			count: 1
+			path: src/Observers/CustomFieldObserver.php
+
+		-
+			message: '#^Dynamic call to static method Illuminate\\Database\\Eloquent\\Builder\<Relaticle\\CustomFields\\Models\\CustomFieldValue\>\:\:delete\(\)\.$#'
+			identifier: staticMethod.dynamicCall
+			count: 1
+			path: src/Observers/CustomFieldObserver.php
+
+		-
+			message: '#^Call to an undefined method Illuminate\\Database\\Eloquent\\Relations\\HasMany\<Relaticle\\CustomFields\\Models\\CustomField, Relaticle\\CustomFields\\Models\\CustomFieldSection\>\:\:withDeactivated\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: src/Observers/CustomFieldSectionObserver.php
+
+		-
+			message: '#^Class Relaticle\\CustomFields\\Integration\\Actions\\Imports\\CustomFieldsImporter constructor invoked with 4 parameters, 3 required\.$#'
+			identifier: arguments.count
+			count: 1
+			path: src/Providers/ImportsServiceProvider.php
+
+		-
+			message: '#^Dynamic call to static method Illuminate\\Database\\Eloquent\\Builder\<Illuminate\\Database\\Eloquent\\Model\>\:\:whereColumn\(\)\.$#'
+			identifier: staticMethod.dynamicCall
+			count: 1
+			path: src/QueryBuilders/ColumnSearchableQuery.php
+
+		-
+			message: '#^Class Relaticle\\CustomFields\\QueryBuilders\\CustomFieldQueryBuilder extends generic class Illuminate\\Database\\Eloquent\\Builder but does not specify its types\: TModel$#'
+			identifier: missingType.generics
+			count: 1
+			path: src/QueryBuilders/CustomFieldQueryBuilder.php
+
+		-
+			message: '#^Dynamic call to static method Relaticle\\CustomFields\\QueryBuilders\\CustomFieldQueryBuilder\:\:orWhereJsonDoesntContain\(\)\.$#'
+			identifier: staticMethod.dynamicCall
+			count: 3
+			path: src/QueryBuilders/CustomFieldQueryBuilder.php
+
+		-
+			message: '#^Dynamic call to static method Relaticle\\CustomFields\\QueryBuilders\\CustomFieldQueryBuilder\:\:whereJsonContains\(\)\.$#'
+			identifier: staticMethod.dynamicCall
+			count: 2
+			path: src/QueryBuilders/CustomFieldQueryBuilder.php
+
+		-
+			message: '#^Dynamic call to static method Relaticle\\CustomFields\\QueryBuilders\\CustomFieldQueryBuilder\:\:whereNull\(\)\.$#'
+			identifier: staticMethod.dynamicCall
+			count: 3
+			path: src/QueryBuilders/CustomFieldQueryBuilder.php
+
+		-
+			message: '#^Short ternary operator is not allowed\. Use null coalesce operator if applicable or consider using long ternary\.$#'
+			identifier: ternary.shortNotAllowed
+			count: 1
+			path: src/Services/AbstractOptionsService.php
+
+		-
+			message: '#^Property Relaticle\\CustomFields\\Services\\FieldTypeRegistryService\:\:\$cachedOptions type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Services/FieldTypeRegistryService.php
+
+		-
+			message: '#^Dynamic call to static method Filament\\Resources\\Resource\:\:getGloballySearchableAttributes\(\)\.$#'
+			identifier: staticMethod.dynamicCall
+			count: 1
+			path: src/Services/FilamentResourceService.php
+
+		-
+			message: '#^Dynamic call to static method Filament\\Resources\\Resource\:\:getRecordTitleAttribute\(\)\.$#'
+			identifier: staticMethod.dynamicCall
+			count: 1
+			path: src/Services/FilamentResourceService.php
+
+		-
+			message: '#^Short ternary operator is not allowed\. Use null coalesce operator if applicable or consider using long ternary\.$#'
+			identifier: ternary.shortNotAllowed
+			count: 1
+			path: src/Services/FilamentResourceService.php
+
+		-
+			message: '#^Call to an undefined method Illuminate\\Database\\Eloquent\\Model\:\:getCustomFieldValue\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: src/Services/ValueResolver/LookupMultiValueResolver.php
+
+		-
+			message: '#^Short ternary operator is not allowed\. Use null coalesce operator if applicable or consider using long ternary\.$#'
+			identifier: ternary.shortNotAllowed
+			count: 1
+			path: src/Services/ValueResolver/LookupResolver.php
+
+		-
+			message: '#^Call to an undefined method Illuminate\\Database\\Eloquent\\Model\:\:getCustomFieldValue\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: src/Services/ValueResolver/ValueResolver.php
+
+		-
+			message: '#^Cannot access property \$value on string\.$#'
+			identifier: property.nonObject
+			count: 1
+			path: src/Services/Visibility/CoreVisibilityLogicService.php
+
+		-
+			message: '#^Type Relaticle\\CustomFields\\Enums\\FieldCategory in generic type Illuminate\\Support\\Collection\<Relaticle\\CustomFields\\Enums\\FieldCategory, Illuminate\\Support\\Collection\<int, Relaticle\\CustomFields\\Enums\\CustomFieldType\>\> in PHPDoc tag @return is not subtype of template type TKey of \(int\|string\) of class Illuminate\\Support\\Collection\.$#'
+			identifier: generics.notSubtype
+			count: 1
+			path: src/Support/TypeSafeConfiguration.php
+
+		-
+			message: '#^Dynamic call to static method Illuminate\\Testing\\TestResponse\<Symfony\\Component\\HttpFoundation\\Response\>\:\:assertSuccessful\(\)\.$#'
+			identifier: staticMethod.dynamicCall
+			count: 1
+			path: tests/Feature/Panels/Resources/Pages/CreateRecordTest.php
+
+		-
+			message: '#^Dynamic call to static method Illuminate\\Testing\\TestResponse\<Symfony\\Component\\HttpFoundation\\Response\>\:\:assertSuccessful\(\)\.$#'
+			identifier: staticMethod.dynamicCall
+			count: 1
+			path: tests/Feature/Panels/Resources/Pages/EditRecordTest.php
+
+		-
+			message: '#^Dynamic call to static method Illuminate\\Testing\\TestResponse\<Symfony\\Component\\HttpFoundation\\Response\>\:\:assertSuccessful\(\)\.$#'
+			identifier: staticMethod.dynamicCall
+			count: 1
+			path: tests/Feature/Panels/Resources/Pages/ListRecordsTest.php
+
+		-
+			message: '#^Call to an undefined method Pest\\Expectation\<Illuminate\\Database\\Eloquent\\Model\|null\>\:\:toBeSameModel\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: tests/Feature/Panels/Resources/ResourceTest.php
+
+		-
+			message: '#^Call to an undefined method Pest\\Mixins\\Expectation\<Illuminate\\Database\\Eloquent\\Builder\|null\>\:\:getModel\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: tests/Feature/Panels/Resources/ResourceTest.php

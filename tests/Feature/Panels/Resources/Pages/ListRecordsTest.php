@@ -19,23 +19,23 @@ use Spatie\LaravelData\DataCollection;
 
 use function Pest\Livewire\livewire;
 
-beforeEach(function () {
+beforeEach(function (): void {
     $this->user = User::factory()->create();
     $this->actingAs($this->user);
 });
 
-describe('Page Rendering and Authorization', function () {
-    it('can render the list page', function () {
+describe('Page Rendering and Authorization', function (): void {
+    it('can render the list page', function (): void {
         $this->get(PostResource::getUrl('index'))
             ->assertSuccessful();
     });
 
-    it('can render list page via livewire component', function () {
+    it('can render list page via livewire component', function (): void {
         livewire(ListPosts::class)
             ->assertSuccessful();
     });
 
-    it('is forbidden for users without permission', function () {
+    it('is forbidden for users without permission', function (): void {
         // Arrange
         $unauthorizedUser = User::factory()->create();
 
@@ -46,17 +46,17 @@ describe('Page Rendering and Authorization', function () {
     });
 });
 
-describe('Basic Table Functionality', function () {
-    beforeEach(function () {
+describe('Basic Table Functionality', function (): void {
+    beforeEach(function (): void {
         $this->posts = Post::factory()->count(10)->create();
     });
 
-    it('can list all records in the table', function () {
+    it('can list all records in the table', function (): void {
         livewire(ListPosts::class)
             ->assertCanSeeTableRecords($this->posts);
     });
 
-    it('can render standard table columns', function (string $column) {
+    it('can render standard table columns', function (string $column): void {
         livewire(ListPosts::class)
             ->assertCanRenderTableColumn($column);
     })->with([
@@ -64,12 +64,12 @@ describe('Basic Table Functionality', function () {
         'author.name',
     ]);
 
-    it('displays correct record count', function () {
+    it('displays correct record count', function (): void {
         livewire(ListPosts::class)
             ->assertCountTableRecords(10);
     });
 
-    it('can handle empty table state', function () {
+    it('can handle empty table state', function (): void {
         // Arrange - Delete all posts
         Post::query()->delete();
 
@@ -79,12 +79,12 @@ describe('Basic Table Functionality', function () {
     });
 });
 
-describe('Table Sorting', function () {
-    beforeEach(function () {
+describe('Table Sorting', function (): void {
+    beforeEach(function (): void {
         $this->posts = Post::factory()->count(10)->create();
     });
 
-    it('can sort records by standard columns', function (string $column, string $direction) {
+    it('can sort records by standard columns', function (string $column, string $direction): void {
         $sortedPosts = $direction === 'asc'
             ? $this->posts->sortBy($column)
             : $this->posts->sortByDesc($column);
@@ -100,12 +100,12 @@ describe('Table Sorting', function () {
     ]);
 });
 
-describe('Table Search', function () {
-    beforeEach(function () {
+describe('Table Search', function (): void {
+    beforeEach(function (): void {
         $this->posts = Post::factory()->count(10)->create();
     });
 
-    it('can search records by title', function () {
+    it('can search records by title', function (): void {
         $testPost = $this->posts->first();
         $searchTerm = $testPost->title;
 
@@ -118,7 +118,7 @@ describe('Table Search', function () {
             ->assertCanNotSeeTableRecords($unexpectedPosts);
     });
 
-    it('can search records by author name', function () {
+    it('can search records by author name', function (): void {
         $testPost = $this->posts->first();
         $searchTerm = $testPost->author->name;
 
@@ -131,13 +131,13 @@ describe('Table Search', function () {
             ->assertCanNotSeeTableRecords($unexpectedPosts);
     });
 
-    it('shows no results for non-existent search terms', function () {
+    it('shows no results for non-existent search terms', function (): void {
         livewire(ListPosts::class)
             ->searchTable('NonExistentSearchTerm12345')
             ->assertCountTableRecords(0);
     });
 
-    it('can clear search and show all records again', function () {
+    it('can clear search and show all records again', function (): void {
         livewire(ListPosts::class)
             ->searchTable('some search term')
             ->searchTable('') // Clear search
@@ -145,12 +145,12 @@ describe('Table Search', function () {
     });
 });
 
-describe('Table Filtering', function () {
-    beforeEach(function () {
+describe('Table Filtering', function (): void {
+    beforeEach(function (): void {
         $this->posts = Post::factory()->count(10)->create();
     });
 
-    it('can filter records by is_published status', function () {
+    it('can filter records by is_published status', function (): void {
         $publishedPosts = $this->posts->where('is_published', true);
         $unpublishedPosts = $this->posts->where('is_published', false);
 
@@ -161,7 +161,7 @@ describe('Table Filtering', function () {
             ->assertCanNotSeeTableRecords($unpublishedPosts);
     });
 
-    it('can clear filters to show all records', function () {
+    it('can clear filters to show all records', function (): void {
         livewire(ListPosts::class)
             ->filterTable('is_published')
             ->assertCanSeeTableRecords($this->posts->where('is_published', true))
@@ -170,8 +170,8 @@ describe('Table Filtering', function () {
     });
 });
 
-describe('Custom Fields Integration in Tables', function () {
-    beforeEach(function () {
+describe('Custom Fields Integration in Tables', function (): void {
+    beforeEach(function (): void {
         // Create custom field section for Posts
         $this->section = CustomFieldSection::factory()->create([
             'name' => 'Post Table Fields',
@@ -181,7 +181,7 @@ describe('Custom Fields Integration in Tables', function () {
         ]);
     });
 
-    it('can display posts with custom field values', function ($column) {
+    it('can display posts with custom field values', function ($column): void {
         // Arrange
         $customField = CustomField::factory()->create([
             'custom_field_section_id' => $this->section->id,
@@ -211,7 +211,7 @@ describe('Custom Fields Integration in Tables', function () {
         'custom_fields.category',
     ]);
 
-    it('can handle multiple custom field types in table display', function ($column) {
+    it('can handle multiple custom field types in table display', function ($column): void {
         // Arrange
         $customFields = CustomField::factory()->createMany([
             [
@@ -250,7 +250,7 @@ describe('Custom Fields Integration in Tables', function () {
         'custom_fields.number_field',
     ]);
 
-    it('displays records without custom field values', function () {
+    it('displays records without custom field values', function (): void {
         // Arrange
         $customField = CustomField::factory()->create([
             'custom_field_section_id' => $this->section->id,
@@ -274,7 +274,7 @@ describe('Custom Fields Integration in Tables', function () {
             ->assertCanSeeTableRecords([$postWithValue, $postWithoutValue]);
     });
 
-    it('does not show custom fields that are not visible in list', function () {
+    it('does not show custom fields that are not visible in list', function (): void {
         CustomField::factory()->create([
             'code' => 'hidden_field',
             'settings' => new CustomFieldSettingsData(
@@ -288,8 +288,8 @@ describe('Custom Fields Integration in Tables', function () {
     });
 });
 
-describe('Conditional Visibility in Tables', function () {
-    beforeEach(function () {
+describe('Conditional Visibility in Tables', function (): void {
+    beforeEach(function (): void {
         // Create custom field section for Posts
         $this->section = CustomFieldSection::factory()->create([
             'name' => 'Post Conditional Fields',
@@ -299,7 +299,7 @@ describe('Conditional Visibility in Tables', function () {
         ]);
     });
 
-    it('shows custom field values when show_when condition is met', function () {
+    it('shows custom field values when show_when condition is met', function (): void {
         // Arrange - Create a base field and a conditional field
         $baseField = CustomField::factory()->create([
             'custom_field_section_id' => $this->section->id,
@@ -352,7 +352,7 @@ describe('Conditional Visibility in Tables', function () {
             ->assertTableColumnStateNotSet('custom_fields.priority', 'high', $draftPost);
     });
 
-    it('hides custom field values when hide_when condition is met', function () {
+    it('hides custom field values when hide_when condition is met', function (): void {
         // Arrange - Create a base field and a conditional field
         $baseField = CustomField::factory()->create([
             'custom_field_section_id' => $this->section->id,

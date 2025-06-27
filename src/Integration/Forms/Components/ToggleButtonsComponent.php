@@ -32,7 +32,7 @@ final readonly class ToggleButtonsComponent implements FieldComponentInterface
                 ->mapWithKeys(fn ($option) => [$option->id => $option->settings->color])
                 ->all();
 
-            if (count($optionsWithColor)) {
+            if (count($optionsWithColor) > 0) {
                 $field->colors($optionsWithColor);
             }
         }

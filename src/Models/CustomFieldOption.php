@@ -26,9 +26,12 @@ class CustomFieldOption extends Model
         'settings' => CustomFieldOptionSettingsData::class.':default',
     ];
 
+    /**
+     * @param array<string, mixed> $attributes
+     */
     public function __construct(array $attributes = [])
     {
-        if (! isset($this->table)) {
+        if ($this->table === null) {
             $this->setTable(config('custom-fields.table_names.custom_field_options'));
         }
 
@@ -36,7 +39,7 @@ class CustomFieldOption extends Model
     }
 
     /**
-     * @return BelongsTo<CustomField, CustomFieldOption>
+     * @return BelongsTo<CustomField, $this>
      */
     public function customField(): BelongsTo
     {

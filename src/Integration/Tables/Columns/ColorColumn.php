@@ -18,7 +18,7 @@ final readonly class ColorColumn implements ColumnInterface
             ->label($customField->name)
             ->searchable(
                 condition: $customField->settings->searchable,
-                query: fn (Builder $query, string $search) => (new ColumnSearchableQuery)->builder($query, $customField, $search),
+                query: fn (Builder $query, string $search): Builder => (new ColumnSearchableQuery)->builder($query, $customField, $search),
             )
             ->getStateUsing(fn ($record) => $record->getCustomFieldValue($customField));
     }

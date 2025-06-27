@@ -1,0 +1,1050 @@
+
+Deprecated: Creation of dynamic property SlevomatCodingStandard\Sniffs\Commenting\UselessInheritDocCommentSniff::$usefulAnnotations is deprecated in /Users/manuk/Herd/flexfields/vendor/nunomaduro/phpinsights/src/Domain/InsightLoader/SniffLoader.php on line 40
+
+   0/167 [░░░░░░░░░░░░░░░░░░░░░░░░░░░░]   0%
+
+  17/167 [▓▓░░░░░░░░░░░░░░░░░░░░░░░░░░]  10%
+
+  43/167 [▓▓▓▓▓▓▓░░░░░░░░░░░░░░░░░░░░░]  25%
+
+  60/167 [▓▓▓▓▓▓▓▓▓▓░░░░░░░░░░░░░░░░░░]  35%
+
+  94/167 [▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓░░░░░░░░░░░░░]  56%
+
+ 128/167 [▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓░░░░░░░]  76%
+
+ 145/167 [▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓░░░░]  86%
+
+ 162/167 [▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓░]  97%
+
+ 167/167 [▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓] 100%
+
+
+[2025-06-27 18:15:53] `/Users/manuk/Herd/flexfields`
+
+                                                                            
+          77.7%            89.5%            60.0%            84.0%          
+                                                                            
+                                                                            
+          Code           Complexity      Architecture        Style          
+
+
+Score scale: ◼ 1-49 ◼ 50-79 ◼ 80-100
+
+[CODE] 77.7 pts within 5259 lines
+
+Comments ...................................................... 38.5 %
+Classes ....................................................... 35.2 %
+Functions ...................................................... 1.8 %
+Globally ...................................................... 24.5 %
+
+[COMPLEXITY] 89.5 pts with average of 1.96 cyclomatic complexity
+
+[ARCHITECTURE] 60 pts within 162 files
+
+Classes ....................................................... 82.1 %
+Interfaces ..................................................... 8.6 %
+Globally ....................................................... 6.2 %
+Traits ......................................................... 3.1 %
+
+[MISC] 84 pts on coding style and 0 security issues encountered
+
+Press enter to see code issues...
+
+• [Code] Forbidden public property:
+  src/Livewire/ManageCustomFieldWidth.php:17: Do not use public properties. Use method access instead.
+  src/Livewire/ManageCustomFieldWidth.php:26: Do not use public properties. Use method access instead.
+  src/Models/CustomFieldValue.php:36: Do not use public properties. Use method access instead.
+  +14 issues omitted
+
+• [Code] Forbidden setter:
+  src/Models/CustomFieldValue.php:129: Setters are not allowed. Use constructor injection and behavior naming instead.
+  src/Services/TenantContextService.php:18: Setters are not allowed. Use constructor injection and behavior naming instead.
+  src/Services/TenantContextService.php:52: Setters are not allowed. Use constructor injection and behavior naming instead.
+  +9 issues omitted
+
+• [Code] Class constant visibility:
+  src/Models/Concerns/Activable.php:12: Constant \Relaticle\CustomFields\Models\Concerns\Activable::ACTIVE_COLUMN visibility missing.
+
+• [Code] Disallow late static binding for constants:
+  src/Models/Concerns/Activable.php:76: Late static binding for constants is disallowed.
+
+• [Code] Modern class name reference:
+  src/Integration/Actions/Imports/ValueConverters/ValueConverter.php:28: Class name referenced via call of function get_class().
+  src/Services/FieldTypeRegistryService.php:193: Class name referenced via call of function get_class().
+  src/Services/FilamentResourceService.php:83: Class name referenced via call of function get_class().
+  +1 issues omitted
+
+• [Code] Visibility required:
+  src/Models/Concerns/Activable.php: 
+@@ -11,3 +11,3 @@
+ {
+-    const ACTIVE_COLUMN = 'active';
++    public const ACTIVE_COLUMN = 'active';
+
+• [Code] Empty statement:
+  src/Services/FieldTypeDiscoveryService.php:122: Empty CATCH statement detected
+  src/Services/FieldTypeDiscoveryService.php:150: Empty CATCH statement detected
+
+• [Code] Assignment in condition:
+  src/Commands/FilamentCustomFieldCommand.php:76: Assignment in if condition is not allowed.
+  src/CustomFieldsServiceProvider.php:58: Assignment in if condition is not allowed.
+
+• [Code] Disallow empty:
+  src/Services/Visibility/BackendVisibilityService.php:93: Use of empty() is disallowed.
+  src/Services/Visibility/FrontendVisibilityService.php:60: Use of empty() is disallowed.
+  src/Services/Visibility/FrontendVisibilityService.php:89: Use of empty() is disallowed.
+  +42 issues omitted
+
+• [Code] Disallow short ternary operator:
+  src/Services/AbstractOptionsService.php:31: Use of short ternary operator is disallowed.
+  src/Services/FilamentResourceService.php:43: Use of short ternary operator is disallowed.
+  src/Services/ValueResolver/LookupResolver.php:42: Use of short ternary operator is disallowed.
+
+• [Code] Disallow equal operators:
+  src/Enums/Operator.php:78: Operator == is disallowed, use === instead.
+
+• [Code] Declare strict types:
+  src/Exceptions/MissingRecordTitleAttributeException.php:1: Missing declare(strict_types=1).
+  src/QueryBuilders/CustomFieldQueryBuilder.php:1: Missing declare(strict_types=1).
+  src/Support/FieldTypeUtils.php:1: Missing declare(strict_types=1).
+  +8 issues omitted
+
+• [Code] Explicit string variable:
+  src/Integration/Tables/Columns/TextColumn.php: 
+@@ -16,3 +16,3 @@
+     {
+-        return BaseTextColumn::make("custom_fields.$customField->code")
++        return BaseTextColumn::make("custom_fields.{$customField->code}")
+             ->label($customField->name)
+@@ -27,3 +27,3 @@
+                             ->select($customField->getValueColumn())
+-                            ->whereColumn('custom_field_values.entity_id', "$table.$key")
++                            ->whereColumn('custom_field_values.entity_id', "{$table}.{$key}")
+                             ->limit(1),
+  src/Integration/Tables/Filters/TernaryFilter.php: 
+@@ -14,3 +14,3 @@
+     {
+-        return FilamentTernaryFilter::make("custom_fields.$customField->code")
++        return FilamentTernaryFilter::make("custom_fields.{$customField->code}")
+             ->label($customField->name)
+  src/QueryBuilders/ColumnSearchableQuery.php: 
+@@ -18,4 +18,4 @@
+             $builder->where('custom_field_values.custom_field_id', $customField->id)
+-                ->where($customField->getValueColumn(), 'like', "%$search%")
+-                ->whereColumn('custom_field_values.entity_id', "$table.$key");
++                ->where($customField->getValueColumn(), 'like', "%{$search}%")
++                ->whereColumn('custom_field_values.entity_id', "{$table}.{$key}");
+         });
+  +5 issues omitted
+
+• [Code] New with braces:
+  src/Providers/ValidationServiceProvider.php: 
+@@ -17,3 +17,3 @@
+         $this->app->singleton(ValidationService::class, function ($app) {
+-            return new ValidationService;
++            return new ValidationService();
+         });
+  src/Services/FieldTypeRegistryService.php: 
+@@ -182,3 +182,3 @@
+                 if (class_exists($className)) {
+-                    $fieldType = new $className;
++                    $fieldType = new $className();
+                     if ($fieldType instanceof FieldTypeDefinitionInterface) {
+  src/Support/CustomFieldTypes.php: 
+@@ -47,3 +47,3 @@
+ 
+-        $fieldType = new $className;
++        $fieldType = new $className();
+  +10 issues omitted
+
+• [Code] No superfluous elseif:
+  src/Support/SafeValueConverter.php: 
+@@ -85,3 +85,4 @@
+                 return (int) self::MAX_BIGINT;
+-            } elseif ($floatVal < self::MIN_BIGINT) {
++            }
++            if ($floatVal < self::MIN_BIGINT) {
+                 Log::warning("Integer value too small for database: {$value}, clamping to min BIGINT");
+@@ -100,3 +101,4 @@
+                 return (int) self::MAX_BIGINT;
+-            } elseif ($numericVal < self::MIN_BIGINT) {
++            }
++            if ($numericVal < self::MIN_BIGINT) {
+                 return (int) self::MIN_BIGINT;
+
+• [Code] Inline doc comment declaration:
+  src/Integration/Forms/Components/SelectComponent.php:70: Invalid inline documentation comment format "@var Select", expected "@var type $variableName Optional description".
+
+• [Code] Parameter type hint:
+  src/Services/Visibility/CoreVisibilityLogicService.php:302: Method \Relaticle\CustomFields\Services\Visibility\CoreVisibilityLogicService::shouldShowFieldWithCascading() does not have @param annotation for its traversable parameter $fieldValues.
+  src/Services/Visibility/FrontendVisibilityService.php:106: Method \Relaticle\CustomFields\Services\Visibility\FrontendVisibilityService::buildCondition() does not have @param annotation for its traversable parameter $conditionData.
+  src/Services/Visibility/FrontendVisibilityService.php:303: Method \Relaticle\CustomFields\Services\Visibility\FrontendVisibilityService::resolveArrayOptionValue() does not have @param annotation for its traversable parameter $value.
+  +45 issues omitted
+
+• [Code] Property type hint:
+  src/Models/CustomFieldValue.php:38: Property \Relaticle\CustomFields\Models\CustomFieldValue::$guarded does not have native type hint nor @var annotation for its value.
+  src/Models/Scopes/ActivableScope.php:18: Property \Relaticle\CustomFields\Models\Scopes\ActivableScope::$extensions does not have native type hint for its value but it should be possible to add it based on @var annotation "string[]".
+  src/Services/FieldTypeRegistryService.php:25: @var annotation of property \Relaticle\CustomFields\Services\FieldTypeRegistryService::$cachedOptions does not specify type hint for its items.
+  +17 issues omitted
+
+• [Code] Return type hint:
+  src/Services/Visibility/CoreVisibilityLogicService.php:237: Method \Relaticle\CustomFields\Services\Visibility\CoreVisibilityLogicService::normalizeCondition() does not have @return annotation for its traversable return value.
+  src/Services/Visibility/FrontendVisibilityService.php:401: Method \Relaticle\CustomFields\Services\Visibility\FrontendVisibilityService::exportVisibilityLogicToJs() does not have @return annotation for its traversable return value.
+  src/Support/SafeValueConverter.php:140: @return annotation of method \Relaticle\CustomFields\Support\SafeValueConverter::toSafeArray() does not specify type hint for items of its traversable return value.
+  +81 issues omitted
+
+• [Code] Defining global helpers is prohibited:
+  src/Enums/Operator.php:8:evaluateIsEmpty
+  src/Enums/Operator.php:9:options
+  src/Enums/Operator.php:10:forFieldType
+  +50 issues omitted
+
+• [Code] Return assignment:
+  src/Support/DatabaseFieldConstraints.php: 
+@@ -444,5 +444,3 @@
+         // Add column-specific validations
+-        $rules = array_merge($rules, self::getColumnSpecificRules($columnName));
+-
+-        return $rules;
++        return array_merge($rules, self::getColumnSpecificRules($columnName));
+     }
+@@ -520,5 +518,3 @@
+             // Add field type specific validations
+-            $rules = array_merge($rules, self::getTypeSpecificRules($fieldType));
+-
+-            return $rules;
++            return array_merge($rules, self::getTypeSpecificRules($fieldType));
+         });
+
+Press enter to see complexity issues...
+
+• [Complexity] Having `classes` with total cyclomatic complexity more than 10 is prohibited - Consider refactoring:
+  src/Services/Visibility/FrontendVisibilityService.php: 29 cyclomatic complexity
+  src/Support/DatabaseFieldConstraints.php: 69 cyclomatic complexity
+  src/Support/SafeValueConverter.php: 25 cyclomatic complexity
+  +15 issues omitted
+
+• [Complexity] Having `classes` with average method cyclomatic complexity more than 5 is prohibited - Consider refactoring:
+  src/Services/FieldTypeDiscoveryService.php: 5.33 cyclomatic complexity
+  src/Support/DatabaseFieldConstraints.php: 5.23 cyclomatic complexity
+  src/Support/SafeValueConverter.php: 7.00 cyclomatic complexity
+  +1 issues omitted
+
+• [Complexity] Having `methods` with cyclomatic complexity more than 5 is prohibited - Consider refactoring:
+  src/Support/SafeValueConverter.php:toSafeArray: 7 cyclomatic complexity
+  src/Support/SafeValueConverter.php:toSafeFloat: 6 cyclomatic complexity
+  src/Support/SafeValueConverter.php:toSafeInteger: 10 cyclomatic complexity
+  +26 issues omitted
+
+Press enter to see architecture issues...
+
+• [Architecture] Superfluous interface naming:
+  src/Integration/Infolists/SectionInfolistsComponentInterface.php:12: Superfluous suffix "Interface".
+  src/Integration/Tables/Columns/ColumnInterface.php:10: Superfluous suffix "Interface".
+  src/Integration/Tables/Filters/FilterInterface.php:10: Superfluous suffix "Interface".
+  +8 issues omitted
+
+• [Architecture] Superfluous abstract class naming:
+  src/Services/AbstractOptionsService.php:12: Superfluous prefix "Abstract".
+
+• [Architecture] Superfluous exception naming:
+  src/Exceptions/FieldTypeNotOptionableException.php:7: Superfluous suffix "Exception".
+  src/Exceptions/MissingRecordTitleAttributeException.php:7: Superfluous suffix "Exception".
+  src/Integration/Actions/Imports/Exceptions/UnsupportedColumnTypeException.php:12: Superfluous suffix "Exception".
+  +2 issues omitted
+
+• [Architecture] Function length:
+  src/Filament/Forms/Components/VisibilityComponent.php:82: Your function is too long. Currently using 74 lines. Can be up to 50 lines.
+  src/Filament/Schemas/FieldForm.php:30: Your function is too long. Currently using 227 lines. Can be up to 50 lines.
+  src/Filament/Schemas/SectionForm.php:31: Your function is too long. Currently using 73 lines. Can be up to 50 lines.
+  +2 issues omitted
+
+• [Architecture] Method argument space:
+  src/Services/FilamentResourceService.php: 
+@@ -64,3 +64,4 @@
+                     'tenant' => Filament::getTenant(),
+-                ]);
++                ]
++            );
+         }
+  src/Services/Visibility/BackendVisibilityService.php: 
+@@ -132,3 +132,4 @@
+         if (is_array($value)) {
+-            return collect($value)->map(fn ($id) => is_numeric($id)
++            return collect($value)->map(
++                fn ($id) => is_numeric($id)
+                 ? $options->get($id)?->name ?? $id
+  src/Services/Visibility/FrontendVisibilityService.php: 
+@@ -325,3 +325,4 @@
+                 return $targetField->options
+-                    ->first(fn ($opt) => filled($opt->name) &&
++                    ->first(
++                        fn ($opt) => filled($opt->name) &&
+                         Str::lower(trim($opt->name)) === Str::lower(trim($value))
+  +5 issues omitted
+
+• [Architecture] The use of `traits` is prohibited:
+  src/Models/Concerns/Activable.php
+  src/Models/Concerns/HasFieldTypeHelpers.php
+  src/Models/Concerns/UsesCustomFields.php
+  +2 issues omitted
+
+Press enter to see style issues...
+
+• [Style] End file newline:
+  phpinsights.php:71: Expected 1 newline at end of file; 0 found
+  rector.php:54: Expected 1 newline at end of file; 0 found
+
+• [Style] Scope closing brace:
+  src/Services/Visibility/BackendVisibilityService.php:28: Closing brace must be on a line by itself
+  src/Services/Visibility/CoreVisibilityLogicService.php:30: Closing brace must be on a line by itself
+  src/Services/Visibility/FrontendVisibilityService.php:31: Closing brace must be on a line by itself
+  +55 issues omitted
+
+• [Style] Line length:
+  src/Support/DatabaseFieldConstraints.php:126: Line exceeds 120 characters; contains 159 characters
+  src/Support/DatabaseFieldConstraints.php:625: Line exceeds 120 characters; contains 123 characters
+  src/Support/SafeValueConverter.php:41: Line exceeds maximum limit of 160 characters; contains 169 characters
+  +134 issues omitted
+
+• [Style] Alphabetically sorted uses:
+  rector.php:9: Use statements should be sorted alphabetically. The first wrong one is Rector\CodeQuality\Rector\Class_\InlineConstructorDefaultToPropertyRector.
+
+• [Style] Superfluous whitespace:
+  phpinsights.php:57: Whitespace found at end of line
+  phpinsights.php:71: Whitespace found at end of line
+  rector.php:54: Whitespace found at end of line
+  +3 issues omitted
+
+• [Style] Class instantiation:
+  src/Providers/ValidationServiceProvider.php:18: Parentheses must be used when instantiating a new class
+  src/Services/FieldTypeRegistryService.php:183: Parentheses must be used when instantiating a new class
+  src/Support/CustomFieldTypes.php:48: Parentheses must be used when instantiating a new class
+  +18 issues omitted
+
+• [Style] Braces:
+  src/Services/Visibility/BackendVisibilityService.php: 
+@@ -27,3 +27,4 @@
+         private FieldTypeHelperService $fieldTypeHelper,
+-    ) {}
++    ) {
++    }
+  src/Services/Visibility/CoreVisibilityLogicService.php: 
+@@ -29,3 +29,4 @@
+         private FieldTypeHelperService $fieldTypeHelper,
+-    ) {}
++    ) {
++    }
+  src/Services/Visibility/FrontendVisibilityService.php: 
+@@ -30,3 +30,4 @@
+         private FieldTypeHelperService $fieldTypeHelper,
+-    ) {}
++    ) {
++    }
+  +55 issues omitted
+
+• [Style] Class definition:
+  src/Exceptions/MissingRecordTitleAttributeException.php: 
+@@ -6,2 +6,3 @@
+ 
+-class MissingRecordTitleAttributeException extends Exception {}
++class MissingRecordTitleAttributeException extends Exception
++{}
+
+• [Style] No trailing whitespace:
+  phpinsights.php: 
+@@ -70,2 +70,2 @@
+     'threads' => null,
+-]; 
+\ No newline at end of file
++];
+\ No newline at end of file
+  rector.php: 
+@@ -53,2 +53,2 @@
+         strictBooleans: true
+-    ); 
+\ No newline at end of file
++    );
+\ No newline at end of file
+
+• [Style] Single blank line at eof:
+  phpinsights.php: 
+@@ -70,2 +70,2 @@
+     'threads' => null,
+-]; 
+\ No newline at end of file
++];
+  rector.php: 
+@@ -53,2 +53,2 @@
+         strictBooleans: true
+-    ); 
+\ No newline at end of file
++    );
+
+• [Style] No whitespace in blank line:
+  phpinsights.php: 
+@@ -24,3 +24,3 @@
+         \SlevomatCodingStandard\Sniffs\Functions\UnusedParameterSniff::class,
+-        
++
+         // Architecture
+@@ -28,3 +28,3 @@
+         \NunoMaduro\PhpInsights\Domain\Insights\ForbiddenNormalClasses::class,
+-        
++
+         // Style
+@@ -51,3 +51,3 @@
+         ],
+-        
++
+         // Architecture
+@@ -56,3 +56,3 @@
+         ],
+-        
++
+         // Style
+
+• [Style] Ordered class elements:
+  src/Services/Visibility/BackendVisibilityService.php: 
+@@ -112,32 +112,2 @@
+     /**
+-     * Normalize a single field value for visibility evaluation.
+-     */
+-    private function normalizeValueForEvaluation(mixed $value, ?CustomField $field): mixed
+-    {
+-        if ($value === null || $value === '' || ! $this->fieldTypeHelper->isOptionable($field->type ?? '')) {
+-            return $value;
+-        }
+-
+-        // Get options for the field
+-        $options = $field->options()->get()->keyBy('id');
+-
+-        // Single value optionable fields
+-        if (! $field->type->hasMultipleValues()) {
+-            return is_numeric($value)
+-                ? $options->get($value)?->name ?? $value
+-                : $value;
+-        }
+-
+-        // Multi-value optionable fields
+-        if (is_array($value)) {
+-            return collect($value)->map(fn ($id) => is_numeric($id)
+-                ? $options->get($id)?->name ?? $id
+-                : $id
+-            )->all();
+-        }
+-
+-        return $value;
+-    }
+-
+-    /**
+      * Validate that field visibility evaluation is working correctly.
+@@ -221,2 +191,32 @@
+         return $this->coreLogic->getFieldMetadata($field);
++    }
++
++    /**
++     * Normalize a single field value for visibility evaluation.
++     */
++    private function normalizeValueForEvaluation(mixed $value, ?CustomField $field): mixed
++    {
++        if ($value === null || $value === '' || ! $this->fieldTypeHelper->isOptionable($field->type ?? '')) {
++            return $value;
++        }
++
++        // Get options for the field
++        $options = $field->options()->get()->keyBy('id');
++
++        // Single value optionable fields
++        if (! $field->type->hasMultipleValues()) {
++            return is_numeric($value)
++                ? $options->get($value)?->name ?? $value
++                : $value;
++        }
++
++        // Multi-value optionable fields
++        if (is_array($value)) {
++            return collect($value)->map(fn ($id) => is_numeric($id)
++                ? $options->get($id)?->name ?? $id
++                : $id
++            )->all();
++        }
++
++        return $value;
+     }
+  src/Services/Visibility/FrontendVisibilityService.php: 
+@@ -53,2 +53,20 @@
+     /**
++     * Export visibility logic to JavaScript format for complex integrations.
++     */
++    public function exportVisibilityLogicToJs(Collection $fields): array
++    {
++        $dependencies = $this->coreLogic->calculateDependencies($fields);
++        $fieldMetadata = [];
++
++        foreach ($fields as $field) {
++            $fieldMetadata[$field->code] = $this->coreLogic->getFieldMetadata($field);
++        }
++
++        return [
++            'fields' => $fieldMetadata,
++            'dependencies' => $dependencies,
++        ];
++    }
++
++    /**
+      * Build field conditions using core visibility logic.
+@@ -395,20 +413,2 @@
+         };
+-    }
+-
+-    /**
+-     * Export visibility logic to JavaScript format for complex integrations.
+-     */
+-    public function exportVisibilityLogicToJs(Collection $fields): array
+-    {
+-        $dependencies = $this->coreLogic->calculateDependencies($fields);
+-        $fieldMetadata = [];
+-
+-        foreach ($fields as $field) {
+-            $fieldMetadata[$field->code] = $this->coreLogic->getFieldMetadata($field);
+-        }
+-
+-        return [
+-            'fields' => $fieldMetadata,
+-            'dependencies' => $dependencies,
+-        ];
+     }
+  src/Support/DatabaseFieldConstraints.php: 
+@@ -170,18 +170,2 @@
+     /**
+-     * Get the column name for a specific field type.
+-     */
+-    private static function getColumnNameForFieldType(CustomFieldType $fieldType): ?string
+-    {
+-        $driver = self::getDatabaseDriver();
+-
+-        foreach (self::$constraints[$driver] as $columnName => $config) {
+-            if (in_array($fieldType, $config['field_types'])) {
+-                return $columnName;
+-            }
+-        }
+-
+-        return null;
+-    }
+-
+-    /**
+      * Merge database constraints with user-defined validation rules.
+@@ -218,169 +202,2 @@
+     /**
+-     * Insert or update a rule in the rules array based on database constraints.
+-     * For constraints like 'max', it will apply the stricter value (lower max).
+-     * For constraints like 'min', it will apply the stricter value (higher min).
+-     *
+-     * @param  array<int, string>  $rules  The existing rules array
+-     * @param  string  $ruleType  The type of rule (e.g., 'max', 'min')
+-     * @param  array<string, mixed>  $dbConstraints  Database constraints
+-     * @return array<int, string> Updated rules array
+-     */
+-    private static function insertOrUpdateRule(array $rules, string $ruleType, array $dbConstraints): array
+-    {
+-        // Use regular expression to find the rule more reliably
+-        $existingRuleIndex = null;
+-        $existingRuleValue = null;
+-        $hasExistingRule = false;
+-
+-        // First find any existing rule of this type
+-        foreach ($rules as $index => $rule) {
+-            // Match rule name exactly at start of string followed by : or end of string
+-            if (preg_match('/^'.preg_quote($ruleType, '/').'($|:)/', $rule)) {
+-                $existingRuleIndex = $index;
+-                // Extract parameters if any (after the colon)
+-                if (strpos($rule, ':') !== false) {
+-                    $existingRuleValue = substr($rule, strpos($rule, ':') + 1);
+-                }
+-                $hasExistingRule = true;
+-                break;
+-            }
+-        }
+-
+-        // If rule doesn't exist yet, add the database constraint
+-        if (! $hasExistingRule) {
+-            return self::addNewConstraintRule($rules, $ruleType, $dbConstraints);
+-        }
+-
+-        // If rule exists, apply the stricter constraint
+-        return self::applyStricterConstraint(
+-            $rules,
+-            $ruleType,
+-            $existingRuleIndex,
+-            $existingRuleValue,
+-            $dbConstraints
+-        );
+-    }
+-
+-    /**
+-     * Add a new constraint-based rule to the rules array.
+-     *
+-     * @param  array<int, string>  $rules  The existing rules array
+-     * @param  string  $ruleType  The type of rule to add
+-     * @param  array<string, mixed>  $dbConstraints  The database constraints
+-     * @return array<int, string> Updated rules array
+-     */
+-    private static function addNewConstraintRule(array $rules, string $ruleType, array $dbConstraints): array
+-    {
+-        // Special handling for common rule types
+-        switch ($ruleType) {
+-            case 'max':
+-                if (isset($dbConstraints['max'])) {
+-                    $rules[] = $ruleType.':'.$dbConstraints['max'];
+-                }
+-                break;
+-
+-            case 'min':
+-                if (isset($dbConstraints['min'])) {
+-                    $rules[] = $ruleType.':'.$dbConstraints['min'];
+-                }
+-                break;
+-
+-            case 'between':
+-                if (isset($dbConstraints['min'], $dbConstraints['max'])) {
+-                    $rules[] = $ruleType.':'.$dbConstraints['min'].','.$dbConstraints['max'];
+-                }
+-                break;
+-
+-            default:
+-                // For pre-formatted rules or rules without parameters
+-                if (strpos($ruleType, ':') !== false) {
+-                    $rules[] = $ruleType;
+-                } elseif (! in_array($ruleType, $rules)) {
+-                    $rules[] = $ruleType;
+-                }
+-                break;
+-        }
+-
+-        return $rules;
+-    }
+-
+-    /**
+-     * Apply the stricter constraint between user rule and database constraint.
+-     * Respects user-defined values that are stricter (e.g., smaller max or larger min)
+-     * than system-defined constraints.
+-     *
+-     * @param  array<int, string>  $rules  The existing rules array
+-     * @param  string  $ruleType  The type of rule
+-     * @param  int  $existingRuleIndex  Index of the existing rule in the array
+-     * @param  string|null  $existingRuleValue  Value of the existing rule
+-     * @param  array<string, mixed>  $dbConstraints  Database constraints
+-     * @return array<int, string> Updated rules array
+-     */
+-    private static function applyStricterConstraint(
+-        array $rules,
+-        string $ruleType,
+-        int $existingRuleIndex,
+-        ?string $existingRuleValue,
+-        array $dbConstraints
+-    ): array {
+-        if ($existingRuleValue === null) {
+-            return $rules; // No parameters to compare, keep existing rule
+-        }
+-
+-        switch ($ruleType) {
+-            case 'max':
+-                if (isset($dbConstraints['max']) && is_numeric($existingRuleValue)) {
+-                    // Always keep the user-defined value if it's stricter (smaller) than the system limit
+-                    // This ensures we respect user-defined max values even if they're smaller than system limits
+-                    if ((int) $existingRuleValue <= $dbConstraints['max']) {
+-                        // User's value is already stricter or equal to system limit, keep it
+-                        $rules[$existingRuleIndex] = 'max:'.$existingRuleValue;
+-                    } else {
+-                        // User's value exceeds system limit, use system limit
+-                        $rules[$existingRuleIndex] = 'max:'.$dbConstraints['max'];
+-                    }
+-                }
+-                break;
+-
+-            case 'min':
+-                if (isset($dbConstraints['min']) && is_numeric($existingRuleValue)) {
+-                    // Always keep the user-defined value if it's stricter (larger) than the system limit
+-                    // This ensures we respect user-defined min values even if they're larger than system limits
+-                    if ((int) $existingRuleValue >= $dbConstraints['min']) {
+-                        // User's value is already stricter or equal to system limit, keep it
+-                        $rules[$existingRuleIndex] = 'min:'.$existingRuleValue;
+-                    } else {
+-                        // User's value is below system minimum, use system limit
+-                        $rules[$existingRuleIndex] = 'min:'.$dbConstraints['min'];
+-                    }
+-                }
+-                break;
+-
+-            case 'between':
+-                if (isset($dbConstraints['min'], $dbConstraints['max']) && strpos($existingRuleValue, ',') !== false) {
+-                    // For between, compare parts separately
+-                    [$existingMin, $existingMax] = explode(',', $existingRuleValue);
+-                    if (is_numeric($existingMin) && is_numeric($existingMax)) {
+-                        // Keep user's min if it's stricter (larger) than system min
+-                        $newMin = (int) $existingMin >= $dbConstraints['min']
+-                            ? (int) $existingMin
+-                            : $dbConstraints['min'];
+-
+-                        // Keep user's max if it's stricter (smaller) than system max
+-                        $newMax = (int) $existingMax <= $dbConstraints['max']
+-                            ? (int) $existingMax
+-                            : $dbConstraints['max'];
+-
+-                        $rules[$existingRuleIndex] = 'between:'.$newMin.','.$newMax;
+-                    }
+-                }
+-                break;
+-
+-                // Add cases for other rule types that need special handling
+-        }
+-
+-        return $rules;
+-    }
+-
+-    /**
+      * Get validation rules for a specific database column that enforce database constraints.
+@@ -527,59 +344,2 @@
+     /**
+-     * Get validation rules specific to database column data validation requirements.
+-     *
+-     * @param  string  $columnName  The database column name
+-     * @return array<int, string> Array of validation rules
+-     */
+-    private static function getColumnSpecificRules(string $columnName): array
+-    {
+-        return match ($columnName) {
+-            'integer_value' => ['numeric', 'integer'],
+-            'float_value' => ['numeric'],
+-            'date_value' => ['date'],
+-            'datetime_value' => ['datetime'],
+-            'text_value', 'string_value' => ['string'],
+-            'boolean_value' => ['boolean'],
+-            'json_value' => ['array'],
+-            default => [],
+-        };
+-    }
+-
+-    /**
+-     * Get validation rules specific to field type data validation requirements.
+-     *
+-     * @param  CustomFieldType  $fieldType  The field type
+-     * @return array<int, string> Array of validation rules
+-     *
+-     * @deprecated Use getColumnSpecificRules() instead
+-     */
+-    private static function getTypeSpecificRules(CustomFieldType $fieldType): array
+-    {
+-        $rules = [];
+-
+-        // Add type-specific validation rules
+-        switch ($fieldType) {
+-            case CustomFieldType::CURRENCY:
+-            case CustomFieldType::NUMBER:
+-                $rules[] = 'numeric';
+-                break;
+-            case CustomFieldType::DATE:
+-                $rules[] = 'date';
+-                break;
+-            case CustomFieldType::DATE_TIME:
+-                $rules[] = 'datetime';
+-                break;
+-            case CustomFieldType::TEXT:
+-            case CustomFieldType::TEXTAREA:
+-            case CustomFieldType::RICH_EDITOR:
+-            case CustomFieldType::MARKDOWN_EDITOR:
+-            case CustomFieldType::LINK:
+-            case CustomFieldType::COLOR_PICKER:
+-                $rules[] = 'string';
+-                break;
+-        }
+-
+-        return $rules;
+-    }
+-
+-    /**
+      * Get validation rules for JSON database column.
+@@ -665,2 +425,242 @@
+         Log::info('Database field constraints cache cleared');
++    }
++
++    /**
++     * Get the column name for a specific field type.
++     */
++    private static function getColumnNameForFieldType(CustomFieldType $fieldType): ?string
++    {
++        $driver = self::getDatabaseDriver();
++
++        foreach (self::$constraints[$driver] as $columnName => $config) {
++            if (in_array($fieldType, $config['field_types'])) {
++                return $columnName;
++            }
++        }
++
++        return null;
++    }
++
++    /**
++     * Insert or update a rule in the rules array based on database constraints.
++     * For constraints like 'max', it will apply the stricter value (lower max).
++     * For constraints like 'min', it will apply the stricter value (higher min).
++     *
++     * @param  array<int, string>  $rules  The existing rules array
++     * @param  string  $ruleType  The type of rule (e.g., 'max', 'min')
++     * @param  array<string, mixed>  $dbConstraints  Database constraints
++     * @return array<int, string> Updated rules array
++     */
++    private static function insertOrUpdateRule(array $rules, string $ruleType, array $dbConstraints): array
++    {
++        // Use regular expression to find the rule more reliably
++        $existingRuleIndex = null;
++        $existingRuleValue = null;
++        $hasExistingRule = false;
++
++        // First find any existing rule of this type
++        foreach ($rules as $index => $rule) {
++            // Match rule name exactly at start of string followed by : or end of string
++            if (preg_match('/^'.preg_quote($ruleType, '/').'($|:)/', $rule)) {
++                $existingRuleIndex = $index;
++                // Extract parameters if any (after the colon)
++                if (strpos($rule, ':') !== false) {
++                    $existingRuleValue = substr($rule, strpos($rule, ':') + 1);
++                }
++                $hasExistingRule = true;
++                break;
++            }
++        }
++
++        // If rule doesn't exist yet, add the database constraint
++        if (! $hasExistingRule) {
++            return self::addNewConstraintRule($rules, $ruleType, $dbConstraints);
++        }
++
++        // If rule exists, apply the stricter constraint
++        return self::applyStricterConstraint(
++            $rules,
++            $ruleType,
++            $existingRuleIndex,
++            $existingRuleValue,
++            $dbConstraints
++        );
++    }
++
++    /**
++     * Add a new constraint-based rule to the rules array.
++     *
++     * @param  array<int, string>  $rules  The existing rules array
++     * @param  string  $ruleType  The type of rule to add
++     * @param  array<string, mixed>  $dbConstraints  The database constraints
++     * @return array<int, string> Updated rules array
++     */
++    private static function addNewConstraintRule(array $rules, string $ruleType, array $dbConstraints): array
++    {
++        // Special handling for common rule types
++        switch ($ruleType) {
++            case 'max':
++                if (isset($dbConstraints['max'])) {
++                    $rules[] = $ruleType.':'.$dbConstraints['max'];
++                }
++                break;
++
++            case 'min':
++                if (isset($dbConstraints['min'])) {
++                    $rules[] = $ruleType.':'.$dbConstraints['min'];
++                }
++                break;
++
++            case 'between':
++                if (isset($dbConstraints['min'], $dbConstraints['max'])) {
++                    $rules[] = $ruleType.':'.$dbConstraints['min'].','.$dbConstraints['max'];
++                }
++                break;
++
++            default:
++                // For pre-formatted rules or rules without parameters
++                if (strpos($ruleType, ':') !== false) {
++                    $rules[] = $ruleType;
++                } elseif (! in_array($ruleType, $rules)) {
++                    $rules[] = $ruleType;
++                }
++                break;
++        }
++
++        return $rules;
++    }
++
++    /**
++     * Apply the stricter constraint between user rule and database constraint.
++     * Respects user-defined values that are stricter (e.g., smaller max or larger min)
++     * than system-defined constraints.
++     *
++     * @param  array<int, string>  $rules  The existing rules array
++     * @param  string  $ruleType  The type of rule
++     * @param  int  $existingRuleIndex  Index of the existing rule in the array
++     * @param  string|null  $existingRuleValue  Value of the existing rule
++     * @param  array<string, mixed>  $dbConstraints  Database constraints
++     * @return array<int, string> Updated rules array
++     */
++    private static function applyStricterConstraint(
++        array $rules,
++        string $ruleType,
++        int $existingRuleIndex,
++        ?string $existingRuleValue,
++        array $dbConstraints
++    ): array {
++        if ($existingRuleValue === null) {
++            return $rules; // No parameters to compare, keep existing rule
++        }
++
++        switch ($ruleType) {
++            case 'max':
++                if (isset($dbConstraints['max']) && is_numeric($existingRuleValue)) {
++                    // Always keep the user-defined value if it's stricter (smaller) than the system limit
++                    // This ensures we respect user-defined max values even if they're smaller than system limits
++                    if ((int) $existingRuleValue <= $dbConstraints['max']) {
++                        // User's value is already stricter or equal to system limit, keep it
++                        $rules[$existingRuleIndex] = 'max:'.$existingRuleValue;
++                    } else {
++                        // User's value exceeds system limit, use system limit
++                        $rules[$existingRuleIndex] = 'max:'.$dbConstraints['max'];
++                    }
++                }
++                break;
++
++            case 'min':
++                if (isset($dbConstraints['min']) && is_numeric($existingRuleValue)) {
++                    // Always keep the user-defined value if it's stricter (larger) than the system limit
++                    // This ensures we respect user-defined min values even if they're larger than system limits
++                    if ((int) $existingRuleValue >= $dbConstraints['min']) {
++                        // User's value is already stricter or equal to system limit, keep it
++                        $rules[$existingRuleIndex] = 'min:'.$existingRuleValue;
++                    } else {
++                        // User's value is below system minimum, use system limit
++                        $rules[$existingRuleIndex] = 'min:'.$dbConstraints['min'];
++                    }
++                }
++                break;
++
++            case 'between':
++                if (isset($dbConstraints['min'], $dbConstraints['max']) && strpos($existingRuleValue, ',') !== false) {
++                    // For between, compare parts separately
++                    [$existingMin, $existingMax] = explode(',', $existingRuleValue);
++                    if (is_numeric($existingMin) && is_numeric($existingMax)) {
++                        // Keep user's min if it's stricter (larger) than system min
++                        $newMin = (int) $existingMin >= $dbConstraints['min']
++                            ? (int) $existingMin
++                            : $dbConstraints['min'];
++
++                        // Keep user's max if it's stricter (smaller) than system max
++                        $newMax = (int) $existingMax <= $dbConstraints['max']
++                            ? (int) $existingMax
++                            : $dbConstraints['max'];
++
++                        $rules[$existingRuleIndex] = 'between:'.$newMin.','.$newMax;
++                    }
++                }
++                break;
++
++                // Add cases for other rule types that need special handling
++        }
++
++        return $rules;
++    }
++
++    /**
++     * Get validation rules specific to database column data validation requirements.
++     *
++     * @param  string  $columnName  The database column name
++     * @return array<int, string> Array of validation rules
++     */
++    private static function getColumnSpecificRules(string $columnName): array
++    {
++        return match ($columnName) {
++            'integer_value' => ['numeric', 'integer'],
++            'float_value' => ['numeric'],
++            'date_value' => ['date'],
++            'datetime_value' => ['datetime'],
++            'text_value', 'string_value' => ['string'],
++            'boolean_value' => ['boolean'],
++            'json_value' => ['array'],
++            default => [],
++        };
++    }
++
++    /**
++     * Get validation rules specific to field type data validation requirements.
++     *
++     * @param  CustomFieldType  $fieldType  The field type
++     * @return array<int, string> Array of validation rules
++     *
++     * @deprecated Use getColumnSpecificRules() instead
++     */
++    private static function getTypeSpecificRules(CustomFieldType $fieldType): array
++    {
++        $rules = [];
++
++        // Add type-specific validation rules
++        switch ($fieldType) {
++            case CustomFieldType::CURRENCY:
++            case CustomFieldType::NUMBER:
++                $rules[] = 'numeric';
++                break;
++            case CustomFieldType::DATE:
++                $rules[] = 'date';
++                break;
++            case CustomFieldType::DATE_TIME:
++                $rules[] = 'datetime';
++                break;
++            case CustomFieldType::TEXT:
++            case CustomFieldType::TEXTAREA:
++            case CustomFieldType::RICH_EDITOR:
++            case CustomFieldType::MARKDOWN_EDITOR:
++            case CustomFieldType::LINK:
++            case CustomFieldType::COLOR_PICKER:
++                $rules[] = 'string';
++                break;
++        }
++
++        return $rules;
+     }
+  +15 issues omitted
+
+• [Style] Ordered imports:
+  rector.php: 
+@@ -4,2 +4,5 @@
+ 
++use Rector\CodeQuality\Rector\Class_\InlineConstructorDefaultToPropertyRector;
++use Rector\CodeQuality\Rector\Identical\FlipTypeControlToUseExclusiveTypeRector;
++use Rector\CodingStyle\Rector\ArrowFunction\StaticArrowFunctionRector;
+ use Rector\Config\RectorConfig;
+@@ -5,2 +8,5 @@
+ use Rector\Config\RectorConfig;
++use Rector\DeadCode\Rector\ClassMethod\RemoveUselessParamTagRector;
++use Rector\DeadCode\Rector\ClassMethod\RemoveUselessReturnTagRector;
++use Rector\Privatization\Rector\Class_\FinalizeClassesWithoutChildrenRector;
+ use Rector\Set\ValueObject\LevelSetList;
+@@ -8,8 +14,2 @@
+ use Rector\TypeDeclaration\Rector\ClassMethod\AddVoidReturnTypeWhereNoReturnRector;
+-use Rector\CodeQuality\Rector\Class_\InlineConstructorDefaultToPropertyRector;
+-use Rector\CodeQuality\Rector\Identical\FlipTypeControlToUseExclusiveTypeRector;
+-use Rector\Privatization\Rector\Class_\FinalizeClassesWithoutChildrenRector;
+-use Rector\DeadCode\Rector\ClassMethod\RemoveUselessParamTagRector;
+-use Rector\DeadCode\Rector\ClassMethod\RemoveUselessReturnTagRector;
+-use Rector\CodingStyle\Rector\ArrowFunction\StaticArrowFunctionRector;
+
+ [ERROR] The code quality score is too low                                      
+
+ [ERROR] The architecture score is too low                                      
+
+ [ERROR] The style score is too low                                             
+
+
+  - Star or contribute to PHP Insights:
+    https://github.com/nunomaduro/phpinsights
+  - Sponsor the maintainers:
+    https://github.com/sponsors/nunomaduro
+  - Subscribe to my YouTube channel:
+    https://www.youtube.com/@nunomaduro
+Script vendor/bin/phpinsights handling the insights event returned with error code 1

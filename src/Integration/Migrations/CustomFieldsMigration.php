@@ -11,7 +11,7 @@ abstract class CustomFieldsMigration extends Migration
 {
     protected CustomsFieldsMigrators $migrator;
 
-    abstract public function up();
+    abstract public function up(): void;
 
     public function __construct()
     {

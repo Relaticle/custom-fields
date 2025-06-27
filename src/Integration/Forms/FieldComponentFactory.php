@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Relaticle\CustomFields\Integration\Forms;
 
+use BackedEnum;
 use Filament\Forms\Components\Field;
 use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Contracts\Container\Container;
@@ -35,7 +36,7 @@ final class FieldComponentFactory
     public function create(CustomField $customField, array $dependentFieldCodes = [], ?Collection $allFields = null): Field
     {
         // Handle both enum and string types
-        $customFieldType = $customField->type instanceof \BackedEnum
+        $customFieldType = $customField->type instanceof BackedEnum
             ? $customField->type->value
             : $customField->type;
 

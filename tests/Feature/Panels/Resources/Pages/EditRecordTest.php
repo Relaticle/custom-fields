@@ -17,25 +17,25 @@ use Relaticle\CustomFields\Tests\Fixtures\Resources\Posts\PostResource;
 use function Pest\Laravel\assertSoftDeleted;
 use function Pest\Livewire\livewire;
 
-beforeEach(function () {
+beforeEach(function (): void {
     $this->user = User::factory()->create();
     $this->actingAs($this->user);
     $this->post = Post::factory()->create();
 });
 
-describe('Page Rendering and Authorization', function () {
-    it('can render the edit page', function () {
+describe('Page Rendering and Authorization', function (): void {
+    it('can render the edit page', function (): void {
         $this->get(PostResource::getUrl('edit', ['record' => $this->post]))
             ->assertSuccessful();
     });
 
-    it('can render edit page via livewire component', function () {
+    it('can render edit page via livewire component', function (): void {
         livewire(EditPost::class, ['record' => $this->post->getKey()])
             ->assertSuccessful()
             ->assertSchemaExists('form');
     });
 
-    it('is forbidden for users without permission', function () {
+    it('is forbidden for users without permission', function (): void {
         // Arrange
         $unauthorizedUser = User::factory()->create();
 
@@ -46,8 +46,8 @@ describe('Page Rendering and Authorization', function () {
     });
 });
 
-describe('Data Retrieval and Form Population', function () {
-    it('can retrieve and populate form with existing record data', function () {
+describe('Data Retrieval and Form Population', function (): void {
+    it('can retrieve and populate form with existing record data', function (): void {
         livewire(EditPost::class, ['record' => $this->post->getKey()])
             ->assertSchemaStateSet([
                 'author_id' => $this->post->author->getKey(),
@@ -58,7 +58,7 @@ describe('Data Retrieval and Form Population', function () {
             ]);
     });
 
-    it('can refresh form data after external changes', function () {
+    it('can refresh form data after external changes', function (): void {
         // Arrange
         $page = livewire(EditPost::class, ['record' => $this->post->getKey()]);
         $originalTitle = $this->post->title;
@@ -81,8 +81,8 @@ describe('Data Retrieval and Form Population', function () {
     });
 });
 
-describe('Record Updates and Persistence', function () {
-    it('can save updated record with valid data', function () {
+describe('Record Updates and Persistence', function (): void {
+    it('can save updated record with valid data', function (): void {
         // Arrange
         $newData = Post::factory()->make();
 
@@ -107,7 +107,7 @@ describe('Record Updates and Persistence', function () {
             ->rating->toBe($newData->rating);
     });
 
-    it('validates form fields before saving', function (string $field, mixed $value, string|array $rule) {
+    it('validates form fields before saving', function (string $field, mixed $value, string|array $rule): void {
         livewire(EditPost::class, ['record' => $this->post->getKey()])
             ->fillForm([$field => $value])
             ->call('save')
@@ -119,7 +119,7 @@ describe('Record Updates and Persistence', function () {
         'rating must be numeric' => ['rating', 'not-a-number', 'numeric'],
     ]);
 
-    it('validates that author must exist', function () {
+    it('validates that author must exist', function (): void {
         livewire(EditPost::class, ['record' => $this->post->getKey()])
             ->fillForm(['author_id' => 99999]) // Non-existent ID
             ->call('save')
@@ -127,8 +127,8 @@ describe('Record Updates and Persistence', function () {
     });
 });
 
-describe('Record Actions', function () {
-    it('can delete record using delete action', function () {
+describe('Record Actions', function (): void {
+    it('can delete record using delete action', function (): void {
         // Act
         livewire(EditPost::class, ['record' => $this->post->getKey()])
             ->callAction(DeleteAction::class);
@@ -137,7 +137,7 @@ describe('Record Actions', function () {
         assertSoftDeleted($this->post);
     });
 
-    it('maintains transaction integrity during action errors', function () {
+    it('maintains transaction integrity during action errors', function (): void {
         // Arrange
         $transactionLevel = DB::transactionLevel();
 
@@ -145,7 +145,7 @@ describe('Record Actions', function () {
         try {
             livewire(EditPost::class, ['record' => $this->post->getKey()])
                 ->callAction('randomize_title');
-        } catch (Exception $exception) {
+        } catch (Exception) {
             // This can be caught and handled somewhere else, code continues...
         }
 
@@ -154,8 +154,8 @@ describe('Record Actions', function () {
     });
 });
 
-describe('Custom Fields Integration', function () {
-    beforeEach(function () {
+describe('Custom Fields Integration', function (): void {
+    beforeEach(function (): void {
         // Create a custom field section for all custom field tests
         $this->section = CustomFieldSection::factory()->create([
             'name' => 'Post Custom Fields',
@@ -165,7 +165,7 @@ describe('Custom Fields Integration', function () {
         ]);
     });
 
-    it('can retrieve existing custom field values in edit form', function () {
+    it('can retrieve existing custom field values in edit form', function (): void {
         // Arrange
         $customField = CustomField::factory()->create([
             'custom_field_section_id' => $this->section->id,
@@ -191,7 +191,7 @@ describe('Custom Fields Integration', function () {
             ]);
     });
 
-    it('can update existing custom field values', function () {
+    it('can update existing custom field values', function (): void {
         // Arrange
         $customFields = CustomField::factory()->createMany([
             [
@@ -242,7 +242,7 @@ describe('Custom Fields Integration', function () {
             ->and($customFieldValues->get('view_count')?->getValue())->toBe(200);
     });
 
-    it('can add new custom field values to existing record', function () {
+    it('can add new custom field values to existing record', function (): void {
         // Arrange
         $existingCustomField = CustomField::factory()->create([
             'custom_field_section_id' => $this->section->id,
@@ -279,7 +279,7 @@ describe('Custom Fields Integration', function () {
             ->and($customFieldValues->get('new_field')?->getValue())->toBe('New Field Value');
     });
 
-    it('validates required custom fields during update', function () {
+    it('validates required custom fields during update', function (): void {
         // Arrange
         $requiredCustomField = CustomField::factory()->create([
             'custom_field_section_id' => $this->section->id,
@@ -306,7 +306,7 @@ describe('Custom Fields Integration', function () {
             ->assertHasFormErrors(['custom_fields.meta_description']);
     });
 
-    it('validates custom field types and constraints during update', function (string $fieldType, mixed $invalidValue, string $rule) {
+    it('validates custom field types and constraints during update', function (string $fieldType, mixed $invalidValue, string $rule): void {
         // Arrange
         $customField = CustomField::factory()->create([
             'custom_field_section_id' => $this->section->id,
@@ -334,7 +334,7 @@ describe('Custom Fields Integration', function () {
         'number field must be numeric' => ['number', 'not-a-number', 'numeric'],
     ]);
 
-    it('can clear custom field values', function () {
+    it('can clear custom field values', function (): void {
         // Arrange
         $customField = CustomField::factory()->create([
             'custom_field_section_id' => $this->section->id,
@@ -360,7 +360,7 @@ describe('Custom Fields Integration', function () {
         expect($this->post->getCustomFieldValue($customField))->toBeNull();
     });
 
-    it('handles multiple custom field types in a single update', function () {
+    it('handles multiple custom field types in a single update', function (): void {
         // Arrange
         CustomField::factory()->createMany([
             [
@@ -404,8 +404,8 @@ describe('Custom Fields Integration', function () {
     });
 });
 
-describe('Custom Fields Form Visibility', function () {
-    it('displays custom fields section when custom fields exist for the entity', function () {
+describe('Custom Fields Form Visibility', function (): void {
+    it('displays custom fields section when custom fields exist for the entity', function (): void {
         // Arrange
         $section = CustomFieldSection::factory()->create([
             'name' => 'Post Custom Fields',
@@ -423,7 +423,7 @@ describe('Custom Fields Form Visibility', function () {
             ->assertSee('Post Custom Fields');
     });
 
-    it('hides custom fields section when no active custom fields exist', function () {
+    it('hides custom fields section when no active custom fields exist', function (): void {
         // Arrange - No custom fields created
 
         // Act & Assert

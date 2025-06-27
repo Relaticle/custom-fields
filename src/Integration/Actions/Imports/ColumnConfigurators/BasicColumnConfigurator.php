@@ -32,9 +32,9 @@ final class BasicColumnConfigurator implements ColumnConfiguratorInterface
             // Boolean fields
             CustomFieldType::CHECKBOX, CustomFieldType::TOGGLE => $column->boolean(),
 
-            // Date fields
-            CustomFieldType::DATE => $column->date(),
-            CustomFieldType::DATE_TIME => $column->dateTime(),
+            // Date fields - use castStateUsing for proper date handling
+            CustomFieldType::DATE => $this->configureDateColumn($column),
+            CustomFieldType::DATE_TIME => $this->configureDateTimeColumn($column),
 
             // Default for all other field types
             default => $this->setExampleValue($column, $customField),
@@ -49,7 +49,7 @@ final class BasicColumnConfigurator implements ColumnConfiguratorInterface
      */
     private function configureCurrencyColumn(ImportColumn $column): ImportColumn
     {
-        return $column->numeric()->castStateUsing(function ($state) {
+        return $column->numeric()->castStateUsing(function ($state): ?float {
             if (blank($state)) {
                 return null;
             }
@@ -60,6 +60,42 @@ final class BasicColumnConfigurator implements ColumnConfiguratorInterface
             }
 
             return round(floatval($state), 2);
+        });
+    }
+
+    /**
+     * Configure a date column with proper parsing.
+     */
+    private function configureDateColumn(ImportColumn $column): void
+    {
+        $column->castStateUsing(function ($state): ?string {
+            if (blank($state)) {
+                return null;
+            }
+
+            try {
+                return \Carbon\Carbon::parse($state)->format('Y-m-d');
+            } catch (\Exception) {
+                return null;
+            }
+        });
+    }
+
+    /**
+     * Configure a datetime column with proper parsing.
+     */
+    private function configureDateTimeColumn(ImportColumn $column): void
+    {
+        $column->castStateUsing(function ($state): ?string {
+            if (blank($state)) {
+                return null;
+            }
+
+            try {
+                return \Carbon\Carbon::parse($state)->format('Y-m-d H:i:s');
+            } catch (\Exception) {
+                return null;
+            }
         });
     }
 

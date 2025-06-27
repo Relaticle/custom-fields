@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Relaticle\CustomFields\Tests;
 
+use Override;
 use BladeUI\Heroicons\BladeHeroiconsServiceProvider;
 use BladeUI\Icons\BladeIconsServiceProvider;
 use Filament\Actions\ActionsServiceProvider;
@@ -32,12 +33,13 @@ class TestCase extends BaseTestCase
     use LazilyRefreshDatabase;
     use WithWorkbench;
 
+    #[Override]
     protected function setUp(): void
     {
         parent::setUp();
 
         Factory::guessFactoryNamesUsing(
-            fn (string $modelName) => match ($modelName) {
+            fn (string $modelName): string => match ($modelName) {
                 User::class => UserFactory::class,
                 default => 'Relaticle\\CustomFields\\Database\\Factories\\'.class_basename($modelName).'Factory'
             }
@@ -123,7 +125,7 @@ class TestCase extends BaseTestCase
 
     protected function createTestModelTable(): void
     {
-        $this->app['db']->connection()->getSchemaBuilder()->create('test_models', function ($table) {
+        $this->app['db']->connection()->getSchemaBuilder()->create('test_models', function ($table): void {
             $table->id();
             $table->string('name');
             $table->timestamps();

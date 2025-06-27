@@ -22,9 +22,12 @@ enum Logic: string implements HasLabel
         };
     }
 
+    /**
+     * @param array<int, bool> $results
+     */
     public function evaluate(array $results): bool
     {
-        if (empty($results)) {
+        if ($results === []) {
             return false;
         }
 

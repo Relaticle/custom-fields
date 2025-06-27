@@ -14,22 +14,18 @@ class FilamentCustomFieldCommand extends Command
 
     public $description = 'Create a new custom fields migration file';
 
-    protected Filesystem $files;
-
-    public function __construct(Filesystem $files)
+    public function __construct(protected Filesystem $files)
     {
         parent::__construct();
-
-        $this->files = $files;
     }
 
     public function handle(): void
     {
-        $name = trim($this->input->getArgument('name'));
-        $path = trim($this->input->getArgument('path'));
+        $name = trim((string) $this->input->getArgument('name'));
+        $path = trim((string) $this->input->getArgument('path'));
 
         // If path is still empty we get the first path from new custom-fields.migrations_paths config
-        if (empty($path)) {
+        if ($path === '' || $path === '0') {
             $path = $this->resolveMigrationPaths()[0];
         }
 
@@ -63,9 +59,9 @@ return new class extends CustomFieldsMigration
 EOT;
     }
 
-    protected function ensureMigrationDoesntAlreadyExist($name, $migrationPath = null): void
+    protected function ensureMigrationDoesntAlreadyExist(string $name, ?string $migrationPath = null): void
     {
-        if (! empty($migrationPath)) {
+        if ($migrationPath !== null && $migrationPath !== '') {
             $migrationFiles = $this->files->glob($migrationPath.'/*.php');
 
             foreach ($migrationFiles as $migrationFile) {
@@ -78,15 +74,19 @@ EOT;
         }
     }
 
-    protected function getPath($name, $path): string
+    protected function getPath(string $name, string $path): string
     {
         return $path.'/'.Carbon::now()->format('Y_m_d_His').'_'.Str::snake($name).'.php';
     }
 
+    /**
+     * @return array<int, string>
+     */
     protected function resolveMigrationPaths(): array
     {
-        return ! empty(config('custom-fields.migrations_path'))
-            ? [config('custom-fields.migrations_path')]
-            : config('custom-fields.migrations_paths');
+        $migrationPath = config('custom-fields.migrations_path');
+        return ($migrationPath === null || $migrationPath === '')
+            ? config('custom-fields.migrations_paths')
+            : [$migrationPath];
     }
 }

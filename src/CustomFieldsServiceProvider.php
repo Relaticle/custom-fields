@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace Relaticle\CustomFields;
 
+use Relaticle\CustomFields\Services\FieldTypeDiscoveryService;
+use Relaticle\CustomFields\Services\FieldTypeRegistryService;
+use Relaticle\CustomFields\Services\FieldTypeHelperService;
 use Filament\Facades\Filament;
 use Filament\Support\Assets\Asset;
 use Filament\Support\Assets\Css;
@@ -49,26 +52,21 @@ class CustomFieldsServiceProvider extends PackageServiceProvider
         $this->app->singleton(TenantContextService::class);
 
         // Register field type extension services
-        $this->app->singleton(\Relaticle\CustomFields\Services\FieldTypeDiscoveryService::class);
-        $this->app->singleton(\Relaticle\CustomFields\Services\FieldTypeRegistryService::class);
-        $this->app->singleton(\Relaticle\CustomFields\Services\FieldTypeHelperService::class);
+        $this->app->singleton(FieldTypeDiscoveryService::class);
+        $this->app->singleton(FieldTypeRegistryService::class);
+        $this->app->singleton(FieldTypeHelperService::class);
 
         if (Utils::isTenantEnabled()) {
             foreach (Filament::getPanels() as $panel) {
-                if ($tenantModel = $panel->getTenantModel()) {
+                $tenantModel = $panel->getTenantModel();
+                if ($tenantModel !== null) {
                     $tenantModelInstance = app($tenantModel);
 
-                    CustomFieldSection::resolveRelationUsing('team', function (CustomField $customField) use ($tenantModel) {
-                        return $customField->belongsTo($tenantModel, config('custom-fields.column_names.tenant_foreign_key'));
-                    });
+                    CustomFieldSection::resolveRelationUsing('team', fn(CustomField $customField) => $customField->belongsTo($tenantModel, config('custom-fields.column_names.tenant_foreign_key')));
 
-                    CustomField::resolveRelationUsing('team', function (CustomField $customField) use ($tenantModel) {
-                        return $customField->belongsTo($tenantModel, config('custom-fields.column_names.tenant_foreign_key'));
-                    });
+                    CustomField::resolveRelationUsing('team', fn(CustomField $customField) => $customField->belongsTo($tenantModel, config('custom-fields.column_names.tenant_foreign_key')));
 
-                    $tenantModelInstance->resolveRelationUsing('customFields', function (Model $tenantModel) {
-                        return $tenantModel->hasMany(CustomField::class, config('custom-fields.column_names.tenant_foreign_key'));
-                    });
+                    $tenantModelInstance->resolveRelationUsing('customFields', fn(Model $tenantModel) => $tenantModel->hasMany(CustomField::class, config('custom-fields.column_names.tenant_foreign_key')));
                 }
             }
         }
@@ -87,7 +85,7 @@ class CustomFieldsServiceProvider extends PackageServiceProvider
          */
         $package->name(static::$name)
             ->hasCommands($this->getCommands())
-            ->hasInstallCommand(function (InstallCommand $command) {
+            ->hasInstallCommand(function (InstallCommand $command): void {
                 $command
                     ->publishConfigFile()
                     ->publishMigrations()

@@ -20,18 +20,18 @@ use Spatie\LaravelData\DataCollection;
 
 use function Pest\Livewire\livewire;
 
-beforeEach(function () {
+beforeEach(function (): void {
     $this->user = User::factory()->create();
     $this->actingAs($this->user);
 });
 
-it('can render page', function () {
+it('can render page', function (): void {
     $this->get(PostResource::getUrl('view', [
         'record' => Post::factory()->create(),
     ]))->assertSuccessful();
 });
 
-it('can retrieve data', function () {
+it('can retrieve data', function (): void {
     $post = Post::factory()->create();
 
     livewire(ViewPost::class, [
@@ -45,7 +45,7 @@ it('can retrieve data', function () {
         ]);
 });
 
-it('can refresh data', function () {
+it('can refresh data', function (): void {
     $post = Post::factory()->create();
 
     $page = livewire(ViewPost::class, [
@@ -74,8 +74,8 @@ it('can refresh data', function () {
     ]);
 });
 
-describe('Conditional Visibility in Infolists', function () {
-    beforeEach(function () {
+describe('Conditional Visibility in Infolists', function (): void {
+    beforeEach(function (): void {
         // Create custom field section for Posts
         $this->section = CustomFieldSection::factory()->create([
             'name' => 'Post Infolist Fields',
@@ -85,7 +85,7 @@ describe('Conditional Visibility in Infolists', function () {
         ]);
     });
 
-    it('shows custom field entries when show_when condition is met', function () {
+    it('shows custom field entries when show_when condition is met', function (): void {
         // Arrange - Create a base field and a conditional field
         $baseField = CustomField::factory()->create([
             'custom_field_section_id' => $this->section->id,
@@ -149,7 +149,7 @@ describe('Conditional Visibility in Infolists', function () {
             ]);
     })->todo();
 
-    it('hides custom field entries when hide_when condition is met', function () {
+    it('hides custom field entries when hide_when condition is met', function (): void {
         // Arrange - Create a base field and a conditional field
         $baseField = CustomField::factory()->create([
             'custom_field_section_id' => $this->section->id,

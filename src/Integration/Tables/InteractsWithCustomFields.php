@@ -28,7 +28,7 @@ trait InteractsWithCustomFields
             $table = parent::table($table);
         }
 
-        return $table->modifyQueryUsing(function (Builder $query) {
+        return $table->modifyQueryUsing(function (Builder $query): void {
             $query->with('customFieldValues.customField');
         })
             ->deferFilters(false)

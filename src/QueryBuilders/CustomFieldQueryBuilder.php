@@ -4,8 +4,12 @@ namespace Relaticle\CustomFields\QueryBuilders;
 
 use Illuminate\Database\Eloquent\Builder;
 use Relaticle\CustomFields\Enums\CustomFieldType;
+use Relaticle\CustomFields\Models\CustomField;
 use Relaticle\CustomFields\Services\EntityTypeService;
 
+/**
+ * @extends Builder<CustomField>
+ */
 class CustomFieldQueryBuilder extends Builder
 {
     public function forType(CustomFieldType $type): self
@@ -36,21 +40,21 @@ class CustomFieldQueryBuilder extends Builder
      */
     public function nonEncrypted(): self
     {
-        return $this->where(function ($query) {
+        return $this->where(function ($query): void {
             $query->whereNull('settings')->orWhereJsonDoesntContain('settings->encrypted', true);
         });
     }
 
     public function visibleInList(): self
     {
-        return $this->where(function ($query) {
+        return $this->where(function ($query): void {
             $query->whereNull('settings')->orWhereJsonDoesntContain('settings->visible_in_list', false);
         });
     }
 
     public function visibleInView(): self
     {
-        return $this->where(function ($query) {
+        return $this->where(function ($query): void {
             $query->whereNull('settings')->orWhereJsonDoesntContain('settings->visible_in_view', false);
         });
     }

@@ -14,7 +14,7 @@ use Relaticle\CustomFields\Services\Visibility\CoreVisibilityLogicService;
 use Relaticle\CustomFields\Services\Visibility\FrontendVisibilityService;
 use Relaticle\CustomFields\Tests\Fixtures\Models\User;
 
-beforeEach(function () {
+beforeEach(function (): void {
     $this->section = CustomFieldSection::factory()->create([
         'name' => 'Unified Test Section',
         'entity_type' => User::class,
@@ -114,7 +114,7 @@ beforeEach(function () {
     $this->frontendService = app(FrontendVisibilityService::class);
 });
 
-test('core logic service extracts visibility data consistently', function () {
+test('core logic service extracts visibility data consistently', function (): void {
     // Test visibility data extraction
     $conditionalVisibility = $this->coreLogic->getVisibilityData($this->conditionalField);
     $alwaysVisibleData = $this->coreLogic->getVisibilityData($this->alwaysVisibleField);
@@ -134,7 +134,7 @@ test('core logic service extracts visibility data consistently', function () {
     expect($dependentFields)->toBe(['status']);
 });
 
-test('backend and frontend services use identical core logic', function () {
+test('backend and frontend services use identical core logic', function (): void {
     $fields = collect([
         $this->triggerField,
         $this->conditionalField,
@@ -169,7 +169,7 @@ test('backend and frontend services use identical core logic', function () {
         ->and($this->coreLogic->evaluateVisibility($this->alwaysVisibleField, $fieldValues))->toBeTrue(); // always visible
 });
 
-test('frontend service generates valid JavaScript expressions', function () {
+test('frontend service generates valid JavaScript expressions', function (): void {
     $fields = collect([$this->triggerField, $this->conditionalField, $this->alwaysVisibleField]);
 
     // Test JavaScript expression generation
@@ -192,7 +192,7 @@ test('frontend service generates valid JavaScript expressions', function () {
         ->and($jsData['fields']['name']['has_visibility_conditions'])->toBeFalse();
 });
 
-test('complex conditions work identically in backend and frontend', function () {
+test('complex conditions work identically in backend and frontend', function (): void {
     // Create a more complex scenario with nested dependencies
     $dependentField = CustomField::factory()->create([
         'custom_field_section_id' => $this->section->id,
@@ -250,7 +250,7 @@ test('complex conditions work identically in backend and frontend', function () 
     expect($this->coreLogic->evaluateVisibility($dependentField, $fieldValues))->toBeFalse();
 });
 
-test('operator compatibility and validation work correctly', function () {
+test('operator compatibility and validation work correctly', function (): void {
     $textField = $this->alwaysVisibleField; // TEXT type
     $selectField = $this->triggerField; // SELECT type
 
@@ -277,7 +277,7 @@ test('operator compatibility and validation work correctly', function () {
         ->and($metadata['visibility_mode'])->toBe('show_when');
 });
 
-test('dependency calculation works consistently across services', function () {
+test('dependency calculation works consistently across services', function (): void {
     $fields = collect([
         $this->triggerField,
         $this->conditionalField,
@@ -301,7 +301,7 @@ test('dependency calculation works consistently across services', function () {
     expect($frontendExport['dependencies'])->toEqual($dependencies);
 });
 
-test('empty and null value handling is consistent', function () {
+test('empty and null value handling is consistent', function (): void {
     $fields = collect([$this->triggerField, $this->conditionalField, $this->alwaysVisibleField]);
 
     // Test with no field values set (null/empty values)

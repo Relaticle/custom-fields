@@ -13,6 +13,7 @@ use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
 use Filament\Support\Enums\Size;
 use Filament\Support\Enums\Width;
+use Illuminate\Database\Eloquent\Collection;
 use Livewire\Attributes\Computed;
 use Livewire\Attributes\On;
 use Livewire\Component;
@@ -32,13 +33,13 @@ class ManageCustomFieldSection extends Component implements HasActions, HasForms
     public CustomFieldSection $section;
 
     #[Computed]
-    public function fields()
+    public function fields(): Collection
     {
         return $this->section->fields()->withDeactivated()->orderBy('sort_order')->get();
     }
 
     #[On('field-width-updated')]
-    public function fieldWidthUpdated(int|string $fieldId, int $width): void
+    public function fieldWidthUpdated(int|string $fieldId, $width): void
     {
         // Update the width
         $model = CustomFields::newCustomFieldModel();
@@ -96,7 +97,7 @@ class ManageCustomFieldSection extends Component implements HasActions, HasForms
             ->model(CustomFields::sectionModel())
             ->record($this->section)
             ->visible(fn (CustomFieldSection $record): bool => ! $record->isActive())
-            ->action(fn () => $this->section->activate());
+            ->action(fn (): bool => $this->section->activate());
     }
 
     public function deactivateAction(): Action
@@ -106,7 +107,7 @@ class ManageCustomFieldSection extends Component implements HasActions, HasForms
             ->model(CustomFields::sectionModel())
             ->record($this->section)
             ->visible(fn (CustomFieldSection $record): bool => $record->isActive())
-            ->action(fn () => $this->section->deactivate());
+            ->action(fn (): bool => $this->section->deactivate());
     }
 
     public function deleteAction(): Action
@@ -117,7 +118,7 @@ class ManageCustomFieldSection extends Component implements HasActions, HasForms
             ->model(CustomFields::sectionModel())
             ->record($this->section)
             ->visible(fn (CustomFieldSection $record): bool => ! $record->isActive() && ! $record->isSystemDefined())
-            ->action(fn () => $this->section->delete() && $this->dispatch('section-deleted'));
+            ->action(fn (): bool => $this->section->delete() && $this->dispatch('section-deleted'));
     }
 
     public function createFieldAction(): Action
@@ -141,10 +142,10 @@ class ManageCustomFieldSection extends Component implements HasActions, HasForms
                     'custom_field_section_id' => $this->section->getKey(),
                 ];
             })
-            ->action(function (array $data) {
+            ->action(function (array $data): void {
                 $options = collect($data['options'] ?? [])
                     ->filter()
-                    ->map(function ($option) {
+                    ->map(function (array $option): array {
                         if (Utils::isTenantEnabled()) {
                             $option[config('custom-fields.column_names.tenant_foreign_key')] = Filament::getTenant()?->getKey();
                         }
@@ -163,7 +164,7 @@ class ManageCustomFieldSection extends Component implements HasActions, HasForms
             ->slideOver();
     }
 
-    public function render()
+    public function render(): \Illuminate\Contracts\View\View
     {
         return view('custom-fields::livewire.manage-custom-field-section');
     }

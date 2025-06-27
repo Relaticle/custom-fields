@@ -65,7 +65,7 @@ trait Activable
      */
     public function isActive(): bool
     {
-        return (bool) $this->{$this->getActiveColumn()} === true;
+        return (bool) $this->{$this->getActiveColumn()};
     }
 
     /**

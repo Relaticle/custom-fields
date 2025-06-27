@@ -39,9 +39,7 @@ class ActivableScope implements Scope
 
     protected function addActive(Builder $builder): void
     {
-        $builder->macro('active', function (Builder $builder) {
-            return $builder->where($builder->getModel()->getQualifiedActiveColumn(), true);
-        });
+        $builder->macro('active', fn(Builder $builder) => $builder->where($builder->getModel()->getQualifiedActiveColumn(), true));
     }
 
     /**
@@ -69,7 +67,7 @@ class ActivableScope implements Scope
      */
     protected function addWithoutDeactivated(Builder $builder)
     {
-        $builder->macro('withoutDeactivated', function (Builder $builder) {
+        $builder->macro('withoutDeactivated', function (Builder $builder): Builder {
             $model = $builder->getModel();
 
             $builder->withoutGlobalScope($this)->whereNull(

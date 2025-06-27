@@ -37,7 +37,7 @@ enum Operator: string
         return ! in_array($this, [
             self::IS_EMPTY,
             self::IS_NOT_EMPTY,
-        ]);
+        ], true);
     }
 
     public function evaluate(mixed $fieldValue, mixed $expectedValue): bool
@@ -66,7 +66,7 @@ enum Operator: string
 
         // Handle arrays
         if (is_array($fieldValue)) {
-            return in_array($expectedValue, $fieldValue, false);
+            return in_array($expectedValue, $fieldValue, true);
         }
 
         // Handle strings (case-insensitive)
@@ -75,7 +75,7 @@ enum Operator: string
         }
 
         // Handle numeric values
-        return $fieldValue == $expectedValue;
+        return $fieldValue === $expectedValue;
     }
 
     private function evaluateContains(mixed $fieldValue, mixed $expectedValue): bool
@@ -90,7 +90,7 @@ enum Operator: string
                 // Check if any expected value is found in any field value
                 foreach ($expectedValue as $expected) {
                     foreach ($fieldValue as $field) {
-                        if (str_contains(strtolower($field), strtolower($expected))) {
+                        if (str_contains(strtolower((string) $field), strtolower((string) $expected))) {
                             return true;
                         }
                     }
@@ -101,7 +101,7 @@ enum Operator: string
 
             // Check if expected value is contained in any array element
             foreach ($fieldValue as $value) {
-                if (is_string($value) && str_contains(strtolower($value), strtolower($expectedValue))) {
+                if (is_string($value) && str_contains(strtolower($value), strtolower((string) $expectedValue))) {
                     return true;
                 }
             }
@@ -146,12 +146,15 @@ enum Operator: string
         }
 
         if (is_array($fieldValue)) {
-            return empty($fieldValue);
+            return $fieldValue === [];
         }
 
         return false;
     }
 
+    /**
+     * @return array<string, string>
+     */
     public static function options(): array
     {
         return collect(self::cases())
@@ -159,6 +162,9 @@ enum Operator: string
             ->toArray();
     }
 
+    /**
+     * @return array<string, string>
+     */
     public static function forFieldType(CustomFieldType $fieldType): array
     {
         return $fieldType->getCategory()->getCompatibleOperatorOptions();

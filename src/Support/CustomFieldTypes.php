@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace Relaticle\CustomFields\Support;
 
+use InvalidArgumentException;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Collection;
 use Relaticle\CustomFields\Contracts\FieldTypeDefinitionInterface;
 use Relaticle\CustomFields\Services\FieldTypeRegistryService;
 
@@ -42,13 +45,13 @@ class CustomFieldTypes
     public static function registerClass(string $className): void
     {
         if (! class_exists($className)) {
-            throw new \InvalidArgumentException("Class {$className} does not exist.");
+            throw new InvalidArgumentException("Class {$className} does not exist.");
         }
 
         $fieldType = new $className;
 
         if (! $fieldType instanceof FieldTypeDefinitionInterface) {
-            throw new \InvalidArgumentException("Class {$className} must implement FieldTypeDefinitionInterface.");
+            throw new InvalidArgumentException("Class {$className} must implement FieldTypeDefinitionInterface.");
         }
 
         self::register($fieldType);
@@ -72,15 +75,15 @@ class CustomFieldTypes
     public static function clearCache(): void
     {
         if (app()->bound(FieldTypeRegistryService::class)) {
-            \Illuminate\Support\Facades\Cache::forget('custom-fields.discovered-field-types');
-            \Illuminate\Support\Facades\Cache::forget('custom-fields.field-types.options-for-select');
+            Cache::forget('custom-fields.discovered-field-types');
+            Cache::forget('custom-fields.field-types.options-for-select');
         }
     }
 
     /**
      * Get all registered field types.
      */
-    public static function getAllFieldTypes(): \Illuminate\Support\Collection
+    public static function getAllFieldTypes(): Collection
     {
         if (app()->bound(FieldTypeRegistryService::class)) {
             return app(FieldTypeRegistryService::class)->getAllFieldTypes();

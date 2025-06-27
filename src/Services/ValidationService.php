@@ -67,7 +67,7 @@ final class ValidationService
 
         return $rules->toCollection()
             ->map(function (ValidationRuleData $ruleData): string {
-                if (empty($ruleData->parameters)) {
+                if ($ruleData->parameters === []) {
                     return $ruleData->name;
                 }
 
@@ -118,7 +118,7 @@ final class ValidationService
         $dbConstraints = DatabaseFieldConstraints::getConstraintsForColumn($columnName);
 
         // If we have constraints, use the constraint-aware merge function
-        if (! empty($dbConstraints)) {
+        if ($dbConstraints !== null && $dbConstraints !== []) {
             // Important: we pass userRules first to ensure they take precedence
             // when they're stricter than system constraints
             return DatabaseFieldConstraints::mergeConstraintsWithRules($dbConstraints, $userRules);
@@ -138,12 +138,10 @@ final class ValidationService
     private function combineRules(array $primaryRules, array $secondaryRules): array
     {
         // Extract rule names (without parameters) from primary rules
-        $primaryRuleNames = array_map(function (string $rule) {
-            return explode(':', $rule, 2)[0];
-        }, $primaryRules);
+        $primaryRuleNames = array_map(fn(string $rule): string => explode(':', $rule, 2)[0], $primaryRules);
 
         // Filter secondary rules to only include those that don't conflict with primary rules
-        $filteredSecondaryRules = array_filter($secondaryRules, function (string $rule) use ($primaryRuleNames) {
+        $filteredSecondaryRules = array_filter($secondaryRules, function (string $rule) use ($primaryRuleNames): bool {
             $ruleName = explode(':', $rule, 2)[0];
 
             return ! in_array($ruleName, $primaryRuleNames);

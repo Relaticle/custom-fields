@@ -13,24 +13,24 @@ use Relaticle\CustomFields\Tests\Fixtures\Resources\Posts\PostResource;
 
 use function Pest\Livewire\livewire;
 
-beforeEach(function () {
+beforeEach(function (): void {
     $this->user = User::factory()->create();
     $this->actingAs($this->user);
 });
 
-describe('Page Rendering and Authorization', function () {
-    it('can render the create page', function () {
+describe('Page Rendering and Authorization', function (): void {
+    it('can render the create page', function (): void {
         livewire(CreatePost::class)
             ->assertSuccessful()
             ->assertSchemaExists('form');
     });
 
-    it('allows authorized users to access create page via URL', function () {
+    it('allows authorized users to access create page via URL', function (): void {
         $this->get(PostResource::getUrl('create'))
             ->assertSuccessful();
     });
 
-    it('is forbidden for users without permission', function () {
+    it('is forbidden for users without permission', function (): void {
         // Arrange
         $unauthorizedUser = User::factory()->create();
 
@@ -41,8 +41,8 @@ describe('Page Rendering and Authorization', function () {
     });
 });
 
-describe('Record Creation', function () {
-    it('can create a new record with valid data', function () {
+describe('Record Creation', function (): void {
+    it('can create a new record with valid data', function (): void {
         // Arrange
         $newData = Post::factory()->make();
 
@@ -72,7 +72,7 @@ describe('Record Creation', function () {
         $this->assertDatabaseCount('posts', 1);
     });
 
-    it('can create another record when create and add another is selected', function () {
+    it('can create another record when create and add another is selected', function (): void {
         // Arrange
         $newData = Post::factory()->make();
         $newData2 = Post::factory()->make();
@@ -133,8 +133,8 @@ describe('Record Creation', function () {
     });
 });
 
-describe('Form Validation', function () {
-    it('validates form fields', function (string $field, mixed $value, string|array $rule) {
+describe('Form Validation', function (): void {
+    it('validates form fields', function (string $field, mixed $value, string|array $rule): void {
         livewire(CreatePost::class)
             ->fillForm([$field => $value])
             ->call('create')
@@ -146,7 +146,7 @@ describe('Form Validation', function () {
         'rating must be numeric' => ['rating', 'not-a-number', 'numeric'],
     ]);
 
-    it('validates that author must exist', function () {
+    it('validates that author must exist', function (): void {
         livewire(CreatePost::class)
             ->fillForm([
                 'title' => 'Test Title',
@@ -158,8 +158,8 @@ describe('Form Validation', function () {
     });
 });
 
-describe('Custom Fields Integration', function () {
-    it('can create a record with custom fields', function () {
+describe('Custom Fields Integration', function (): void {
+    it('can create a record with custom fields', function (): void {
         // Arrange
         $section = CustomFieldSection::factory()->create([
             'name' => 'Post Custom Fields',
@@ -225,7 +225,7 @@ describe('Custom Fields Integration', function () {
             ->and($customFieldValues->get('view_count')?->getValue())->toBe(100);
     });
 
-    it('validates required custom fields', function () {
+    it('validates required custom fields', function (): void {
         // Arrange
         $section = CustomFieldSection::factory()->create([
             'name' => 'Post Custom Fields',
@@ -262,7 +262,7 @@ describe('Custom Fields Integration', function () {
             ->assertHasFormErrors(['custom_fields.meta_description']);
     });
 
-    it('validates custom field types and constraints', function (string $fieldType, mixed $invalidValue, string $rule) {
+    it('validates custom field types and constraints', function (string $fieldType, mixed $invalidValue, string $rule): void {
         // Arrange
         $section = CustomFieldSection::factory()->create([
             'entity_type' => Post::class,
@@ -300,8 +300,8 @@ describe('Custom Fields Integration', function () {
     ]);
 });
 
-describe('Form Field Visibility and State', function () {
-    it('displays custom fields section when custom fields exist', function () {
+describe('Form Field Visibility and State', function (): void {
+    it('displays custom fields section when custom fields exist', function (): void {
         // Arrange
         $section = CustomFieldSection::factory()->create([
             'name' => 'Post Custom Fields',
@@ -322,7 +322,7 @@ describe('Form Field Visibility and State', function () {
             ->assertSee('Post Custom Fields');
     });
 
-    it('hides custom fields section when no active custom fields exist', function () {
+    it('hides custom fields section when no active custom fields exist', function (): void {
         // Arrange - No custom fields created
 
         // Act & Assert

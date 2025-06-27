@@ -14,28 +14,25 @@ use Relaticle\CustomFields\Integration\Actions\Imports\ValueConverters\ValueConv
 use Relaticle\CustomFields\Models\CustomField;
 use Relaticle\CustomFields\Services\EntityTypeService;
 
-final class CustomFieldsImporter
+final readonly class CustomFieldsImporter
 {
     /**
      * Constructor with property promotion for dependency injection.
      */
     public function __construct(
-        private readonly ColumnFactory $columnFactory,
-        private readonly ValueConverterInterface $valueConverter,
-        private readonly LookupMatcherInterface $lookupMatcher,
-        private readonly LoggerInterface $logger
+        private ColumnFactory $columnFactory,
+        private ValueConverterInterface $valueConverter,
+        private LoggerInterface $logger
     ) {}
 
     /**
      * Get import columns for all custom fields of a model.
      *
      * @param  string  $modelClass  The fully qualified class name of the model
-     * @param  Model|null  $tenant  Optional tenant for multi-tenancy support
      * @return array<int, ImportColumn> Array of import columns for custom fields
-     *
      * @throws UnsupportedColumnTypeException
      */
-    public function getColumns(string $modelClass, ?Model $tenant = null): array
+    public function getColumns(string $modelClass): array
     {
         $model = app($modelClass);
 
@@ -43,7 +40,7 @@ final class CustomFieldsImporter
             ->with('options')
             ->active()
             ->get()
-            ->map(fn (CustomField $field) => $this->columnFactory->create($field))
+            ->map(fn (CustomField $field): ImportColumn => $this->columnFactory->create($field))
             ->toArray();
     }
 
@@ -66,7 +63,7 @@ final class CustomFieldsImporter
             ->whereIn('code', $fieldCodes)
             ->active()
             ->get()
-            ->map(fn (CustomField $field) => $this->columnFactory->create($field))
+            ->map(fn (CustomField $field): ImportColumn => $this->columnFactory->create($field))
             ->toArray();
     }
 
@@ -87,10 +84,10 @@ final class CustomFieldsImporter
         $this->logger->info('Custom fields data to save', [
             'record' => $record::class.'#'.$record->getKey(),
             'customFieldsData' => $customFieldsData,
-            'tenant' => $tenant ? $tenant::class.'#'.$tenant->getKey() : null,
+            'tenant' => $tenant instanceof Model ? $tenant::class.'#'.$tenant->getKey() : null,
         ]);
 
-        if (! empty($customFieldsData)) {
+        if ($customFieldsData !== []) {
             // Process string values for select fields before saving
             $customFieldsData = $this->valueConverter->convertValues($record, $customFieldsData, $tenant);
             $record->saveCustomFields($customFieldsData, $tenant);
@@ -133,7 +130,7 @@ final class CustomFieldsImporter
     {
         return array_filter(
             $data,
-            fn ($key) => ! str_starts_with($key, 'custom_fields_'),
+            fn ($key): bool => ! str_starts_with((string) $key, 'custom_fields_'),
             ARRAY_FILTER_USE_KEY
         );
     }

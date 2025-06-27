@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Relaticle\CustomFields\Integration\Forms\Components;
 
+use Throwable;
 use Filament\Forms\Components\Field;
 use Filament\Forms\Components\Radio;
 use Illuminate\Support\Collection;
@@ -19,7 +20,7 @@ final readonly class RadioComponent implements FieldComponentInterface
     /**
      * @param  array<string>  $dependentFieldCodes
      *
-     * @throws \Throwable
+     * @throws Throwable
      */
     public function make(CustomField $customField, array $dependentFieldCodes = [], ?Collection $allFields = null): Field
     {
@@ -40,10 +41,10 @@ final readonly class RadioComponent implements FieldComponentInterface
                     ->mapWithKeys(fn ($option) => [$option->id => $option->name])
                     ->all();
 
-                if (count($optionsWithColor)) {
+                if (count($optionsWithColor) > 0) {
                     $field->descriptions(
                         array_map(
-                            fn ($optionId) => $this->getColoredOptionDescription($optionId, $customField),
+                            fn ($optionId): string => $this->getColoredOptionDescription($optionId, $customField),
                             array_keys($optionsWithColor)
                         )
                     );

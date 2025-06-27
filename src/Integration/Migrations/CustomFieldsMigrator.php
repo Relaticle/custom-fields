@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Relaticle\CustomFields\Integration\Migrations;
 
+use BackedEnum;
 use Exception;
 use Illuminate\Support\Facades\DB;
 use Relaticle\CustomFields\Contracts\CustomsFieldsMigrators;
@@ -25,7 +26,7 @@ class CustomFieldsMigrator implements CustomsFieldsMigrators
 
     private CustomFieldData $customFieldData;
 
-    private ?CustomField $customField;
+    private ?CustomField $customField = null;
 
     public function setTenantId(int|string|null $tenantId = null): void
     {
@@ -122,7 +123,7 @@ class CustomFieldsMigrator implements CustomsFieldsMigrators
 
             $customField = CustomFields::newCustomFieldModel()->query()->create($data);
 
-            if ($this->isCustomFieldTypeOptionable() && ! empty($this->customFieldData->options)) {
+            if ($this->isCustomFieldTypeOptionable() && ($this->customFieldData->options !== null && $this->customFieldData->options !== [])) {
                 $this->createOptions($customField, $this->customFieldData->options);
             }
 
@@ -157,7 +158,7 @@ class CustomFieldsMigrator implements CustomsFieldsMigrators
 
             $this->customField->update($data);
 
-            if ($this->isCustomFieldTypeOptionable() && ! empty($this->customFieldData->options)) {
+            if ($this->isCustomFieldTypeOptionable() && ($this->customFieldData->options !== null && $this->customFieldData->options !== [])) {
                 $this->customField->options()->delete();
                 $this->createOptions($this->customField, $this->customFieldData->options);
             }
@@ -174,7 +175,7 @@ class CustomFieldsMigrator implements CustomsFieldsMigrators
      */
     public function delete(): void
     {
-        if (! $this->customField) {
+        if (!$this->customField instanceof CustomField) {
             throw CustomFieldDoesNotExistException::whenDeleting($this->customField->code);
         }
 
@@ -186,7 +187,7 @@ class CustomFieldsMigrator implements CustomsFieldsMigrators
      */
     public function activate(): void
     {
-        if (! $this->customField) {
+        if (!$this->customField instanceof CustomField) {
             throw CustomFieldDoesNotExistException::whenActivating($this->customField->code);
         }
 
@@ -202,7 +203,7 @@ class CustomFieldsMigrator implements CustomsFieldsMigrators
      */
     public function deactivate(): void
     {
-        if (! $this->customField) {
+        if (!$this->customField instanceof CustomField) {
             throw CustomFieldDoesNotExistException::whenDeactivating($this->customField->code);
         }
 
@@ -245,7 +246,7 @@ class CustomFieldsMigrator implements CustomsFieldsMigrators
     protected function isCustomFieldTypeOptionable(): bool
     {
         // Handle both enum and string types
-        $typeValue = $this->customFieldData->type instanceof \BackedEnum
+        $typeValue = $this->customFieldData->type instanceof BackedEnum
             ? $this->customFieldData->type->value
             : $this->customFieldData->type;
 

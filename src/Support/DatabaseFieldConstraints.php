@@ -18,17 +18,17 @@ final class DatabaseFieldConstraints
     /**
      * Cache prefix for database constraints.
      */
-    private const CACHE_PREFIX = 'custom_fields_db_constraints';
+    private const string CACHE_PREFIX = 'custom_fields_db_constraints';
 
     /**
      * Cache TTL in seconds (24 hours by default).
      */
-    private const CACHE_TTL = 86400;
+    private const int CACHE_TTL = 86400;
 
     /**
      * Default safety margin for encrypted fields (reduces max length by this percentage).
      */
-    private const ENCRYPTION_SAFETY_MARGIN = 0.66;
+    private const float ENCRYPTION_SAFETY_MARGIN = 0.66;
 
     /**
      * Default constraints for field types by database type.
@@ -160,7 +160,7 @@ final class DatabaseFieldConstraints
         $driver = self::getDatabaseDriver();
         $columnName = self::getColumnNameForFieldType($fieldType);
 
-        if (! $columnName) {
+        if ($columnName === null || $columnName === '' || $columnName === '0') {
             return null;
         }
 
@@ -238,7 +238,7 @@ final class DatabaseFieldConstraints
             if (preg_match('/^'.preg_quote($ruleType, '/').'($|:)/', $rule)) {
                 $existingRuleIndex = $index;
                 // Extract parameters if any (after the colon)
-                if (strpos($rule, ':') !== false) {
+                if (str_contains($rule, ':')) {
                     $existingRuleValue = substr($rule, strpos($rule, ':') + 1);
                 }
                 $hasExistingRule = true;
@@ -293,7 +293,7 @@ final class DatabaseFieldConstraints
 
             default:
                 // For pre-formatted rules or rules without parameters
-                if (strpos($ruleType, ':') !== false) {
+                if (str_contains($ruleType, ':')) {
                     $rules[] = $ruleType;
                 } elseif (! in_array($ruleType, $rules)) {
                     $rules[] = $ruleType;
@@ -357,7 +357,7 @@ final class DatabaseFieldConstraints
                 break;
 
             case 'between':
-                if (isset($dbConstraints['min'], $dbConstraints['max']) && strpos($existingRuleValue, ',') !== false) {
+                if (isset($dbConstraints['min'], $dbConstraints['max']) && str_contains($existingRuleValue, ',')) {
                     // For between, compare parts separately
                     [$existingMin, $existingMax] = explode(',', $existingRuleValue);
                     if (is_numeric($existingMin) && is_numeric($existingMax)) {
@@ -464,9 +464,9 @@ final class DatabaseFieldConstraints
         // Get cached rules if available
         $cacheKey = self::CACHE_PREFIX.'_rules_'.$fieldType->value.'_'.($isEncrypted ? '1' : '0');
 
-        return Cache::remember($cacheKey, self::CACHE_TTL, function () use ($fieldType, $isEncrypted) {
+        return Cache::remember($cacheKey, self::CACHE_TTL, function () use ($fieldType, $isEncrypted): array {
             $constraints = self::getConstraintsForFieldType($fieldType);
-            if (! $constraints) {
+            if ($constraints === null || $constraints === []) {
                 return [];
             }
 
@@ -627,7 +627,7 @@ final class DatabaseFieldConstraints
         // Cache the rules to avoid repeated processing
         $cacheKey = self::CACHE_PREFIX.'_json_rules_'.$fieldType->value.'_'.($isEncrypted ? '1' : '0');
 
-        return Cache::remember($cacheKey, self::CACHE_TTL, function () use ($fieldType, $isEncrypted) {
+        return Cache::remember($cacheKey, self::CACHE_TTL, function () use ($fieldType, $isEncrypted): array {
             // Only apply these rules to array-type fields
             if (! $fieldType->hasMultipleValues()) {
                 return [];

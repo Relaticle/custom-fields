@@ -36,7 +36,7 @@ final readonly class FrontendVisibilityService
      */
     public function buildVisibilityExpression(CustomField $field, ?Collection $allFields): ?string
     {
-        if (! $this->coreLogic->hasVisibilityConditions($field) || ! $allFields) {
+        if (! $this->coreLogic->hasVisibilityConditions($field) || ! $allFields instanceof Collection) {
             return null;
         }
 
@@ -45,7 +45,7 @@ final readonly class FrontendVisibilityService
             $this->buildFieldConditions($field, $allFields),
         ])
             ->filter()
-            ->map(fn ($condition) => "({$condition})");
+            ->map(fn ($condition): string => "({$condition})");
 
         return $conditions->isNotEmpty() ? $conditions->implode(' && ') : null;
     }
@@ -57,7 +57,7 @@ final readonly class FrontendVisibilityService
     {
         $conditions = $this->coreLogic->getVisibilityConditions($field);
 
-        if (empty($conditions)) {
+        if ($conditions === []) {
             return null;
         }
 
@@ -66,7 +66,7 @@ final readonly class FrontendVisibilityService
 
         $jsConditions = collect($conditions)
             ->filter(fn ($condition) => $allFields->contains('code', $condition['field_code']))
-            ->map(fn ($condition) => $this->buildCondition($condition, $mode, $allFields))
+            ->map(fn ($condition): ?string => $this->buildCondition($condition, $mode, $allFields))
             ->filter()
             ->values();
 
@@ -86,15 +86,15 @@ final readonly class FrontendVisibilityService
     {
         $dependentFields = $this->coreLogic->getDependentFields($field);
 
-        if (empty($dependentFields)) {
+        if ($dependentFields === []) {
             return null;
         }
 
         $parentConditions = collect($dependentFields)
             ->map(fn ($code) => $allFields->firstWhere('code', $code))
             ->filter()
-            ->filter(fn ($parentField) => $this->coreLogic->hasVisibilityConditions($parentField))
-            ->map(fn ($parentField) => $this->buildFieldConditions($parentField, $allFields))
+            ->filter(fn ($parentField): bool => $this->coreLogic->hasVisibilityConditions($parentField))
+            ->map(fn ($parentField): ?string => $this->buildFieldConditions($parentField, $allFields))
             ->filter();
 
         return $parentConditions->isNotEmpty() ? $parentConditions->implode(' && ') : null;
@@ -121,7 +121,7 @@ final readonly class FrontendVisibilityService
             $targetField
         );
 
-        if (! $expression) {
+        if ($expression === null || $expression === '' || $expression === '0') {
             return null;
         }
 
@@ -135,7 +135,7 @@ final readonly class FrontendVisibilityService
     private function buildOperatorExpression(Operator $operator, string $fieldValue, mixed $value, ?CustomField $targetField): ?string
     {
         // Validate operator compatibility using core logic
-        if ($targetField && ! $this->coreLogic->isOperatorCompatible($operator, $targetField)) {
+        if ($targetField instanceof CustomField && ! $this->coreLogic->isOperatorCompatible($operator, $targetField)) {
             return null;
         }
 
@@ -145,7 +145,7 @@ final readonly class FrontendVisibilityService
             Operator::CONTAINS => $this->buildContainsExpression($fieldValue, $value, $targetField),
             Operator::NOT_CONTAINS => transform(
                 $this->buildContainsExpression($fieldValue, $value, $targetField),
-                fn ($expr) => "!({$expr})"
+                fn ($expr): string => "!({$expr})"
             ),
             Operator::GREATER_THAN => $this->buildNumericComparison($fieldValue, $value, '>'),
             Operator::LESS_THAN => $this->buildNumericComparison($fieldValue, $value, '<'),
@@ -161,8 +161,8 @@ final readonly class FrontendVisibilityService
     {
         return when(
             $this->fieldTypeHelper->isOptionable($targetField?->type ?? ''),
-            fn () => $this->buildOptionExpression($fieldValue, $value, $targetField, 'equals'),
-            fn () => $this->buildStandardEqualsExpression($fieldValue, $value)
+            fn (): string => $this->buildOptionExpression($fieldValue, $value, $targetField, 'equals'),
+            fn (): string => $this->buildStandardEqualsExpression($fieldValue, $value)
         );
     }
 
@@ -173,8 +173,8 @@ final readonly class FrontendVisibilityService
     {
         return when(
             $this->fieldTypeHelper->isOptionable($targetField?->type ?? ''),
-            fn () => $this->buildOptionExpression($fieldValue, $value, $targetField, 'not_equals'),
-            fn () => $this->buildStandardNotEqualsExpression($fieldValue, $value)
+            fn (): string => $this->buildOptionExpression($fieldValue, $value, $targetField, 'not_equals'),
+            fn (): string => $this->buildStandardNotEqualsExpression($fieldValue, $value)
         );
     }
 
@@ -303,7 +303,7 @@ final readonly class FrontendVisibilityService
     private function resolveArrayOptionValue(array $value, CustomField $targetField): mixed
     {
         return $targetField->type->hasMultipleValues()
-            ? collect($value)->map(fn ($v) => $this->convertOptionValue($v, $targetField))->all()
+            ? collect($value)->map(fn ($v): mixed => $this->convertOptionValue($v, $targetField))->all()
             : $this->convertOptionValue(head($value), $targetField);
     }
 
@@ -323,8 +323,8 @@ final readonly class FrontendVisibilityService
         return rescue(function () use ($value, $targetField) {
             if (is_string($value) && $targetField->options) {
                 return $targetField->options
-                    ->first(fn ($opt) => filled($opt->name) &&
-                        Str::lower(trim($opt->name)) === Str::lower(trim($value))
+                    ->first(fn ($opt): bool => filled($opt->name) &&
+                        Str::lower(trim((string) $opt->name)) === Str::lower(trim($value))
                     )?->id ?? $value;
             }
 
@@ -389,8 +389,8 @@ final readonly class FrontendVisibilityService
             is_float($value) => number_format($value, 10, '.', ''),
             is_numeric($value) => is_float($value + 0) ? number_format((float) $value, 10, '.', '') : (string) ((int) $value),
             is_array($value) => collect($value)
-                ->map(fn ($item) => $this->formatJsValue($item))
-                ->pipe(fn ($collection) => '['.$collection->implode(', ').']'),
+                ->map(fn ($item): string => $this->formatJsValue($item))
+                ->pipe(fn ($collection): string => '['.$collection->implode(', ').']'),
             default => "'".addslashes((string) $value)."'"
         };
     }

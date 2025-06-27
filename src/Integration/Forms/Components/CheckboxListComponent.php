@@ -38,10 +38,10 @@ final readonly class CheckboxListComponent implements FieldComponentInterface
                     ->mapWithKeys(fn ($option) => [$option->id => $option->name])
                     ->all();
 
-                if (count($optionsWithColor)) {
+                if (count($optionsWithColor) > 0) {
                     $field->descriptions(
                         array_map(
-                            fn ($optionId) => $this->getColoredOptionDescription($optionId, $customField),
+                            fn ($optionId): string => $this->getColoredOptionDescription($optionId, $customField),
                             array_keys($optionsWithColor)
                         )
                     );

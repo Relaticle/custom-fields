@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Relaticle\CustomFields\Providers;
 
+use Override;
 use Illuminate\Support\ServiceProvider;
 use Psr\Log\LoggerInterface;
 use Relaticle\CustomFields\Integration\Actions\Imports\ColumnConfigurators\BasicColumnConfigurator;
@@ -24,6 +25,7 @@ class ImportsServiceProvider extends ServiceProvider
     /**
      * Register any application services.
      */
+    #[Override]
     public function register(): void
     {
         // Register implementations
@@ -39,13 +41,10 @@ class ImportsServiceProvider extends ServiceProvider
         $this->app->singleton(ColumnFactory::class);
 
         // Register the importer
-        $this->app->singleton(CustomFieldsImporter::class, function ($app) {
-            return new CustomFieldsImporter(
-                $app->make(ColumnFactory::class),
-                $app->make(ValueConverterInterface::class),
-                $app->make(LookupMatcherInterface::class),
-                $app->make(LoggerInterface::class)
-            );
-        });
+        $this->app->singleton(CustomFieldsImporter::class, fn($app): CustomFieldsImporter => new CustomFieldsImporter(
+            $app->make(ColumnFactory::class),
+            $app->make(ValueConverterInterface::class),
+            $app->make(LoggerInterface::class)
+        ));
     }
 }

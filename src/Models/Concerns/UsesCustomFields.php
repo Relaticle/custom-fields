@@ -135,7 +135,7 @@ trait UsesCustomFields
     protected function resolveTenantId(?Model $tenant, CustomField $customField): mixed
     {
         // First priority: Explicitly provided tenant
-        if ($tenant !== null) {
+        if ($tenant instanceof Model) {
             return $tenant->getKey();
         }
 

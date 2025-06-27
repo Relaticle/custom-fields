@@ -40,7 +40,7 @@ final class FilamentResourceService
      */
     public static function getModelInstance(string $model): Model
     {
-        $model = Relation::getMorphedModel($model) ?: $model;
+        $model = Relation::getMorphedModel($model) ?? $model;
 
         throw_if(! $model, new InvalidArgumentException("Model class not found: {$model}"));
 
@@ -56,7 +56,7 @@ final class FilamentResourceService
         $query = self::getModelInstance($model)::query();
 
         if (Utils::isTenantEnabled() && Filament::getTenant()) {
-            $query = self::invokeMethodByReflection(
+            return self::invokeMethodByReflection(
                 resource: self::getResourceInstance($model),
                 methodName: 'scopeEloquentQueryToTenant',
                 args: [
@@ -80,7 +80,7 @@ final class FilamentResourceService
 
         throw_if($recordTitleAttribute === null, new InvalidArgumentException(sprintf(
             "The '%s' resource does not have a record title attribute.",
-            get_class($resourceInstance)
+            $resourceInstance::class
         )));
 
         return $recordTitleAttribute;

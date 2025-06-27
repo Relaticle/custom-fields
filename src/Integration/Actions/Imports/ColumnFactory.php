@@ -99,16 +99,16 @@ final class ColumnFactory
      */
     private function applyValidationRules(ImportColumn $column, CustomField $customField): void
     {
-        $rules = $customField->validation_rules?->toCollection()
+        $rules = $customField->validation_rules->toCollection()
             ->map(
-                fn (ValidationRuleData $rule): string => ! empty($rule->parameters)
-                    ? "{$rule->name}:".implode(',', $rule->parameters)
-                    : $rule->name
+                fn (ValidationRuleData $rule): string => $rule->parameters === []
+                    ? $rule->name
+                    : "{$rule->name}:".implode(',', $rule->parameters)
             )
             ->filter()
             ->toArray();
 
-        if (! empty($rules)) {
+        if ($rules !== []) {
             $column->rules($rules);
         }
     }

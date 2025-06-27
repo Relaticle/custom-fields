@@ -75,7 +75,7 @@ final readonly class SelectComponent implements FieldComponentInterface
      * @throws Throwable
      * @throws ReflectionException
      */
-    protected function configureLookup(Select $select, $lookupType): Select
+    private function configureLookup(Select $select, string $lookupType): Select
     {
         $resource = FilamentResourceService::getResourceInstance($lookupType);
         $entityInstanceQuery = FilamentResourceService::getModelInstanceQuery($lookupType);
@@ -104,11 +104,9 @@ final readonly class SelectComponent implements FieldComponentInterface
                     ->toArray();
             })
             ->getOptionLabelUsing(fn ($value) => $entityInstanceQuery->find($value)?->{$recordTitleAttribute})
-            ->getOptionLabelsUsing(function (array $values) use ($entityInstanceQuery, $entityInstanceKeyName, $recordTitleAttribute): array {
-                return $entityInstanceQuery
-                    ->whereIn($entityInstanceKeyName, $values)
-                    ->pluck($recordTitleAttribute, $entityInstanceKeyName)
-                    ->toArray();
-            });
+            ->getOptionLabelsUsing(fn(array $values): array => $entityInstanceQuery
+                ->whereIn($entityInstanceKeyName, $values)
+                ->pluck($recordTitleAttribute, $entityInstanceKeyName)
+                ->toArray());
     }
 }

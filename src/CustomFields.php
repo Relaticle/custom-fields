@@ -4,27 +4,32 @@ declare(strict_types=1);
 
 namespace Relaticle\CustomFields;
 
+use Relaticle\CustomFields\Models\CustomField;
+use Relaticle\CustomFields\Models\CustomFieldValue;
+use Relaticle\CustomFields\Models\CustomFieldOption;
+use Relaticle\CustomFields\Models\CustomFieldSection;
+
 class CustomFields
 {
     /**
      * The custom field model that should be used by Custom Fields.
      */
-    public static string $customFieldModel = 'Relaticle\\CustomFields\\Models\\CustomField';
+    public static string $customFieldModel = CustomField::class;
 
     /**
      * The custom field value model that should be used by Custom Fields.
      */
-    public static string $valueModel = 'Relaticle\\CustomFields\\Models\\CustomFieldValue';
+    public static string $valueModel = CustomFieldValue::class;
 
     /**
      * The custom field option model that should be used by Custom Fields.
      */
-    public static string $optionModel = 'Relaticle\\CustomFields\\Models\\CustomFieldOption';
+    public static string $optionModel = CustomFieldOption::class;
 
     /**
      * The custom field section model that should be used by Custom Fields.
      */
-    public static string $sectionModel = 'Relaticle\\CustomFields\\Models\\CustomFieldSection';
+    public static string $sectionModel = CustomFieldSection::class;
 
     /**
      * Get the name of the custom field model used by the application.
@@ -51,7 +56,7 @@ class CustomFields
     {
         static::$customFieldModel = $model;
 
-        return new static;
+        return new self;
     }
 
     /**
@@ -79,7 +84,7 @@ class CustomFields
     {
         static::$valueModel = $model;
 
-        return new static;
+        return new self;
     }
 
     /**
@@ -107,7 +112,7 @@ class CustomFields
     {
         static::$optionModel = $model;
 
-        return new static;
+        return new self;
     }
 
     /**
@@ -135,6 +140,6 @@ class CustomFields
     {
         static::$sectionModel = $model;
 
-        return new static;
+        return new self;
     }
 }

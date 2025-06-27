@@ -8,10 +8,10 @@ use Illuminate\Database\Eloquent\Model;
 use Psr\Log\LoggerInterface;
 use Throwable;
 
-final class LookupMatcher implements LookupMatcherInterface
+final readonly class LookupMatcher implements LookupMatcherInterface
 {
     public function __construct(
-        private readonly LoggerInterface $logger
+        private LoggerInterface $logger
     ) {}
 
     public function find(mixed $entityInstance, string $value): ?Model
@@ -23,7 +23,7 @@ final class LookupMatcher implements LookupMatcherInterface
         } catch (Throwable $e) {
             // Log the error but don't throw - we'll handle this gracefully by returning null
             $this->logger->warning('Error matching lookup value', [
-                'entity' => get_class($entityInstance),
+                'entity' => $entityInstance::class,
                 'value' => $value,
                 'error' => $e->getMessage(),
             ]);

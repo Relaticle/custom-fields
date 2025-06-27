@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Relaticle\CustomFields\Filament\Forms\Components;
 
+use Exception;
+use ValueError;
 use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Select;
@@ -51,7 +53,7 @@ class VisibilityComponent extends Component
                     ->options(Mode::class)
                     ->default(Mode::ALWAYS_VISIBLE)
                     ->required()
-                    ->afterStateHydrated(function (Select $component, $state) {
+                    ->afterStateHydrated(function (Select $component, $state): void {
                         $component->state($state ?? Mode::ALWAYS_VISIBLE);
                     })
                     ->live(),
@@ -61,15 +63,15 @@ class VisibilityComponent extends Component
                     ->options(Logic::class)
                     ->default(Logic::ALL)
                     ->required()
-                    ->afterStateHydrated(function (Select $component, $state) {
+                    ->afterStateHydrated(function (Select $component, $state): void {
                         $component->state($state ?? Logic::ALL);
                     })
-                    ->visible(fn (Get $get) => $this->requiresConditions($get)),
+                    ->visible(fn (Get $get): bool => $this->requiresConditions($get)),
 
                 Repeater::make('settings.visibility.conditions')
                     ->label('Conditions')
                     ->schema($this->buildConditionSchema())
-                    ->visible(fn (Get $get) => $this->requiresConditions($get))
+                    ->visible(fn (Get $get): bool => $this->requiresConditions($get))
                     ->defaultItems(1)
                     ->minItems(1)
                     ->maxItems(10)
@@ -84,10 +86,10 @@ class VisibilityComponent extends Component
         return [
             Select::make('field_code')
                 ->label('Field')
-                ->options(fn (Get $get) => $this->getFieldOptions($get))
+                ->options(fn (Get $get): array => $this->getFieldOptions($get))
                 ->required()
                 ->live()
-                ->afterStateUpdated(function (Get $get, Set $set) {
+                ->afterStateUpdated(function (Get $get, Set $set): void {
                     $set('value', null);
 
                     $set('operator', array_key_first($this->getOperatorOptions($get)));
@@ -110,10 +112,10 @@ class VisibilityComponent extends Component
 
             Select::make('operator')
                 ->label('Operator')
-                ->options(fn (Get $get) => $this->getOperatorOptions($get))
+                ->options(fn (Get $get): array => $this->getOperatorOptions($get))
                 ->required()
                 ->live()
-                ->afterStateUpdated(function (Get $get, Set $set) {
+                ->afterStateUpdated(function (Get $get, Set $set): void {
                     $set('value', null);
 
                     if ($this->requiresSingleValue($get)) {
@@ -137,13 +139,13 @@ class VisibilityComponent extends Component
                 ->label('Value')
                 ->live()
                 ->searchable()
-                ->options(fn (Get $get) => $this->getValueOptions($get))
-                ->visible(fn (Get $get) => $this->requiresSingleValue($get) && $this->isOptionableField($get))
-                ->placeholder(fn (Get $get) => $this->getValuePlaceholder($get))
-                ->afterStateHydrated(function (Select $component, Get $get) {
+                ->options(fn (Get $get): array => $this->getValueOptions($get))
+                ->visible(fn (Get $get): bool => $this->requiresSingleValue($get) && $this->isOptionableField($get))
+                ->placeholder(fn (Get $get): string => $this->getValuePlaceholder($get))
+                ->afterStateHydrated(function (Select $component, Get $get): void {
                     $component->state($get('value') ?? null);
                 })
-                ->afterStateUpdated(fn (?string $state, Set $set) => $set('value', $state))
+                ->afterStateUpdated(fn (?string $state, Set $set): mixed => $set('value', $state))
                 ->columnSpan(5),
 
             Select::make('multiple_values')
@@ -151,24 +153,24 @@ class VisibilityComponent extends Component
                 ->live()
                 ->searchable()
                 ->multiple()
-                ->options(fn (Get $get) => $this->getValueOptions($get))
-                ->visible(fn (Get $get) => $this->requiresMultipleValues($get) && $this->isOptionableField($get))
-                ->placeholder(fn (Get $get) => $this->getValuePlaceholder($get))
-                ->afterStateHydrated(function (Select $component, Get $get) {
+                ->options(fn (Get $get): array => $this->getValueOptions($get))
+                ->visible(fn (Get $get): bool => $this->requiresMultipleValues($get) && $this->isOptionableField($get))
+                ->placeholder(fn (Get $get): string => $this->getValuePlaceholder($get))
+                ->afterStateHydrated(function (Select $component, Get $get): void {
                     $component->state(Arr::wrap($get('value')));
                 })
-                ->afterStateUpdated(fn (array $state, Set $set) => $set('value', Arr::wrap($state)))
+                ->afterStateUpdated(fn (array $state, Set $set): mixed => $set('value', Arr::wrap($state)))
                 ->columnSpan(5),
 
             // Text input for non-optionable fields
             TextInput::make('text_value')
                 ->label('Value')
-                ->placeholder(fn (Get $get) => $this->getValuePlaceholder($get))
-                ->visible(fn (Get $get) => $this->requiresValue($get) && ! $this->isOptionableField($get))
-                ->afterStateHydrated(function (TextInput $component, Get $get) {
+                ->placeholder(fn (Get $get): string => $this->getValuePlaceholder($get))
+                ->visible(fn (Get $get): bool => $this->requiresValue($get) && ! $this->isOptionableField($get))
+                ->afterStateHydrated(function (TextInput $component, Get $get): void {
                     $component->state($get('value') ?? '');
                 })
-                ->afterStateUpdated(fn (string $state, Set $set) => $set('value', $state))
+                ->afterStateUpdated(fn (string $state, Set $set): mixed => $set('value', $state))
                 ->columnSpan(5),
 
             Hidden::make('value')->default(null),
@@ -189,8 +191,8 @@ class VisibilityComponent extends Component
         try {
             $fieldType = $this->getFieldType($fieldCode, $get);
 
-            return $this->fieldTypeHelper->isOptionable($fieldType ?? '') ?? false;
-        } catch (\Exception) {
+            return $fieldType ? $this->fieldTypeHelper->isOptionable($fieldType) : false;
+        } catch (Exception) {
             return false;
         }
     }
@@ -207,7 +209,7 @@ class VisibilityComponent extends Component
         try {
             $fieldType = $this->getFieldType($fieldCode, $get);
 
-            if (! $fieldType) {
+            if (!$fieldType instanceof CustomFieldType) {
                 return true;
             }
 
@@ -220,7 +222,7 @@ class VisibilityComponent extends Component
             }
 
             return true;
-        } catch (\Exception) {
+        } catch (Exception) {
             return true;
         }
     }
@@ -240,7 +242,7 @@ class VisibilityComponent extends Component
         try {
             $fieldType = $this->getFieldType($fieldCode, $get);
 
-            if (! $fieldType) {
+            if (!$fieldType instanceof CustomFieldType) {
                 return false;
             }
 
@@ -253,7 +255,7 @@ class VisibilityComponent extends Component
             }
 
             return false;
-        } catch (\Exception) {
+        } catch (Exception) {
             return false;
         }
     }
@@ -272,14 +274,14 @@ class VisibilityComponent extends Component
         try {
             $entityType = $this->getEntityType($get);
 
-            if (! $entityType) {
+            if ($entityType === null || $entityType === '' || $entityType === '0') {
                 return [];
             }
 
             $visibilityService = app(BackendVisibilityService::class);
 
             return $visibilityService->getFieldOptions($fieldCode, $entityType);
-        } catch (\Exception) {
+        } catch (Exception) {
             return [];
         }
     }
@@ -303,7 +305,7 @@ class VisibilityComponent extends Component
         try {
             $fieldType = $this->getFieldType($fieldCode, $get);
 
-            if (! $fieldType) {
+            if (!$fieldType instanceof CustomFieldType) {
                 return 'Enter comparison value';
             }
 
@@ -319,7 +321,7 @@ class VisibilityComponent extends Component
                 FieldCategory::BOOLEAN => 'true or false',
                 default => 'Enter comparison value',
             };
-        } catch (\Exception) {
+        } catch (Exception) {
             return 'Enter comparison value';
         }
     }
@@ -334,7 +336,7 @@ class VisibilityComponent extends Component
 
         try {
             return $mode->requiresConditions();
-        } catch (\ValueError) {
+        } catch (ValueError) {
             return false;
         }
     }
@@ -349,7 +351,7 @@ class VisibilityComponent extends Component
 
         try {
             return Operator::from($operator)->requiresValue();
-        } catch (\ValueError) {
+        } catch (ValueError) {
             return true;
         }
     }
@@ -360,7 +362,7 @@ class VisibilityComponent extends Component
             $entityType = $this->getEntityType($get);
             $currentFieldCode = $get('../../../../code');
 
-            if (! $entityType) {
+            if ($entityType === null || $entityType === '' || $entityType === '0') {
                 return [];
             }
 
@@ -370,7 +372,7 @@ class VisibilityComponent extends Component
                 ->orderBy('name')
                 ->pluck('name', 'code')
                 ->toArray();
-        } catch (\Exception) {
+        } catch (Exception) {
             return [];
         }
     }
@@ -386,10 +388,10 @@ class VisibilityComponent extends Component
         try {
             $fieldType = $this->getFieldType($fieldCode, $get);
 
-            return $fieldType
+            return $fieldType instanceof CustomFieldType
                 ? Operator::forFieldType($fieldType)
                 : Operator::options();
-        } catch (\Exception) {
+        } catch (Exception) {
             return Operator::options();
         }
     }
@@ -399,7 +401,7 @@ class VisibilityComponent extends Component
         try {
             $entityType = $this->getEntityType($get);
 
-            if (! $entityType) {
+            if ($entityType === null || $entityType === '' || $entityType === '0') {
                 return null;
             }
 
@@ -409,7 +411,7 @@ class VisibilityComponent extends Component
                 ->first();
 
             return $field?->type;
-        } catch (\Exception) {
+        } catch (Exception) {
             return null;
         }
     }

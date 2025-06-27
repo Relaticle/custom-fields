@@ -4,6 +4,31 @@ declare(strict_types=1);
 
 namespace Relaticle\CustomFields\Services;
 
+use Relaticle\CustomFields\Integration\Forms\Components\FieldComponentInterface;
+use Relaticle\CustomFields\Integration\Tables\Columns\ColumnInterface;
+use Relaticle\CustomFields\Integration\Infolists\FieldInfolistsComponentInterface;
+use Relaticle\CustomFields\Integration\Forms\Components\TextInputComponent;
+use Relaticle\CustomFields\Integration\Forms\Components\NumberComponent;
+use Relaticle\CustomFields\Integration\Forms\Components\CheckboxComponent;
+use Relaticle\CustomFields\Integration\Forms\Components\CheckboxListComponent;
+use Relaticle\CustomFields\Integration\Forms\Components\RichEditorComponent;
+use Relaticle\CustomFields\Integration\Forms\Components\MarkdownEditorComponent;
+use Relaticle\CustomFields\Integration\Forms\Components\ToggleButtonsComponent;
+use Relaticle\CustomFields\Integration\Forms\Components\TagsInputComponent;
+use Relaticle\CustomFields\Integration\Forms\Components\LinkComponent;
+use Relaticle\CustomFields\Integration\Forms\Components\ColorPickerComponent;
+use Relaticle\CustomFields\Integration\Forms\Components\TextareaFieldComponent;
+use Relaticle\CustomFields\Integration\Forms\Components\CurrencyComponent;
+use Relaticle\CustomFields\Integration\Forms\Components\DateComponent;
+use Relaticle\CustomFields\Integration\Forms\Components\DateTimeComponent;
+use Relaticle\CustomFields\Integration\Forms\Components\ToggleComponent;
+use Relaticle\CustomFields\Integration\Forms\Components\RadioComponent;
+use Relaticle\CustomFields\Integration\Forms\Components\SelectComponent;
+use Relaticle\CustomFields\Integration\Forms\Components\MultiSelectComponent;
+use Relaticle\CustomFields\Integration\Tables\Columns\TextColumn;
+use Relaticle\CustomFields\Integration\Tables\Columns\IconColumn;
+use Relaticle\CustomFields\Integration\Tables\Columns\ColorColumn;
+use Relaticle\CustomFields\Integration\Tables\Columns\MultiValueColumn;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cache;
 use InvalidArgumentException;
@@ -77,7 +102,7 @@ final class FieldTypeRegistryService
     public function getFieldTypeOptions(): Collection
     {
         return $this->getAllFieldTypes()
-            ->map(fn (array $config, string $key) => [
+            ->map(fn (array $config, string $key): array => [
                 'label' => $config['label'],
                 'value' => $key,
                 'icon' => $config['icon'],
@@ -102,7 +127,10 @@ final class FieldTypeRegistryService
      */
     public function hasFieldType(string $key): bool
     {
-        return $this->isBuiltInFieldType($key) || isset($this->customFieldTypes[$key]);
+        if ($this->isBuiltInFieldType($key)) {
+            return true;
+        }
+        return isset($this->customFieldTypes[$key]);
     }
 
     /**
@@ -131,7 +159,7 @@ final class FieldTypeRegistryService
     public function getSearchableFieldTypes(): Collection
     {
         return $this->getAllFieldTypes()
-            ->filter(fn (array $config) => $config['searchable'])
+            ->filter(fn (array $config): bool => $config['searchable'])
             ->keys();
     }
 
@@ -141,7 +169,7 @@ final class FieldTypeRegistryService
     public function getFilterableFieldTypes(): Collection
     {
         return $this->getAllFieldTypes()
-            ->filter(fn (array $config) => $config['filterable'])
+            ->filter(fn (array $config): bool => $config['filterable'])
             ->keys();
     }
 
@@ -151,7 +179,7 @@ final class FieldTypeRegistryService
     public function getEncryptableFieldTypes(): Collection
     {
         return $this->getAllFieldTypes()
-            ->filter(fn (array $config) => $config['encryptable'])
+            ->filter(fn (array $config): bool => $config['encryptable'])
             ->keys();
     }
 
@@ -190,7 +218,7 @@ final class FieldTypeRegistryService
             $discoveredFieldTypes = $this->discoveryService->discoverFromConfig();
 
             if ($cacheEnabled) {
-                $classNames = $discoveredFieldTypes->map(fn ($fieldType) => get_class($fieldType))->toArray();
+                $classNames = $discoveredFieldTypes->map(fn ($fieldType): string => $fieldType::class)->toArray();
                 Cache::put($cacheKey, $classNames, now()->addMinutes($cacheDuration));
             }
 
@@ -280,15 +308,15 @@ final class FieldTypeRegistryService
         }
 
         // Check if classes implement the correct interfaces
-        if (! is_subclass_of($formComponent, 'Relaticle\CustomFields\Integration\Forms\Components\FieldComponentInterface')) {
+        if (! is_subclass_of($formComponent, FieldComponentInterface::class)) {
             throw new RuntimeException("Form component class '{$formComponent}' must implement FieldComponentInterface.");
         }
 
-        if (! is_subclass_of($tableColumn, 'Relaticle\CustomFields\Integration\Tables\Columns\ColumnInterface')) {
+        if (! is_subclass_of($tableColumn, ColumnInterface::class)) {
             throw new RuntimeException("Table column class '{$tableColumn}' must implement ColumnInterface.");
         }
 
-        if (! is_subclass_of($infolistEntry, 'Relaticle\CustomFields\Integration\Infolists\FieldInfolistsComponentInterface')) {
+        if (! is_subclass_of($infolistEntry, FieldInfolistsComponentInterface::class)) {
             throw new RuntimeException("Infolist entry class '{$infolistEntry}' must implement FieldInfolistsComponentInterface.");
         }
     }
@@ -299,24 +327,24 @@ final class FieldTypeRegistryService
     private function getBuiltInFormComponent(CustomFieldType $type): string
     {
         $map = [
-            CustomFieldType::TEXT->value => 'Relaticle\CustomFields\Integration\Forms\Components\TextInputComponent',
-            CustomFieldType::NUMBER->value => 'Relaticle\CustomFields\Integration\Forms\Components\NumberComponent',
-            CustomFieldType::CHECKBOX->value => 'Relaticle\CustomFields\Integration\Forms\Components\CheckboxComponent',
-            CustomFieldType::CHECKBOX_LIST->value => 'Relaticle\CustomFields\Integration\Forms\Components\CheckboxListComponent',
-            CustomFieldType::RICH_EDITOR->value => 'Relaticle\CustomFields\Integration\Forms\Components\RichEditorComponent',
-            CustomFieldType::MARKDOWN_EDITOR->value => 'Relaticle\CustomFields\Integration\Forms\Components\MarkdownEditorComponent',
-            CustomFieldType::TOGGLE_BUTTONS->value => 'Relaticle\CustomFields\Integration\Forms\Components\ToggleButtonsComponent',
-            CustomFieldType::TAGS_INPUT->value => 'Relaticle\CustomFields\Integration\Forms\Components\TagsInputComponent',
-            CustomFieldType::LINK->value => 'Relaticle\CustomFields\Integration\Forms\Components\LinkComponent',
-            CustomFieldType::COLOR_PICKER->value => 'Relaticle\CustomFields\Integration\Forms\Components\ColorPickerComponent',
-            CustomFieldType::TEXTAREA->value => 'Relaticle\CustomFields\Integration\Forms\Components\TextareaFieldComponent',
-            CustomFieldType::CURRENCY->value => 'Relaticle\CustomFields\Integration\Forms\Components\CurrencyComponent',
-            CustomFieldType::DATE->value => 'Relaticle\CustomFields\Integration\Forms\Components\DateComponent',
-            CustomFieldType::DATE_TIME->value => 'Relaticle\CustomFields\Integration\Forms\Components\DateTimeComponent',
-            CustomFieldType::TOGGLE->value => 'Relaticle\CustomFields\Integration\Forms\Components\ToggleComponent',
-            CustomFieldType::RADIO->value => 'Relaticle\CustomFields\Integration\Forms\Components\RadioComponent',
-            CustomFieldType::SELECT->value => 'Relaticle\CustomFields\Integration\Forms\Components\SelectComponent',
-            CustomFieldType::MULTI_SELECT->value => 'Relaticle\CustomFields\Integration\Forms\Components\MultiSelectComponent',
+            CustomFieldType::TEXT->value => TextInputComponent::class,
+            CustomFieldType::NUMBER->value => NumberComponent::class,
+            CustomFieldType::CHECKBOX->value => CheckboxComponent::class,
+            CustomFieldType::CHECKBOX_LIST->value => CheckboxListComponent::class,
+            CustomFieldType::RICH_EDITOR->value => RichEditorComponent::class,
+            CustomFieldType::MARKDOWN_EDITOR->value => MarkdownEditorComponent::class,
+            CustomFieldType::TOGGLE_BUTTONS->value => ToggleButtonsComponent::class,
+            CustomFieldType::TAGS_INPUT->value => TagsInputComponent::class,
+            CustomFieldType::LINK->value => LinkComponent::class,
+            CustomFieldType::COLOR_PICKER->value => ColorPickerComponent::class,
+            CustomFieldType::TEXTAREA->value => TextareaFieldComponent::class,
+            CustomFieldType::CURRENCY->value => CurrencyComponent::class,
+            CustomFieldType::DATE->value => DateComponent::class,
+            CustomFieldType::DATE_TIME->value => DateTimeComponent::class,
+            CustomFieldType::TOGGLE->value => ToggleComponent::class,
+            CustomFieldType::RADIO->value => RadioComponent::class,
+            CustomFieldType::SELECT->value => SelectComponent::class,
+            CustomFieldType::MULTI_SELECT->value => MultiSelectComponent::class,
         ];
 
         return $map[$type->value] ?? throw new RuntimeException("No form component mapped for type: {$type->value}");
@@ -328,22 +356,22 @@ final class FieldTypeRegistryService
     private function getBuiltInTableColumn(CustomFieldType $type): string
     {
         $map = [
-            CustomFieldType::TEXT->value => 'Relaticle\CustomFields\Integration\Tables\Columns\TextColumn',
-            CustomFieldType::TEXTAREA->value => 'Relaticle\CustomFields\Integration\Tables\Columns\TextColumn',
-            CustomFieldType::NUMBER->value => 'Relaticle\CustomFields\Integration\Tables\Columns\TextColumn',
-            CustomFieldType::CURRENCY->value => 'Relaticle\CustomFields\Integration\Tables\Columns\TextColumn',
-            CustomFieldType::DATE->value => 'Relaticle\CustomFields\Integration\Tables\Columns\TextColumn',
-            CustomFieldType::DATE_TIME->value => 'Relaticle\CustomFields\Integration\Tables\Columns\TextColumn',
-            CustomFieldType::LINK->value => 'Relaticle\CustomFields\Integration\Tables\Columns\TextColumn',
-            CustomFieldType::CHECKBOX->value => 'Relaticle\CustomFields\Integration\Tables\Columns\IconColumn',
-            CustomFieldType::TOGGLE->value => 'Relaticle\CustomFields\Integration\Tables\Columns\IconColumn',
-            CustomFieldType::COLOR_PICKER->value => 'Relaticle\CustomFields\Integration\Tables\Columns\ColorColumn',
-            CustomFieldType::SELECT->value => 'Relaticle\CustomFields\Integration\Tables\Columns\TextColumn',
-            CustomFieldType::RADIO->value => 'Relaticle\CustomFields\Integration\Tables\Columns\TextColumn',
-            CustomFieldType::MULTI_SELECT->value => 'Relaticle\CustomFields\Integration\Tables\Columns\MultiValueColumn',
-            CustomFieldType::CHECKBOX_LIST->value => 'Relaticle\CustomFields\Integration\Tables\Columns\MultiValueColumn',
-            CustomFieldType::TAGS_INPUT->value => 'Relaticle\CustomFields\Integration\Tables\Columns\MultiValueColumn',
-            CustomFieldType::TOGGLE_BUTTONS->value => 'Relaticle\CustomFields\Integration\Tables\Columns\MultiValueColumn',
+            CustomFieldType::TEXT->value => TextColumn::class,
+            CustomFieldType::TEXTAREA->value => TextColumn::class,
+            CustomFieldType::NUMBER->value => TextColumn::class,
+            CustomFieldType::CURRENCY->value => TextColumn::class,
+            CustomFieldType::DATE->value => TextColumn::class,
+            CustomFieldType::DATE_TIME->value => TextColumn::class,
+            CustomFieldType::LINK->value => TextColumn::class,
+            CustomFieldType::CHECKBOX->value => IconColumn::class,
+            CustomFieldType::TOGGLE->value => IconColumn::class,
+            CustomFieldType::COLOR_PICKER->value => ColorColumn::class,
+            CustomFieldType::SELECT->value => TextColumn::class,
+            CustomFieldType::RADIO->value => TextColumn::class,
+            CustomFieldType::MULTI_SELECT->value => MultiValueColumn::class,
+            CustomFieldType::CHECKBOX_LIST->value => MultiValueColumn::class,
+            CustomFieldType::TAGS_INPUT->value => MultiValueColumn::class,
+            CustomFieldType::TOGGLE_BUTTONS->value => MultiValueColumn::class,
             CustomFieldType::RICH_EDITOR->value => 'Relaticle\CustomFields\Integration\Tables\Columns\HtmlColumn',
             CustomFieldType::MARKDOWN_EDITOR->value => 'Relaticle\CustomFields\Integration\Tables\Columns\HtmlColumn',
         ];

@@ -25,7 +25,7 @@ final class ValueConverter implements ValueConverterInterface
     public function convertValues(Model $record, array $customFieldsData, ?Model $tenant = null): array
     {
         // Get the entity type for the model
-        $entityType = EntityTypeService::getEntityFromModel(get_class($record));
+        $entityType = EntityTypeService::getEntityFromModel($record::class);
 
         // Get all relevant custom fields
         $customFields = CustomField::forMorphEntity($entityType)
@@ -69,7 +69,7 @@ final class ValueConverter implements ValueConverterInterface
      */
     private function isSingleValueSelectField(CustomField $field): bool
     {
-        return in_array($field->type, [CustomFieldType::SELECT, CustomFieldType::RADIO]);
+        return in_array($field->type, [CustomFieldType::SELECT, CustomFieldType::RADIO], true);
     }
 
     /**
@@ -85,7 +85,7 @@ final class ValueConverter implements ValueConverterInterface
             CustomFieldType::CHECKBOX_LIST,
             CustomFieldType::TAGS_INPUT,
             CustomFieldType::TOGGLE_BUTTONS,
-        ]);
+        ], true);
     }
 
     /**
@@ -104,7 +104,7 @@ final class ValueConverter implements ValueConverterInterface
 
             // If no match, try case-insensitive match
             if (! $option) {
-                $option = $field->options->first(fn ($opt) => strtolower($opt->name) === strtolower($value)
+                $option = $field->options->first(fn ($opt): bool => strtolower((string) $opt->name) === strtolower($value)
                 );
             }
 
@@ -143,7 +143,7 @@ final class ValueConverter implements ValueConverterInterface
 
                 // If no match, try case-insensitive match
                 if (! $option) {
-                    $option = $field->options->first(fn ($opt) => strtolower($opt->name) === strtolower($singleValue)
+                    $option = $field->options->first(fn ($opt): bool => strtolower((string) $opt->name) === strtolower($singleValue)
                     );
                 }
 
@@ -155,7 +155,7 @@ final class ValueConverter implements ValueConverterInterface
         }
 
         // Update the value if we have matches
-        if (! empty($newValues)) {
+        if ($newValues !== []) {
             $customFieldsData[$field->code] = $newValues;
         }
     }

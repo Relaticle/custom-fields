@@ -29,17 +29,17 @@ final readonly class FieldConfigurator
             ->name("custom_fields.{$customField->code}")
             ->label($customField->name)
             ->afterStateHydrated(fn ($component, $state, $record) => $component->state($this->getFieldValue($customField, $state, $record)))
-            ->dehydrated(fn ($state) => Utils::isConditionalVisibilityFeatureEnabled() && ($this->coreVisibilityLogic->shouldAlwaysSave($customField) || filled($state)))
+            ->dehydrated(fn ($state): bool => Utils::isConditionalVisibilityFeatureEnabled() && ($this->coreVisibilityLogic->shouldAlwaysSave($customField) || filled($state)))
             ->required($this->validationService->isRequired($customField))
             ->rules($this->validationService->getValidationRules($customField))
             ->columnSpan($customField->width->getSpanValue())
             ->when(
                 Utils::isConditionalVisibilityFeatureEnabled() && $this->hasVisibilityConditions($customField),
-                fn (Field $field) => $this->applyVisibility($field, $customField, $allFields)
+                fn (Field $field): Field => $this->applyVisibility($field, $customField, $allFields)
             )
             ->when(
                 Utils::isConditionalVisibilityFeatureEnabled() && filled($dependentFieldCodes),
-                fn (Field $field) => $field->live()
+                fn (Field $field): Field => $field->live()
             );
     }
 
@@ -69,7 +69,7 @@ final readonly class FieldConfigurator
     {
         $jsExpression = $this->frontendVisibilityService->buildVisibilityExpression($customField, $allFields);
 
-        return $jsExpression
+        return $jsExpression !== null && $jsExpression !== '' && $jsExpression !== '0'
             ? $field->live()->visibleJs($jsExpression)
             : $field;
     }

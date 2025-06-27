@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Relaticle\CustomFields\Integration\Tables\Filters;
 
+use Filament\Tables\Filters\BaseFilter;
 use Filament\Resources\RelationManagers\RelationManager;
 use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Database\Eloquent\Model;
@@ -29,7 +30,7 @@ final readonly class CustomFieldsFilter
             ->whereIn('type', CustomFieldType::filterable()->pluck('value'))
             ->nonEncrypted()
             ->get()
-            ->map(fn (CustomField $customField) => $fieldFilterFactory->create($customField))
+            ->map(fn (CustomField $customField): BaseFilter => $fieldFilterFactory->create($customField))
             ->toArray();
     }
 

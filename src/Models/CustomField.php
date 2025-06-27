@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Relaticle\CustomFields\Models;
 
+use Override;
 use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 use Illuminate\Database\Eloquent\Attributes\ScopedBy;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -49,7 +50,7 @@ class CustomField extends Model
     use HasFieldTypeHelpers;
 
     /**
-     * @var array<int, string>
+     * @var array<string>
      */
     protected $guarded = [];
 
@@ -57,9 +58,12 @@ class CustomField extends Model
         'width' => CustomFieldWidth::_100,
     ];
 
+    /**
+     * @param array<string, mixed> $attributes
+     */
     public function __construct(array $attributes = [])
     {
-        if (! isset($this->table)) {
+        if ($this->table === null) {
             $this->setTable(config('custom-fields.table_names.custom_fields'));
         }
 
@@ -74,6 +78,7 @@ class CustomField extends Model
         static::addGlobalScope(new CustomFieldsActivableScope);
     }
 
+    #[Override]
     public function newEloquentBuilder($query): CustomFieldQueryBuilder
     {
         return new CustomFieldQueryBuilder($query);
@@ -96,13 +101,16 @@ class CustomField extends Model
         ];
     }
 
+    /**
+     * @return BelongsTo<CustomFieldSection, $this>
+     */
     public function section(): BelongsTo
     {
         return $this->belongsTo(CustomFields::sectionModel(), 'custom_field_section_id');
     }
 
     /**
-     * @return HasMany<CustomFieldValue>
+     * @return HasMany<CustomFieldValue, $this>
      */
     public function values(): HasMany
     {
@@ -110,7 +118,7 @@ class CustomField extends Model
     }
 
     /**
-     * @return HasMany<CustomFieldOption>
+     * @return HasMany<CustomFieldOption, $this>
      */
     public function options(): HasMany
     {

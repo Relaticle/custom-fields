@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Relaticle\CustomFields\Support;
 
+use Relaticle\CustomFields\Services\FieldTypeRegistryService;
 use Exception;
 use Illuminate\Support\Facades\Log;
 use Relaticle\CustomFields\Enums\CustomFieldType;
@@ -44,8 +45,8 @@ class SafeValueConverter
         }
 
         // Handle custom field types (strings) - determine conversion based on category
-        if (is_string($fieldType) && app()->bound(\Relaticle\CustomFields\Services\FieldTypeRegistryService::class)) {
-            $registry = app(\Relaticle\CustomFields\Services\FieldTypeRegistryService::class);
+        if (app()->bound(FieldTypeRegistryService::class)) {
+            $registry = app(FieldTypeRegistryService::class);
             $fieldTypeConfig = $registry->getFieldType($fieldType);
 
             if ($fieldTypeConfig !== null) {
@@ -77,15 +78,15 @@ class SafeValueConverter
         if (is_string($value) && preg_match('/^-?[0-9.]+(?:e[+-]?[0-9]+)?$/i', $value)) {
             // Convert to float first to handle scientific notation
             $floatVal = (float) $value;
-
             // Check bounds
             if ($floatVal > self::MAX_BIGINT) {
                 Log::warning("Integer value too large for database: {$value}, clamping to max BIGINT");
-
                 return (int) self::MAX_BIGINT;
-            } elseif ($floatVal < self::MIN_BIGINT) {
-                Log::warning("Integer value too small for database: {$value}, clamping to min BIGINT");
+            }
 
+            // Check bounds
+            if ($floatVal < self::MIN_BIGINT) {
+                Log::warning("Integer value too small for database: {$value}, clamping to min BIGINT");
                 return (int) self::MIN_BIGINT;
             }
 
@@ -98,7 +99,8 @@ class SafeValueConverter
             $numericVal = (float) $value;
             if ($numericVal > self::MAX_BIGINT) {
                 return (int) self::MAX_BIGINT;
-            } elseif ($numericVal < self::MIN_BIGINT) {
+            }
+            if ($numericVal < self::MIN_BIGINT) {
                 return (int) self::MIN_BIGINT;
             }
 

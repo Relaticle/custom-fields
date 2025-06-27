@@ -23,18 +23,18 @@ abstract class AbstractOptionsService
     public static function getOptions(): Collection
     {
         return static::getFilteredResources()
-            ->mapWithKeys(fn (string $resource) => static::mapResourceToOption($resource));
+            ->mapWithKeys(fn (string $resource): array => static::mapResourceToOption($resource));
     }
 
     public static function getDefaultOption(): string
     {
-        return static::getOptions()->keys()->first() ?: '';
+        return static::getOptions()->keys()->first() ?? '';
     }
 
     protected static function getFilteredResources(): Collection
     {
         return collect(Filament::getResources())
-            ->reject(fn (string $resource) => static::shouldRejectResource($resource));
+            ->reject(fn (string $resource): bool => static::shouldRejectResource($resource));
     }
 
     protected static function shouldRejectResource(string $resource): bool
@@ -64,7 +64,7 @@ abstract class AbstractOptionsService
             $modelInstance = app($model);
 
             return $modelInstance->getMorphClass();
-        } catch (Exception $e) {
+        } catch (Exception) {
             return $model;
         }
     }

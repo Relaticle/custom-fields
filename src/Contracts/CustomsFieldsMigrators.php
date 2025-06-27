@@ -15,12 +15,18 @@ interface CustomsFieldsMigrators
 
     public function new(string $model, CustomFieldData $fieldData): CustomsFieldsMigrators;
 
+    /**
+     * @param array<int|string, mixed> $options
+     */
     public function options(array $options): CustomsFieldsMigrators;
 
     public function lookupType(string $model): CustomsFieldsMigrators;
 
     public function create(): CustomField;
 
+    /**
+     * @param array<string, mixed> $data
+     */
     public function update(array $data): void;
 
     public function delete(): void;

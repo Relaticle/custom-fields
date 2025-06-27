@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Relaticle\CustomFields\Models;
 
+use Relaticle\CustomFields\Services\FieldTypeRegistryService;
 use Illuminate\Database\Eloquent\Attributes\ScopedBy;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -22,7 +23,7 @@ use Relaticle\CustomFields\Support\SafeValueConverter;
  * @property ?string $text_value
  * @property ?int $integer_value
  * @property ?float $float_value
- * @property ?Collection $json_value
+ * @property ?Collection<int, mixed> $json_value
  * @property ?bool $boolean_value
  * @property ?Carbon $date_value
  * @property ?Carbon $datetime_value
@@ -37,9 +38,12 @@ class CustomFieldValue extends Model
 
     protected $guarded = [];
 
+    /**
+     * @param array<string, mixed> $attributes
+     */
     public function __construct(array $attributes = [])
     {
-        if (! isset($this->table)) {
+        if ($this->table === null) {
             $this->setTable(config('custom-fields.table_names.custom_field_values'));
         }
 
@@ -82,8 +86,8 @@ class CustomFieldValue extends Model
         }
 
         // Handle custom field types (strings) - determine column based on category
-        if (is_string($type) && app()->bound(\Relaticle\CustomFields\Services\FieldTypeRegistryService::class)) {
-            $registry = app(\Relaticle\CustomFields\Services\FieldTypeRegistryService::class);
+        if (app()->bound(FieldTypeRegistryService::class)) {
+            $registry = app(FieldTypeRegistryService::class);
             $fieldTypeConfig = $registry->getFieldType($type);
 
             if ($fieldTypeConfig !== null) {
@@ -104,7 +108,7 @@ class CustomFieldValue extends Model
     }
 
     /**
-     * @return BelongsTo<CustomField, CustomFieldValue>
+     * @return BelongsTo<CustomField, $this>
      */
     public function customField(): BelongsTo
     {
@@ -112,7 +116,7 @@ class CustomFieldValue extends Model
     }
 
     /**
-     * @return MorphTo<Model, CustomFieldValue>
+     * @return MorphTo<Model, $this>
      */
     public function entity(): MorphTo
     {
@@ -121,14 +125,14 @@ class CustomFieldValue extends Model
 
     public function getValue(): mixed
     {
-        $column = $this->getValueColumn($this->customField->type);
+        $column = static::getValueColumn($this->customField->type);
 
         return $this->$column;
     }
 
     public function setValue(mixed $value): void
     {
-        $column = $this->getValueColumn($this->customField->type);
+        $column = static::getValueColumn($this->customField->type);
 
         // Convert the value to a database-safe format based on the field type
         $safeValue = SafeValueConverter::toDbSafe(

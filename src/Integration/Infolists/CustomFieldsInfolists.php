@@ -4,6 +4,10 @@ declare(strict_types=1);
 
 namespace Relaticle\CustomFields\Integration\Infolists;
 
+use Filament\Infolists\Components\Entry;
+use Filament\Schemas\Components\Section;
+use Filament\Schemas\Components\Fieldset;
+use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Components\Component;
 use Relaticle\CustomFields\CustomFields;
 use Relaticle\CustomFields\Models\CustomField;
@@ -20,7 +24,7 @@ final class CustomFieldsInfolists extends Component
         private readonly BackendVisibilityService $visibilityService
     ) {
         // Defer schema generation until we can safely access the record
-        $this->schema(fn () => $this->generateSchema());
+        $this->schema(fn (): array => $this->generateSchema());
     }
 
     public static function make(): static
@@ -31,7 +35,7 @@ final class CustomFieldsInfolists extends Component
     /**
      * @return array<int, Component>
      */
-    protected function generateSchema(): array
+    private function generateSchema(): array
     {
         $record = $this->getRecord();
 
@@ -49,7 +53,7 @@ final class CustomFieldsInfolists extends Component
             ->get();
 
         return $sections
-            ->map(function (CustomFieldSection $section) use ($record) {
+            ->map(function (CustomFieldSection $section) use ($record): null|Section|Fieldset|Grid {
                 // Filter fields to only those that should be visible based on conditional visibility
                 $visibleFields = $this->visibilityService->getVisibleFields($record, $section->fields);
 
@@ -59,11 +63,7 @@ final class CustomFieldsInfolists extends Component
                 }
 
                 return $this->sectionInfolistsFactory->create($section)->schema(
-                    function () use ($visibleFields) {
-                        return $visibleFields->map(function (CustomField $customField) {
-                            return $this->fieldInfolistsFactory->create($customField)->name('custom_fields_'.$customField->code);
-                        })->toArray();
-                    }
+                    fn() => $visibleFields->map(fn(CustomField $customField): Entry => $this->fieldInfolistsFactory->create($customField)->name('custom_fields_'.$customField->code))->toArray()
                 );
             })
             ->filter() // Remove null entries (sections with no visible fields)

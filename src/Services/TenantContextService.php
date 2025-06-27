@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\Context;
 
 class TenantContextService
 {
-    private const TENANT_ID_KEY = 'custom_fields_tenant_id';
+    private const string TENANT_ID_KEY = 'custom_fields_tenant_id';
 
     /**
      * Set the tenant ID in the context.
@@ -38,7 +38,7 @@ class TenantContextService
 
         // Fallback to Filament tenant (works in web requests)
         $filamentTenant = Filament::getTenant();
-        if ($filamentTenant !== null && isset($filamentTenant->id)) {
+        if ($filamentTenant !== null && (property_exists($filamentTenant, 'id') && $filamentTenant->id !== null)) {
             return $filamentTenant->id;
         }
 
@@ -52,7 +52,7 @@ class TenantContextService
     public static function setFromFilamentTenant(): void
     {
         $tenant = Filament::getTenant();
-        if ($tenant !== null && isset($tenant->id)) {
+        if ($tenant !== null && (property_exists($tenant, 'id') && $tenant->id !== null)) {
             self::setTenantId($tenant->id);
         }
     }

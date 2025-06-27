@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Relaticle\CustomFields\Integration\Actions\Imports\ColumnConfigurators;
 
+use Illuminate\Database\Eloquent\Model;
 use Filament\Actions\Imports\Exceptions\RowImportFailedException;
 use Filament\Actions\Imports\ImportColumn;
 use Relaticle\CustomFields\Integration\Actions\Imports\Matchers\LookupMatcherInterface;
@@ -14,13 +15,13 @@ use Throwable;
 /**
  * Configures select columns that use either lookup relationships or options.
  */
-final class SelectColumnConfigurator implements ColumnConfiguratorInterface
+final readonly class SelectColumnConfigurator implements ColumnConfiguratorInterface
 {
     /**
      * Constructor with dependency injection.
      */
     public function __construct(
-        private readonly LookupMatcherInterface $lookupMatcher
+        private LookupMatcherInterface $lookupMatcher
     ) {}
 
     /**
@@ -47,7 +48,7 @@ final class SelectColumnConfigurator implements ColumnConfiguratorInterface
     private function configureLookupColumn(ImportColumn $column, CustomField $customField): void
     {
         // Configure column to use lookup relationship
-        $column->castStateUsing(function ($state) use ($customField) {
+        $column->castStateUsing(function ($state) use ($customField): ?int {
             if (blank($state)) {
                 return null;
             }
@@ -61,7 +62,7 @@ final class SelectColumnConfigurator implements ColumnConfiguratorInterface
                         value: (string) $state
                     );
 
-                if ($record) {
+                if ($record instanceof Model) {
                     return (int) $record->getKey();
                 }
 
@@ -105,7 +106,7 @@ final class SelectColumnConfigurator implements ColumnConfiguratorInterface
             // If no match, try case-insensitive match
             if (! $option) {
                 $option = $customField->options
-                    ->first(fn ($opt) => strtolower($opt->name) === strtolower($state));
+                    ->first(fn ($opt): bool => strtolower((string) $opt->name) === strtolower($state));
             }
 
             if (! $option) {
@@ -140,7 +141,7 @@ final class SelectColumnConfigurator implements ColumnConfiguratorInterface
                 ->pluck($recordTitleAttribute)
                 ->toArray();
 
-            if (! empty($sampleValues)) {
+            if ($sampleValues !== []) {
                 $column->example($sampleValues[0]);
             }
         } catch (Throwable) {
@@ -159,7 +160,7 @@ final class SelectColumnConfigurator implements ColumnConfiguratorInterface
     {
         $options = $customField->options->pluck('name')->toArray();
 
-        if (! empty($options)) {
+        if ($options !== []) {
             $column->example($options[0]);
             $column->helperText('Valid options: '.implode(', ', $options));
         }

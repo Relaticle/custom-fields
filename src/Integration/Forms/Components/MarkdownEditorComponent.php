@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Relaticle\CustomFields\Integration\Forms\Components;
 
+use Exception;
 use Filament\Forms\Components\Field;
 use Filament\Forms\Components\MarkdownEditor;
 use Illuminate\Support\Collection;
@@ -17,7 +18,7 @@ final readonly class MarkdownEditorComponent implements FieldComponentInterface
     /**
      * @param  array<string>  $dependentFieldCodes
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function make(CustomField $customField, array $dependentFieldCodes = [], ?Collection $allFields = null): Field
     {

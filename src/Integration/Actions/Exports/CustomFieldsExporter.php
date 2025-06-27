@@ -24,7 +24,7 @@ readonly class CustomFieldsExporter
             ->get();
 
         return $allFields
-            ->map(fn (CustomField $customField) => self::create($customField, $valueResolver, $visibilityService, $allFields))
+            ->map(fn (CustomField $customField): ExportColumn => self::create($customField, $valueResolver, $visibilityService, $allFields))
             ->toArray();
     }
 

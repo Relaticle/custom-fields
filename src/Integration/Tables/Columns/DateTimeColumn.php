@@ -42,13 +42,13 @@ class DateTimeColumn extends Component implements ColumnInterface
             )
             ->searchable(
                 condition: $customField->settings->searchable,
-                query: fn (Builder $query, string $search) => (new ColumnSearchableQuery)->builder($query, $customField, $search),
+                query: fn (Builder $query, string $search): Builder => (new ColumnSearchableQuery)->builder($query, $customField, $search),
             )
             ->label($customField->name)
             ->getStateUsing(function ($record) use ($customField) {
                 $value = $record->getCustomFieldValue($customField);
 
-                if ($this->locale) {
+                if ($this->locale instanceof Closure) {
                     $value = $this->locale->call($this, $value);
                 }
 

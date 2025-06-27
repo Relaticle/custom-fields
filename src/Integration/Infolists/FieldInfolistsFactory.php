@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Relaticle\CustomFields\Integration\Infolists;
 
+use BackedEnum;
 use Filament\Infolists\Components\Entry;
 use Illuminate\Contracts\Container\Container;
 use InvalidArgumentException;
@@ -26,7 +27,7 @@ final class FieldInfolistsFactory
     public function create(CustomField $customField): Entry
     {
         // Handle both enum and string types
-        $customFieldType = $customField->type instanceof \BackedEnum
+        $customFieldType = $customField->type instanceof BackedEnum
             ? $customField->type->value
             : $customField->type;
 

@@ -24,7 +24,7 @@ enum FieldCategory: string
         return in_array($this, [
             self::SINGLE_OPTION,
             self::MULTI_OPTION,
-        ]);
+        ], true);
     }
 
     /**
@@ -37,6 +37,8 @@ enum FieldCategory: string
 
     /**
      * Get compatible operators for this field category.
+     * 
+     * @return array<int, Operator>
      */
     public function getCompatibleOperators(): array
     {
@@ -79,6 +81,8 @@ enum FieldCategory: string
 
     /**
      * Get operator values formatted for Filament select options.
+     * 
+     * @return array<string, string>
      */
     public function getCompatibleOperatorOptions(): array
     {

@@ -26,7 +26,7 @@ final readonly class SingleValueEntry implements FieldInfolistsComponentInterfac
 
         if (Utils::isSelectOptionColorsFeatureEnabled() && $customField->settings->enable_option_colors && ! $customField->lookup_type) {
             $entry->badge()
-                ->color(function ($state) use ($customField): ?array {
+                ->color(function ($state) use ($customField): array {
                     $color = $customField->options->where('name', $state)->first()?->settings->color;
 
                     return Color::hex($color ?? '#000000');
@@ -37,6 +37,6 @@ final readonly class SingleValueEntry implements FieldInfolistsComponentInterfac
             $entry,
             $customField
         )
-            ->state(fn ($record) => $this->valueResolver->resolve($record, $customField));
+            ->state(fn ($record): string => $this->valueResolver->resolve($record, $customField));
     }
 }

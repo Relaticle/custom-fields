@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Relaticle\CustomFields\Filament\Pages;
 
+use BackedEnum;
+use Override;
 use Filament\Actions\Action;
 use Filament\Facades\Filament;
 use Filament\Pages\Page;
@@ -24,7 +26,7 @@ use Relaticle\CustomFields\Support\Utils;
 
 class CustomFieldsPage extends Page
 {
-    protected static string|\BackedEnum|null $navigationIcon = 'heroicon-m-document-text';
+    protected static string|BackedEnum|null $navigationIcon = 'heroicon-m-document-text';
 
     protected string $view = 'custom-fields::filament.pages.custom-fields-next';
 
@@ -35,7 +37,7 @@ class CustomFieldsPage extends Page
     #[Url(history: true, keep: true)]
     public $currentEntityType;
 
-    public function mount()
+    public function mount(): void
     {
         if (! $this->currentEntityType) {
             $this->setCurrentEntityType(EntityTypeService::getDefaultOption());
@@ -49,7 +51,7 @@ class CustomFieldsPage extends Page
             ->withDeactivated()
             ->forEntityType($this->currentEntityType)
             ->with([
-                'fields' => function ($query) {
+                'fields' => function ($query): void {
                     $query->forMorphEntity($this->currentEntityType)
                         ->orderBy('sort_order');
                 },
@@ -82,7 +84,7 @@ class CustomFieldsPage extends Page
                 'class' => 'flex justify-center items-center rounded-lg border-gray-300 hover:border-gray-400 border-dashed',
             ])
             ->schema(SectionForm::entityType($this->currentEntityType)->schema())
-            ->action(fn (array $data) => $this->storeSection($data))
+            ->action(fn (array $data): CustomFieldSection => $this->storeSection($data))
             ->modalWidth(Width::TwoExtraLarge);
     }
 
@@ -118,16 +120,19 @@ class CustomFieldsPage extends Page
         $this->sections = $this->sections->filter(fn ($section) => $section->exists);
     }
 
+    #[Override]
     public static function getCluster(): ?string
     {
         return Utils::getResourceCluster() ?? static::$cluster;
     }
 
+    #[Override]
     public static function shouldRegisterNavigation(): bool
     {
         return Utils::isResourceNavigationRegistered();
     }
 
+    #[Override]
     public static function getNavigationGroup(): ?string
     {
         return Utils::isResourceNavigationGroupEnabled()
@@ -135,21 +140,25 @@ class CustomFieldsPage extends Page
             : '';
     }
 
+    #[Override]
     public static function getNavigationLabel(): string
     {
         return __('custom-fields::custom-fields.nav.label');
     }
 
+    #[Override]
     public static function getNavigationIcon(): string
     {
         return __('custom-fields::custom-fields.nav.icon');
     }
 
+    #[Override]
     public function getHeading(): string
     {
         return __('custom-fields::custom-fields.heading.title');
     }
 
+    #[Override]
     public static function getNavigationSort(): ?int
     {
         return Utils::getResourceNavigationSort();

@@ -32,7 +32,7 @@ final readonly class SelectFilter implements FilterInterface
         $filter->query(
             fn (array $data, Builder $query): Builder => $query->when(
                 ! empty($data['values']),
-                fn (Builder $query): Builder => $query->whereHas('customFieldValues', function (Builder $query) use ($customField, $data) {
+                fn (Builder $query): Builder => $query->whereHas('customFieldValues', function (Builder $query) use ($customField, $data): void {
                     $query->where('custom_field_id', $customField->id)
                         ->when($customField->getValueColumn() === 'json_value', fn (Builder $query) => $query->whereJsonContains($customField->getValueColumn(), $data['values']))
                         ->when($customField->getValueColumn() !== 'json_value', fn (Builder $query) => $query->whereIn($customField->getValueColumn(), $data['values']));
@@ -46,7 +46,7 @@ final readonly class SelectFilter implements FilterInterface
     /**
      * @throws Throwable
      */
-    protected function configureLookup(FilamentSelectFilter $select, $lookupType): FilamentSelectFilter
+    private function configureLookup(FilamentSelectFilter $select, string $lookupType): FilamentSelectFilter
     {
         $resource = FilamentResourceService::getResourceInstance($lookupType);
         $entityInstance = FilamentResourceService::getModelInstance($lookupType);

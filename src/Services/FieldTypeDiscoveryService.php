@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Relaticle\CustomFields\Services;
 
+use Throwable;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\File;
 use ReflectionClass;
@@ -38,7 +39,7 @@ final class FieldTypeDiscoveryService
 
                 $fieldType = $this->loadFieldTypeFromFile($file->getPathname());
 
-                if ($fieldType !== null) {
+                if ($fieldType instanceof FieldTypeDefinitionInterface) {
                     $fieldTypes->push($fieldType);
                 }
             }
@@ -97,7 +98,7 @@ final class FieldTypeDiscoveryService
         $classes = $config['classes'] ?? [];
         foreach ($classes as $className) {
             $fieldType = $this->loadFieldTypeFromClass($className);
-            if ($fieldType !== null) {
+            if ($fieldType instanceof FieldTypeDefinitionInterface) {
                 $fieldTypes->push($fieldType);
             }
         }
@@ -119,7 +120,7 @@ final class FieldTypeDiscoveryService
             if ($lastClass && class_exists($lastClass)) {
                 return $this->loadFieldTypeFromClass($lastClass);
             }
-        } catch (\Throwable $e) {
+        } catch (Throwable) {
             // Silently skip files that can't be loaded
         }
 
@@ -147,7 +148,7 @@ final class FieldTypeDiscoveryService
             }
 
             return $reflection->newInstance();
-        } catch (\Throwable $e) {
+        } catch (Throwable) {
             // Silently skip classes that can't be instantiated
         }
 
@@ -178,7 +179,7 @@ final class FieldTypeDiscoveryService
 
         // Try to find partial matches
         foreach ($psr4Map as $prefix => $paths) {
-            if (str_starts_with($namespace, $prefix)) {
+            if (str_starts_with($namespace, (string) $prefix)) {
                 $relativePath = str_replace($prefix, '', $namespace);
                 $basePath = is_array($paths) ? $paths[0] : $paths;
 

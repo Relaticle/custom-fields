@@ -23,8 +23,8 @@ class OptimizeDatabaseCommand extends Command
 
     /**
      * The console command description.
-     *
-     * @var string
+     * 
+     * @var string|null
      */
     protected $description = 'Optimize custom fields database columns for better performance and constraint compliance';
 
@@ -106,7 +106,7 @@ class OptimizeDatabaseCommand extends Command
      *
      * @param  string  $table  The table name
      * @param  string  $driver  The database driver
-     * @return array Column information
+     * @return array<int, array{column: string, current_type: string, recommended_type: string, status: string}>
      */
     private function getColumnInformation(string $table, string $driver): array
     {
@@ -168,7 +168,7 @@ class OptimizeDatabaseCommand extends Command
                             'column' => $column->name,
                             'current_type' => $column->type,
                             'recommended_type' => $recommendedType,
-                            'status' => strtolower($column->type) === strtolower($recommendedType) ? 'Optimal' : 'Needs Optimization',
+                            'status' => strtolower((string) $column->type) === strtolower($recommendedType) ? 'Optimal' : 'Needs Optimization',
                         ];
                     }
                 }
@@ -182,7 +182,7 @@ class OptimizeDatabaseCommand extends Command
      * Update columns to their recommended types.
      *
      * @param  string  $table  The table name
-     * @param  array  $columns  Column information
+     * @param  array<int, array{column: string, current_type: string, recommended_type: string, status: string}>  $columns  Column information
      * @param  string  $driver  Database driver
      */
     private function updateColumns(string $table, array $columns, string $driver): void
@@ -203,7 +203,7 @@ class OptimizeDatabaseCommand extends Command
         }
 
         // Perform the optimization
-        Schema::table($table, function (Blueprint $table) use ($columns, $driver) {
+        Schema::table($table, function (Blueprint $table) use ($columns, $driver): void {
             foreach ($columns as $column) {
                 if ($column['status'] === 'Needs Optimization') {
                     $this->info("Optimizing column {$column['column']} from {$column['current_type']} to {$column['recommended_type']}...");
@@ -251,7 +251,7 @@ class OptimizeDatabaseCommand extends Command
                     DB::statement("ALTER TABLE {$table->getTable()} ALTER COLUMN {$columnName} TYPE DECIMAL(30,15)");
                 } else {
                     // SQLite doesn't support precision modification
-                    $table->float($columnName, 30, 15)->nullable()->change();
+                    $table->float($columnName, 30)->nullable()->change();
                 }
                 break;
 
@@ -278,7 +278,7 @@ class OptimizeDatabaseCommand extends Command
             'date_value',
             'datetime_value',
             'json_value',
-        ]);
+        ], true);
     }
 
     /**
@@ -290,58 +290,48 @@ class OptimizeDatabaseCommand extends Command
      */
     private function getRecommendedType(string $columnName, string $driver): string
     {
-        switch ($driver) {
-            case 'mysql':
-                $types = [
-                    'string_value' => 'varchar(255)',
-                    'text_value' => 'longtext',
-                    'integer_value' => 'bigint',
-                    'float_value' => 'decimal(30,15)',
-                    'boolean_value' => 'tinyint(1)',
-                    'date_value' => 'date',
-                    'datetime_value' => 'datetime',
-                    'json_value' => 'json',
-                ];
-                break;
-
-            case 'pgsql':
-                $types = [
-                    'string_value' => 'character varying(255)',
-                    'text_value' => 'text',
-                    'integer_value' => 'bigint',
-                    'float_value' => 'numeric(30,15)',
-                    'boolean_value' => 'boolean',
-                    'date_value' => 'date',
-                    'datetime_value' => 'timestamp without time zone',
-                    'json_value' => 'jsonb',
-                ];
-                break;
-
-            case 'sqlite':
-                $types = [
-                    'string_value' => 'varchar',
-                    'text_value' => 'text',
-                    'integer_value' => 'integer',
-                    'float_value' => 'real',
-                    'boolean_value' => 'boolean',
-                    'date_value' => 'date',
-                    'datetime_value' => 'datetime',
-                    'json_value' => 'text', // SQLite stores JSON as text
-                ];
-                break;
-
-            default:
-                $types = [
-                    'string_value' => 'varchar(255)',
-                    'text_value' => 'text',
-                    'integer_value' => 'bigint',
-                    'float_value' => 'decimal(30,15)',
-                    'boolean_value' => 'boolean',
-                    'date_value' => 'date',
-                    'datetime_value' => 'datetime',
-                    'json_value' => 'json',
-                ];
-        }
+        $types = match ($driver) {
+            'mysql' => [
+                'string_value' => 'varchar(255)',
+                'text_value' => 'longtext',
+                'integer_value' => 'bigint',
+                'float_value' => 'decimal(30,15)',
+                'boolean_value' => 'tinyint(1)',
+                'date_value' => 'date',
+                'datetime_value' => 'datetime',
+                'json_value' => 'json',
+            ],
+            'pgsql' => [
+                'string_value' => 'character varying(255)',
+                'text_value' => 'text',
+                'integer_value' => 'bigint',
+                'float_value' => 'numeric(30,15)',
+                'boolean_value' => 'boolean',
+                'date_value' => 'date',
+                'datetime_value' => 'timestamp without time zone',
+                'json_value' => 'jsonb',
+            ],
+            'sqlite' => [
+                'string_value' => 'varchar',
+                'text_value' => 'text',
+                'integer_value' => 'integer',
+                'float_value' => 'real',
+                'boolean_value' => 'boolean',
+                'date_value' => 'date',
+                'datetime_value' => 'datetime',
+                'json_value' => 'text', // SQLite stores JSON as text
+            ],
+            default => [
+                'string_value' => 'varchar(255)',
+                'text_value' => 'text',
+                'integer_value' => 'bigint',
+                'float_value' => 'decimal(30,15)',
+                'boolean_value' => 'boolean',
+                'date_value' => 'date',
+                'datetime_value' => 'datetime',
+                'json_value' => 'json',
+            ],
+        };
 
         return $types[$columnName] ?? 'unknown';
     }

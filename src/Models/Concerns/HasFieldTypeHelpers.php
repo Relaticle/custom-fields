@@ -70,6 +70,8 @@ trait HasFieldTypeHelpers
 
     /**
      * Get compatible operators for this field type.
+     *
+     * @return array<int, string>
      */
     public function getFieldTypeCompatibleOperators(): array
     {

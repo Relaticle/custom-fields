@@ -2,6 +2,18 @@
 
 declare(strict_types=1);
 
+use Relaticle\CustomFields\Models\CustomField;
+use Relaticle\CustomFields\Models\CustomFieldSection;
+use Relaticle\CustomFields\Models\CustomFieldOption;
+use Relaticle\CustomFields\Models\CustomFieldValue;
+use Relaticle\CustomFields\Tests\Fixtures\Resources\Posts\PostResource;
+use Illuminate\Database\Eloquent\Factories\Factory;
+use Relaticle\CustomFields\Tests\Fixtures\Models\Post;
+use Relaticle\CustomFields\Models\Concerns\UsesCustomFields;
+use Relaticle\CustomFields\Commands\FilamentCustomFieldCommand;
+use Relaticle\CustomFields\Commands\OptimizeDatabaseCommand;
+use Relaticle\CustomFields\Commands\UpgradeCommand;
+use Spatie\LaravelData\Data;
 use Filament\Resources\Pages\Page;
 use Filament\Resources\Resource;
 use Illuminate\Database\Eloquent\Model;
@@ -9,15 +21,15 @@ use Relaticle\CustomFields\Models\Contracts\HasCustomFields;
 
 arch('Models extend Eloquent Model')
     ->expect([
-        'Relaticle\CustomFields\Models\CustomField',
-        'Relaticle\CustomFields\Models\CustomFieldSection',
-        'Relaticle\CustomFields\Models\CustomFieldOption',
-        'Relaticle\CustomFields\Models\CustomFieldValue',
+        CustomField::class,
+        CustomFieldSection::class,
+        CustomFieldOption::class,
+        CustomFieldValue::class,
     ])
     ->toExtend(Model::class);
 
 arch('Filament Resource extends base Resource')
-    ->expect('Relaticle\CustomFields\Tests\Fixtures\Resources\Posts\PostResource')
+    ->expect(PostResource::class)
     ->toExtend(Resource::class);
 
 arch('Filament Resource Pages extend base Page')
@@ -34,12 +46,12 @@ arch('Enums are backed by strings or integers')
 
 arch('Factories extend Laravel Factory')
     ->expect('Relaticle\CustomFields\Database\Factories')
-    ->toExtend(Illuminate\Database\Eloquent\Factories\Factory::class);
+    ->toExtend(Factory::class);
 
 arch('Custom field models implement HasCustomFields contract')
-    ->expect('Relaticle\CustomFields\Tests\Fixtures\Models\Post')
+    ->expect(Post::class)
     ->toImplement(HasCustomFields::class)
-    ->toUse('Relaticle\CustomFields\Models\Concerns\UsesCustomFields');
+    ->toUse(UsesCustomFields::class);
 
 arch('Observers follow naming convention')
     ->expect('Relaticle\CustomFields\Observers')
@@ -55,9 +67,9 @@ arch('Exceptions follow naming convention')
 
 arch('Main commands follow naming convention')
     ->expect([
-        'Relaticle\CustomFields\Commands\FilamentCustomFieldCommand',
-        'Relaticle\CustomFields\Commands\OptimizeDatabaseCommand',
-        'Relaticle\CustomFields\Commands\UpgradeCommand',
+        FilamentCustomFieldCommand::class,
+        OptimizeDatabaseCommand::class,
+        UpgradeCommand::class,
     ])
     ->toHaveSuffix('Command');
 
@@ -67,4 +79,4 @@ arch('Jobs follow proper structure')
 
 arch('Data objects extend Spatie Data')
     ->expect('Relaticle\CustomFields\Data')
-    ->toExtend('Spatie\LaravelData\Data');
+    ->toExtend(Data::class);

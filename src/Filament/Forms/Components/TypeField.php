@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Relaticle\CustomFields\Filament\Forms\Components;
 
+use Override;
 use Filament\Forms\Components\Select;
 use Illuminate\Support\Facades\Cache;
 use Relaticle\CustomFields\Enums\CustomFieldType;
@@ -14,6 +15,7 @@ class TypeField extends Select
     /**
      * Set up the component with a custom configuration.
      */
+    #[Override]
     protected function setUp(): void
     {
         parent::setUp();
@@ -37,7 +39,7 @@ class TypeField extends Select
         }
 
         return CustomFieldType::optionsForSelect()
-            ->filter(fn (array $data): bool => stripos($data['label'], $search) !== false)
+            ->filter(fn (array $data): bool => stripos((string) $data['label'], $search) !== false)
             ->mapWithKeys(
                 fn (array $data): array => [
                     $data['value'] => $this->getHtmlOption($data),
