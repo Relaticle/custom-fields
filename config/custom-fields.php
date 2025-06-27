@@ -11,6 +11,9 @@ return [
     |
     */
     'features' => [
+        'conditional_visibility' => [
+            'enabled' => true,
+        ],
         'encryption' => [
             'enabled' => true,
         ],

@@ -1,5 +1,5 @@
 {
-    "name": "relaticle/custom-fields",
+    "name": "relaticle/flexfields",
     "description": "User Defined Custom Fields for Laravel Filament",
     "keywords": [
         "manukminasyan",
@@ -28,13 +28,14 @@
         "postare/blade-mdi": "^1.0"
     },
     "require-dev": {
+        "larastan/larastan": "^3.0",
         "laravel/pint": "^1.0",
         "nunomaduro/collision": "^8.1",
-        "larastan/larastan": "^3.0",
         "orchestra/testbench": "^9.0",
         "pestphp/pest": "^3.0",
         "pestphp/pest-plugin-arch": "^3.0",
         "pestphp/pest-plugin-laravel": "^3.0",
+        "pestphp/pest-plugin-livewire": "^3.0",
         "phpstan/extension-installer": "^1.4",
         "phpstan/phpstan-deprecation-rules": "^2.0",
         "phpstan/phpstan-phpunit": "^2.0",
@@ -76,5 +77,5 @@
         }
     },
     "minimum-stability": "beta",
-    "prefer-stable": false
+    "prefer-stable": true
 }

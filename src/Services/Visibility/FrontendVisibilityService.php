@@ -1,0 +1,411 @@
+<?php
+
+declare(strict_types=1);
+
+namespace Relaticle\CustomFields\Services\Visibility;
+
+use Illuminate\Support\Collection;
+use Illuminate\Support\Str;
+use Relaticle\CustomFields\Data\VisibilityConditionData;
+use Relaticle\CustomFields\Enums\Logic;
+use Relaticle\CustomFields\Enums\Mode;
+use Relaticle\CustomFields\Enums\Operator;
+use Relaticle\CustomFields\Models\CustomField;
+
+/**
+ * Frontend Visibility Service
+ *
+ * Generates JavaScript expressions for visibleJs using the CoreVisibilityLogicService.
+ * This ensures that frontend visibility logic is identical to backend logic by
+ * using the same source of truth for all visibility rules.
+ *
+ * CRITICAL: This service translates the core logic into JavaScript expressions
+ * that produce identical results to the backend PHP evaluation.
+ */
+final readonly class FrontendVisibilityService
+{
+    public function __construct(private CoreVisibilityLogicService $coreLogic) {}
+
+    /**
+     * Build visibility expression for a field using core logic.
+     * This is the main method that generates visibleJs expressions.
+     */
+    public function buildVisibilityExpression(CustomField $field, ?Collection $allFields): ?string
+    {
+        if (! $this->coreLogic->hasVisibilityConditions($field) || ! $allFields) {
+            return null;
+        }
+
+        $conditions = collect([
+            $this->buildParentConditions($field, $allFields),
+            $this->buildFieldConditions($field, $allFields),
+        ])
+            ->filter()
+            ->map(fn ($condition) => "({$condition})");
+
+        return $conditions->isNotEmpty() ? $conditions->implode(' && ') : null;
+    }
+
+    /**
+     * Build field conditions using core visibility logic.
+     */
+    private function buildFieldConditions(CustomField $field, Collection $allFields): ?string
+    {
+        $conditions = $this->coreLogic->getVisibilityConditions($field);
+
+        if (empty($conditions)) {
+            return null;
+        }
+
+        $mode = $this->coreLogic->getVisibilityMode($field);
+        $logic = $this->coreLogic->getVisibilityLogic($field);
+
+        $jsConditions = collect($conditions)
+            ->filter(fn ($condition) => $allFields->contains('code', $condition['field_code']))
+            ->map(fn ($condition) => $this->buildCondition($condition, $mode, $allFields))
+            ->filter()
+            ->values();
+
+        if ($jsConditions->isEmpty()) {
+            return null;
+        }
+
+        $operator = $logic === Logic::ALL ? ' && ' : ' || ';
+
+        return $jsConditions->implode($operator);
+    }
+
+    /**
+     * Build parent conditions for cascading visibility.
+     */
+    private function buildParentConditions(CustomField $field, Collection $allFields): ?string
+    {
+        $dependentFields = $this->coreLogic->getDependentFields($field);
+
+        if (empty($dependentFields)) {
+            return null;
+        }
+
+        $parentConditions = collect($dependentFields)
+            ->map(fn ($code) => $allFields->firstWhere('code', $code))
+            ->filter()
+            ->filter(fn ($parentField) => $this->coreLogic->hasVisibilityConditions($parentField))
+            ->map(fn ($parentField) => $this->buildFieldConditions($parentField, $allFields))
+            ->filter();
+
+        return $parentConditions->isNotEmpty() ? $parentConditions->implode(' && ') : null;
+    }
+
+    /**
+     * Build a single condition using core logic rules.
+     */
+    private function buildCondition(array $conditionData, Mode $mode, Collection $allFields): ?string
+    {
+        $condition = new VisibilityConditionData(
+            field_code: $conditionData['field_code'],
+            operator: Operator::from($conditionData['operator']),
+            value: $conditionData['value']
+        );
+
+        $targetField = $allFields->firstWhere('code', $condition->field_code);
+        $fieldValue = "\$get('custom_fields.{$condition->field_code}')";
+
+        $expression = $this->buildOperatorExpression(
+            $condition->operator,
+            $fieldValue,
+            $condition->value,
+            $targetField
+        );
+
+        if (! $expression) {
+            return null;
+        }
+
+        // Apply mode logic using core service
+        return $mode === Mode::SHOW_WHEN ? $expression : "!({$expression})";
+    }
+
+    /**
+     * Build operator expression using the same logic as backend evaluation.
+     */
+    private function buildOperatorExpression(Operator $operator, string $fieldValue, mixed $value, ?CustomField $targetField): ?string
+    {
+        // Validate operator compatibility using core logic
+        if ($targetField && ! $this->coreLogic->isOperatorCompatible($operator, $targetField)) {
+            return null;
+        }
+
+        return match ($operator) {
+            Operator::EQUALS => $this->buildEqualsExpression($fieldValue, $value, $targetField),
+            Operator::NOT_EQUALS => $this->buildNotEqualsExpression($fieldValue, $value, $targetField),
+            Operator::CONTAINS => $this->buildContainsExpression($fieldValue, $value, $targetField),
+            Operator::NOT_CONTAINS => transform(
+                $this->buildContainsExpression($fieldValue, $value, $targetField),
+                fn ($expr) => "!({$expr})"
+            ),
+            Operator::GREATER_THAN => $this->buildNumericComparison($fieldValue, $value, '>'),
+            Operator::LESS_THAN => $this->buildNumericComparison($fieldValue, $value, '<'),
+            Operator::IS_EMPTY => $this->buildEmptyExpression($fieldValue, true),
+            Operator::IS_NOT_EMPTY => $this->buildEmptyExpression($fieldValue, false),
+        };
+    }
+
+    /**
+     * Build equals expression with optionable field support.
+     */
+    private function buildEqualsExpression(string $fieldValue, mixed $value, ?CustomField $targetField): string
+    {
+        return when(
+            $targetField?->type?->isOptionable(),
+            fn () => $this->buildOptionExpression($fieldValue, $value, $targetField, 'equals'),
+            fn () => $this->buildStandardEqualsExpression($fieldValue, $value)
+        );
+    }
+
+    /**
+     * Build not equals expression.
+     */
+    private function buildNotEqualsExpression(string $fieldValue, mixed $value, ?CustomField $targetField): string
+    {
+        return when(
+            $targetField?->type?->isOptionable(),
+            fn () => $this->buildOptionExpression($fieldValue, $value, $targetField, 'not_equals'),
+            fn () => $this->buildStandardNotEqualsExpression($fieldValue, $value)
+        );
+    }
+
+    /**
+     * Build standard equals expression for non-optionable fields.
+     */
+    private function buildStandardEqualsExpression(string $fieldValue, mixed $value): string
+    {
+        $jsValue = $this->formatJsValue($value);
+
+        if (is_array($value)) {
+            return "(() => {
+                const fieldVal = {$fieldValue};
+                const compareVal = {$jsValue};
+                if (!Array.isArray(fieldVal) || !Array.isArray(compareVal)) return false;
+                return JSON.stringify(fieldVal.sort()) === JSON.stringify(compareVal.sort());
+            })()";
+        }
+
+        return "(() => {
+            const fieldVal = {$fieldValue};
+            const compareVal = {$jsValue};
+            
+            if (typeof fieldVal === typeof compareVal) {
+                return fieldVal === compareVal;
+            }
+            
+            if ((fieldVal === null || fieldVal === undefined) && (compareVal === null || compareVal === undefined)) {
+                return true;
+            }
+            
+            if (typeof fieldVal === 'number' && typeof compareVal === 'string' && !isNaN(parseFloat(compareVal))) {
+                return fieldVal === parseFloat(compareVal);
+            }
+            
+            if (typeof fieldVal === 'string' && typeof compareVal === 'number' && !isNaN(parseFloat(fieldVal))) {
+                return parseFloat(fieldVal) === compareVal;
+            }
+            
+            return String(fieldVal) === String(compareVal);
+        })()";
+    }
+
+    /**
+     * Build standard not equals expression.
+     */
+    private function buildStandardNotEqualsExpression(string $fieldValue, mixed $value): string
+    {
+        $equalsExpression = $this->buildStandardEqualsExpression($fieldValue, $value);
+
+        return "!({$equalsExpression})";
+    }
+
+    /**
+     * Build option expression for optionable fields.
+     */
+    private function buildOptionExpression(string $fieldValue, mixed $value, CustomField $targetField, string $operator): string
+    {
+        $resolvedValue = $this->resolveOptionValue($value, $targetField);
+        $jsValue = $this->formatJsValue($resolvedValue);
+
+        $condition = $targetField->type->hasMultipleValues()
+            ? $this->buildMultiValueOptionCondition($fieldValue, $resolvedValue, $jsValue)
+            : $this->buildSingleValueOptionCondition($fieldValue, $jsValue);
+
+        return Str::is('not_equals', $operator) ? "!({$condition})" : $condition;
+    }
+
+    /**
+     * Build multi-value option condition.
+     */
+    private function buildMultiValueOptionCondition(string $fieldValue, mixed $resolvedValue, string $jsValue): string
+    {
+        return is_array($resolvedValue)
+            ? "(() => {
+                const fieldVal = Array.isArray({$fieldValue}) ? {$fieldValue} : [];
+                const conditionVal = {$jsValue};
+                return conditionVal.some(id => fieldVal.includes(id));
+            })()"
+            : "(() => {
+                const fieldVal = Array.isArray({$fieldValue}) ? {$fieldValue} : [];
+                return fieldVal.includes({$jsValue});
+            })()";
+    }
+
+    /**
+     * Build single value option condition.
+     */
+    private function buildSingleValueOptionCondition(string $fieldValue, string $jsValue): string
+    {
+        return "(() => {
+            const fieldVal = {$fieldValue};
+            const conditionVal = {$jsValue};
+            
+            if (fieldVal === null || fieldVal === undefined || fieldVal === '') {
+                return conditionVal === null || conditionVal === undefined || conditionVal === '';
+            }
+            
+            if (typeof fieldVal === 'number' && typeof conditionVal === 'number') {
+                return fieldVal === conditionVal;
+            }
+            
+            if (typeof fieldVal === 'boolean' && typeof conditionVal === 'boolean') {
+                return fieldVal === conditionVal;
+            }
+            
+            return String(fieldVal) === String(conditionVal);
+        })()";
+    }
+
+    /**
+     * Resolve option value using the same logic as backend.
+     */
+    private function resolveOptionValue(mixed $value, CustomField $targetField): mixed
+    {
+        return match (true) {
+            blank($value) => $value,
+            is_array($value) => $this->resolveArrayOptionValue($value, $targetField),
+            default => $this->convertOptionValue($value, $targetField)
+        };
+    }
+
+    /**
+     * Resolve array option value.
+     */
+    private function resolveArrayOptionValue(array $value, CustomField $targetField): mixed
+    {
+        return $targetField->type->hasMultipleValues()
+            ? collect($value)->map(fn ($v) => $this->convertOptionValue($v, $targetField))->all()
+            : $this->convertOptionValue(head($value), $targetField);
+    }
+
+    /**
+     * Convert option value to proper format.
+     */
+    private function convertOptionValue(mixed $value, CustomField $targetField): mixed
+    {
+        if (blank($value)) {
+            return $value;
+        }
+
+        if (is_numeric($value)) {
+            return is_float($value) || str_contains((string) $value, '.') ? (float) $value : (int) $value;
+        }
+
+        return rescue(function () use ($value, $targetField) {
+            if (is_string($value) && $targetField->options) {
+                return $targetField->options
+                    ->first(fn ($opt) => filled($opt->name) &&
+                        Str::lower(trim($opt->name)) === Str::lower(trim($value))
+                    )?->id ?? $value;
+            }
+
+            return $value;
+        }, $value);
+    }
+
+    /**
+     * Build contains expression.
+     */
+    private function buildContainsExpression(string $fieldValue, mixed $value, ?CustomField $targetField): string
+    {
+        $resolvedValue = $this->resolveOptionValue($value, $targetField);
+        $jsValue = $this->formatJsValue($resolvedValue);
+
+        return "(() => {
+            const fieldVal = {$fieldValue};
+            const searchVal = {$jsValue};
+            return Array.isArray(fieldVal) 
+                ? fieldVal.some(item => String(item).toLowerCase().includes(String(searchVal).toLowerCase()))
+                : String(fieldVal || '').toLowerCase().includes(String(searchVal).toLowerCase());
+        })()";
+    }
+
+    /**
+     * Build numeric comparison expression.
+     */
+    private function buildNumericComparison(string $fieldValue, mixed $value, string $operator): string
+    {
+        return "(() => {
+            const fieldVal = parseFloat({$fieldValue});
+            const compareVal = parseFloat({$this->formatJsValue($value)});
+            return !isNaN(fieldVal) && !isNaN(compareVal) && fieldVal {$operator} compareVal;
+        })()";
+    }
+
+    /**
+     * Build empty expression.
+     */
+    private function buildEmptyExpression(string $fieldValue, bool $isEmpty): string
+    {
+        $condition = "(() => {
+            const val = {$fieldValue};
+            return val === null || val === undefined || val === '' || (Array.isArray(val) && val.length === 0);
+        })()";
+
+        return $isEmpty ? $condition : "!({$condition})";
+    }
+
+    /**
+     * Format JavaScript value using the same logic as FieldConfigurator.
+     */
+    private function formatJsValue(mixed $value): string
+    {
+        return match (true) {
+            $value === null => 'null',
+            is_bool($value) => $value ? 'true' : 'false',
+            $value === 'true' => 'true',
+            $value === 'false' => 'false',
+            is_string($value) => "'".addslashes($value)."'",
+            is_int($value) => (string) $value,
+            is_float($value) => number_format($value, 10, '.', ''),
+            is_numeric($value) => is_float($value + 0) ? number_format((float) $value, 10, '.', '') : (string) ((int) $value),
+            is_array($value) => collect($value)
+                ->map(fn ($item) => $this->formatJsValue($item))
+                ->pipe(fn ($collection) => '['.$collection->implode(', ').']'),
+            default => "'".addslashes((string) $value)."'"
+        };
+    }
+
+    /**
+     * Export visibility logic to JavaScript format for complex integrations.
+     */
+    public function exportVisibilityLogicToJs(Collection $fields): array
+    {
+        $dependencies = $this->coreLogic->calculateDependencies($fields);
+        $fieldMetadata = [];
+
+        foreach ($fields as $field) {
+            $fieldMetadata[$field->code] = $this->coreLogic->getFieldMetadata($field);
+        }
+
+        return [
+            'fields' => $fieldMetadata,
+            'dependencies' => $dependencies,
+        ];
+    }
+}

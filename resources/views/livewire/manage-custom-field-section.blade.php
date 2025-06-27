@@ -62,9 +62,9 @@
         @endif
     </div>
 
-    <x-slot name="footer">
+    <div class="pt-4">
         {{ $this->createFieldAction() }}
-    </x-slot>
+    </div>
 
     <x-filament-actions::modals/>
 

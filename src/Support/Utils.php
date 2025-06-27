@@ -61,6 +61,11 @@ class Utils
         return config('custom-fields.tenant_aware', false);
     }
 
+    public static function isConditionalVisibilityFeatureEnabled(): bool
+    {
+        return config('custom-fields.features.conditional_visibility.enabled', false);
+    }
+
     public static function isValuesEncryptionFeatureEnabled(): bool
     {
         return config('custom-fields.features.encryption.enabled', false);

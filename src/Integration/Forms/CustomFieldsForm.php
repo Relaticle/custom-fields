@@ -6,9 +6,11 @@ namespace Relaticle\CustomFields\Integration\Forms;
 
 use Filament\Forms\Components\Field;
 use Filament\Schemas\Components\Component;
+use Illuminate\Contracts\Container\BindingResolutionException;
 use Relaticle\CustomFields\CustomFields;
 use Relaticle\CustomFields\Models\CustomField;
 use Relaticle\CustomFields\Models\CustomFieldSection;
+use Relaticle\CustomFields\Services\Visibility\BackendVisibilityService;
 
 final class CustomFieldsForm extends Component
 {
@@ -22,6 +24,7 @@ final class CustomFieldsForm extends Component
     public function __construct(
         private readonly SectionComponentFactory $sectionComponentFactory,
         private readonly FieldComponentFactory $fieldComponentFactory,
+        private readonly BackendVisibilityService $visibilityService,
     ) {
         // Defer schema generation until we can safely access the record
         $this->schema(fn () => $this->getSchema());
@@ -29,6 +32,8 @@ final class CustomFieldsForm extends Component
 
     /**
      * @return array<int, Field>
+     *
+     * @throws BindingResolutionException
      */
     protected function getSchema(): array
     {
@@ -46,6 +51,8 @@ final class CustomFieldsForm extends Component
 
     /**
      * @return array<int, Field>
+     *
+     * @throws BindingResolutionException
      */
     protected function generateSchema(): array
     {
@@ -57,12 +64,19 @@ final class CustomFieldsForm extends Component
             ->orderBy('sort_order')
             ->get();
 
-        return $sections->map(function (CustomFieldSection $section) {
+        // Calculate field dependencies for all fields across all sections
+        $allFields = $sections->flatMap(fn ($section) => $section->fields);
+        $fieldDependencies = $this->visibilityService->calculateDependencies($allFields);
+
+        return $sections->map(function (CustomFieldSection $section) use ($fieldDependencies, $allFields) {
             return $this->sectionComponentFactory->create($section)->schema(
-                function () use ($section) {
+                function () use ($section, $fieldDependencies, $allFields) {
                     return $section->fields
-                        ->map(function (CustomField $customField) {
-                            return $this->fieldComponentFactory->create($customField);
+                        ->map(function (CustomField $customField) use ($fieldDependencies, $allFields) {
+                            // Get fields that depend on this field (makes it live)
+                            $dependentFields = $fieldDependencies[$customField->code] ?? [];
+
+                            return $this->fieldComponentFactory->create($customField, $dependentFields, $allFields);
                         })
                         ->toArray();
                 }

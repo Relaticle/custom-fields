@@ -14,9 +14,9 @@ use Illuminate\Support\Str;
 use Illuminate\Validation\Rules\Unique;
 use Relaticle\CustomFields\CustomFields;
 use Relaticle\CustomFields\Enums\CustomFieldType;
-use Relaticle\CustomFields\Filament\Forms\Components\ConditionalVisibilityComponent;
 use Relaticle\CustomFields\Filament\Forms\Components\CustomFieldValidationComponent;
 use Relaticle\CustomFields\Filament\Forms\Components\TypeField;
+use Relaticle\CustomFields\Filament\Forms\Components\VisibilityComponent;
 use Relaticle\CustomFields\Models\CustomField;
 use Relaticle\CustomFields\Services\EntityTypeService;
 use Relaticle\CustomFields\Services\LookupTypeService;
@@ -36,7 +36,8 @@ class FieldForm implements FormInterface
                     ->hiddenHeaderLabel(),
                 TableColumn::make('Name')
                     ->hiddenHeaderLabel(),
-            ])->hiddenLabel()
+            ])
+            ->hiddenLabel()
             ->schema([
                 Forms\Components\ColorPicker::make('settings.color')
                     ->columnSpan(3)
@@ -85,7 +86,7 @@ class FieldForm implements FormInterface
                             TypeField::make('type')
                                 ->label(__('custom-fields::custom-fields.field.form.type'))
                                 ->disabled(fn (?CustomField $record): bool => (bool) $record?->exists)
-                                ->reactive()
+                                ->live()
                                 ->afterStateHydrated(function (Forms\Components\Select $component, $state, $record): void {
                                     if (blank($state)) {
                                         $component->state($record?->type ?? CustomFieldType::TEXT->value);
@@ -161,7 +162,7 @@ class FieldForm implements FormInterface
                                     // Visibility settings
                                     Forms\Components\Toggle::make('settings.visible_in_list')
                                         ->inline(false)
-                                        ->reactive()
+                                        ->live()
                                         ->label(__('custom-fields::custom-fields.field.form.visible_in_list'))
                                         ->afterStateHydrated(function (Forms\Components\Toggle $component, $state) {
                                             if (is_null($state)) {
@@ -199,7 +200,7 @@ class FieldForm implements FormInterface
                                         }),
                                     Forms\Components\Toggle::make('settings.encrypted')
                                         ->inline(false)
-                                        ->reactive()
+                                        ->live()
                                         ->disabled(fn (?CustomField $record): bool => (bool) $record?->exists)
                                         ->label(__('custom-fields::custom-fields.field.form.encrypted'))
                                         ->visible(fn (Utilities\Get $get): bool => Utils::isValuesEncryptionFeatureEnabled() && CustomFieldType::encryptables()->contains('value', $get('type')))
@@ -207,7 +208,7 @@ class FieldForm implements FormInterface
                                     // Appearance settings
                                     Forms\Components\Toggle::make('settings.enable_option_colors')
                                         ->inline(false)
-                                        ->reactive()
+                                        ->live()
                                         ->label(__('custom-fields::custom-fields.field.form.enable_option_colors'))
                                         ->helperText(__('custom-fields::custom-fields.field.form.enable_option_colors_help'))
                                         ->visible(fn (Utilities\Get $get): bool => Utils::isSelectOptionColorsFeatureEnabled() &&
@@ -219,7 +220,7 @@ class FieldForm implements FormInterface
                                 ->label(__('custom-fields::custom-fields.field.form.options_lookup_type.label'))
                                 ->visible(fn (Utilities\Get $get): bool => in_array($get('type'), CustomFieldType::optionables()->pluck('value')->toArray()))
                                 ->disabled(fn (?CustomField $record): bool => (bool) $record?->system_defined)
-                                ->reactive()
+                                ->live()
                                 ->options([
                                     'options' => __('custom-fields::custom-fields.field.form.options_lookup_type.options'),
                                     'lookup' => __('custom-fields::custom-fields.field.form.options_lookup_type.lookup'),
@@ -242,7 +243,7 @@ class FieldForm implements FormInterface
                             Forms\Components\Select::make('lookup_type')
                                 ->label(__('custom-fields::custom-fields.field.form.lookup_type.label'))
                                 ->visible(fn (Utilities\Get $get): bool => $get('options_lookup_type') === 'lookup')
-                                ->reactive()
+                                ->live()
                                 ->options(LookupTypeService::getOptions())
                                 ->default(LookupTypeService::getDefaultOption())
                                 ->required(),
@@ -251,9 +252,10 @@ class FieldForm implements FormInterface
                                 ->label(__('custom-fields::custom-fields.field.form.options.label'))
                                 ->visible(fn (Utilities\Get $get): bool => $get('options_lookup_type') === 'options' && in_array($get('type'), CustomFieldType::optionables()->pluck('value')->toArray())),
                         ]),
-                    Tabs\Tab::make('Conditions')
+                    Tabs\Tab::make('Visibility')
+                        ->visible(fn (): bool => Utils::isConditionalVisibilityFeatureEnabled())
                         ->schema([
-                            ConditionalVisibilityComponent::make(),
+                            VisibilityComponent::make(),
                         ]),
                     Tabs\Tab::make(__('custom-fields::custom-fields.field.form.validation.label'))
                         ->schema([

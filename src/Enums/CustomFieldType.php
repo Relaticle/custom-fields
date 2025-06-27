@@ -101,27 +101,67 @@ enum CustomFieldType: string implements HasLabel
         ]);
     }
 
+    /**
+     * 🎯 REVOLUTIONARY UNIFIED CLASSIFICATION SYSTEM
+     * Single source of truth for all field type characteristics.
+     */
+    public function getCategory(): FieldCategory
+    {
+        return match ($this) {
+            self::TEXT, self::TEXTAREA, self::LINK, self::RICH_EDITOR,
+            self::MARKDOWN_EDITOR, self::COLOR_PICKER => FieldCategory::TEXT,
+
+            self::NUMBER, self::CURRENCY => FieldCategory::NUMERIC,
+
+            self::DATE, self::DATE_TIME => FieldCategory::DATE,
+
+            self::TOGGLE, self::CHECKBOX => FieldCategory::BOOLEAN,
+
+            self::SELECT, self::RADIO => FieldCategory::SINGLE_OPTION,
+
+            self::MULTI_SELECT, self::CHECKBOX_LIST, self::TAGS_INPUT,
+            self::TOGGLE_BUTTONS => FieldCategory::MULTI_OPTION,
+        };
+    }
+
+    // 🔥 SIMPLIFIED BOOLEAN METHODS - One-liner delegates
     public function isBoolean(): bool
     {
-        return in_array($this, [
-            self::TOGGLE,
-            self::CHECKBOX,
-        ]);
+        return $this->getCategory() === FieldCategory::BOOLEAN;
+    }
+
+    public function isNumeric(): bool
+    {
+        return $this->getCategory() === FieldCategory::NUMERIC;
+    }
+
+    public function isTextBased(): bool
+    {
+        return $this->getCategory() === FieldCategory::TEXT;
+    }
+
+    public function isDateBased(): bool
+    {
+        return $this->getCategory() === FieldCategory::DATE;
     }
 
     public function isOptionable(): bool
     {
-        return self::optionables()->contains($this);
+        return $this->getCategory()->isOptionable();
     }
 
     public function hasMultipleValues(): bool
     {
-        return in_array($this, [
-            self::CHECKBOX_LIST,
-            self::TAGS_INPUT,
-            self::MULTI_SELECT,
-            self::TOGGLE_BUTTONS,
-        ]);
+        return $this->getCategory() === FieldCategory::MULTI_OPTION;
+    }
+
+    /**
+     * 🚀 REVOLUTIONARY OPERATOR COMPATIBILITY
+     * Delegates to category for consistent behavior.
+     */
+    public function getCompatibleOperators(): array
+    {
+        return $this->getCategory()->getCompatibleOperators();
     }
 
     public static function encryptables(): Collection

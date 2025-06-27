@@ -16,23 +16,21 @@ use Filament\Support\SupportServiceProvider;
 use Filament\Tables\TablesServiceProvider;
 use Filament\Widgets\WidgetsServiceProvider;
 use Illuminate\Database\Eloquent\Factories\Factory;
-use Illuminate\Foundation\Testing\Concerns\InteractsWithViews;
-use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\View\ViewServiceProvider;
+use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
 use Livewire\LivewireServiceProvider;
-use Orchestra\Testbench\Concerns\InteractsWithPest;
-use Orchestra\Testbench\TestCase as Orchestra;
+use Orchestra\Testbench\Concerns\WithWorkbench;
+use Orchestra\Testbench\TestCase as BaseTestCase;
 use Relaticle\CustomFields\CustomFieldsServiceProvider;
-use Relaticle\CustomFields\Tests\Factories\UserFactory;
-use Relaticle\CustomFields\Tests\Models\User;
+use Relaticle\CustomFields\Tests\database\factories\UserFactory;
+use Relaticle\CustomFields\Tests\Fixtures\Models\User;
+use Relaticle\CustomFields\Tests\Fixtures\Providers\AdminPanelProvider;
 use RyanChandler\BladeCaptureDirective\BladeCaptureDirectiveServiceProvider;
 use Spatie\LaravelData\LaravelDataServiceProvider;
 
-class TestCase extends Orchestra
+class TestCase extends BaseTestCase
 {
-    use InteractsWithPest;
-    use InteractsWithViews;
-    use RefreshDatabase;
+    use LazilyRefreshDatabase;
+    use WithWorkbench;
 
     protected function setUp(): void
     {
@@ -44,39 +42,50 @@ class TestCase extends Orchestra
                 default => 'Relaticle\\CustomFields\\Database\\Factories\\'.class_basename($modelName).'Factory'
             }
         );
+
+        $this->actingAs(User::factory()->create());
     }
 
     protected function getPackageProviders($app): array
     {
-        return [
-            // Spatie Laravel Data Service Provider
-            LaravelDataServiceProvider::class,
-            //
-            LivewireServiceProvider::class,
-            BladeIconsServiceProvider::class,
-            BladeHeroiconsServiceProvider::class,
-            BladeCaptureDirectiveServiceProvider::class,
-
-            SupportServiceProvider::class,
+        $providers = [
             ActionsServiceProvider::class,
+            BladeCaptureDirectiveServiceProvider::class,
+            BladeHeroiconsServiceProvider::class,
+            BladeIconsServiceProvider::class,
+            FilamentServiceProvider::class,
             FormsServiceProvider::class,
             InfolistsServiceProvider::class,
+            LivewireServiceProvider::class,
             NotificationsServiceProvider::class,
             SchemasServiceProvider::class,
+            SupportServiceProvider::class,
             TablesServiceProvider::class,
             WidgetsServiceProvider::class,
-            FilamentServiceProvider::class,
-            ViewServiceProvider::class,
 
+            // Custom service provider for the custom fields package
+            LaravelDataServiceProvider::class,
+
+            // Custom service provider for the admin panel
+            AdminPanelProvider::class,
+
+            // Custom fields service provider
             CustomFieldsServiceProvider::class,
-
-            // Test Panel Provider
-            TestPanelProvider::class,
         ];
+
+        sort($providers);
+
+        return $providers;
     }
 
     public function defineEnvironment($app): void
     {
+        $app['config']->set('auth.providers.users.model', User::class);
+        $app['config']->set('view.paths', [
+            ...$app['config']->get('view.paths'),
+            __DIR__.'/../resources/views',
+        ]);
+
         // Database configuration
         config()->set('database.default', 'testing');
         config()->set('database.connections.testing', [

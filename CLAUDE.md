@@ -4,176 +4,129 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-This is a Laravel PHP package called "**custom-fields**" that provides user-defined custom fields functionality for Filament admin panels. The package enables dynamic custom fields with comprehensive validation, multi-tenancy support, and extensive Filament integration.
+**Relaticle Custom Fields** is a Laravel package that provides user-defined custom fields functionality for Laravel Filament applications. The package enables dynamic field creation, management, and integration with Filament forms, tables, and infolists.
 
-**Key Features:**
-- 12+ field types (text, number, date, select, etc.)
-- Multi-tenant architecture with automatic tenant scoping
-- Advanced validation system with database constraint enforcement
-- Import/export functionality with configurable columns
-- Comprehensive Filament integration (forms, tables, infolists)
-- Large number handling with safe value conversion
-- Encryption support for sensitive fields
+## Essential Commands
 
-## Development Commands
-
-### PHP Development
+### Composer (PHP)
 ```bash
-# Run PHPStan static analysis
-composer analyse
-
-# Run Pest PHP tests  
-composer test
-
-# Run tests with coverage
-composer test-coverage
-
-# Format code with Laravel Pint
-composer format
+composer test              # Run Pest tests
+composer test-coverage     # Run tests with coverage  
+composer analyse           # Run PHPStan static analysis
+composer format           # Format code with Laravel Pint
 ```
 
-### Filament V4 Migration Status
-**✅ MIGRATED TO FILAMENT V4** - This package has been successfully upgraded to Filament V4:
-- **Unified Schema Components**: All components now use `Filament\Schemas\Components\*`
-- **Unified Actions**: Actions use `Filament\Actions` namespace
-- **Immediate Filtering**: Configured `deferFilters(false)` to maintain V3 behavior
-- **Beta Stability**: Composer configured for Filament V4 beta packages
-
-### Frontend Development
+### NPM (Frontend Assets)
 ```bash
-# Development build with watch mode
-npm run dev
-
-# Production build
-npm run build
-
-# Build styles only
-npm run build:styles
-
-# Build scripts only  
-npm run build:scripts
+npm run dev               # Development build with watch mode
+npm run build            # Production build
+npm run dev:styles       # Watch CSS only
+npm run dev:scripts      # Watch JS only
 ```
 
-### Package Commands
+### Laravel Artisan
 ```bash
-# Install package with stub publishing
-php artisan custom-fields:install
-
-# Upgrade package between versions
-php artisan custom-fields:upgrade
-
-# Optimize database performance
-php artisan custom-fields:optimize-database
+php artisan custom-fields:install    # Install package
+php artisan custom-fields:upgrade    # Upgrade existing installation
+php artisan custom-fields:optimize   # Optimize database
 ```
 
-## Architecture Overview
+## Core Architecture
 
-### Core Services
-- **ValidationService** (`src/Services/ValidationService.php`) - Central validation with rule merging and caching
-- **TenantContextService** (`src/Services/TenantContextService.php`) - Multi-tenant context management for web and queue jobs
-- **ValueResolver** (`src/Services/ValueResolver/`) - Safe value conversion and type handling
+### Technology Stack
+- **PHP 8.3+** with strict typing
+- **Laravel Filament 4.0+** for UI components
+- **Spatie Laravel Data 4.12+** for data objects
+- **Pest 3.0** for testing
+- **TailwindCSS 4.1+** and ESBuild for frontend
 
-### Multi-Tenancy System
-The package implements sophisticated tenant awareness using Laravel Context:
-- **Automatic tenant scoping** for all database queries
-- **Queue job tenant preservation** using `TenantAware` trait
-- **Middleware-based context setting** for web requests
-- **Manual tenant context management** for complex scenarios
+### Key Directories
+- `src/Models/` - Core models (CustomField, CustomFieldValue, CustomFieldSection, CustomFieldOption)
+- `src/Services/` - Business logic services including the recently refactored VisibilityService
+- `src/Integration/` - Filament integrations (Forms, Tables, Infolists, Actions)
+- `src/Data/` - Spatie Data objects for type-safe data structures
+- `src/Enums/` - Clean enum-based configurations (recently simplified)
 
-Configuration in `config/custom-fields.php`:
-```php
-'tenant_aware' => true,
-'column_names' => [
-    'tenant_foreign_key' => 'tenant_id',
-],
-```
+### Recently Refactored Visibility System ⭐
 
-### Database Architecture
-- **custom_field_sections** - Organizational sections for fields
-- **custom_fields** - Field definitions with type, validation, and settings
-- **custom_field_values** - Polymorphic storage for field values
-- **custom_field_options** - Select/multi-select field options
+**Major Achievement**: The conditional visibility system was completely rewritten, removing 1,230+ lines of complex legacy code and simplifying from 8 files to 5 files with 8 essential operators.
 
-### Field Types & Validation
-Field types are defined in `src/Enums/FieldType.php` with comprehensive validation:
-- **Database constraint enforcement** via `DatabaseFieldConstraints`
-- **User-defined rule precedence** - stricter user rules always take precedence
-- **Type-specific validation** for arrays, numbers, dates, etc.
-- **Encryption support** with adjusted constraints for overhead
-
-### Filament Integration
-Extensive integration across Filament components:
-- **Form components** in `src/Filament/Forms/Components/`
-- **Table columns** in `src/Filament/Tables/Columns/`
-- **Filters** in `src/Filament/Tables/Filters/`
-- **Export/Import** configurators in `src/Filament/Exports/` and `src/Filament/Imports/`
-
-## Testing Framework
-
-**Pest PHP** with comprehensive coverage:
-- **Feature tests** - Filament integration, resource behavior
-- **Unit tests** - Models, services, validation, enums
-- **Database** - SQLite in-memory for clean isolation
-- **Factories** - Available for all models in `database/factories/`
-
-Test structure:
-```
-tests/
-├── Feature/          # Integration tests with Filament
-├── Unit/            # Isolated unit tests  
-├── Helpers.php      # Test utilities
-└── Pest.php         # Pest configuration
-```
-
-## Code Conventions
-
-- **Strict typing** - All files use `declare(strict_types=1)`
-- **Modern PHP 8.2+** features and patterns
-- **PSR standards** with Laravel Pint formatting
-- **Comprehensive docblocks** for complex methods
-- **Consistent naming** following Laravel conventions
-
-### Important Patterns
-- Use `TenantAware` trait for queue jobs that work with custom fields
-- Always use `TenantContextService` for manual tenant context management
-- Leverage `ValidationService` for field validation rule generation
-- Use model factories in tests for consistent data creation
+**Key Components**:
+- `src/Enums/Mode.php` - 3 visibility modes (always_visible, show_when, hide_when)
+- `src/Enums/Logic.php` - AND/OR logic for conditions
+- `src/Enums/Operator.php` - 8 streamlined operators
+- `src/Data/VisibilityData.php` - Clean data structure
+- `src/Services/VisibilityService.php` - Single service handling all visibility logic
 
 ## Configuration
 
-Main configuration in `config/custom-fields.php`:
-- **Feature flags** (encryption, table toggles)
-- **Field type behavior** (date formats, native inputs)
-- **Resource configuration** (navigation, clustering)
-- **Entity/lookup resource filtering**
-- **Multi-tenancy settings**
-- **Custom table/column names**
+Main configuration files:
+- `config/custom-fields.php` - Primary package configuration
+- `config/data.php` - Additional data configuration
+
+Key configuration options include entity resources, lookup resources, tenant awareness, field types, and database settings.
+
+## Testing Strategy
+
+- **Framework**: Pest 3.0 with PHPStan Level 3 static analysis
+- **Test Structure**: Feature tests in `tests/Feature/`, Unit tests in `tests/Unit/`
+- **Key Tests**: Visibility system tests, Filament integration tests, basic functionality tests
+- **Coverage**: Run `composer test-coverage` for coverage reports
+
+## Development Workflow
+
+### Code Quality
+- **Strict typing** throughout (PHP 8.3+ features)
+- **Laravel Pint** for consistent formatting
+- **PHPStan Level 3** for static analysis
+- **Enum-based configurations** for type safety
+
+### Field Types Supported
+Text, Textarea, Number, Date, DateTime, Select, Multi-select, Radio, Checkboxes, Toggle, Tags, Color Picker, Currency, Rich Editor, Markdown Editor, File uploads, Links
+
+### Filament Integration Points
+- **Forms**: Dynamic form building with reactive fields (`src/Integration/Forms/`)
+- **Tables**: Custom columns with search/filter support (`src/Integration/Tables/`)
+- **Infolists**: Display components for viewing data (`src/Integration/Infolists/`)
+- **Import/Export**: Excel/CSV support (`src/Integration/Actions/`)
+
+## Multi-Tenancy Support
+
+The package includes optional tenant awareness with:
+- Configurable foreign keys
+- Automatic tenant scoping for all models
+- Middleware for tenant context management (`src/Http/Middleware/SetTenantContextMiddleware.php`)
+
+## Performance Considerations
+
+- Smart dependency management for visibility calculations
+- Optimized database queries with proper scoping
+- JavaScript-based reactivity where appropriate
+- Field caching optimization
+
+## Important Notes
+
+- **PHP 8.3+ Required** - Uses strict typing throughout
+- **Laravel Filament 4.0+ Required** - Core dependency
+- **Database JSON Support Required** - For field settings storage
+- **Clean Architecture** - Follow the established service/data/enum structure
+- **Type Safety First** - Maintain strict typing and enum-based configurations
+- **Test-Driven Development** - Maintain high test coverage standards
 
 ## Documentation
 
-Technical documentation in `docs/`:
-- **`tenant-context.md`** - Comprehensive multi-tenancy implementation guide
-- **`validation-system.md`** - Validation architecture and rule precedence
-- **`large-number-handling.md`** - MySQL BIGINT handling strategies
+Comprehensive documentation available in `docs/`:
+- `clean-visibility-system.md` - Major refactoring documentation
+- `conditional-visibility-usage.md` - Usage guide
+- `validation-system.md` - Validation documentation
+- `tenant-context.md` - Multi-tenancy guide
 
-## Package Structure
+## Linting and Code Style
 
-```
-src/
-├── Commands/           # Artisan commands for management
-├── Contracts/          # Interfaces for extensibility
-├── Data/              # DTOs using Spatie Laravel Data
-├── Enums/             # Field types, validation rules, etc.
-├── Filament/          # Comprehensive Filament integration
-├── Models/            # Eloquent models with concerns
-├── Services/          # Business logic and utilities
-└── Support/           # Helper classes and utilities
+Always run linting and formatting before commits:
+```bash
+composer format    # Laravel Pint formatting
+composer analyse   # PHPStan static analysis
 ```
 
-## Development Notes
-
-- Package uses **beta stability** for cutting-edge features
-- **Spatie Laravel Package Tools** for package structure
-- **esbuild** for JavaScript compilation with watch mode
-- **Tailwind CSS 4.x** for styling with PostCSS processing
-- **Orchestra Testbench** for Laravel package testing environment
+The codebase follows strict PSR standards with additional Laravel-specific conventions.
