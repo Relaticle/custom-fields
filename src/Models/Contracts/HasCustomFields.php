@@ -5,10 +5,16 @@ declare(strict_types=1);
 namespace Relaticle\CustomFields\Models\Contracts;
 
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Relaticle\CustomFields\Models\CustomField;
 use Relaticle\CustomFields\Models\CustomFieldValue;
 
+/**
+ * Interface for models that have custom fields.
+ * 
+ * @phpstan-require-extends Model
+ */
 interface HasCustomFields
 {
     /**
@@ -28,5 +34,5 @@ interface HasCustomFields
     /**
      * @param  array<string, mixed>  $customFields
      */
-    public function saveCustomFields(array $customFields): void;
+    public function saveCustomFields(array $customFields, ?Model $tenant = null): void;
 }

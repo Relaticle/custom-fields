@@ -11,6 +11,8 @@ final readonly class FieldInfolistsConfigurator
 {
     /**
      * @template T of Entry
+     * @param T $field
+     * @return T
      */
     public function configure(Entry $field, CustomField $customField): Entry
     {

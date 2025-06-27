@@ -11,6 +11,7 @@ use Relaticle\CustomFields\CustomFields;
 use Relaticle\CustomFields\Integration\Actions\Imports\Exceptions\UnsupportedColumnTypeException;
 use Relaticle\CustomFields\Integration\Actions\Imports\Matchers\LookupMatcherInterface;
 use Relaticle\CustomFields\Integration\Actions\Imports\ValueConverters\ValueConverterInterface;
+use Relaticle\CustomFields\Models\Contracts\HasCustomFields;
 use Relaticle\CustomFields\Models\CustomField;
 use Relaticle\CustomFields\Services\EntityTypeService;
 
@@ -34,6 +35,7 @@ final readonly class CustomFieldsImporter
      */
     public function getColumns(string $modelClass): array
     {
+        /** @var HasCustomFields $model */
         $model = app($modelClass);
 
         return $model->customFields()
@@ -73,11 +75,11 @@ final readonly class CustomFieldsImporter
      * Call this method in your importer's afterFill() method to save
      * the custom field values that were imported.
      *
-     * @param  Model  $record  The model record to save custom fields for
+     * @param  HasCustomFields  $record  The model record to save custom fields for
      * @param  array<string, mixed>  $data  The import data containing custom fields values
      * @param  Model|null  $tenant  Optional tenant for multi-tenancy support
      */
-    public function saveCustomFieldValues(Model $record, array $data, ?Model $tenant = null): void
+    public function saveCustomFieldValues(HasCustomFields $record, array $data, ?Model $tenant = null): void
     {
         $customFieldsData = $this->extractCustomFieldsData($data);
 

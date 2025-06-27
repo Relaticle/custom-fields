@@ -7,6 +7,7 @@ namespace Relaticle\CustomFields\Integration\Tables\Columns;
 use Filament\Resources\RelationManagers\RelationManager;
 use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Database\Eloquent\Model;
+use Relaticle\CustomFields\Models\Contracts\HasCustomFields;
 use Relaticle\CustomFields\Models\CustomField;
 use Relaticle\CustomFields\Support\Utils;
 
@@ -15,7 +16,7 @@ final readonly class CustomFieldsColumn
     /**
      * @throws BindingResolutionException
      */
-    public static function all(Model $instance): array
+    public static function all(HasCustomFields $instance): array
     {
         if (Utils::isTableColumnsEnabled() === false) {
             return [];

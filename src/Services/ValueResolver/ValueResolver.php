@@ -6,6 +6,7 @@ namespace Relaticle\CustomFields\Services\ValueResolver;
 
 use Illuminate\Database\Eloquent\Model;
 use Relaticle\CustomFields\Contracts\ValueResolvers;
+use Relaticle\CustomFields\Models\Contracts\HasCustomFields;
 use Relaticle\CustomFields\Models\CustomField;
 
 readonly class ValueResolver implements ValueResolvers
@@ -15,7 +16,7 @@ readonly class ValueResolver implements ValueResolvers
         private LookupSingleValueResolver $singleValueResolver
     ) {}
 
-    public function resolve(Model $record, CustomField $customField, bool $exportable = false): mixed
+    public function resolve(HasCustomFields $record, CustomField $customField, bool $exportable = false): mixed
     {
         if (! $customField->isFieldTypeOptionable()) {
             $value = $record->getCustomFieldValue($customField);

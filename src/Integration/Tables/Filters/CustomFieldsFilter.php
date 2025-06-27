@@ -9,6 +9,7 @@ use Filament\Resources\RelationManagers\RelationManager;
 use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Database\Eloquent\Model;
 use Relaticle\CustomFields\Enums\CustomFieldType;
+use Relaticle\CustomFields\Models\Contracts\HasCustomFields;
 use Relaticle\CustomFields\Models\CustomField;
 use Relaticle\CustomFields\Support\Utils;
 
@@ -17,7 +18,7 @@ final readonly class CustomFieldsFilter
     /**
      * @throws BindingResolutionException
      */
-    public static function all(Model $instance): array
+    public static function all(Model&HasCustomFields $instance): array
     {
         if (Utils::isTableFiltersEnabled() === false) {
             return [];

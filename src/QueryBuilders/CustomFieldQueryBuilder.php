@@ -63,4 +63,9 @@ class CustomFieldQueryBuilder extends Builder
     {
         return $this->whereJsonContains('settings->searchable', true);
     }
+
+    public function active(): self
+    {
+        return $this->where('active', true);
+    }
 }

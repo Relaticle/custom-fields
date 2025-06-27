@@ -38,6 +38,14 @@ use Spatie\LaravelData\DataCollection;
  * @property int $sort_order
  * @property bool $active
  * @property bool $system_defined
+ * 
+ * @method static CustomFieldQueryBuilder query()
+ * @method static CustomFieldQueryBuilder where($column, $operator = null, $value = null, $boolean = 'and')
+ * @method static CustomFieldQueryBuilder active()
+ * @method static CustomFieldQueryBuilder visibleInList()
+ * @method static CustomFieldQueryBuilder nonEncrypted()
+ * @method static CustomFieldQueryBuilder forEntity(string $model)
+ * @method static CustomFieldQueryBuilder forType(CustomFieldType $type)
  */
 #[ScopedBy([TenantScope::class, SortOrderScope::class])]
 #[ObservedBy(CustomFieldObserver::class)]
