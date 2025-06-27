@@ -28,7 +28,7 @@ final readonly class ToggleButtonsComponent implements FieldComponentInterface
         // Add color support if enabled
         if (Utils::isSelectOptionColorsFeatureEnabled() && $customField->settings->enable_option_colors) {
             $optionsWithColor = $customField->options
-                ->filter(fn ($option) => $option->settings?->color)
+                                    ->filter(fn ($option) => $option->settings->color)
                 ->mapWithKeys(fn ($option) => [$option->id => $option->settings->color])
                 ->all();
 

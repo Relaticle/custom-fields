@@ -468,7 +468,7 @@ final readonly class FrontendVisibilityService
                 return $targetField->options->first(
                     fn ($opt): bool => Str::lower(trim((string) $opt->name)) ===
                         Str::lower(trim($value))
-                )?->id ?? $value;
+                )->id ?? $value;
             }
 
             return $value;
