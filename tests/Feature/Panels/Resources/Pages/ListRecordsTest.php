@@ -3,14 +3,19 @@
 declare(strict_types=1);
 
 use Relaticle\CustomFields\Data\CustomFieldSettingsData;
+use Relaticle\CustomFields\Data\VisibilityConditionData;
 use Relaticle\CustomFields\Data\VisibilityData;
 use Relaticle\CustomFields\Enums\CustomFieldType;
+use Relaticle\CustomFields\Enums\Logic;
+use Relaticle\CustomFields\Enums\Mode;
+use Relaticle\CustomFields\Enums\Operator;
 use Relaticle\CustomFields\Models\CustomField;
 use Relaticle\CustomFields\Models\CustomFieldSection;
 use Relaticle\CustomFields\Tests\Fixtures\Models\Post;
 use Relaticle\CustomFields\Tests\Fixtures\Models\User;
 use Relaticle\CustomFields\Tests\Fixtures\Resources\Posts\Pages\ListPosts;
 use Relaticle\CustomFields\Tests\Fixtures\Resources\Posts\PostResource;
+use Spatie\LaravelData\DataCollection;
 
 use function Pest\Livewire\livewire;
 
@@ -280,5 +285,124 @@ describe('Custom Fields Integration in Tables', function () {
         // Act & Assert
         livewire(ListPosts::class)
             ->assertTableColumnDoesNotExist('custom_fields.hidden_field');
+    });
+});
+
+describe('Conditional Visibility in Tables', function () {
+    beforeEach(function () {
+        // Create custom field section for Posts
+        $this->section = CustomFieldSection::factory()->create([
+            'name' => 'Post Conditional Fields',
+            'entity_type' => Post::class,
+            'active' => true,
+            'sort_order' => 1,
+        ]);
+    });
+
+    it('shows custom field values when show_when condition is met', function () {
+        // Arrange - Create a base field and a conditional field
+        $baseField = CustomField::factory()->create([
+            'custom_field_section_id' => $this->section->id,
+            'name' => 'Status',
+            'code' => 'status',
+            'type' => CustomFieldType::TEXT,
+            'entity_type' => Post::class,
+            'settings' => new CustomFieldSettingsData(
+                visible_in_list: true,
+                list_toggleable_hidden: false
+            ),
+        ]);
+
+        $conditionalField = CustomField::factory()->create([
+            'custom_field_section_id' => $this->section->id,
+            'name' => 'Priority',
+            'code' => 'priority',
+            'type' => CustomFieldType::TEXT,
+            'entity_type' => Post::class,
+            'settings' => new CustomFieldSettingsData(
+                visible_in_list: true,
+                list_toggleable_hidden: false,
+                visibility: new VisibilityData(
+                    mode: Mode::SHOW_WHEN,
+                    logic: Logic::ALL,
+                    conditions: new DataCollection(VisibilityConditionData::class, [
+                        new VisibilityConditionData(
+                            field_code: 'status',
+                            operator: Operator::EQUALS,
+                            value: 'published'
+                        ),
+                    ])
+                )
+            ),
+        ]);
+
+        $publishedPost = Post::factory()->create();
+        $publishedPost->saveCustomFieldValue($baseField, 'published');
+        $publishedPost->saveCustomFieldValue($conditionalField, 'high');
+
+        $draftPost = Post::factory()->create();
+        $draftPost->saveCustomFieldValue($baseField, 'draft');
+
+        // Act & Assert
+        livewire(ListPosts::class)
+            ->assertCanSeeTableRecords([$publishedPost, $draftPost])
+            ->assertTableColumnStateSet('custom_fields.status', 'published', $publishedPost)
+            ->assertTableColumnStateSet('custom_fields.status', 'draft', $draftPost)
+            ->assertTableColumnStateSet('custom_fields.priority', 'high', $publishedPost)
+            ->assertTableColumnStateNotSet('custom_fields.priority', 'high', $draftPost);
+    });
+
+    it('hides custom field values when hide_when condition is met', function () {
+        // Arrange - Create a base field and a conditional field
+        $baseField = CustomField::factory()->create([
+            'custom_field_section_id' => $this->section->id,
+            'name' => 'Status',
+            'code' => 'status',
+            'type' => CustomFieldType::TEXT,
+            'entity_type' => Post::class,
+            'settings' => new CustomFieldSettingsData(
+                visible_in_list: true,
+                list_toggleable_hidden: false
+            ),
+        ]);
+
+        $conditionalField = CustomField::factory()->create([
+            'custom_field_section_id' => $this->section->id,
+            'name' => 'Internal Notes',
+            'code' => 'internal_notes',
+            'type' => CustomFieldType::TEXTAREA,
+            'entity_type' => Post::class,
+            'settings' => new CustomFieldSettingsData(
+                visible_in_list: true,
+                list_toggleable_hidden: false,
+                visibility: new VisibilityData(
+                    mode: Mode::HIDE_WHEN,
+                    logic: Logic::ALL,
+                    conditions: new DataCollection(VisibilityConditionData::class, [
+                        new VisibilityConditionData(
+                            field_code: 'status',
+                            operator: Operator::EQUALS,
+                            value: 'published'
+                        ),
+                    ])
+                )
+            ),
+        ]);
+
+        $publishedPost = Post::factory()->create();
+        $publishedPost->saveCustomFieldValue($baseField, 'published');
+        // Don't save internal notes for published post - it should be hidden anyway
+
+        $draftPost = Post::factory()->create();
+        $draftPost->saveCustomFieldValue($baseField, 'draft');
+        $draftPost->saveCustomFieldValue($conditionalField, 'Internal review needed');
+
+        // Act & Assert
+        livewire(ListPosts::class)
+            ->assertCanSeeTableRecords([$publishedPost, $draftPost])
+            ->assertTableColumnStateSet('custom_fields.status', 'published', $publishedPost)
+            ->assertTableColumnStateSet('custom_fields.status', 'draft', $draftPost)
+            ->assertTableColumnStateNotSet('custom_fields.internal_notes', 'Internal review needed', $publishedPost)
+            ->assertTableColumnStateSet('custom_fields.internal_notes', 'Internal review needed', $draftPost);
     });
 });
