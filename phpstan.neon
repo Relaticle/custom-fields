@@ -31,6 +31,10 @@ parameters:
         # Allow dynamic properties on models for testing
         - '#Access to an undefined property [a-zA-Z0-9\\_]+::\$[a-zA-Z0-9_]+#'
         
+        # Allow Laravel query builder dynamic calls
+        - '#Dynamic call to static method Illuminate\\Database\\Eloquent\\Builder.*::#'
+        - '#Dynamic call to static method Relaticle\\CustomFields\\QueryBuilders\\CustomFieldQueryBuilder.*::#'
+        
         # Relax some overly strict rules
         - '#^Construct empty\(\) is not allowed\. Use more strict comparison\.$#'
         - '#^Call to function in_array\(\) requires parameter \#3 to be set\.$#'

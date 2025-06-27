@@ -27,10 +27,13 @@ final readonly class RadioComponent implements FieldComponentInterface
         $field = Radio::make("custom_fields.{$customField->code}")->inline(false);
 
         if ($customField->lookup_type) {
+            /** @var \Illuminate\Database\Eloquent\Model $entityInstance */
             $entityInstance = FilamentResourceService::getModelInstance($customField->lookup_type);
             $recordTitleAttribute = FilamentResourceService::getRecordTitleAttribute($customField->lookup_type);
 
-            $options = $entityInstance->query()->limit(50)->pluck($recordTitleAttribute, 'id')->toArray();
+            /** @var \Illuminate\Database\Eloquent\Builder<\Illuminate\Database\Eloquent\Model> $query */
+            $query = $entityInstance->newQuery();
+            $options = $query->limit(50)->pluck($recordTitleAttribute, 'id')->toArray();
         } else {
             $options = $customField->options->pluck('name', 'id')->all();
 

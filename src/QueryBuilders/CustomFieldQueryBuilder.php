@@ -8,7 +8,8 @@ use Relaticle\CustomFields\Models\CustomField;
 use Relaticle\CustomFields\Services\EntityTypeService;
 
 /**
- * @extends Builder<CustomField>
+ * @template TModelClass of CustomField
+ * @extends Builder<TModelClass>
  */
 class CustomFieldQueryBuilder extends Builder
 {

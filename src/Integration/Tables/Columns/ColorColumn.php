@@ -7,6 +7,7 @@ namespace Relaticle\CustomFields\Integration\Tables\Columns;
 use Filament\Tables\Columns\ColorColumn as BaseColorColumn;
 use Filament\Tables\Columns\Column as BaseColumn;
 use Illuminate\Database\Eloquent\Builder;
+use Relaticle\CustomFields\Models\Contracts\HasCustomFields;
 use Relaticle\CustomFields\Models\CustomField;
 use Relaticle\CustomFields\QueryBuilders\ColumnSearchableQuery;
 
@@ -20,6 +21,6 @@ final readonly class ColorColumn implements ColumnInterface
                 condition: $customField->settings->searchable,
                 query: fn (Builder $query, string $search): Builder => (new ColumnSearchableQuery)->builder($query, $customField, $search),
             )
-            ->getStateUsing(fn ($record) => $record->getCustomFieldValue($customField));
+            ->getStateUsing(fn (HasCustomFields $record) => $record->getCustomFieldValue($customField));
     }
 }

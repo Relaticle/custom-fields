@@ -8,6 +8,7 @@ use Filament\Support\Colors\Color;
 use Filament\Tables\Columns\Column as BaseColumn;
 use Filament\Tables\Columns\TextColumn as BaseTextColumn;
 use Illuminate\Database\Eloquent\Builder;
+use Relaticle\CustomFields\Models\Contracts\HasCustomFields;
 use Relaticle\CustomFields\Models\CustomField;
 use Relaticle\CustomFields\Services\ValueResolver\LookupSingleValueResolver;
 use Relaticle\CustomFields\Support\Utils;
@@ -35,7 +36,7 @@ final readonly class SingleValueColumn implements ColumnInterface
                     );
                 }
             )
-            ->getStateUsing(fn ($record): string => $this->valueResolver->resolve($record, $customField))
+            ->getStateUsing(fn (HasCustomFields $record): string => $this->valueResolver->resolve($record, $customField))
             ->searchable(false);
 
         // Use colored badge for field with enabled option colors

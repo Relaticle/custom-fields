@@ -53,7 +53,8 @@ final class FilamentResourceService
      */
     public static function getModelInstanceQuery(string $model): Builder
     {
-        $query = self::getModelInstance($model)::query();
+        $modelInstance = self::getModelInstance($model);
+        $query = $modelInstance->newQuery();
 
         if (Utils::isTenantEnabled() && Filament::getTenant()) {
             return self::invokeMethodByReflection(

@@ -25,6 +25,7 @@ use Relaticle\CustomFields\Integration\Forms\Components\ToggleComponent;
 use Relaticle\CustomFields\Integration\Forms\Components\RadioComponent;
 use Relaticle\CustomFields\Integration\Forms\Components\SelectComponent;
 use Relaticle\CustomFields\Integration\Forms\Components\MultiSelectComponent;
+use Relaticle\CustomFields\Integration\Tables\Columns\SingleValueColumn;
 use Relaticle\CustomFields\Integration\Tables\Columns\TextColumn;
 use Relaticle\CustomFields\Integration\Tables\Columns\IconColumn;
 use Relaticle\CustomFields\Integration\Tables\Columns\ColorColumn;
@@ -303,6 +304,7 @@ final class FieldTypeRegistryService
             throw new RuntimeException("Table column class '{$tableColumn}' does not exist.");
         }
 
+
         if (! class_exists($infolistEntry)) {
             throw new RuntimeException("Infolist entry class '{$infolistEntry}' does not exist.");
         }
@@ -366,7 +368,7 @@ final class FieldTypeRegistryService
             CustomFieldType::CHECKBOX->value => IconColumn::class,
             CustomFieldType::TOGGLE->value => IconColumn::class,
             CustomFieldType::COLOR_PICKER->value => ColorColumn::class,
-            CustomFieldType::SELECT->value => TextColumn::class,
+            CustomFieldType::SELECT->value => SingleValueColumn::class,
             CustomFieldType::RADIO->value => TextColumn::class,
             CustomFieldType::MULTI_SELECT->value => MultiValueColumn::class,
             CustomFieldType::CHECKBOX_LIST->value => MultiValueColumn::class,
@@ -385,24 +387,24 @@ final class FieldTypeRegistryService
     private function getBuiltInInfolistEntry(CustomFieldType $type): string
     {
         $map = [
-            CustomFieldType::TEXT->value => 'Relaticle\CustomFields\Integration\Infolists\TextEntry',
-            CustomFieldType::TEXTAREA->value => 'Relaticle\CustomFields\Integration\Infolists\TextEntry',
-            CustomFieldType::NUMBER->value => 'Relaticle\CustomFields\Integration\Infolists\TextEntry',
-            CustomFieldType::CURRENCY->value => 'Relaticle\CustomFields\Integration\Infolists\TextEntry',
-            CustomFieldType::DATE->value => 'Relaticle\CustomFields\Integration\Infolists\TextEntry',
-            CustomFieldType::DATE_TIME->value => 'Relaticle\CustomFields\Integration\Infolists\TextEntry',
-            CustomFieldType::LINK->value => 'Relaticle\CustomFields\Integration\Infolists\TextEntry',
-            CustomFieldType::CHECKBOX->value => 'Relaticle\CustomFields\Integration\Infolists\BooleanEntry',
-            CustomFieldType::TOGGLE->value => 'Relaticle\CustomFields\Integration\Infolists\BooleanEntry',
-            CustomFieldType::COLOR_PICKER->value => 'Relaticle\CustomFields\Integration\Infolists\ColorEntry',
-            CustomFieldType::SELECT->value => 'Relaticle\CustomFields\Integration\Infolists\TextEntry',
-            CustomFieldType::RADIO->value => 'Relaticle\CustomFields\Integration\Infolists\TextEntry',
-            CustomFieldType::MULTI_SELECT->value => 'Relaticle\CustomFields\Integration\Infolists\MultiValueEntry',
-            CustomFieldType::CHECKBOX_LIST->value => 'Relaticle\CustomFields\Integration\Infolists\MultiValueEntry',
-            CustomFieldType::TAGS_INPUT->value => 'Relaticle\CustomFields\Integration\Infolists\MultiValueEntry',
-            CustomFieldType::TOGGLE_BUTTONS->value => 'Relaticle\CustomFields\Integration\Infolists\MultiValueEntry',
-            CustomFieldType::RICH_EDITOR->value => 'Relaticle\CustomFields\Integration\Infolists\HtmlEntry',
-            CustomFieldType::MARKDOWN_EDITOR->value => 'Relaticle\CustomFields\Integration\Infolists\HtmlEntry',
+            CustomFieldType::TEXT->value => 'Relaticle\CustomFields\Integration\Infolists\Fields\TextEntry',
+            CustomFieldType::TEXTAREA->value => 'Relaticle\CustomFields\Integration\Infolists\Fields\TextEntry',
+            CustomFieldType::NUMBER->value => 'Relaticle\CustomFields\Integration\Infolists\Fields\TextEntry',
+            CustomFieldType::CURRENCY->value => 'Relaticle\CustomFields\Integration\Infolists\Fields\TextEntry',
+            CustomFieldType::DATE->value => 'Relaticle\CustomFields\Integration\Infolists\Fields\TextEntry',
+            CustomFieldType::DATE_TIME->value => 'Relaticle\CustomFields\Integration\Infolists\Fields\TextEntry',
+            CustomFieldType::LINK->value => 'Relaticle\CustomFields\Integration\Infolists\Fields\TextEntry',
+            CustomFieldType::CHECKBOX->value => 'Relaticle\CustomFields\Integration\Infolists\Fields\BooleanEntry',
+            CustomFieldType::TOGGLE->value => 'Relaticle\CustomFields\Integration\Infolists\Fields\BooleanEntry',
+            CustomFieldType::COLOR_PICKER->value => 'Relaticle\CustomFields\Integration\Infolists\Fields\ColorEntry',
+            CustomFieldType::SELECT->value => 'Relaticle\CustomFields\Integration\Infolists\Fields\TextEntry',
+            CustomFieldType::RADIO->value => 'Relaticle\CustomFields\Integration\Infolists\Fields\TextEntry',
+            CustomFieldType::MULTI_SELECT->value => 'Relaticle\CustomFields\Integration\Infolists\Fields\MultiValueEntry',
+            CustomFieldType::CHECKBOX_LIST->value => 'Relaticle\CustomFields\Integration\Infolists\Fields\MultiValueEntry',
+            CustomFieldType::TAGS_INPUT->value => 'Relaticle\CustomFields\Integration\Infolists\Fields\MultiValueEntry',
+            CustomFieldType::TOGGLE_BUTTONS->value => 'Relaticle\CustomFields\Integration\Infolists\Fields\MultiValueEntry',
+            CustomFieldType::RICH_EDITOR->value => 'Relaticle\CustomFields\Integration\Infolists\Fields\HtmlEntry',
+            CustomFieldType::MARKDOWN_EDITOR->value => 'Relaticle\CustomFields\Integration\Infolists\Fields\HtmlEntry',
         ];
 
         return $map[$type->value] ?? throw new RuntimeException("No infolist entry mapped for type: {$type->value}");

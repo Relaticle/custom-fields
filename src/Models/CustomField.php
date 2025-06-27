@@ -41,10 +41,12 @@ use Spatie\LaravelData\DataCollection;
  * 
  * @method static CustomFieldQueryBuilder query()
  * @method static CustomFieldQueryBuilder where($column, $operator = null, $value = null, $boolean = 'and')
+ * @method static CustomFieldQueryBuilder whereIn($column, $values, $boolean = 'and', $not = false)
  * @method static CustomFieldQueryBuilder active()
  * @method static CustomFieldQueryBuilder visibleInList()
  * @method static CustomFieldQueryBuilder nonEncrypted()
  * @method static CustomFieldQueryBuilder forEntity(string $model)
+ * @method static CustomFieldQueryBuilder forMorphEntity(string $entity)
  * @method static CustomFieldQueryBuilder forType(CustomFieldType $type)
  */
 #[ScopedBy([TenantScope::class, SortOrderScope::class])]

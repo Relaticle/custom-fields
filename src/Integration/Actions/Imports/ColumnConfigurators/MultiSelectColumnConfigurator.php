@@ -170,14 +170,16 @@ final readonly class MultiSelectColumnConfigurator implements ColumnConfigurator
     private function setLookupTypeExamples(ImportColumn $column, CustomField $customField): void
     {
         try {
+            /** @var Model $entityInstance */
             $entityInstance = FilamentResourceService::getModelInstance($customField->lookup_type);
             $recordTitleAttribute = FilamentResourceService::getRecordTitleAttribute($customField->lookup_type);
 
             // Get sample values from the lookup model
-            $sampleValues = $entityInstance::query()
-                ->limit(2)
-                ->pluck($recordTitleAttribute)
-                ->toArray();
+            /** @var \Illuminate\Database\Eloquent\Builder<Model> $query */
+            $query = $entityInstance->newQuery();
+            /** @var \Illuminate\Database\Eloquent\Builder<Model> $limitedQuery */
+            $limitedQuery = $query->limit(2);
+            $sampleValues = $limitedQuery->pluck($recordTitleAttribute)->toArray();
 
             if ($sampleValues !== []) {
                 $column->example(implode(', ', $sampleValues));

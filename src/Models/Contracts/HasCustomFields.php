@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace Relaticle\CustomFields\Models\Contracts;
 
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Relaticle\CustomFields\Models\CustomField;
 use Relaticle\CustomFields\Models\CustomFieldValue;
+use Relaticle\CustomFields\QueryBuilders\CustomFieldQueryBuilder;
 
 /**
  * Interface for models that have custom fields.
@@ -18,12 +18,12 @@ use Relaticle\CustomFields\Models\CustomFieldValue;
 interface HasCustomFields
 {
     /**
-     * @return Builder<CustomField>
+     * @return CustomFieldQueryBuilder<CustomField>
      */
-    public function customFields(): Builder;
+    public function customFields(): CustomFieldQueryBuilder;
 
     /**
-     * @return MorphMany<CustomFieldValue, $this>
+     * @return MorphMany<CustomFieldValue>
      */
     public function customFieldValues(): MorphMany;
 

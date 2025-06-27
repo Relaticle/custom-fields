@@ -14,6 +14,7 @@ use Relaticle\CustomFields\CustomFields;
 use Relaticle\CustomFields\Models\Contracts\HasCustomFields;
 use Relaticle\CustomFields\Models\CustomField;
 use Relaticle\CustomFields\Models\CustomFieldValue;
+use Relaticle\CustomFields\QueryBuilders\CustomFieldQueryBuilder;
 use Relaticle\CustomFields\Support\Utils;
 
 /**
@@ -71,9 +72,9 @@ trait UsesCustomFields
     }
 
     /**
-     * @return Builder<CustomField>
+     * @return CustomFieldQueryBuilder<CustomField>
      */
-    public function customFields(): Builder
+    public function customFields(): CustomFieldQueryBuilder
     {
         return CustomFields::newCustomFieldModel()->query()->forEntity($this::class);
     }

@@ -7,6 +7,7 @@ namespace Relaticle\CustomFields\Integration\Tables\Columns;
 use Filament\Support\Colors\Color;
 use Filament\Tables\Columns\Column as BaseColumn;
 use Filament\Tables\Columns\TextColumn as BaseTextColumn;
+use Relaticle\CustomFields\Models\Contracts\HasCustomFields;
 use Relaticle\CustomFields\Models\CustomField;
 use Relaticle\CustomFields\Services\ValueResolver\LookupMultiValueResolver;
 use Relaticle\CustomFields\Support\Utils;
@@ -22,7 +23,7 @@ final readonly class MultiValueColumn implements ColumnInterface
             ->sortable(false)
             ->searchable(false);
 
-        $column->getStateUsing(fn ($record): array => $this->valueResolver->resolve($record, $customField));
+        $column->getStateUsing(fn (HasCustomFields $record): array => $this->valueResolver->resolve($record, $customField));
 
         if (Utils::isSelectOptionColorsFeatureEnabled() && $customField->settings->enable_option_colors && ! $customField->lookup_type) {
             $column->badge()

@@ -7,6 +7,7 @@ namespace Relaticle\CustomFields\Integration\Tables\Columns;
 use Filament\Tables\Columns\Column;
 use Filament\Tables\Columns\IconColumn as BaseIconColumn;
 use Illuminate\Database\Eloquent\Builder;
+use Relaticle\CustomFields\Models\Contracts\HasCustomFields;
 use Relaticle\CustomFields\Models\CustomField;
 
 class IconColumn implements ColumnInterface
@@ -32,6 +33,6 @@ class IconColumn implements ColumnInterface
             )
             ->searchable(false)
             ->label($customField->name)
-            ->getStateUsing(fn ($record) => $record->getCustomFieldValue($customField) ?? false);
+            ->getStateUsing(fn (HasCustomFields $record) => $record->getCustomFieldValue($customField) ?? false);
     }
 }
