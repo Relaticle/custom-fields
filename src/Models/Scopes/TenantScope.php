@@ -12,6 +12,9 @@ use Relaticle\CustomFields\Support\Utils;
 
 class TenantScope implements Scope
 {
+    /**
+     * @param  Builder<Model>  $builder
+     */
     public function apply(Builder $builder, Model $model): void
     {
         if (! Utils::isTenantEnabled()) {

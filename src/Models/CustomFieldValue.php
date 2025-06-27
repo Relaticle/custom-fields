@@ -19,7 +19,11 @@ use Relaticle\CustomFields\Services\FieldTypeRegistryService;
 use Relaticle\CustomFields\Support\SafeValueConverter;
 
 /**
- * @property CustomField $customField
+ * @property int $id
+ * @property string $entity_type
+ * @property int $entity_id
+ * @property int $custom_field_id
+ * @property ?string $string_value
  * @property ?string $text_value
  * @property ?int $integer_value
  * @property ?float $float_value
@@ -27,6 +31,8 @@ use Relaticle\CustomFields\Support\SafeValueConverter;
  * @property ?bool $boolean_value
  * @property ?Carbon $date_value
  * @property ?Carbon $datetime_value
+ * @property CustomField $customField
+ * @property Model $entity
  */
 #[ScopedBy([TenantScope::class])]
 class CustomFieldValue extends Model
@@ -44,7 +50,9 @@ class CustomFieldValue extends Model
     public function __construct(array $attributes = [])
     {
         if ($this->table === null) {
-            $this->setTable(config('custom-fields.table_names.custom_field_values'));
+            $this->setTable(
+                config("custom-fields.table_names.custom_field_values")
+            );
         }
 
         parent::__construct($attributes);
@@ -58,14 +66,14 @@ class CustomFieldValue extends Model
     protected function casts(): array
     {
         return [
-            'string_value' => 'string',
-            'text_value' => 'string',
-            'integer_value' => 'integer',
-            'float_value' => 'float',
-            'json_value' => 'collection',
-            'boolean_value' => 'boolean',
-            'date_value' => 'date',
-            'datetime_value' => 'datetime',
+            "string_value" => "string",
+            "text_value" => "string",
+            "integer_value" => "integer",
+            "float_value" => "float",
+            "json_value" => "collection",
+            "boolean_value" => "boolean",
+            "date_value" => "date",
+            "datetime_value" => "datetime",
         ];
     }
 
@@ -74,14 +82,29 @@ class CustomFieldValue extends Model
         // Handle enum types
         if ($type instanceof CustomFieldType) {
             return match ($type) {
-                CustomFieldType::TEXT, CustomFieldType::TEXTAREA, CustomFieldType::RICH_EDITOR, CustomFieldType::MARKDOWN_EDITOR => 'text_value',
-                CustomFieldType::LINK, CustomFieldType::COLOR_PICKER => 'string_value',
-                CustomFieldType::NUMBER, CustomFieldType::RADIO, CustomFieldType::SELECT => 'integer_value',
-                CustomFieldType::CHECKBOX, CustomFieldType::TOGGLE => 'boolean_value',
-                CustomFieldType::CHECKBOX_LIST, CustomFieldType::TOGGLE_BUTTONS, CustomFieldType::TAGS_INPUT, CustomFieldType::MULTI_SELECT => 'json_value',
-                CustomFieldType::CURRENCY => 'float_value',
-                CustomFieldType::DATE => 'date_value',
-                CustomFieldType::DATE_TIME => 'datetime_value',
+                CustomFieldType::TEXT,
+                CustomFieldType::TEXTAREA,
+                CustomFieldType::RICH_EDITOR,
+                CustomFieldType::MARKDOWN_EDITOR
+                    => "text_value",
+                CustomFieldType::LINK,
+                CustomFieldType::COLOR_PICKER
+                    => "string_value",
+                CustomFieldType::NUMBER,
+                CustomFieldType::RADIO,
+                CustomFieldType::SELECT
+                    => "integer_value",
+                CustomFieldType::CHECKBOX,
+                CustomFieldType::TOGGLE
+                    => "boolean_value",
+                CustomFieldType::CHECKBOX_LIST,
+                CustomFieldType::TOGGLE_BUTTONS,
+                CustomFieldType::TAGS_INPUT,
+                CustomFieldType::MULTI_SELECT
+                    => "json_value",
+                CustomFieldType::CURRENCY => "float_value",
+                CustomFieldType::DATE => "date_value",
+                CustomFieldType::DATE_TIME => "datetime_value",
             };
         }
 
@@ -91,20 +114,20 @@ class CustomFieldValue extends Model
             $fieldTypeConfig = $registry->getFieldType($type);
 
             if ($fieldTypeConfig !== null) {
-                return match ($fieldTypeConfig['category']) {
-                    'text' => 'text_value',
-                    'numeric' => 'integer_value',
-                    'date' => 'date_value',
-                    'boolean' => 'boolean_value',
-                    'single_option' => 'integer_value',
-                    'multi_option' => 'json_value',
-                    default => 'text_value',
+                return match ($fieldTypeConfig["category"]) {
+                    "text" => "text_value",
+                    "numeric" => "integer_value",
+                    "date" => "date_value",
+                    "boolean" => "boolean_value",
+                    "single_option" => "integer_value",
+                    "multi_option" => "json_value",
+                    default => "text_value",
                 };
             }
         }
 
         // Fallback for unknown types
-        return 'text_value';
+        return "text_value";
     }
 
     /**

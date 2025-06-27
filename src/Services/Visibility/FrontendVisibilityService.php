@@ -108,6 +108,8 @@ final readonly class FrontendVisibilityService
 
     /**
      * Build a single condition using core logic rules.
+     * @param  array<string, mixed>  $conditionData
+     * @param  Collection<int, CustomField>  $allFields
      */
     private function buildCondition(array $conditionData, Mode $mode, Collection $allFields): ?string
     {
@@ -305,6 +307,7 @@ final readonly class FrontendVisibilityService
 
     /**
      * Resolve array option value.
+     * @param  array<mixed>  $value
      */
     private function resolveArrayOptionValue(array $value, CustomField $targetField): mixed
     {
@@ -403,6 +406,8 @@ final readonly class FrontendVisibilityService
 
     /**
      * Export visibility logic to JavaScript format for complex integrations.
+     * @param  Collection<int, CustomField>  $fields
+     * @return array<string, mixed>
      */
     public function exportVisibilityLogicToJs(Collection $fields): array
     {

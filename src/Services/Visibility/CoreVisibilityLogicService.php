@@ -173,6 +173,8 @@ final readonly class CoreVisibilityLogicService
     /**
      * Calculate field dependencies for all fields.
      * Returns mapping of source field codes to their dependent field codes.
+     * @param  Collection<int, CustomField>  $allFields
+     * @return array<string, array<string>>
      */
     public function calculateDependencies(Collection $allFields): array
     {
@@ -210,6 +212,7 @@ final readonly class CoreVisibilityLogicService
     /**
      * Get metadata for a field that's needed for visibility evaluation.
      * This is used by frontend services to build JavaScript expressions.
+     * @return array<string, mixed>
      */
     public function getFieldMetadata(CustomField $field): array
     {
@@ -232,6 +235,7 @@ final readonly class CoreVisibilityLogicService
     /**
      * Normalize a single condition for consistent evaluation.
      * Ensures conditions are in the expected format across contexts.
+     * @return array<string, mixed>
      */
     public function normalizeCondition(VisibilityConditionData $condition): array
     {
@@ -275,6 +279,9 @@ final readonly class CoreVisibilityLogicService
     /**
      * Filter visible fields from a collection based on field values.
      * Uses core evaluation logic without cascading.
+     * @param  Collection<int, CustomField>  $fields
+     * @param  array<string, mixed>  $fieldValues
+     * @return Collection<int, CustomField>
      */
     public function filterVisibleFields(Collection $fields, array $fieldValues): Collection
     {
@@ -283,6 +290,8 @@ final readonly class CoreVisibilityLogicService
 
     /**
      * Get fields that should be saved regardless of visibility.
+     * @param  Collection<int, CustomField>  $fields
+     * @return Collection<int, CustomField>
      */
     public function getAlwaysSaveFields(Collection $fields): Collection
     {
@@ -292,12 +301,17 @@ final readonly class CoreVisibilityLogicService
     /**
      * Legacy method aliases for backward compatibility.
      * These delegates to the main methods with consistent naming.
+     * @param  array<string, mixed>  $fieldValues
      */
     public function shouldShowField(CustomField $field, array $fieldValues): bool
     {
         return $this->evaluateVisibility($field, $fieldValues);
     }
 
+    /**
+     * @param  array<string, mixed>  $fieldValues
+     * @param  Collection<int, CustomField>  $allFields
+     */
     public function shouldShowFieldWithCascading(CustomField $field, array $fieldValues, Collection $allFields): bool
     {
         return $this->evaluateVisibilityWithCascading($field, $fieldValues, $allFields);

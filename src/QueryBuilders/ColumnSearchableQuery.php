@@ -9,6 +9,10 @@ use Relaticle\CustomFields\Models\CustomField;
 
 final readonly class ColumnSearchableQuery
 {
+    /**
+     * @param  Builder<\Illuminate\Database\Eloquent\Model>  $builder
+     * @return Builder<\Illuminate\Database\Eloquent\Model>
+     */
     public function builder(Builder $builder, CustomField $customField, string $search): Builder
     {
         $table = $builder->getModel()->getTable();

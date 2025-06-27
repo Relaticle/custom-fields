@@ -78,6 +78,8 @@ final readonly class BackendVisibilityService
 
     /**
      * Get field values normalized for visibility evaluation.
+     * @param  Collection<int, CustomField>  $fields
+     * @return array<string, mixed>
      */
     public function getNormalizedFieldValues(Model $record, Collection $fields): array
     {
@@ -90,6 +92,9 @@ final readonly class BackendVisibilityService
     /**
      * Normalize field values for consistent evaluation.
      * Converts option IDs to names and handles different data types.
+     * @param  array<string>  $fieldCodes
+     * @param  array<string, mixed>  $rawValues
+     * @return array<string, mixed>
      */
     public function normalizeFieldValues(array $fieldCodes, array $rawValues): array
     {
@@ -144,6 +149,8 @@ final readonly class BackendVisibilityService
 
     /**
      * Validate that field visibility evaluation is working correctly.
+     * @param  Collection<int, CustomField>  $fields
+     * @return array<string, mixed>
      */
     public function validateVisibilityConsistency(Model $record, Collection $fields): array
     {
@@ -165,6 +172,8 @@ final readonly class BackendVisibilityService
 
     /**
      * Get fields that should be saved regardless of visibility.
+     * @param  Collection<int, CustomField>  $fields
+     * @return Collection<int, CustomField>
      */
     public function getAlwaysSaveFields(Collection $fields): Collection
     {
@@ -173,6 +182,9 @@ final readonly class BackendVisibilityService
 
     /**
      * Filter visible fields from a collection based on field values.
+     * @param  Collection<int, CustomField>  $fields
+     * @param  array<string, mixed>  $fieldValues
+     * @return Collection<int, CustomField>
      */
     public function filterVisibleFields(Collection $fields, array $fieldValues): Collection
     {
@@ -181,6 +193,8 @@ final readonly class BackendVisibilityService
 
     /**
      * Get field dependencies for multiple fields efficiently.
+     * @param  Collection<int, CustomField>  $allFields
+     * @return array<string, array<string>>
      */
     public function calculateDependencies(Collection $allFields): array
     {
@@ -189,6 +203,7 @@ final readonly class BackendVisibilityService
 
     /**
      * Get field options for optionable fields.
+     * @return array<string, string>
      */
     public function getFieldOptions(string $fieldCode, string $entityType): array
     {
@@ -210,6 +225,7 @@ final readonly class BackendVisibilityService
 
     /**
      * Get field metadata for visibility evaluation.
+     * @return array<string, mixed>|null
      */
     public function getFieldMetadata(string $fieldCode, string $entityType): ?array
     {

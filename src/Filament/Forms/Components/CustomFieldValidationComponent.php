@@ -20,10 +20,10 @@ use ValueError;
 
 final class CustomFieldValidationComponent extends Component
 {
-    protected string $view = 'filament-schemas::components.grid';
+    protected string $view = "filament-schemas::components.grid";
 
     public function __construct(
-        private ?FieldTypeRegistryService $fieldTypeRegistry = null,
+        private ?FieldTypeRegistryService $fieldTypeRegistry = null
     ) {
         $this->fieldTypeRegistry ??= app(FieldTypeRegistryService::class);
         $this->schema([$this->buildValidationRulesRepeater()]);
@@ -37,8 +37,10 @@ final class CustomFieldValidationComponent extends Component
 
     private function buildValidationRulesRepeater(): Repeater
     {
-        return Repeater::make('validation_rules')
-            ->label(__('custom-fields::custom-fields.field.form.validation.rules'))
+        return Repeater::make("validation_rules")
+            ->label(
+                __("custom-fields::custom-fields.field.form.validation.rules")
+            )
             ->schema([
                 Grid::make(3)->schema([
                     $this->buildRuleSelector(),
@@ -46,180 +48,311 @@ final class CustomFieldValidationComponent extends Component
                     $this->buildRuleParametersRepeater(),
                 ]),
             ])
-            ->itemLabel(fn (array $state): string => $this->generateRuleLabel($state))
+            ->itemLabel(
+                fn(array $state): string => $this->generateRuleLabel($state)
+            )
             ->collapsible()
-            ->collapsed(fn (Get $get): bool => count($get('validation_rules') ?? []) > 3)
+            ->collapsed(
+                fn(Get $get): bool => count($get("validation_rules") ?? []) > 3
+            )
             ->reorderable()
             ->reorderableWithButtons()
             ->deletable()
             ->cloneable()
-            ->hintColor('danger')
-            ->addable(fn (Get $get): bool => ! empty($get('type')))
+            ->hintColor("danger")
+            ->addable(fn(Get $get): bool => !empty($get("type")))
             ->hiddenLabel()
             ->defaultItems(0)
-            ->addActionLabel(__('custom-fields::custom-fields.field.form.validation.add_rule'))
+            ->addActionLabel(
+                __(
+                    "custom-fields::custom-fields.field.form.validation.add_rule"
+                )
+            )
             ->columnSpanFull();
     }
 
     private function buildRuleSelector(): Select
     {
-        return Select::make('name')
-            ->label(__('custom-fields::custom-fields.field.form.validation.rule'))
-            ->placeholder(__('custom-fields::custom-fields.field.form.validation.select_rule_placeholder'))
-            ->options(fn (Get $get): array => $this->getAvailableRuleOptions($get))
+        return Select::make("name")
+            ->label(
+                __("custom-fields::custom-fields.field.form.validation.rule")
+            )
+            ->placeholder(
+                __(
+                    "custom-fields::custom-fields.field.form.validation.select_rule_placeholder"
+                )
+            )
+            ->options(
+                fn(Get $get): array => $this->getAvailableRuleOptions($get)
+            )
             ->searchable()
             ->required()
             ->live()
-            ->in(fn (Get $get): array => $this->getAllowedRuleValues($get))
-            ->afterStateUpdated(fn (Get $get, Set $set, ?string $state, ?string $old) => $this->handleRuleChange($set, $state, $old)
+            ->in(fn(Get $get): array => $this->getAllowedRuleValues($get))
+            ->afterStateUpdated(
+                fn(
+                    Get $get,
+                    Set $set,
+                    ?string $state,
+                    ?string $old
+                ) => $this->handleRuleChange($set, $state, $old)
             )
             ->columnSpan(1);
     }
 
     private function buildRuleDescription(): TextEntry
     {
-        return TextEntry::make('description')
-            ->label(__('custom-fields::custom-fields.field.form.validation.description'))
-            ->state(fn (Get $get): string => CustomFieldValidationRule::getDescriptionForRule($get('name'))
+        return TextEntry::make("description")
+            ->label(
+                __(
+                    "custom-fields::custom-fields.field.form.validation.description"
+                )
+            )
+            ->state(
+                fn(
+                    Get $get
+                ): string => CustomFieldValidationRule::getDescriptionForRule(
+                    $get("name")
+                )
             )
             ->columnSpan(2);
     }
 
     private function buildRuleParametersRepeater(): Repeater
     {
-        return Repeater::make('parameters')
-            ->label(__('custom-fields::custom-fields.field.form.validation.parameters'))
+        return Repeater::make("parameters")
+            ->label(
+                __(
+                    "custom-fields::custom-fields.field.form.validation.parameters"
+                )
+            )
             ->simple(
-                TextInput::make('value')
-                    ->label(__('custom-fields::custom-fields.field.form.validation.parameters_value'))
+                TextInput::make("value")
+                    ->label(
+                        __(
+                            "custom-fields::custom-fields.field.form.validation.parameters_value"
+                        )
+                    )
                     ->required()
                     ->hiddenLabel()
-                    ->rules(fn (Get $get, Component $component): array => $this->getParameterValidationRules($get, $component)
+                    ->rules(
+                        fn(
+                            Get $get,
+                            Component $component
+                        ): array => $this->getParameterValidationRules(
+                            $get,
+                            $component
+                        )
                     )
-                    ->hint(fn (Get $get, Component $component): string => $this->getParameterHint($get, $component)
+                    ->hint(
+                        fn(
+                            Get $get,
+                            Component $component
+                        ): string => $this->getParameterHint($get, $component)
                     )
-                    ->afterStateHydrated(fn (Get $get, Set $set, $state, Component $component) => $this->hydrateParameterValue($get, $set, $state, $component)
+                    ->afterStateHydrated(
+                        fn(
+                            Get $get,
+                            Set $set,
+                            $state,
+                            Component $component
+                        ) => $this->hydrateParameterValue(
+                            $get,
+                            $set,
+                            $state,
+                            $component
+                        )
                     )
-                    ->dehydrateStateUsing(fn (Get $get, $state, Component $component): ?string => $this->dehydrateParameterValue($get, $state, $component)
-                    ),
+                    ->dehydrateStateUsing(
+                        fn(
+                            Get $get,
+                            $state,
+                            Component $component
+                        ): ?string => $this->dehydrateParameterValue(
+                            $get,
+                            $state,
+                            $component
+                        )
+                    )
             )
             ->columnSpanFull()
-            ->visible(fn (Get $get): bool => CustomFieldValidationRule::hasParameterForRule($get('name'))
+            ->visible(
+                fn(
+                    Get $get
+                ): bool => CustomFieldValidationRule::hasParameterForRule(
+                    $get("name")
+                )
             )
-            ->minItems(fn (Get $get): int => $this->getParameterCount($get))
-            ->maxItems(fn (Get $get): int => $this->getMaxParameterCount($get))
+            ->minItems(fn(Get $get): int => $this->getParameterCount($get))
+            ->maxItems(fn(Get $get): int => $this->getMaxParameterCount($get))
             ->reorderable(false)
-            ->deletable(fn (Get $get): bool => $this->canDeleteParameter($get))
-            ->defaultItems(fn (Get $get): int => $this->getParameterCount($get))
-            ->hint(fn (Get $get): string => $this->getParameterHint($get))
-            ->hintColor('danger')
-            ->addActionLabel(__('custom-fields::custom-fields.field.form.validation.add_parameter'));
+            ->deletable(fn(Get $get): bool => $this->canDeleteParameter($get))
+            ->defaultItems(fn(Get $get): int => $this->getParameterCount($get))
+            ->hint(fn(Get $get): string => $this->getParameterHint($get))
+            ->hintColor("danger")
+            ->addActionLabel(
+                __(
+                    "custom-fields::custom-fields.field.form.validation.add_parameter"
+                )
+            );
     }
 
+    /**
+     * @return array<string, string>
+     */
     private function getAvailableRuleOptions(Get $get): array
     {
-        $fieldTypeKey = $get('../../type');
-        if (! $fieldTypeKey) {
+        $fieldTypeKey = $get("../../type");
+        if (!$fieldTypeKey) {
             return [];
         }
 
-        $allowedRules = $this->getAllowedValidationRulesForFieldType($fieldTypeKey);
-        $existingRules = $get('../../validation_rules') ?? [];
-        $currentRuleName = $get('name');
+        $allowedRules = $this->getAllowedValidationRulesForFieldType(
+            $fieldTypeKey
+        );
+        $existingRules = $get("../../validation_rules") ?? [];
+        $currentRuleName = $get("name");
 
         return collect($allowedRules)
-            ->reject(fn (CustomFieldValidationRule $rule): bool => $this->isRuleDuplicate($existingRules, $rule->value) && $rule->value !== $currentRuleName
+            ->reject(
+                fn(
+                    CustomFieldValidationRule $rule
+                ): bool => $this->isRuleDuplicate(
+                    $existingRules,
+                    $rule->value
+                ) && $rule->value !== $currentRuleName
             )
-            ->mapWithKeys(fn (CustomFieldValidationRule $rule) => [
-                $rule->value => $rule->getLabel(),
-            ])
+            ->mapWithKeys(
+                fn(CustomFieldValidationRule $rule) => [
+                    $rule->value => $rule->getLabel(),
+                ]
+            )
             ->toArray();
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     private function getAllowedRuleValues(Get $get): array
     {
         $fieldType = $this->getFieldType($get);
-        if (! $fieldType instanceof CustomFieldType) {
+        if (!$fieldType instanceof CustomFieldType) {
             return [];
         }
 
         return collect($fieldType->allowedValidationRules())
-            ->pluck('value')
+            ->pluck("value")
             ->toArray();
     }
 
-    private function handleRuleChange(Set $set, ?string $state, ?string $old): void
-    {
+    private function handleRuleChange(
+        Set $set,
+        ?string $state,
+        ?string $old
+    ): void {
         if ($old === $state) {
             return;
         }
 
-        $set('parameters', []);
+        $set("parameters", []);
 
-        if ($state === null || $state === '' || $state === '0') {
+        if ($state === null || $state === "" || $state === "0") {
             return;
         }
 
         $rule = CustomFieldValidationRule::tryFrom($state);
         if ($rule && $rule->allowedParameterCount() > 0) {
             $parameters = array_fill(0, $rule->allowedParameterCount(), [
-                'value' => '',
-                'key' => Str::uuid()->toString(),
+                "value" => "",
+                "key" => Str::uuid()->toString(),
             ]);
-            $set('parameters', $parameters);
+            $set("parameters", $parameters);
         }
     }
 
-    private function getParameterValidationRules(Get $get, Component $component): array
-    {
-        $ruleName = $get('../../name');
+    /**
+     * @return array<string, mixed>
+     */
+    private function getParameterValidationRules(
+        Get $get,
+        Component $component
+    ): array {
+        $ruleName = $get("../../name");
         $parameterIndex = $this->getParameterIndex($component);
 
-        return CustomFieldValidationRule::getParameterValidationRuleFor($ruleName, $parameterIndex);
+        return CustomFieldValidationRule::getParameterValidationRuleFor(
+            $ruleName,
+            $parameterIndex
+        );
     }
 
-    private function getParameterHint(Get $get, ?Component $component = null): string
-    {
-        $ruleName = $get('name') ?? $get('../../name');
+    private function getParameterHint(
+        Get $get,
+        ?Component $component = null
+    ): string {
+        $ruleName = $get("name") ?? $get("../../name");
 
         if (empty($ruleName)) {
-            return '';
+            return "";
         }
 
         if ($component instanceof Component) {
             $parameterIndex = $this->getParameterIndex($component);
 
-            return CustomFieldValidationRule::getParameterHelpTextFor($ruleName, $parameterIndex);
+            return CustomFieldValidationRule::getParameterHelpTextFor(
+                $ruleName,
+                $parameterIndex
+            );
         }
 
         // For repeater-level hints when parameters are insufficient
         $rule = CustomFieldValidationRule::tryFrom($ruleName);
-        $parameters = $get('parameters') ?? [];
+        $parameters = $get("parameters") ?? [];
 
-        if (! $rule || $rule->allowedParameterCount() <= 0 || count($parameters) >= $rule->allowedParameterCount()) {
-            return '';
+        if (
+            !$rule ||
+            $rule->allowedParameterCount() <= 0 ||
+            count($parameters) >= $rule->allowedParameterCount()
+        ) {
+            return "";
         }
 
         $requiredCount = $rule->allowedParameterCount();
 
         return match ($requiredCount) {
             2 => match ($rule) {
-                CustomFieldValidationRule::BETWEEN => __('custom-fields::custom-fields.validation.between_validation_error'),
-                CustomFieldValidationRule::DIGITS_BETWEEN => __('custom-fields::custom-fields.validation.digits_between_validation_error'),
-                CustomFieldValidationRule::DECIMAL => __('custom-fields::custom-fields.validation.decimal_validation_error'),
-                default => __('custom-fields::custom-fields.validation.parameter_missing', ['count' => $requiredCount]),
+                CustomFieldValidationRule::BETWEEN => __(
+                    "custom-fields::custom-fields.validation.between_validation_error"
+                ),
+                CustomFieldValidationRule::DIGITS_BETWEEN => __(
+                    "custom-fields::custom-fields.validation.digits_between_validation_error"
+                ),
+                CustomFieldValidationRule::DECIMAL => __(
+                    "custom-fields::custom-fields.validation.decimal_validation_error"
+                ),
+                default => __(
+                    "custom-fields::custom-fields.validation.parameter_missing",
+                    ["count" => $requiredCount]
+                ),
             },
-            default => __('custom-fields::custom-fields.validation.parameter_missing', ['count' => $requiredCount]),
+            default => __(
+                "custom-fields::custom-fields.validation.parameter_missing",
+                ["count" => $requiredCount]
+            ),
         };
     }
 
-    private function hydrateParameterValue(Get $get, Set $set, mixed $state, Component $component): void
-    {
+    private function hydrateParameterValue(
+        Get $get,
+        Set $set,
+        mixed $state,
+        Component $component
+    ): void {
         if ($state === null) {
             return;
         }
 
-        $ruleName = $get('../../name');
+        $ruleName = $get("../../name");
         if (empty($ruleName)) {
             return;
         }
@@ -231,16 +364,19 @@ final class CustomFieldValidationComponent extends Component
             $parameterIndex
         );
 
-        $set('value', $normalizedValue);
+        $set("value", $normalizedValue);
     }
 
-    private function dehydrateParameterValue(Get $get, mixed $state, Component $component): ?string
-    {
+    private function dehydrateParameterValue(
+        Get $get,
+        mixed $state,
+        Component $component
+    ): ?string {
         if ($state === null) {
             return null;
         }
 
-        $ruleName = $get('../../name');
+        $ruleName = $get("../../name");
         if (empty($ruleName)) {
             return $state;
         }
@@ -256,7 +392,7 @@ final class CustomFieldValidationComponent extends Component
 
     private function getParameterCount(Get $get): int
     {
-        $ruleName = $get('name');
+        $ruleName = $get("name");
         if (empty($ruleName)) {
             return 1;
         }
@@ -270,28 +406,37 @@ final class CustomFieldValidationComponent extends Component
 
     private function getMaxParameterCount(Get $get): int
     {
-        return CustomFieldValidationRule::getAllowedParametersCountForRule($get('name'));
+        return CustomFieldValidationRule::getAllowedParametersCountForRule(
+            $get("name")
+        );
     }
 
     private function canDeleteParameter(Get $get): bool
     {
-        $ruleName = $get('name');
+        $ruleName = $get("name");
         if (empty($ruleName)) {
             return true;
         }
 
         $rule = CustomFieldValidationRule::tryFrom($ruleName);
-        $parameterCount = count($get('parameters') ?? []);
+        $parameterCount = count($get("parameters") ?? []);
 
-        return ! ($rule && $rule->allowedParameterCount() > 0 && $parameterCount <= $rule->allowedParameterCount());
+        return !(
+            $rule &&
+            $rule->allowedParameterCount() > 0 &&
+            $parameterCount <= $rule->allowedParameterCount()
+        );
     }
 
     private function generateRuleLabel(array $state): string
     {
-        $ruleName = $state['name'] ?? '';
-        $parameters = $state['parameters'] ?? [];
+        $ruleName = $state["name"] ?? "";
+        $parameters = $state["parameters"] ?? [];
 
-        return CustomFieldValidationRule::getLabelForRule($ruleName, $parameters);
+        return CustomFieldValidationRule::getLabelForRule(
+            $ruleName,
+            $parameters
+        );
     }
 
     /**
@@ -299,8 +444,9 @@ final class CustomFieldValidationComponent extends Component
      *
      * @return array<int, CustomFieldValidationRule>
      */
-    private function getAllowedValidationRulesForFieldType(string $fieldTypeKey): array
-    {
+    private function getAllowedValidationRulesForFieldType(
+        string $fieldTypeKey
+    ): array {
         // Try built-in field type first
         $builtInType = CustomFieldType::tryFrom($fieldTypeKey);
         if ($builtInType) {
@@ -308,10 +454,15 @@ final class CustomFieldValidationComponent extends Component
         }
 
         // Check custom field types
-        $customFieldConfig = $this->fieldTypeRegistry->getFieldType($fieldTypeKey);
-        if ($customFieldConfig && isset($customFieldConfig['validation_rules'])) {
+        $customFieldConfig = $this->fieldTypeRegistry->getFieldType(
+            $fieldTypeKey
+        );
+        if (
+            $customFieldConfig &&
+            isset($customFieldConfig["validation_rules"])
+        ) {
             $validRules = [];
-            foreach ($customFieldConfig['validation_rules'] as $ruleValue) {
+            foreach ($customFieldConfig["validation_rules"] as $ruleValue) {
                 try {
                     $validRules[] = CustomFieldValidationRule::from($ruleValue);
                 } catch (ValueError) {
@@ -328,15 +479,17 @@ final class CustomFieldValidationComponent extends Component
 
     private function getFieldType(Get $get): ?CustomFieldType
     {
-        $fieldType = $get('../../type');
+        $fieldType = $get("../../type");
 
         return empty($fieldType) ? null : CustomFieldType::tryFrom($fieldType);
     }
 
-    private function isRuleDuplicate(array $existingRules, string $newRule): bool
-    {
+    private function isRuleDuplicate(
+        array $existingRules,
+        string $newRule
+    ): bool {
         return collect($existingRules)->contains(
-            fn (array $rule): bool => ($rule['name'] ?? '') === $newRule
+            fn(array $rule): bool => ($rule["name"] ?? "") === $newRule
         );
     }
 
@@ -344,7 +497,17 @@ final class CustomFieldValidationComponent extends Component
     {
         $statePath = $component->getStatePath();
 
-        if (in_array(preg_match('/parameters\.([^.]+)/', (string) $statePath, $matches), [0, false], true)) {
+        if (
+            in_array(
+                preg_match(
+                    "/parameters\.([^.]+)/",
+                    (string) $statePath,
+                    $matches
+                ),
+                [0, false],
+                true
+            )
+        ) {
             return 0;
         }
 
@@ -352,7 +515,7 @@ final class CustomFieldValidationComponent extends Component
 
         // Try to get index from container state
         $container = $component->getContainer();
-        if (method_exists($container, 'getParentComponent')) {
+        if (method_exists($container, "getParentComponent")) {
             $repeater = $container->getParentComponent();
             $parameters = $repeater->getState();
 
@@ -371,7 +534,7 @@ final class CustomFieldValidationComponent extends Component
         }
 
         // Fallback: extract from component ID
-        $idParts = explode('-', (string) $component->getId());
+        $idParts = explode("-", (string) $component->getId());
         if (count($idParts) > 1) {
             $lastPart = end($idParts);
             if (is_numeric($lastPart)) {

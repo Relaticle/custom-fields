@@ -121,6 +121,7 @@ final readonly class FieldTypeHelperService
 
     /**
      * Get compatible operators for a field type (works with both enum and string types).
+     * @return array<Operator>
      */
     public function getCompatibleOperators(CustomFieldType|string $type): array
     {
@@ -196,6 +197,9 @@ final readonly class FieldTypeHelperService
         return $this->hasMultipleValues($field->type);
     }
 
+    /**
+     * @return array<Operator>
+     */
     public function getFieldCompatibleOperators(CustomField $field): array
     {
         return $this->getCompatibleOperators($field->type);

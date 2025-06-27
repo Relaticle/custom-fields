@@ -45,8 +45,8 @@ abstract class AbstractOptionsService
         $allowedResources = config(static::$allowedConfigKey, []);
         $disallowedResources = config(static::$disallowedConfigKey, []);
 
-        return (! empty($allowedResources) && ! in_array($resource, $allowedResources))
-            || in_array($resource, $disallowedResources);
+        return (! empty($allowedResources) && ! in_array($resource, $allowedResources, true))
+            || in_array($resource, $disallowedResources, true);
     }
 
     /**

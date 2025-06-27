@@ -16,6 +16,7 @@ use Relaticle\CustomFields\Support\Utils;
 final readonly class CustomFieldsFilter
 {
     /**
+     * @return array<BaseFilter>
      * @throws BindingResolutionException
      */
     public static function all(Model&HasCustomFields $instance): array
@@ -36,6 +37,7 @@ final readonly class CustomFieldsFilter
     }
 
     /**
+     * @return array<BaseFilter>
      * @throws BindingResolutionException
      */
     public static function forRelationManager(RelationManager $relationManager): array

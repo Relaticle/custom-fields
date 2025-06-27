@@ -14,6 +14,15 @@ use Relaticle\CustomFields\Database\Factories\CustomFieldOptionFactory;
 use Relaticle\CustomFields\Models\Scopes\SortOrderScope;
 use Relaticle\CustomFields\Models\Scopes\TenantScope;
 
+/**
+ * @property int $id
+ * @property string $name
+ * @property int $sort_order
+ * @property CustomFieldOptionSettingsData $settings
+ * @property int $custom_field_id
+ * @property \Illuminate\Support\Carbon $created_at
+ * @property \Illuminate\Support\Carbon $updated_at
+ */
 #[ScopedBy([TenantScope::class, SortOrderScope::class])]
 class CustomFieldOption extends Model
 {
@@ -23,7 +32,7 @@ class CustomFieldOption extends Model
     protected $guarded = [];
 
     protected $casts = [
-        'settings' => CustomFieldOptionSettingsData::class.':default',
+        "settings" => CustomFieldOptionSettingsData::class . ":default",
     ];
 
     /**
@@ -32,11 +41,11 @@ class CustomFieldOption extends Model
      * @var array<int, string>
      */
     protected $visible = [
-        'id',
-        'name',
-        'settings',
-        'sort_order',
-        'custom_field_id',
+        "id",
+        "name",
+        "settings",
+        "sort_order",
+        "custom_field_id",
     ];
 
     /**
@@ -45,7 +54,9 @@ class CustomFieldOption extends Model
     public function __construct(array $attributes = [])
     {
         if ($this->table === null) {
-            $this->setTable(config('custom-fields.table_names.custom_field_options'));
+            $this->setTable(
+                config("custom-fields.table_names.custom_field_options")
+            );
         }
 
         parent::__construct($attributes);
