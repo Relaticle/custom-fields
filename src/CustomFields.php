@@ -33,6 +33,8 @@ final class CustomFields
 
     /**
      * Get the name of the custom field model used by the application.
+     *
+     * @return class-string<CustomField>
      */
     public static function customFieldModel(): string
     {
@@ -61,6 +63,8 @@ final class CustomFields
 
     /**
      * Get the name of the custom field value model used by the application.
+     *
+     * @return class-string<CustomFieldValue>
      */
     public static function valueModel(): string
     {
@@ -89,6 +93,8 @@ final class CustomFields
 
     /**
      * Get the name of the custom field option model used by the application.
+     *
+     * @return class-string<CustomFieldOption>
      */
     public static function optionModel(): string
     {
@@ -117,6 +123,8 @@ final class CustomFields
 
     /**
      * Get the name of the custom field section model used by the application.
+     *
+     * @return class-string<CustomFieldSection>
      */
     public static function sectionModel(): string
     {
