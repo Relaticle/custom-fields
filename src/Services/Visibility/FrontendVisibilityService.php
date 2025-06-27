@@ -79,7 +79,7 @@ final readonly class FrontendVisibilityService
             ->filter(
                 fn ($condition) => $allFields->contains(
                     'code',
-                    $condition['field_code']
+                    $condition->field_code
                 )
             )
             ->map(
@@ -142,19 +142,13 @@ final readonly class FrontendVisibilityService
     /**
      * Build a single condition using core logic rules.
      *
-     * @param  array<string, mixed>  $conditionData
      * @param  Collection<int, CustomField>  $allFields
      */
     private function buildCondition(
-        array $conditionData,
+        VisibilityConditionData $condition,
         Mode $mode,
         Collection $allFields
     ): ?string {
-        $condition = new VisibilityConditionData(
-            field_code: $conditionData['field_code'],
-            operator: Operator::from($conditionData['operator']),
-            value: $conditionData['value']
-        );
 
         $targetField = $allFields->firstWhere('code', $condition->field_code);
         $fieldValue = "\$get('custom_fields.{$condition->field_code}')";
@@ -458,9 +452,18 @@ final readonly class FrontendVisibilityService
         }
 
         if (is_numeric($value)) {
-            return is_float($value) || str_contains((string) $value, '.')
-                ? (float) $value
-                : (int) $value;
+            // Handle float values
+            if (is_float($value)) {
+                return (float) $value;
+            }
+            
+            // Handle string values that contain decimal points
+            if (str_contains((string) $value, '.')) {
+                return (float) $value;
+            }
+            
+            // Handle integer values
+            return (int) $value;
         }
 
         return rescue(function () use ($value, $targetField) {
@@ -538,7 +541,7 @@ final readonly class FrontendVisibilityService
             is_string($value) => "'".addslashes($value)."'",
             is_int($value) => (string) $value,
             is_float($value) => number_format($value, 10, '.', ''),
-            is_numeric($value) => is_float($value + 0)
+            is_numeric($value) => str_contains((string) $value, '.')
                 ? number_format((float) $value, 10, '.', '')
                 : (string) ((int) $value),
             is_array($value) => collect($value)

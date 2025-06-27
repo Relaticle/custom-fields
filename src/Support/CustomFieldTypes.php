@@ -48,12 +48,8 @@ class CustomFieldTypes
             throw new InvalidArgumentException("Class {$className} does not exist.");
         }
 
+        /** @var FieldTypeDefinitionInterface $fieldType */
         $fieldType = new $className;
-
-        if (! $fieldType instanceof FieldTypeDefinitionInterface) {
-            throw new InvalidArgumentException("Class {$className} must implement FieldTypeDefinitionInterface.");
-        }
-
         self::register($fieldType);
     }
 
@@ -83,7 +79,7 @@ class CustomFieldTypes
     /**
      * Get all registered field types.
      *
-     * @return Collection<string, array<string, mixed>>
+     * @return Collection<string, mixed>
      */
     public static function getAllFieldTypes(): Collection
     {

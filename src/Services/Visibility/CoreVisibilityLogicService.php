@@ -157,7 +157,7 @@ final readonly class CoreVisibilityLogicService
             return [];
         }
 
-        return $visibility->conditions->toArray();
+        return $visibility->conditions->all();
     }
 
     /**

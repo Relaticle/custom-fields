@@ -53,8 +53,12 @@ final readonly class CustomFieldsFilter
     public static function forRelationManager(
         RelationManager $relationManager
     ): array {
-        return CustomFieldsFilter::all(
-            $relationManager->getRelationship()->getModel()
-        );
+        $model = $relationManager->getRelationship()->getModel();
+        
+        if (! $model instanceof HasCustomFields) {
+            return [];
+        }
+        
+        return CustomFieldsFilter::all($model);
     }
 }
