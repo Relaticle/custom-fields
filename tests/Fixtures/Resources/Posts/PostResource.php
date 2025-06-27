@@ -18,6 +18,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Relaticle\CustomFields\Integration\Forms\CustomFieldsForm;
+use Relaticle\CustomFields\Integration\Infolists\CustomFieldsInfolists;
 use Relaticle\CustomFields\Tests\Fixtures\Models\Post;
 use RuntimeException;
 use UnitEnum;
@@ -65,7 +66,7 @@ class PostResource extends Resource
             ])
             ->filters([
                 Tables\Filters\Filter::make('is_published')
-                    ->query(fn (Builder $query) => $query->where('is_published', true)),
+                    ->query(fn(Builder $query) => $query->where('is_published', true)),
             ])
             ->recordActions([
                 ViewAction::make(),
