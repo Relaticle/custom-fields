@@ -47,7 +47,7 @@ final class FieldTypeRegistryService
     private array $customFieldTypes = [];
 
     /**
-     * @var array<string, array{label: string, icon: string, category: string, validation_rules: array, form_component: string, table_column: string, infolist_entry: string, searchable: bool, filterable: bool, encryptable: bool, priority: int}>|null
+     * @var array<string, array{label: string, icon: string, category: string, validation_rules: array<string>, form_component: string, table_column: string, infolist_entry: string, searchable: bool, filterable: bool, encryptable: bool, priority: int}>|null
      */
     private ?array $cachedOptions = null;
 

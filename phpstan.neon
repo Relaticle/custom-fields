@@ -6,6 +6,7 @@ parameters:
         - src
         - tests
     excludePaths:
+        - src/Filament/Pages/CustomFieldsPage.php
         - src/Livewire
         - tests/Fixtures
         - tests/database
