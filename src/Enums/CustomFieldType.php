@@ -70,23 +70,7 @@ enum CustomFieldType: string implements HasLabel
      */
     public static function optionsForSelect(): Collection
     {
-        // Check if FieldTypeRegistryService is available and use it for extended options
-        if (app()->bound(FieldTypeRegistryService::class)) {
-            return app(FieldTypeRegistryService::class)->getFieldTypeOptions();
-        }
-
-        // Fallback to built-in types only with improved caching
-        return Cache::remember(
-            'custom-fields.field-types.options-for-select',
-            300, // 5 minutes
-            fn () => collect(self::options())->map(
-                fn ($label, $value): array => [
-                    'label' => $label,
-                    'value' => $value,
-                    'icon' => self::icons()[$value],
-                ]
-            )
-        );
+        return app(FieldTypeRegistryService::class)->getFieldTypeOptions();
     }
 
     /**

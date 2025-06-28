@@ -1,5 +1,0 @@
-
- [ERROR] Call to undefined method                                               
-         Rector\Configuration\RectorConfigBuilder::withSkipRector()             
-
-Script vendor/bin/rector process --dry-run handling the refactor event returned with error code 1
