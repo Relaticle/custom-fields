@@ -39,7 +39,8 @@
       "Bash(then echo \"PASSED\")",
       "Bash(else echo \"FAILED\")",
       "Bash(fi)",
-      "Bash(./vendor/bin/phpstan analyse:*)"
+      "Bash(./vendor/bin/phpstan analyse:*)",
+      "Bash(vendor/bin/phpunit:*)"
     ],
     "deny": []
   }
