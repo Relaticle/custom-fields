@@ -6,23 +6,14 @@ namespace Relaticle\CustomFields\Integration\Forms\Components;
 
 use Filament\Forms\Components\Field;
 use Filament\Forms\Components\TextInput;
-use Illuminate\Support\Collection;
-use Relaticle\CustomFields\Integration\Forms\FieldConfigurator;
 use Relaticle\CustomFields\Models\CustomField;
 
-final readonly class NumberComponent implements FieldComponentInterface
+final readonly class NumberComponent extends AbstractFieldComponent
 {
-    public function __construct(private FieldConfigurator $configurator) {}
-
-    /**
-     * @param  array<string>  $dependentFieldCodes
-     */
-    public function make(CustomField $customField, array $dependentFieldCodes = [], ?Collection $allFields = null): Field
+    public function createField(CustomField $customField): Field
     {
-        $field = TextInput::make("custom_fields.{$customField->code}")
+        return TextInput::make("custom_fields.{$customField->code}")
             ->numeric()
             ->placeholder(null);
-
-        return $this->configurator->configure($field, $customField, $allFields, $dependentFieldCodes);
     }
 }

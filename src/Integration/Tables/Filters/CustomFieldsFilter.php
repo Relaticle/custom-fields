@@ -29,7 +29,7 @@ final readonly class CustomFieldsFilter
             return [];
         }
 
-        $fieldFilterFactory = new FieldFilterFactory(app());
+        $fieldFilterFactory = new FieldFilterFactory(app(), app(\Relaticle\CustomFields\Services\FieldTypeRegistryService::class));
 
         return $instance
             ->customFields()

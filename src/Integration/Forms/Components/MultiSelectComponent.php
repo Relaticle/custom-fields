@@ -4,20 +4,15 @@ declare(strict_types=1);
 
 namespace Relaticle\CustomFields\Integration\Forms\Components;
 
-use Filament\Forms\Components\Select;
-use Illuminate\Support\Collection;
-use Relaticle\CustomFields\Integration\Forms\FieldConfigurator;
+use Filament\Forms\Components\Field;
 use Relaticle\CustomFields\Models\CustomField;
 
-final readonly class MultiSelectComponent implements FieldComponentInterface
+final readonly class MultiSelectComponent extends AbstractFieldComponent
 {
-    public function __construct(private FieldConfigurator $configurator) {}
-
-    /**
-     * @param  array<string>  $dependentFieldCodes
-     */
-    public function make(CustomField $customField, array $dependentFieldCodes = [], ?Collection $allFields = null): Select
+    public function createField(CustomField $customField): Field
     {
-        return (new SelectComponent($this->configurator))->make($customField, $dependentFieldCodes, $allFields)->multiple();
+        // Delegate to SelectComponent and make it multiple
+        $selectComponent = new SelectComponent($this->configurator);
+        return $selectComponent->createField($customField)->multiple();
     }
 }

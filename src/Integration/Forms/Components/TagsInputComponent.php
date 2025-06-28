@@ -6,39 +6,21 @@ namespace Relaticle\CustomFields\Integration\Forms\Components;
 
 use Filament\Forms\Components\Field;
 use Filament\Forms\Components\TagsInput;
-use Illuminate\Support\Collection;
-use ReflectionException;
-use Relaticle\CustomFields\Integration\Forms\FieldConfigurator;
+use Relaticle\CustomFields\Integration\Forms\Components\Traits\ConfiguresLookups;
 use Relaticle\CustomFields\Models\CustomField;
-use Relaticle\CustomFields\Services\FilamentResourceService;
-use Throwable;
 
-final readonly class TagsInputComponent implements FieldComponentInterface
+final readonly class TagsInputComponent extends AbstractFieldComponent
 {
-    public function __construct(private FieldConfigurator $configurator) {}
+    use ConfiguresLookups;
 
-    /**
-     * @param  array<string>  $dependentFieldCodes
-     *
-     * @throws ReflectionException
-     * @throws Throwable
-     */
-    public function make(CustomField $customField, array $dependentFieldCodes = [], ?Collection $allFields = null): Field
+    public function createField(CustomField $customField): Field
     {
         $field = TagsInput::make("custom_fields.{$customField->code}");
 
-        if ($customField->lookup_type) {
-            $entityInstanceQuery = FilamentResourceService::getModelInstanceQuery($customField->lookup_type);
-            $entityInstanceKeyName = $entityInstanceQuery->getModel()->getKeyName();
-            $recordTitleAttribute = FilamentResourceService::getRecordTitleAttribute($customField->lookup_type);
-
-            $suggestions = $entityInstanceQuery->pluck($recordTitleAttribute, $entityInstanceKeyName)->toArray();
-        } else {
-            $suggestions = $customField->options->pluck('name', 'id')->all();
-        }
-
+        // Get suggestions from lookup or field options
+        $suggestions = $this->getFieldOptions($customField);
         $field->suggestions($suggestions);
 
-        return $this->configurator->configure($field, $customField, $allFields, $dependentFieldCodes);
+        return $field;
     }
 }

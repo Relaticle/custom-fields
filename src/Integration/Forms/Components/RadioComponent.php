@@ -6,72 +6,35 @@ namespace Relaticle\CustomFields\Integration\Forms\Components;
 
 use Filament\Forms\Components\Field;
 use Filament\Forms\Components\Radio;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;
-use Relaticle\CustomFields\Integration\Forms\FieldConfigurator;
+use Relaticle\CustomFields\Integration\Forms\Components\Traits\ConfiguresColorOptions;
+use Relaticle\CustomFields\Integration\Forms\Components\Traits\ConfiguresLookups;
 use Relaticle\CustomFields\Models\CustomField;
-use Relaticle\CustomFields\Services\FilamentResourceService;
-use Relaticle\CustomFields\Support\Utils;
-use Throwable;
 
-final readonly class RadioComponent implements FieldComponentInterface
+final readonly class RadioComponent extends AbstractFieldComponent
 {
-    public function __construct(private FieldConfigurator $configurator) {}
+    use ConfiguresLookups;
+    use ConfiguresColorOptions;
 
-    /**
-     * @param  array<string>  $dependentFieldCodes
-     *
-     * @throws Throwable
-     */
-    public function make(CustomField $customField, array $dependentFieldCodes = [], ?Collection $allFields = null): Field
+    public function createField(CustomField $customField): Field
     {
         $field = Radio::make("custom_fields.{$customField->code}")->inline(false);
 
-        if ($customField->lookup_type) {
-            /** @var Model $entityInstance */
-            $entityInstance = FilamentResourceService::getModelInstance($customField->lookup_type);
-            $recordTitleAttribute = FilamentResourceService::getRecordTitleAttribute($customField->lookup_type);
+        // Get options from lookup or field options
+        $options = $this->getFieldOptions($customField);
+        $field->options($options);
 
-            /** @var Builder<Model> $query */
-            $query = $entityInstance->newQuery();
-            $options = $query->limit(50)->pluck($recordTitleAttribute, 'id')->toArray();
-        } else {
-            $options = $customField->options->pluck('name', 'id')->all();
+        // Add color styling if enabled (only for non-lookup fields)
+        if (!$this->usesLookupType($customField) && $this->hasColorOptionsEnabled($customField)) {
+            $coloredOptions = $this->getColoredOptions($customField);
 
-            // Add color styling if enabled
-            if (Utils::isSelectOptionColorsFeatureEnabled() && $customField->settings->enable_option_colors) {
-                $optionsWithColor = $customField->options
-                    ->filter(fn ($option) => $option->settings->color ?? false)
-                    ->mapWithKeys(fn ($option) => [$option->id => $option->name])
-                    ->all();
-
-                if (count($optionsWithColor) > 0) {
-                    $field->descriptions(
-                        array_map(
-                            fn ($optionId): string => $this->getColoredOptionDescription((string) $optionId, $customField),
-                            array_keys($optionsWithColor)
-                        )
-                    );
-                }
+            if (count($coloredOptions) > 0) {
+                $field->descriptions(
+                    $this->getColorDescriptions(array_keys($coloredOptions), $customField)
+                );
             }
         }
 
-        $field->options($options);
-
-        return $this->configurator->configure($field, $customField, $allFields, $dependentFieldCodes);
-    }
-
-    /**
-     * Generate HTML for colored option indicator
-     */
-    private function getColoredOptionDescription(string $optionId, CustomField $customField): string
-    {
-        $option = $customField->options->firstWhere('id', $optionId);
-        if (! $option || ! $option->settings->color) {
-            return '';
-        }
-
-        return "<span style='display: inline-block; width: 12px; height: 12px; background-color: {$option->settings->color}; border-radius: 2px; margin-right: 4px;'></span>";
+        return $field;
     }
 }

@@ -40,7 +40,9 @@
       "Bash(else echo \"FAILED\")",
       "Bash(fi)",
       "Bash(./vendor/bin/phpstan analyse:*)",
-      "Bash(vendor/bin/phpunit:*)"
+      "Bash(vendor/bin/phpunit:*)",
+      "Bash(sed:*)",
+      "Bash(./vendor/bin/phpunit)"
     ],
     "deny": []
   }

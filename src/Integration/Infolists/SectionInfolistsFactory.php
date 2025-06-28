@@ -7,16 +7,16 @@ namespace Relaticle\CustomFields\Integration\Infolists;
 use Filament\Schemas\Components\Fieldset;
 use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Components\Section;
-use Illuminate\Contracts\Container\Container;
 use InvalidArgumentException;
 use Relaticle\CustomFields\Enums\CustomFieldSectionType;
+use Relaticle\CustomFields\Integration\AbstractComponentFactory;
 use Relaticle\CustomFields\Integration\Infolists\Sections\FieldsetInfolistsComponent;
 use Relaticle\CustomFields\Integration\Infolists\Sections\HeadlessInfolistsComponent;
 use Relaticle\CustomFields\Integration\Infolists\Sections\SectionInfolistsComponent;
 use Relaticle\CustomFields\Models\CustomFieldSection;
 use RuntimeException;
 
-final class SectionInfolistsFactory
+final class SectionInfolistsFactory extends AbstractComponentFactory
 {
     /**
      * @var array<string, class-string<SectionInfolistsComponentInterface>>
@@ -26,13 +26,6 @@ final class SectionInfolistsFactory
         CustomFieldSectionType::FIELDSET->value => FieldsetInfolistsComponent::class,
         CustomFieldSectionType::HEADLESS->value => HeadlessInfolistsComponent::class,
     ];
-
-    /**
-     * @var array<class-string<SectionInfolistsComponentInterface>, SectionInfolistsComponentInterface>
-     */
-    private array $instanceCache = [];
-
-    public function __construct(private readonly Container $container) {}
 
     public function create(CustomFieldSection $customFieldSection): Section|Fieldset|Grid
     {
@@ -44,18 +37,27 @@ final class SectionInfolistsFactory
 
         $componentClass = $this->componentMap[$customFieldSectionType];
 
+        // Use inherited caching mechanism
+        $component = $this->getOrCreateInstance($componentClass, SectionInfolistsComponentInterface::class);
+
+        return $component->make($customFieldSection);
+    }
+
+    /**
+     * Get or create cached instance.
+     */
+    private function getOrCreateInstance(string $componentClass, string $expectedInterface): object
+    {
         if (! isset($this->instanceCache[$componentClass])) {
             $component = $this->container->make($componentClass);
 
-            if (! $component instanceof SectionInfolistsComponentInterface) {
-                throw new RuntimeException("Infolists component class {$componentClass} must implement SectionInfolistsComponentInterface");
+            if (! $component instanceof $expectedInterface) {
+                throw new RuntimeException("Component class {$componentClass} must implement {$expectedInterface}");
             }
 
             $this->instanceCache[$componentClass] = $component;
-        } else {
-            $component = $this->instanceCache[$componentClass];
         }
 
-        return $component->make($customFieldSection);
+        return $this->instanceCache[$componentClass];
     }
 }

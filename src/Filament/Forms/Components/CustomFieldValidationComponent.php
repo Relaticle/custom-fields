@@ -204,8 +204,13 @@ final class CustomFieldValidationComponent extends Component
             return [];
         }
 
+        // Convert enum to string value if needed
+        $fieldTypeKeyString = $fieldTypeKey instanceof \Relaticle\CustomFields\Enums\CustomFieldType 
+            ? $fieldTypeKey->value 
+            : $fieldTypeKey;
+
         $allowedRules = $this->getAllowedValidationRulesForFieldType(
-            $fieldTypeKey
+            $fieldTypeKeyString
         );
         $existingRules = $get("../../validation_rules") ?? [];
         $currentRuleName = $get("name");
@@ -478,7 +483,17 @@ final class CustomFieldValidationComponent extends Component
     {
         $fieldType = $get("../../type");
 
-        return empty($fieldType) ? null : CustomFieldType::tryFrom($fieldType);
+        if (empty($fieldType)) {
+            return null;
+        }
+
+        // If already a CustomFieldType enum, return it directly
+        if ($fieldType instanceof CustomFieldType) {
+            return $fieldType;
+        }
+
+        // Otherwise try to convert from string
+        return CustomFieldType::tryFrom($fieldType);
     }
 
     /**

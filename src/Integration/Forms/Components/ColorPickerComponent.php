@@ -6,21 +6,12 @@ namespace Relaticle\CustomFields\Integration\Forms\Components;
 
 use Filament\Forms\Components\ColorPicker;
 use Filament\Forms\Components\Field;
-use Illuminate\Support\Collection;
-use Relaticle\CustomFields\Integration\Forms\FieldConfigurator;
 use Relaticle\CustomFields\Models\CustomField;
 
-final readonly class ColorPickerComponent implements FieldComponentInterface
+final readonly class ColorPickerComponent extends AbstractFieldComponent
 {
-    public function __construct(private FieldConfigurator $configurator) {}
-
-    /**
-     * @param  array<string>  $dependentFieldCodes
-     */
-    public function make(CustomField $customField, array $dependentFieldCodes = [], ?Collection $allFields = null): Field
+    public function createField(CustomField $customField): Field
     {
-        $field = ColorPicker::make("custom_fields.{$customField->code}");
-
-        return $this->configurator->configure($field, $customField, $allFields, $dependentFieldCodes);
+        return ColorPicker::make("custom_fields.{$customField->code}");
     }
 }

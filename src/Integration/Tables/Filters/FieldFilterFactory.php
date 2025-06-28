@@ -6,13 +6,13 @@ namespace Relaticle\CustomFields\Integration\Tables\Filters;
 
 use Filament\Tables\Filters\BaseFilter;
 use Illuminate\Contracts\Container\BindingResolutionException;
-use Illuminate\Contracts\Container\Container;
 use InvalidArgumentException;
 use Relaticle\CustomFields\Enums\CustomFieldType;
+use Relaticle\CustomFields\Integration\AbstractComponentFactory;
 use Relaticle\CustomFields\Models\CustomField;
 use RuntimeException;
 
-final class FieldFilterFactory
+final class FieldFilterFactory extends AbstractComponentFactory
 {
     /**
      * @var array<string, class-string<FilterInterface>>
@@ -28,13 +28,6 @@ final class FieldFilterFactory
     ];
 
     /**
-     * @var array<class-string<FilterInterface>, FilterInterface>
-     */
-    private array $instanceCache = [];
-
-    public function __construct(private readonly Container $container) {}
-
-    /**
      * @throws BindingResolutionException
      */
     public function create(CustomField $customField): BaseFilter
@@ -47,18 +40,27 @@ final class FieldFilterFactory
 
         $filterClass = $this->componentMap[$customFieldType];
 
+        // Use inherited caching mechanism
+        $component = $this->getOrCreateInstance($filterClass, FilterInterface::class);
+
+        return $component->make($customField);
+    }
+
+    /**
+     * Get or create cached instance.
+     */
+    private function getOrCreateInstance(string $filterClass, string $expectedInterface): object
+    {
         if (! isset($this->instanceCache[$filterClass])) {
             $component = $this->container->make($filterClass);
 
-            if (! $component instanceof FilterInterface) {
-                throw new RuntimeException("Component class {$filterClass} must implement FieldFilterInterface");
+            if (! $component instanceof $expectedInterface) {
+                throw new RuntimeException("Component class {$filterClass} must implement {$expectedInterface}");
             }
 
             $this->instanceCache[$filterClass] = $component;
-        } else {
-            $component = $this->instanceCache[$filterClass];
         }
 
-        return $component->make($customField);
+        return $this->instanceCache[$filterClass];
     }
 }

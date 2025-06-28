@@ -157,9 +157,19 @@ enum CustomFieldValidationRule: string implements HasLabel
         return __('custom-fields::custom-fields.validation.descriptions.'.$this->name);
     }
 
+    /**
+     * Check if a rule value is considered empty.
+     * 
+     * Utility method to eliminate repeated null/empty checks throughout the enum.
+     */
+    private static function isEmptyRule(mixed $rule): bool
+    {
+        return $rule === null || $rule === '' || $rule === '0';
+    }
+
     public static function hasParameterForRule(?string $rule): bool
     {
-        if ($rule === null || $rule === '' || $rule === '0') {
+        if (self::isEmptyRule($rule)) {
             return false;
         }
 
@@ -168,7 +178,7 @@ enum CustomFieldValidationRule: string implements HasLabel
 
     public static function getAllowedParametersCountForRule(?string $rule): int
     {
-        if ($rule === null || $rule === '' || $rule === '0') {
+        if (self::isEmptyRule($rule)) {
             return 0;
         }
 
@@ -181,7 +191,7 @@ enum CustomFieldValidationRule: string implements HasLabel
 
     public static function getDescriptionForRule(?string $rule): string
     {
-        if ($rule === null || $rule === '' || $rule === '0') {
+        if (self::isEmptyRule($rule)) {
             return __('custom-fields::custom-fields.validation.select_rule_description');
         }
 
@@ -317,7 +327,7 @@ enum CustomFieldValidationRule: string implements HasLabel
      */
     public static function getParameterValidationRuleFor(?string $rule, int $parameterIndex = 0): array
     {
-        if ($rule === null || $rule === '' || $rule === '0') {
+        if (self::isEmptyRule($rule)) {
             return ['required', 'string', 'max:255'];
         }
 
@@ -345,7 +355,7 @@ enum CustomFieldValidationRule: string implements HasLabel
      */
     public static function getParameterHelpTextFor(?string $rule, int $parameterIndex = 0): string
     {
-        if ($rule === null || ($rule === '' || $rule === '0')) {
+        if (self::isEmptyRule($rule)) {
             return __('custom-fields::custom-fields.validation.parameter_help.default');
         }
 
@@ -362,7 +372,7 @@ enum CustomFieldValidationRule: string implements HasLabel
      */
     public static function normalizeParameterValue(?string $rule, string $value, int $parameterIndex = 0): string
     {
-        if ($rule === null || $rule === '' || $rule === '0') {
+        if (self::isEmptyRule($rule)) {
             return $value;
         }
 
@@ -410,7 +420,7 @@ enum CustomFieldValidationRule: string implements HasLabel
      */
     public static function getLabelForRule(string $rule, array $parameters = []): string
     {
-        if ($rule === '' || $rule === '0') {
+        if (self::isEmptyRule($rule)) {
             return '';
         }
 

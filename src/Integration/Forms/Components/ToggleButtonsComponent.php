@@ -6,37 +6,30 @@ namespace Relaticle\CustomFields\Integration\Forms\Components;
 
 use Filament\Forms\Components\Field;
 use Filament\Forms\Components\ToggleButtons;
-use Illuminate\Support\Collection;
-use Relaticle\CustomFields\Integration\Forms\FieldConfigurator;
+use Relaticle\CustomFields\Integration\Forms\Components\Traits\ConfiguresColorOptions;
 use Relaticle\CustomFields\Models\CustomField;
-use Relaticle\CustomFields\Support\Utils;
 
-final readonly class ToggleButtonsComponent implements FieldComponentInterface
+final readonly class ToggleButtonsComponent extends AbstractFieldComponent
 {
-    public function __construct(private FieldConfigurator $configurator) {}
+    use ConfiguresColorOptions;
 
-    /**
-     * @param  array<string>  $dependentFieldCodes
-     */
-    public function make(CustomField $customField, array $dependentFieldCodes = [], ?Collection $allFields = null): Field
+    public function createField(CustomField $customField): Field
     {
         $field = ToggleButtons::make("custom_fields.{$customField->code}")->inline(false);
 
+        // ToggleButtons only use field options, no lookup support
         $options = $customField->options->pluck('name', 'id')->all();
         $field->options($options);
 
-        // Add color support if enabled
-        if (Utils::isSelectOptionColorsFeatureEnabled() && $customField->settings->enable_option_colors) {
-            $optionsWithColor = $customField->options
-                                    ->filter(fn ($option) => $option->settings->color ?? false)
-                ->mapWithKeys(fn ($option) => [$option->id => $option->settings->color])
-                ->all();
+        // Add color support if enabled (ToggleButtons use native colors method)
+        if ($this->hasColorOptionsEnabled($customField)) {
+            $colorMapping = $this->getColorMapping($customField);
 
-            if (count($optionsWithColor) > 0) {
-                $field->colors($optionsWithColor);
+            if (count($colorMapping) > 0) {
+                $field->colors($colorMapping);
             }
         }
 
-        return $this->configurator->configure($field, $customField, $allFields, $dependentFieldCodes);
+        return $field;
     }
 }
