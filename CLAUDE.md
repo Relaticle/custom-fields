@@ -6,6 +6,103 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 CustomFields is a Laravel/Filament package that provides a dynamic custom fields system, allowing developers to add custom fields to Eloquent models without database migrations. It supports 32+ field types with features like conditional visibility, multi-tenancy, import/export, and field encryption.
 
+## Installation and Setup
+
+### Package Installation Steps
+- Install the package using Composer:
+  1. `composer require relaticle/custom-fields`
+  2. `php artisan vendor:publish --tag="custom-fields-migrations"`
+  3. `php artisan migrate`
+
+### Filament Panel Integration
+- Register the Custom Fields Plugin in your panel configuration:
+```php
+use Relaticle\CustomFields\CustomFieldsPlugin;
+use Filament\Panel;
+
+public function panel(Panel $panel): Panel
+{
+    return $panel
+        ->plugins([
+            CustomFieldsPlugin::make(),
+        ]);
+}
+```
+
+### Model Setup
+- Implement `HasCustomFields` interface and use `UsesCustomFields` trait in your model:
+```php
+use Relaticle\CustomFields\Models\Contracts\HasCustomFields;
+use Relaticle\CustomFields\Models\Concerns\UsesCustomFields;
+use Illuminate\Database\Eloquent\Model;
+
+class Company extends Model implements HasCustomFields
+{
+    use UsesCustomFields;
+    // ... your existing model code
+}
+```
+
+### Form Integration
+- Add custom fields to resource forms using `CustomFieldsComponent`:
+```php
+use Relaticle\CustomFields\Integration\Forms\CustomFieldsForm;
+
+public static function form(Form $form): Form
+{
+    return $form
+        ->schema([
+            // Existing form fields
+            Forms\Components\TextInput::make('name')->required(),
+            
+            // Custom Fields Form Component
+            CustomFieldsForm::make()->columnSpanFull(),
+        ]);
+}
+```
+
+### Table View Integration
+- Use `InteractsWithCustomFields` trait in list records page:
+```php
+use Relaticle\CustomFields\Integration\Tables\InteractsWithCustomFields;
+
+class ListCompanies extends ListRecords
+{
+    use InteractsWithCustomFields;
+    // ...
+}
+```
+
+### Infolist Integration
+- Include `CustomFieldsInfolists` in view or info list:
+```php
+use Relaticle\CustomFields\Integration\Infolists\CustomFieldsInfolists;
+
+public function getInfolist(): array
+{
+    return [
+        CustomFieldsInfolists::make() ->columnSpanFull(),
+    ];
+}
+```
+
+### Export Integration
+- Use `CustomFieldsExporter` for including custom fields in exports:
+```php
+use Relaticle\CustomFields\Integration\Actions\Exports\CustomFieldsExporter;
+
+class CompanyExporter extends Exporter
+{
+    public static function getColumns(): array
+    {
+        return [
+            // Existing export columns
+            ...CustomFieldsExporter::getColumns(self::getModel()),
+        ];
+    }
+}
+```
+
 ## Development Commands
 
 ### Testing
@@ -58,7 +155,12 @@ npm install
 # Publish migrations for testing
 php artisan vendor:publish --tag="custom-fields-migrations"
 php artisan migrate
+
+# Interactive debugging and testing
+php ../filament-4-packages/artisan tinker
 ```
+
+Note: Laravel Tinker provides an interactive REPL for debugging and testing. Use it to inspect models, test queries, explore the field type registry, and debug package functionality in real-time.
 
 ## Architecture & Key Concepts
 
@@ -110,9 +212,34 @@ it('can access custom fields page', function () {
 });
 
 // Test with database interactions
-it('creates custom field', function () {
-    $field = CustomField::factory()->create();
-    expect($field)->toBeInstanceOf(CustomField::class);
+it('can create a new record with valid data', function (): void {
+    // Arrange
+    $newData = Post::factory()->make();
+
+    // Act
+    $livewireTest = livewire(CreatePost::class)
+        ->fillForm([
+            'author_id' => $newData->author->getKey(),
+            'content' => $newData->content,
+            'tags' => $newData->tags,
+            'title' => $newData->title,
+            'rating' => $newData->rating,
+        ])
+        ->call('create');
+
+    // Assert
+    $livewireTest->assertHasNoFormErrors()
+        ->assertRedirect();
+
+    $this->assertDatabaseHas(Post::class, [
+        'author_id' => $newData->author->getKey(),
+        'content' => $newData->content,
+        'tags' => json_encode($newData->tags),
+        'title' => $newData->title,
+        'rating' => $newData->rating,
+    ]);
+
+    $this->assertDatabaseCount('posts', 1);
 });
 ```
 
@@ -130,7 +257,7 @@ composer test -- --verbose
 #### Debugging Field Type Issues
 1. Check field type registration in `config/custom-fields.php`
 2. Verify field type class implements all required interfaces
-3. Use `php artisan tinker` to inspect field type registry
+3. Use `php ../filament-4-packages/artisan tinker` to inspect field type registry
 4. Check `storage/logs/laravel.log` for registration errors
 
 #### Working with Migrations
