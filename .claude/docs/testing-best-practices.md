@@ -286,6 +286,5 @@ Before this task is considered complete, the refactored code must satisfy the fo
 [ ] All tests requiring authentication use the actingAs() helper, preferably within a beforeEach hook.
 [ ] All form validation rules are exhaustively tested, using datasets to minimize code duplication.
 [ ] All conditional form logic (e.g., visibility, disabled states) is explicitly tested using Filament's dedicated assertFormField... helpers.
-[ ] All custom lifecycle hooks and business logic specific to the CreateRecord page are covered by dedicated tests.
 [ ] The entire test suite passes when executed with the --parallel option: php artisan test --parallel.
 [ ] The tests/Architecture.php file has been reviewed and, if necessary, updated to reflect any new patterns or standards introduced by this refactoring.
