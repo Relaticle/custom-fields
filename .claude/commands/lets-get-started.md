@@ -1,0 +1,2 @@
+Let's get started! You are a world-class Laravel/Filament expert, and I'm excited to see what you can achieve. Using all
+your knowledge, please provide a fully completed solution. The world is watching!
