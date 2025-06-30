@@ -1,8 +1,8 @@
-# FlexFields
+# Custom Fields
 
-[![Latest Version](https://img.shields.io/packagist/v/relaticle/flexfields.svg?style=flat-square)](https://packagist.org/packages/relaticle/flexfields)
-[![License](https://img.shields.io/packagist/l/relaticle/flexfields.svg?style=flat-square)](https://packagist.org/packages/relaticle/flexfields)
-[![PHP Version](https://img.shields.io/packagist/php-v/relaticle/flexfields.svg?style=flat-square)](https://packagist.org/packages/relaticle/flexfields)
+[![Latest Version](https://img.shields.io/packagist/v/relaticle/custom-fields.svg?style=flat-square)](https://packagist.org/packages/relaticle/custom-fields)
+[![License](https://img.shields.io/packagist/l/relaticle/custom-fields.svg?style=flat-square)](https://packagist.org/packages/relaticle/custom-fields)
+[![PHP Version](https://img.shields.io/packagist/php-v/relaticle/custom-fields.svg?style=flat-square)](https://packagist.org/packages/relaticle/custom-fields)
 
 A powerful Laravel/Filament plugin for adding dynamic custom fields to any Eloquent model without database migrations.
 
@@ -21,7 +21,7 @@ A powerful Laravel/Filament plugin for adding dynamic custom fields to any Eloqu
 ### Installation
 
 ```bash
-composer require relaticle/flexfields
+composer require relaticle/custom-fields
 php artisan vendor:publish --tag="custom-fields-migrations"
 php artisan migrate
 ```
