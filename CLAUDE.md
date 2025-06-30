@@ -4,17 +4,25 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-FlexFields (formerly custom-fields) is a Laravel/Filament package that provides a dynamic custom fields system, allowing developers to add custom fields to Eloquent models without database migrations. It supports 32+ field types with features like conditional visibility, multi-tenancy, import/export, and field encryption.
+CustomFields is a Laravel/Filament package that provides a dynamic custom fields system, allowing developers to add custom fields to Eloquent models without database migrations. It supports 32+ field types with features like conditional visibility, multi-tenancy, import/export, and field encryption.
 
 ## Development Commands
 
 ### Testing
 ```bash
-# Run all tests
+# Run all tests (lint, refactor check, types, type coverage, unit tests)
 composer test
 
-# Run tests with coverage
+# Run tests with code coverage report
 composer test-coverage
+
+# Run individual test suites
+composer test:lint          # Check code formatting
+composer test:refactor      # Check for refactoring opportunities
+composer test:types         # Run PHPStan static analysis
+composer test:arch          # Run architecture tests
+composer test:type-coverage # Check type coverage (min 99.6%)
+composer test:unit          # Run unit tests in parallel
 
 # Run specific test files or directories
 vendor/bin/pest tests/Feature/Admin
@@ -24,22 +32,10 @@ vendor/bin/pest --filter="test name pattern"
 ### Code Quality
 ```bash
 # Format code (Laravel Pint)
-composer format
+composer lint
 
-# Check formatting without fixing
-composer format-check
-
-# Static analysis (PHPStan level 6)
-composer analyse
-
-# Code insights
-composer insights
-
-# Check for refactoring opportunities
+# Apply Rector refactoring
 composer refactor
-
-# Run all code quality checks
-composer code-audit
 ```
 
 ### Frontend Build
@@ -50,6 +46,8 @@ npm run dev
 # Build for production
 npm run build
 ```
+
+Note: The package uses Tailwind CSS v4 with PostCSS. Styles are automatically prefixed with `.custom-fields-component` to prevent conflicts with the host application.
 
 ### Package Development
 ```bash
@@ -144,23 +142,21 @@ php artisan make:custom-fields-migration add_new_field_type
 php artisan migrate --path=database/custom-fields
 ```
 
-## Task Master AI Integration
+## Package Metadata
 
-This project uses Task Master AI for task management. Key commands:
+- **Package Name**: `relaticle/custom-fields`
+- **Repository**: https://github.com/relaticle/custom-fields
+- **License**: Apache-2.0
+- **PHP Version**: ≥8.3
+- **Laravel Version**: 12.x
 
-```bash
-# View current tasks
-task-master list
-task-master next
+## Code Quality Standards
 
-# Update task status
-task-master set-status --id=<id> --status=done
-
-# Add implementation notes
-task-master update-subtask --id=<id> --prompt="implementation details"
-```
-
-See the full Task Master guide in the existing CLAUDE.md context above.
+- **PHPStan**: Level 6 static analysis
+- **Laravel Pint**: Code formatting based on Laravel's coding style
+- **Rector**: PHP 8.3 with multiple rule sets for code quality and type safety
+- **Pest PHP**: Modern testing with architecture tests and type coverage (min 99.6%)
+- **Testing**: Parallel test execution with strict settings and random test order
 
 ## Important Configuration
 
