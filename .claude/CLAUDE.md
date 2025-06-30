@@ -314,3 +314,7 @@ Control which resources can have custom fields:
     App\Filament\Resources\UserResource::class,
 ],
 ```
+
+# Documentation and Best Practices
+
+- @~/.claude/docs/testing-best-practices.md
