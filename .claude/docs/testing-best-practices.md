@@ -67,6 +67,87 @@ Essential CLI Options: Developers should be proficient in using the following Pe
 Database State Management: The Illuminate\Foundation\Testing\RefreshDatabase trait is the mandated standard for all feature tests that interact with the database. This trait intelligently wraps each test in a database transaction, which is significantly faster and more efficient than re-running migrations for every test.13 The
 DatabaseMigrations and DatabaseTruncation traits are slower and should only be used in exceptional, well-justified cases where transactions are not feasible (e.g., testing functionality that explicitly commits transactions).
 
+### Testing Philosophy: Feature Tests Over Unit Tests
+
+Modern Laravel testing has evolved significantly from the early days of heavy unit testing. The contemporary approach, influenced by thought leaders like Taylor Otwell and Adam Wathan, strongly emphasizes **feature tests as the primary testing strategy**.
+
+#### The Feature-First Philosophy
+
+**Feature tests should be your default choice** for testing Laravel applications. This approach offers several critical advantages:
+
+1. **Higher Value Testing**: Feature tests validate complete user workflows and business logic end-to-end, providing more confidence that your application actually works as intended.
+
+2. **Refactoring Safety**: The most important aspect of testing is enabling refactoring without breaking tests. Feature tests achieve this by testing behavior rather than implementation details.
+
+3. **Reduced Coupling**: Unit tests often become tightly coupled to implementation details, creating a maintenance burden where every internal code change requires corresponding test updates. Feature tests avoid this trap by focusing on external behavior.
+
+4. **Real-World Validation**: Feature tests exercise your application the same way users do, catching integration issues that unit tests miss.
+
+#### When to Write Unit Tests
+
+Unit tests should be the exception, not the rule. Consider unit tests only for:
+
+- **Complex algorithms or business logic** that can be tested in isolation
+- **Utility functions** with clear inputs and outputs
+- **Edge cases** that are difficult to trigger through feature tests
+- **Performance-critical code** where micro-optimizations matter
+
+#### The Anti-Pattern: Implementation-Coupled Tests
+
+Avoid writing tests that are so tightly coupled to implementation that they break every time you refactor. This is a common testing anti-pattern where:
+
+- Tests mock every dependency
+- Tests assert on internal method calls
+- Tests break when you change implementation details (even when behavior remains the same)
+- You spend more time updating tests than writing features
+
+**The goal is to write tests that allow you to confidently refactor your code without changing the tests.**
+
+#### Practical Application
+
+```php
+// ❌ Bad: Tightly coupled unit test
+it('calls the user service to create a user', function () {
+    $userService = Mockery::mock(UserService::class);
+    $userService->shouldReceive('create')
+        ->once()
+        ->with(['name' => 'John', 'email' => 'john@example.com']);
+    
+    app()->instance(UserService::class, $userService);
+    
+    $controller = new UserController();
+    $controller->store($request);
+});
+
+// ✅ Good: Feature test focused on behavior
+it('can create a new user', function () {
+    $userData = [
+        'name' => 'John Doe',
+        'email' => 'john@example.com',
+        'password' => 'password123',
+    ];
+    
+    $this->post('/users', $userData)
+        ->assertStatus(201)
+        ->assertJson(['message' => 'User created successfully']);
+    
+    $this->assertDatabaseHas('users', [
+        'name' => 'John Doe',
+        'email' => 'john@example.com',
+    ]);
+});
+```
+
+#### Testing Strategy Summary
+
+1. **Start with feature tests** - They should comprise 80-90% of your test suite
+2. **Write unit tests sparingly** - Only for isolated, complex logic
+3. **Avoid mocking unless absolutely necessary** - Use real implementations when possible
+4. **Test behavior, not implementation** - Focus on what the system does, not how it does it
+5. **Prioritize test maintainability** - Tests should be easy to understand and change
+
+This philosophy aligns perfectly with Laravel's design principles and will result in a more maintainable, valuable test suite that actually helps you ship better software faster.
+
 ### Future-Facing Concepts
 
 Our testing practices must be adaptable and evolve with the ecosystem. The following emerging trends in PestPHP should be monitored for future adoption:
