@@ -10,7 +10,8 @@
       "Bash(./vendor/bin/phpstan analyse)",
       "Bash(./vendor/bin/pest --coverage --min=99.6)",
       "Bash(./vendor/bin/pest --type-coverage --min=99.6)",
-      "Bash(rg:*)"
+      "Bash(rg:*)",
+      "Bash(rm:*)"
     ],
     "deny": []
   }
