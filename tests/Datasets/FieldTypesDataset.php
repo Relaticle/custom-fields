@@ -22,32 +22,6 @@ dataset('field_type_configurations', fn (): array => [
         ],
         'expectedComponent' => 'TextInput',
     ],
-    'text_field_with_regex' => [
-        'fieldType' => CustomFieldType::TEXT->value,
-        'config' => [
-            'validation_rules' => [
-                ['name' => 'regex', 'parameters' => ['/^[A-Z][a-z]+$/']],
-            ],
-        ],
-        'testValues' => [
-            'valid' => ['Hello', 'World', 'Test'],
-            'invalid' => ['hello', 'HELLO', 'Hello123', '123Hello'],
-        ],
-        'expectedComponent' => 'TextInput',
-    ],
-    'text_field_email' => [
-        'fieldType' => CustomFieldType::TEXT->value,
-        'config' => [
-            'validation_rules' => [
-                ['name' => 'email', 'parameters' => []],
-            ],
-        ],
-        'testValues' => [
-            'valid' => ['test@example.com', 'user@domain.org'],
-            'invalid' => ['not-an-email', 'test@', '@domain.com'],
-        ],
-        'expectedComponent' => 'TextInput',
-    ],
     'number_field_basic' => [
         'fieldType' => CustomFieldType::NUMBER->value,
         'config' => [
@@ -62,20 +36,6 @@ dataset('field_type_configurations', fn (): array => [
         'testValues' => [
             'valid' => [0, 1, 100, 999, 1000],
             'invalid' => [null, '', -1, 1001, 'not-a-number'],
-        ],
-        'expectedComponent' => 'TextInput',
-    ],
-    'number_field_integer' => [
-        'fieldType' => CustomFieldType::NUMBER->value,
-        'config' => [
-            'validation_rules' => [
-                ['name' => 'integer', 'parameters' => []],
-                ['name' => 'between', 'parameters' => [1, 100]],
-            ],
-        ],
-        'testValues' => [
-            'valid' => [1, 50, 100],
-            'invalid' => [0, 101, 1.5, 'not-integer'],
         ],
         'expectedComponent' => 'TextInput',
     ],

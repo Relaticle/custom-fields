@@ -117,14 +117,31 @@ final class CustomFieldFactory extends Factory
     /**
      * Create a field with options (for select, radio, etc.).
      *
-     * @param  array<array{label: string, value: string}>  $options
+     * @param  array<int, string>  $options
      */
     public function withOptions(array $options): self
     {
-        return $this->afterCreating(function (CustomField $customField) use ($options) {
+        return $this->state(function (array $attributes) {
+            $existingSettings = $attributes['settings'] ?? new CustomFieldSettingsData;
+            if (is_array($existingSettings)) {
+                $existingSettings = new CustomFieldSettingsData(...$existingSettings);
+            }
+
+            return [
+                'settings' => new CustomFieldSettingsData(
+                    visible_in_list: $existingSettings->visible_in_list,
+                    list_toggleable_hidden: $existingSettings->list_toggleable_hidden,
+                    visible_in_view: $existingSettings->visible_in_view,
+                    searchable: $existingSettings->searchable,
+                    encrypted: $existingSettings->encrypted,
+                    enable_option_colors: true,
+                    visibility: $existingSettings->visibility
+                ),
+            ];
+        })->afterCreating(function (CustomField $customField) use ($options) {
             foreach ($options as $index => $option) {
                 $customField->options()->create([
-                    'name' => $option['label'] ?? $option['value'],
+                    'name' => $option,
                     'sort_order' => $index + 1,
                 ]);
             }

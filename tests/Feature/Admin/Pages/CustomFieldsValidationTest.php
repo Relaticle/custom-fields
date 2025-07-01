@@ -157,8 +157,8 @@ describe('CustomFieldsPage - Field Validation Testing', function (): void {
             $dependentField = CustomField::factory()
                 ->ofType(CustomFieldType::SELECT)
                 ->withOptions([
-                    ['label' => 'Show', 'value' => 'show'],
-                    ['label' => 'Hide', 'value' => 'hide'],
+                    'Show',
+                    'Hide',
                 ])
                 ->create([
                     'custom_field_section_id' => $this->section->getKey(),
@@ -174,7 +174,7 @@ describe('CustomFieldsPage - Field Validation Testing', function (): void {
                     'entity_type' => $this->userEntityType,
                 ]);
 
-            expect($conditionalField)->toHaveVisibilityCondition('trigger_field', 'equals', 'show');
+            expect($conditionalField)->toHaveVisibilityCondition('trigger_field', 'equals', 'Show');
         });
 
         it('handles encrypted fields properly', function (): void {
