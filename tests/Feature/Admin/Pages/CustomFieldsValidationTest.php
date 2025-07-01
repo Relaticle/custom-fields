@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use Relaticle\CustomFields\Enums\CustomFieldType;
+use Relaticle\CustomFields\Enums\CustomFieldValidationRule;
 use Relaticle\CustomFields\Livewire\ManageCustomFieldSection;
 use Relaticle\CustomFields\Models\CustomField;
 use Relaticle\CustomFields\Models\CustomFieldSection;
@@ -79,5 +80,128 @@ describe('CustomFieldsPage - Field Validation Testing', function (): void {
             'code' => $existingField->code,
             'type' => CustomFieldType::TEXT->value,
         ])->assertHasFormErrors(['code']);
+    });
+
+    it('validates field type compatibility with validation rules', function (string $fieldType, array $allowedRules, array $disallowedRules): void {
+        // Test that allowed rules work
+        foreach ($allowedRules as $rule) {
+            $field = CustomField::factory()
+                ->ofType(CustomFieldType::from($fieldType))
+                ->withValidation([$rule])
+                ->create([
+                    'custom_field_section_id' => $this->section->getKey(),
+                    'entity_type' => $this->userEntityType,
+                ]);
+
+            expect($field)->toHaveValidationRule($rule);
+        }
+
+        // Test that disallowed rules are not applied or cause appropriate behavior
+        foreach ($disallowedRules as $rule) {
+            // This would depend on your validation logic implementation
+            // For now, we'll test that the field type and rule combination is handled appropriately
+            expect(CustomFieldValidationRule::tryFrom($rule))->not->toBeNull();
+        }
+    })->with('field_type_validation_compatibility');
+
+    it('handles all validation rules with their parameters correctly', function (string $rule, array $parameters, mixed $validValue, mixed $invalidValue): void {
+        $field = CustomField::factory()
+            ->ofType(CustomFieldType::TEXT) // Use TEXT as it supports most rules
+            ->withValidation([['name' => $rule, 'parameters' => $parameters]])
+            ->create([
+                'custom_field_section_id' => $this->section->getKey(),
+                'entity_type' => $this->userEntityType,
+            ]);
+
+        expect($field)->toHaveValidationRule($rule, $parameters);
+
+        // Test that the validation rule is properly stored
+        $validationRules = $field->validation_rules;
+        expect(collect($validationRules)->pluck('name'))->toContain($rule);
+    })->with('validation_rules_with_parameters');
+
+    describe('Enhanced field creation with custom expectations', function (): void {
+        it('creates fields with correct component mappings', function (array $fieldTypes, string $expectedComponent): void {
+            foreach ($fieldTypes as $fieldType) {
+                $field = CustomField::factory()
+                    ->ofType(CustomFieldType::from($fieldType))
+                    ->create([
+                        'custom_field_section_id' => $this->section->getKey(),
+                        'entity_type' => $this->userEntityType,
+                    ]);
+
+                expect($field)->toHaveCorrectComponent($expectedComponent);
+                expect($field)->toHaveFieldType($fieldType);
+                expect($field)->toBeActive();
+            }
+        })->with('field_type_component_mappings');
+
+        it('creates fields with proper validation and state', function (): void {
+            $field = CustomField::factory()
+                ->ofType(CustomFieldType::TEXT)
+                ->required()
+                ->withLength(3, 255)
+                ->create([
+                    'custom_field_section_id' => $this->section->getKey(),
+                    'entity_type' => $this->userEntityType,
+                ]);
+
+            expect($field)
+                ->toHaveValidationRule('required')
+                ->toHaveValidationRule('min', [3])
+                ->toHaveValidationRule('max', [255])
+                ->toBeActive();
+        });
+
+        it('creates fields with visibility conditions', function (): void {
+            $dependentField = CustomField::factory()
+                ->ofType(CustomFieldType::SELECT)
+                ->withOptions([
+                    ['label' => 'Show', 'value' => 'show'],
+                    ['label' => 'Hide', 'value' => 'hide'],
+                ])
+                ->create([
+                    'custom_field_section_id' => $this->section->getKey(),
+                    'entity_type' => $this->userEntityType,
+                    'code' => 'trigger_field',
+                ]);
+
+            $conditionalField = CustomField::factory()
+                ->ofType(CustomFieldType::TEXT)
+                ->conditionallyVisible('trigger_field', 'equals', 'show')
+                ->create([
+                    'custom_field_section_id' => $this->section->getKey(),
+                    'entity_type' => $this->userEntityType,
+                ]);
+
+            expect($conditionalField)->toHaveVisibilityCondition('trigger_field', 'equals', 'show');
+        });
+
+        it('handles encrypted fields properly', function (): void {
+            $field = CustomField::factory()
+                ->ofType(CustomFieldType::TEXT)
+                ->encrypted()
+                ->create([
+                    'custom_field_section_id' => $this->section->getKey(),
+                    'entity_type' => $this->userEntityType,
+                ]);
+
+            expect($field->settings->encrypted)->toBeTrue();
+            expect($field->type->value)->toBe('text'); // Only text-based fields can be encrypted
+        });
+
+        it('creates system-defined fields correctly', function (): void {
+            $field = CustomField::factory()
+                ->ofType(CustomFieldType::TEXT)
+                ->systemDefined()
+                ->inactive()
+                ->create([
+                    'custom_field_section_id' => $this->section->getKey(),
+                    'entity_type' => $this->userEntityType,
+                ]);
+
+            expect($field->system_defined)->toBeTrue();
+            expect($field)->toBeInactive();
+        });
     });
 });

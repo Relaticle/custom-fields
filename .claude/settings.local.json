@@ -11,7 +11,9 @@
       "Bash(./vendor/bin/pest --coverage --min=99.6)",
       "Bash(./vendor/bin/pest --type-coverage --min=99.6)",
       "Bash(rg:*)",
-      "Bash(rm:*)"
+      "Bash(rm:*)",
+      "Bash(./vendor/bin/pint:*)",
+      "Bash(./vendor/bin/rector process tests/Pest.php)"
     ],
     "deny": []
   }

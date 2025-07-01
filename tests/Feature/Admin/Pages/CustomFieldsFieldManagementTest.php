@@ -30,20 +30,20 @@ describe('ManageCustomFieldSection - Field Management', function (): void {
     });
 
     it('can update field order within a section', function (): void {
-        // Arrange
+        // Arrange - use enhanced factory methods
         $field1 = CustomField::factory()
+            ->ofType(CustomFieldType::TEXT)
             ->create([
                 'custom_field_section_id' => $this->section->getKey(),
                 'entity_type' => $this->userEntityType,
                 'sort_order' => 0,
-                'type' => CustomFieldType::TEXT,
             ]);
         $field2 = CustomField::factory()
+            ->ofType(CustomFieldType::TEXT)
             ->create([
                 'custom_field_section_id' => $this->section->getKey(),
                 'entity_type' => $this->userEntityType,
                 'sort_order' => 1,
-                'type' => CustomFieldType::TEXT,
             ]);
 
         // Act
@@ -52,15 +52,9 @@ describe('ManageCustomFieldSection - Field Management', function (): void {
             'entityType' => $this->userEntityType,
         ])->call('updateFieldsOrder', $this->section->getKey(), [$field2->getKey(), $field1->getKey()]);
 
-        // Assert
-        $this->assertDatabaseHas(CustomField::class, [
-            'id' => $field2->getKey(),
-            'sort_order' => 0,
-        ]);
-        $this->assertDatabaseHas(CustomField::class, [
-            'id' => $field1->getKey(),
-            'sort_order' => 1,
-        ]);
+        // Assert - use enhanced expectations
+        expect($field2->fresh())->sort_order->toBe(0);
+        expect($field1->fresh())->sort_order->toBe(1);
     });
 
     it('can update field width', function (): void {
@@ -188,5 +182,135 @@ describe('ManageCustomField - Field Actions', function (): void {
             'field' => $this->field,
         ])->call('setWidth', $this->field->getKey(), 75)
             ->assertDispatched('field-width-updated', $this->field->getKey(), 75);
+    });
+});
+
+describe('Enhanced field management with datasets', function (): void {
+    beforeEach(function (): void {
+        $this->section = CustomFieldSection::factory()
+            ->forEntityType($this->userEntityType)
+            ->create();
+    });
+
+    it('can create and manage fields of all types with proper configurations', function (string $fieldType, array $config, array $testValues, string $expectedComponent): void {
+        // Create field with specific configuration
+        $field = CustomField::factory()
+            ->ofType(CustomFieldType::from($fieldType))
+            ->withValidation($config['validation_rules'] ?? [])
+            ->create([
+                'custom_field_section_id' => $this->section->getKey(),
+                'entity_type' => $this->userEntityType,
+            ]);
+
+        // Test field properties
+        expect($field)
+            ->toHaveFieldType($fieldType)
+            ->toHaveCorrectComponent($expectedComponent)
+            ->toBeActive();
+
+        // Test validation rules if present
+        foreach ($config['validation_rules'] ?? [] as $rule) {
+            expect($field)->toHaveValidationRule($rule['name'], $rule['parameters'] ?? []);
+        }
+
+        // Test that the field can be managed through Livewire
+        livewire(ManageCustomField::class, [
+            'field' => $field,
+        ])->assertSuccessful();
+    })->with('field_type_configurations');
+
+    it('can handle field state transitions correctly', function (): void {
+        $field = CustomField::factory()
+            ->ofType(CustomFieldType::TEXT)
+            ->create([
+                'custom_field_section_id' => $this->section->getKey(),
+                'entity_type' => $this->userEntityType,
+            ]);
+
+        // Initially active
+        expect($field)->toBeActive();
+
+        // Deactivate
+        livewire(ManageCustomField::class, [
+            'field' => $field,
+        ])->callAction('deactivate');
+
+        expect($field->fresh())->toBeInactive();
+
+        // Reactivate
+        livewire(ManageCustomField::class, [
+            'field' => $field->fresh(),
+        ])->callAction('activate');
+
+        expect($field->fresh())->toBeActive();
+    });
+
+    it('validates field deletion restrictions correctly', function (): void {
+        // System-defined field cannot be deleted
+        $systemField = CustomField::factory()
+            ->ofType(CustomFieldType::TEXT)
+            ->systemDefined()
+            ->inactive()
+            ->create([
+                'custom_field_section_id' => $this->section->getKey(),
+                'entity_type' => $this->userEntityType,
+            ]);
+
+        livewire(ManageCustomField::class, [
+            'field' => $systemField,
+        ])->assertActionHidden('delete');
+
+        // Active field cannot be deleted
+        $activeField = CustomField::factory()
+            ->ofType(CustomFieldType::TEXT)
+            ->create([
+                'custom_field_section_id' => $this->section->getKey(),
+                'entity_type' => $this->userEntityType,
+            ]);
+
+        livewire(ManageCustomField::class, [
+            'field' => $activeField,
+        ])->assertActionHidden('delete');
+
+        // Only inactive, non-system fields can be deleted
+        $deletableField = CustomField::factory()
+            ->ofType(CustomFieldType::TEXT)
+            ->inactive()
+            ->create([
+                'custom_field_section_id' => $this->section->getKey(),
+                'entity_type' => $this->userEntityType,
+            ]);
+
+        livewire(ManageCustomField::class, [
+            'field' => $deletableField,
+        ])->callAction('delete');
+
+        expect(CustomField::find($deletableField->id))->toBeNull();
+    });
+
+    it('handles complex field configurations with options', function (): void {
+        $selectField = CustomField::factory()
+            ->ofType(CustomFieldType::SELECT)
+            ->withOptions([
+                ['label' => 'Option 1', 'value' => 'opt1'],
+                ['label' => 'Option 2', 'value' => 'opt2'],
+                ['label' => 'Option 3', 'value' => 'opt3'],
+            ])
+            ->withValidation([
+                ['name' => 'required', 'parameters' => []],
+                ['name' => 'in', 'parameters' => ['opt1', 'opt2', 'opt3']],
+            ])
+            ->create([
+                'custom_field_section_id' => $this->section->getKey(),
+                'entity_type' => $this->userEntityType,
+            ]);
+
+        expect($selectField)
+            ->toHaveFieldType('select')
+            ->toHaveCorrectComponent('Select')
+            ->toHaveValidationRule('required')
+            ->toHaveValidationRule('in', ['opt1', 'opt2', 'opt3']);
+
+        expect($selectField->options)->toHaveCount(3);
     });
 });
