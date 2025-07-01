@@ -174,7 +174,7 @@ describe('CustomFieldsPage - Field Validation Testing', function (): void {
                     'entity_type' => $this->userEntityType,
                 ]);
 
-            expect($conditionalField)->toHaveVisibilityCondition('trigger_field', 'equals', 'Show');
+            expect($conditionalField)->toHaveVisibilityCondition('trigger_field', 'equals', 'show');
         });
 
         it('handles encrypted fields properly', function (): void {
