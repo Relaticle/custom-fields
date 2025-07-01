@@ -130,9 +130,9 @@ describe('CustomFieldsPage - Field Validation Testing', function (): void {
                         'entity_type' => $this->userEntityType,
                     ]);
 
-                expect($field)->toHaveCorrectComponent($expectedComponent);
-                expect($field)->toHaveFieldType($fieldType);
-                expect($field)->toBeActive();
+                expect($field)->toHaveCorrectComponent($expectedComponent)
+                    ->and($field)->toHaveFieldType($fieldType)
+                    ->and($field)->toBeActive();
             }
         })->with('field_type_component_mappings');
 
@@ -186,8 +186,8 @@ describe('CustomFieldsPage - Field Validation Testing', function (): void {
                     'entity_type' => $this->userEntityType,
                 ]);
 
-            expect($field->settings->encrypted)->toBeTrue();
-            expect($field->type->value)->toBe('text'); // Only text-based fields can be encrypted
+            expect($field->settings->encrypted)->toBeTrue()
+                ->and($field->type->value)->toBe('text');
         });
 
         it('creates system-defined fields correctly', function (): void {
@@ -200,8 +200,8 @@ describe('CustomFieldsPage - Field Validation Testing', function (): void {
                     'entity_type' => $this->userEntityType,
                 ]);
 
-            expect($field->system_defined)->toBeTrue();
-            expect($field)->toBeInactive();
+            expect($field->system_defined)->toBeTrue()
+                ->and($field)->toBeInactive();
         });
     });
 });
