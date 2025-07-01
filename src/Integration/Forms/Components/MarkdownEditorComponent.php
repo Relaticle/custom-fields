@@ -8,9 +8,9 @@ use Filament\Forms\Components\Field;
 use Filament\Forms\Components\MarkdownEditor;
 use Relaticle\CustomFields\Models\CustomField;
 
-final readonly class MarkdownEditorComponent extends AbstractFieldComponent
+final readonly class MarkdownEditorComponent extends AbstractFormComponent
 {
-    public function createField(CustomField $customField): Field
+    public function create(CustomField $customField): Field
     {
         return MarkdownEditor::make("custom_fields.{$customField->code}");
     }

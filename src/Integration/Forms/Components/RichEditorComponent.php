@@ -8,9 +8,9 @@ use Filament\Forms\Components\Field;
 use Filament\Forms\Components\RichEditor;
 use Relaticle\CustomFields\Models\CustomField;
 
-final readonly class RichEditorComponent extends AbstractFieldComponent
+final readonly class RichEditorComponent extends AbstractFormComponent
 {
-    public function createField(CustomField $customField): Field
+    public function create(CustomField $customField): Field
     {
         return RichEditor::make("custom_fields.{$customField->code}");
     }

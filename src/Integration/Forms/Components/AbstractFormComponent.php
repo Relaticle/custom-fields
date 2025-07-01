@@ -18,7 +18,7 @@ use Relaticle\CustomFields\Models\CustomField;
  * Each concrete component only needs to implement createField() to specify
  * the Filament component type and its basic configuration.
  */
-abstract readonly class AbstractFieldComponent implements FieldComponentInterface
+abstract readonly class AbstractFormComponent implements FieldComponentInterface
 {
     public function __construct(protected FieldConfigurator $configurator) {}
 
@@ -28,9 +28,9 @@ abstract readonly class AbstractFieldComponent implements FieldComponentInterfac
      * @param  array<string>  $dependentFieldCodes
      * @param  Collection<int, CustomField>|null  $allFields
      */
-    final public function make(CustomField $customField, array $dependentFieldCodes = [], ?Collection $allFields = null): Field
+    public function make(CustomField $customField, array $dependentFieldCodes = [], ?Collection $allFields = null): Field
     {
-        $field = $this->createField($customField);
+        $field = $this->create($customField);
         
         /** @var Field */
         return $this->configurator->configure($field, $customField, $allFields, $dependentFieldCodes);
@@ -44,5 +44,5 @@ abstract readonly class AbstractFieldComponent implements FieldComponentInterfac
      * 
      * Made public to allow composition patterns (like MultiSelectComponent).
      */
-    abstract public function createField(CustomField $customField): Field;
+    abstract public function create(CustomField $customField): Field;
 }

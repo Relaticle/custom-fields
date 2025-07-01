@@ -8,9 +8,9 @@ use Filament\Forms\Components\Field;
 use Filament\Forms\Components\TextInput;
 use Relaticle\CustomFields\Models\CustomField;
 
-final readonly class TextInputComponent extends AbstractFieldComponent
+final readonly class TextInputComponent extends AbstractFormComponent
 {
-    public function createField(CustomField $customField): Field
+    public function create(CustomField $customField): Field
     {
         return TextInput::make("custom_fields.{$customField->code}")
             ->maxLength(255)

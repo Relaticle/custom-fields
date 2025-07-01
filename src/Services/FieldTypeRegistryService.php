@@ -24,7 +24,7 @@ use Relaticle\CustomFields\Integration\Forms\Components\RadioComponent;
 use Relaticle\CustomFields\Integration\Forms\Components\RichEditorComponent;
 use Relaticle\CustomFields\Integration\Forms\Components\SelectComponent;
 use Relaticle\CustomFields\Integration\Forms\Components\TagsInputComponent;
-use Relaticle\CustomFields\Integration\Forms\Components\TextareaFieldComponent;
+use Relaticle\CustomFields\Integration\Forms\Components\TextareaFormComponent;
 use Relaticle\CustomFields\Integration\Forms\Components\TextInputComponent;
 use Relaticle\CustomFields\Integration\Forms\Components\ToggleButtonsComponent;
 use Relaticle\CustomFields\Integration\Forms\Components\ToggleComponent;
@@ -354,7 +354,7 @@ final class FieldTypeRegistryService
             CustomFieldType::TAGS_INPUT->value => TagsInputComponent::class,
             CustomFieldType::LINK->value => LinkComponent::class,
             CustomFieldType::COLOR_PICKER->value => ColorPickerComponent::class,
-            CustomFieldType::TEXTAREA->value => TextareaFieldComponent::class,
+            CustomFieldType::TEXTAREA->value => TextareaFormComponent::class,
             CustomFieldType::CURRENCY->value => CurrencyComponent::class,
             CustomFieldType::DATE->value => DateComponent::class,
             CustomFieldType::DATE_TIME->value => DateTimeComponent::class,

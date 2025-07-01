@@ -9,11 +9,11 @@ use Filament\Forms\Components\ToggleButtons;
 use Relaticle\CustomFields\Integration\Forms\Components\Traits\ConfiguresColorOptions;
 use Relaticle\CustomFields\Models\CustomField;
 
-final readonly class ToggleButtonsComponent extends AbstractFieldComponent
+final readonly class ToggleButtonsComponent extends AbstractFormComponent
 {
     use ConfiguresColorOptions;
 
-    public function createField(CustomField $customField): Field
+    public function create(CustomField $customField): Field
     {
         $field = ToggleButtons::make("custom_fields.{$customField->code}")->inline(false);
 

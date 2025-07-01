@@ -9,11 +9,11 @@ use Filament\Forms\Components\TagsInput;
 use Relaticle\CustomFields\Integration\Forms\Components\Traits\ConfiguresLookups;
 use Relaticle\CustomFields\Models\CustomField;
 
-final readonly class TagsInputComponent extends AbstractFieldComponent
+final readonly class TagsInputComponent extends AbstractFormComponent
 {
     use ConfiguresLookups;
 
-    public function createField(CustomField $customField): Field
+    public function create(CustomField $customField): Field
     {
         $field = TagsInput::make("custom_fields.{$customField->code}");
 

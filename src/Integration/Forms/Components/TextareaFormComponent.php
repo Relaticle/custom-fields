@@ -8,9 +8,9 @@ use Filament\Forms\Components\Field;
 use Filament\Forms\Components\Textarea;
 use Relaticle\CustomFields\Models\CustomField;
 
-final readonly class TextareaFieldComponent extends AbstractFieldComponent
+final readonly class TextareaFormComponent extends AbstractFormComponent
 {
-    public function createField(CustomField $customField): Field
+    public function create(CustomField $customField): Field
     {
         return Textarea::make("custom_fields.{$customField->code}")
             ->rows(3)

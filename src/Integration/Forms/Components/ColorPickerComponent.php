@@ -8,9 +8,9 @@ use Filament\Forms\Components\ColorPicker;
 use Filament\Forms\Components\Field;
 use Relaticle\CustomFields\Models\CustomField;
 
-final readonly class ColorPickerComponent extends AbstractFieldComponent
+final readonly class ColorPickerComponent extends AbstractFormComponent
 {
-    public function createField(CustomField $customField): Field
+    public function create(CustomField $customField): Field
     {
         return ColorPicker::make("custom_fields.{$customField->code}");
     }

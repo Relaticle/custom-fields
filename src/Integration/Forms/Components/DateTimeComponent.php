@@ -9,9 +9,9 @@ use Filament\Forms\Components\Field;
 use Relaticle\CustomFields\Models\CustomField;
 use Relaticle\CustomFields\Support\FieldTypeUtils;
 
-final readonly class DateTimeComponent extends AbstractFieldComponent
+final readonly class DateTimeComponent extends AbstractFormComponent
 {
-    public function createField(CustomField $customField): Field
+    public function create(CustomField $customField): Field
     {
         return DateTimePicker::make("custom_fields.{$customField->code}")
             ->native(FieldTypeUtils::isDateTimePickerNative())

@@ -8,9 +8,9 @@ use Filament\Forms\Components\Field;
 use Filament\Forms\Components\TextInput;
 use Relaticle\CustomFields\Models\CustomField;
 
-final readonly class NumberComponent extends AbstractFieldComponent
+final readonly class NumberComponent extends AbstractFormComponent
 {
-    public function createField(CustomField $customField): Field
+    public function create(CustomField $customField): Field
     {
         return TextInput::make("custom_fields.{$customField->code}")
             ->numeric()

@@ -8,9 +8,9 @@ use Filament\Forms\Components\Checkbox;
 use Filament\Forms\Components\Field;
 use Relaticle\CustomFields\Models\CustomField;
 
-final readonly class CheckboxComponent extends AbstractFieldComponent
+final readonly class CheckboxComponent extends AbstractFormComponent
 {
-    public function createField(CustomField $customField): Field
+    public function create(CustomField $customField): Field
     {
         return Checkbox::make("custom_fields.{$customField->code}")->inline(false);
     }

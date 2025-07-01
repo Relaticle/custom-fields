@@ -10,12 +10,12 @@ use Relaticle\CustomFields\Integration\Forms\Components\Traits\ConfiguresColorOp
 use Relaticle\CustomFields\Integration\Forms\Components\Traits\ConfiguresLookups;
 use Relaticle\CustomFields\Models\CustomField;
 
-final readonly class CheckboxListComponent extends AbstractFieldComponent
+final readonly class CheckboxListComponent extends AbstractFormComponent
 {
     use ConfiguresLookups;
     use ConfiguresColorOptions;
 
-    public function createField(CustomField $customField): Field
+    public function create(CustomField $customField): Field
     {
         $field = CheckboxList::make("custom_fields.{$customField->code}");
 
