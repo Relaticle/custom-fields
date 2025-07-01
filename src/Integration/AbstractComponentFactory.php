@@ -13,18 +13,18 @@ use RuntimeException;
 
 /**
  * Abstract base factory for component creation.
- * 
+ *
  * Eliminates duplication across 7+ factory classes by providing
  * common pattern for:
  * - Component type resolution via FieldTypeRegistryService
  * - Instance caching for performance
  * - Validation and error handling
- * 
+ *
  * Each concrete factory only needs to specify:
  * - Component configuration key (form_component, table_column, etc.)
  * - Component interface for validation
  * - Post-creation configuration
- * 
+ *
  * @template TComponent
  * @template TResult
  */
@@ -42,7 +42,7 @@ abstract class AbstractComponentFactory
 
     /**
      * Create component instance for given field.
-     * 
+     *
      * @throws BindingResolutionException
      * @throws InvalidArgumentException
      * @throws RuntimeException
@@ -50,9 +50,9 @@ abstract class AbstractComponentFactory
     protected function createComponent(CustomField $customField, string $componentKey, string $expectedInterface): object
     {
         $customFieldType = $customField->getFieldTypeValue();
-        
+
         $fieldTypeConfig = $this->fieldTypeRegistry->getFieldType($customFieldType);
-        
+
         if ($fieldTypeConfig === null) {
             throw new InvalidArgumentException("No {$componentKey} registered for custom field type: {$customFieldType}");
         }

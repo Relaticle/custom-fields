@@ -456,12 +456,12 @@ final readonly class FrontendVisibilityService
             if (is_float($value)) {
                 return $value;
             }
-            
+
             // Handle string values that contain decimal points
             if (str_contains((string) $value, '.')) {
                 return (float) $value;
             }
-            
+
             // Handle integer values
             return (int) $value;
         }

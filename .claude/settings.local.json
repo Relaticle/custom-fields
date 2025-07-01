@@ -1,0 +1,17 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(php artisan:*)",
+      "Bash(composer test)",
+      "Bash(composer lint:*)",
+      "Bash(composer test:*)",
+      "Bash(find:*)",
+      "Bash(mkdir:*)",
+      "Bash(./vendor/bin/phpstan analyse)",
+      "Bash(./vendor/bin/pest --coverage --min=99.6)",
+      "Bash(./vendor/bin/pest --type-coverage --min=99.6)",
+      "Bash(rg:*)"
+    ],
+    "deny": []
+  }
+}

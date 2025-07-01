@@ -8,6 +8,9 @@ use Filament\Infolists\Components\Entry;
 use Relaticle\CustomFields\Integration\AbstractComponentFactory;
 use Relaticle\CustomFields\Models\CustomField;
 
+/**
+ * @extends AbstractComponentFactory<FieldInfolistsComponentInterface, Entry>
+ */
 final class FieldInfolistsFactory extends AbstractComponentFactory
 {
     public function create(CustomField $customField): Entry

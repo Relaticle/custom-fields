@@ -9,25 +9,8 @@ use Illuminate\Support\Facades\Cache;
 use InvalidArgumentException;
 use Relaticle\CustomFields\Contracts\FieldTypeDefinitionInterface;
 use Relaticle\CustomFields\Enums\CustomFieldType;
-use Relaticle\CustomFields\Integration\Forms\Components\CheckboxComponent;
-use Relaticle\CustomFields\Integration\Forms\Components\CheckboxListComponent;
-use Relaticle\CustomFields\Integration\Forms\Components\ColorPickerComponent;
-use Relaticle\CustomFields\Integration\Forms\Components\CurrencyComponent;
-use Relaticle\CustomFields\Integration\Forms\Components\DateComponent;
-use Relaticle\CustomFields\Integration\Forms\Components\DateTimeComponent;
+use Relaticle\CustomFields\Enums\FieldComponentType;
 use Relaticle\CustomFields\Integration\Forms\Components\FieldComponentInterface;
-use Relaticle\CustomFields\Integration\Forms\Components\LinkComponent;
-use Relaticle\CustomFields\Integration\Forms\Components\MarkdownEditorComponent;
-use Relaticle\CustomFields\Integration\Forms\Components\MultiSelectComponent;
-use Relaticle\CustomFields\Integration\Forms\Components\NumberComponent;
-use Relaticle\CustomFields\Integration\Forms\Components\RadioComponent;
-use Relaticle\CustomFields\Integration\Forms\Components\RichEditorComponent;
-use Relaticle\CustomFields\Integration\Forms\Components\SelectComponent;
-use Relaticle\CustomFields\Integration\Forms\Components\TagsInputComponent;
-use Relaticle\CustomFields\Integration\Forms\Components\TextareaFormComponent;
-use Relaticle\CustomFields\Integration\Forms\Components\TextInputComponent;
-use Relaticle\CustomFields\Integration\Forms\Components\ToggleButtonsComponent;
-use Relaticle\CustomFields\Integration\Forms\Components\ToggleComponent;
 use Relaticle\CustomFields\Integration\Infolists\FieldInfolistsComponentInterface;
 use Relaticle\CustomFields\Integration\Infolists\Fields\BooleanEntry;
 use Relaticle\CustomFields\Integration\Infolists\Fields\ColorEntry;
@@ -235,7 +218,7 @@ final class FieldTypeRegistryService
             $discoveredFieldTypes = $this->discoveryService->discoverFromConfig();
 
             if ($cacheEnabled) {
-                $classNames = $discoveredFieldTypes->map(fn ($fieldType): string => $fieldType::class)->toArray();
+                $classNames = $discoveredFieldTypes->map(fn (mixed $fieldType): string => $fieldType::class)->toArray();
                 Cache::put($cacheKey, $classNames, now()->addMinutes($cacheDuration));
             }
 
@@ -261,7 +244,7 @@ final class FieldTypeRegistryService
                 'icon' => $type->getIcon(),
                 'category' => $type->getCategory()->value,
                 'validation_rules' => array_map(
-                    fn ($rule) => $rule->value,
+                    fn (mixed $rule): string => $rule->value,
                     $type->allowedValidationRules()
                 ),
                 'form_component' => $this->getBuiltInFormComponent($type),
@@ -281,7 +264,7 @@ final class FieldTypeRegistryService
                 'icon' => $fieldType->getIcon(),
                 'category' => $fieldType->getCategory()->value,
                 'validation_rules' => array_map(
-                    fn ($rule) => $rule->value,
+                    fn (mixed $rule): string => $rule->value,
                     $fieldType->getAllowedValidationRules()
                 ),
                 'form_component' => $fieldType->getFormComponentClass(),
@@ -343,28 +326,13 @@ final class FieldTypeRegistryService
      */
     private function getBuiltInFormComponent(CustomFieldType $type): string
     {
-        $map = [
-            CustomFieldType::TEXT->value => TextInputComponent::class,
-            CustomFieldType::NUMBER->value => NumberComponent::class,
-            CustomFieldType::CHECKBOX->value => CheckboxComponent::class,
-            CustomFieldType::CHECKBOX_LIST->value => CheckboxListComponent::class,
-            CustomFieldType::RICH_EDITOR->value => RichEditorComponent::class,
-            CustomFieldType::MARKDOWN_EDITOR->value => MarkdownEditorComponent::class,
-            CustomFieldType::TOGGLE_BUTTONS->value => ToggleButtonsComponent::class,
-            CustomFieldType::TAGS_INPUT->value => TagsInputComponent::class,
-            CustomFieldType::LINK->value => LinkComponent::class,
-            CustomFieldType::COLOR_PICKER->value => ColorPickerComponent::class,
-            CustomFieldType::TEXTAREA->value => TextareaFormComponent::class,
-            CustomFieldType::CURRENCY->value => CurrencyComponent::class,
-            CustomFieldType::DATE->value => DateComponent::class,
-            CustomFieldType::DATE_TIME->value => DateTimeComponent::class,
-            CustomFieldType::TOGGLE->value => ToggleComponent::class,
-            CustomFieldType::RADIO->value => RadioComponent::class,
-            CustomFieldType::SELECT->value => SelectComponent::class,
-            CustomFieldType::MULTI_SELECT->value => MultiSelectComponent::class,
-        ];
+        $componentClass = FieldComponentType::getComponentClass($type->value);
 
-        return $map[$type->value];
+        if ($componentClass === null) {
+            throw new InvalidArgumentException('No component found for field type: '.$type->value);
+        }
+
+        return $componentClass;
     }
 
     /**

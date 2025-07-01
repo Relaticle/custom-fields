@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Relaticle\CustomFields\Integration\Migrations;
 
-use BackedEnum;
 use Exception;
 use Illuminate\Support\Facades\DB;
 use Relaticle\CustomFields\Contracts\CustomsFieldsMigrators;

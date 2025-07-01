@@ -20,7 +20,7 @@ use ValueError;
 
 final class CustomFieldValidationComponent extends Component
 {
-    protected string $view = "filament-schemas::components.grid";
+    protected string $view = 'filament-schemas::components.grid';
 
     public function __construct(
         private ?FieldTypeRegistryService $fieldTypeRegistry = null
@@ -37,9 +37,9 @@ final class CustomFieldValidationComponent extends Component
 
     private function buildValidationRulesRepeater(): Repeater
     {
-        return Repeater::make("validation_rules")
+        return Repeater::make('validation_rules')
             ->label(
-                __("custom-fields::custom-fields.field.form.validation.rules")
+                __('custom-fields::custom-fields.field.form.validation.rules')
             )
             ->schema([
                 Grid::make(3)->schema([
@@ -49,23 +49,23 @@ final class CustomFieldValidationComponent extends Component
                 ]),
             ])
             ->itemLabel(
-                fn(array $state): string => $this->generateRuleLabel($state)
+                fn (array $state): string => $this->generateRuleLabel($state)
             )
             ->collapsible()
             ->collapsed(
-                fn(Get $get): bool => count($get("validation_rules") ?? []) > 3
+                fn (Get $get): bool => count($get('validation_rules') ?? []) > 3
             )
             ->reorderable()
             ->reorderableWithButtons()
             ->deletable()
             ->cloneable()
-            ->hintColor("danger")
-            ->addable(fn(Get $get): bool => !empty($get("type")))
+            ->hintColor('danger')
+            ->addable(fn (Get $get): bool => ! empty($get('type')))
             ->hiddenLabel()
             ->defaultItems(0)
             ->addActionLabel(
                 __(
-                    "custom-fields::custom-fields.field.form.validation.add_rule"
+                    'custom-fields::custom-fields.field.form.validation.add_rule'
                 )
             )
             ->columnSpanFull();
@@ -73,24 +73,24 @@ final class CustomFieldValidationComponent extends Component
 
     private function buildRuleSelector(): Select
     {
-        return Select::make("name")
+        return Select::make('name')
             ->label(
-                __("custom-fields::custom-fields.field.form.validation.rule")
+                __('custom-fields::custom-fields.field.form.validation.rule')
             )
             ->placeholder(
                 __(
-                    "custom-fields::custom-fields.field.form.validation.select_rule_placeholder"
+                    'custom-fields::custom-fields.field.form.validation.select_rule_placeholder'
                 )
             )
             ->options(
-                fn(Get $get): array => $this->getAvailableRuleOptions($get)
+                fn (Get $get): array => $this->getAvailableRuleOptions($get)
             )
             ->searchable()
             ->required()
             ->live()
-            ->in(fn(Get $get): array => $this->getAllowedRuleValues($get))
+            ->in(fn (Get $get): array => $this->getAllowedRuleValues($get))
             ->afterStateUpdated(
-                fn(
+                fn (
                     Get $get,
                     Set $set,
                     ?string $state,
@@ -102,17 +102,17 @@ final class CustomFieldValidationComponent extends Component
 
     private function buildRuleDescription(): TextEntry
     {
-        return TextEntry::make("description")
+        return TextEntry::make('description')
             ->label(
                 __(
-                    "custom-fields::custom-fields.field.form.validation.description"
+                    'custom-fields::custom-fields.field.form.validation.description'
                 )
             )
             ->state(
-                fn(
+                fn (
                     Get $get
                 ): string => CustomFieldValidationRule::getDescriptionForRule(
-                    $get("name")
+                    $get('name')
                 )
             )
             ->columnSpan(2);
@@ -120,35 +120,35 @@ final class CustomFieldValidationComponent extends Component
 
     private function buildRuleParametersRepeater(): Repeater
     {
-        return Repeater::make("parameters")
+        return Repeater::make('parameters')
             ->label(
                 __(
-                    "custom-fields::custom-fields.field.form.validation.parameters"
+                    'custom-fields::custom-fields.field.form.validation.parameters'
                 )
             )
             ->simple(
-                TextInput::make("value")
+                TextInput::make('value')
                     ->label(
                         __(
-                            "custom-fields::custom-fields.field.form.validation.parameters_value"
+                            'custom-fields::custom-fields.field.form.validation.parameters_value'
                         )
                     )
                     ->required()
                     ->hiddenLabel()
                     ->rules(
-                        fn(
+                        fn (
                             Get $get,
                             Component $component
                         ): array => $this->getParameterValidationRules($get, $component)
                     )
                     ->hint(
-                        fn(
+                        fn (
                             Get $get,
                             Component $component
                         ): string => $this->getParameterHint($get, $component)
                     )
                     ->afterStateHydrated(
-                        fn(
+                        fn (
                             Get $get,
                             Set $set,
                             $state,
@@ -161,7 +161,7 @@ final class CustomFieldValidationComponent extends Component
                         )
                     )
                     ->dehydrateStateUsing(
-                        fn(
+                        fn (
                             Get $get,
                             $state,
                             Component $component
@@ -174,22 +174,22 @@ final class CustomFieldValidationComponent extends Component
             )
             ->columnSpanFull()
             ->visible(
-                fn(
+                fn (
                     Get $get
                 ): bool => CustomFieldValidationRule::hasParameterForRule(
-                    $get("name")
+                    $get('name')
                 )
             )
-            ->minItems(fn(Get $get): int => $this->getParameterCount($get))
-            ->maxItems(fn(Get $get): int => $this->getMaxParameterCount($get))
+            ->minItems(fn (Get $get): int => $this->getParameterCount($get))
+            ->maxItems(fn (Get $get): int => $this->getMaxParameterCount($get))
             ->reorderable(false)
-            ->deletable(fn(Get $get): bool => $this->canDeleteParameter($get))
-            ->defaultItems(fn(Get $get): int => $this->getParameterCount($get))
-            ->hint(fn(Get $get): string => $this->getParameterHint($get))
-            ->hintColor("danger")
+            ->deletable(fn (Get $get): bool => $this->canDeleteParameter($get))
+            ->defaultItems(fn (Get $get): int => $this->getParameterCount($get))
+            ->hint(fn (Get $get): string => $this->getParameterHint($get))
+            ->hintColor('danger')
             ->addActionLabel(
                 __(
-                    "custom-fields::custom-fields.field.form.validation.add_parameter"
+                    'custom-fields::custom-fields.field.form.validation.add_parameter'
                 )
             );
     }
@@ -199,25 +199,25 @@ final class CustomFieldValidationComponent extends Component
      */
     private function getAvailableRuleOptions(Get $get): array
     {
-        $fieldTypeKey = $get("../../type");
-        if (!$fieldTypeKey) {
+        $fieldTypeKey = $get('../../type');
+        if (! $fieldTypeKey) {
             return [];
         }
 
         // Convert enum to string value if needed
-        $fieldTypeKeyString = $fieldTypeKey instanceof \Relaticle\CustomFields\Enums\CustomFieldType 
-            ? $fieldTypeKey->value 
+        $fieldTypeKeyString = $fieldTypeKey instanceof CustomFieldType
+            ? $fieldTypeKey->value
             : $fieldTypeKey;
 
         $allowedRules = $this->getAllowedValidationRulesForFieldType(
             $fieldTypeKeyString
         );
-        $existingRules = $get("../../validation_rules") ?? [];
-        $currentRuleName = $get("name");
+        $existingRules = $get('../../validation_rules') ?? [];
+        $currentRuleName = $get('name');
 
         return collect($allowedRules)
             ->reject(
-                fn(
+                fn (
                     CustomFieldValidationRule $rule
                 ): bool => $this->isRuleDuplicate(
                     $existingRules,
@@ -225,7 +225,7 @@ final class CustomFieldValidationComponent extends Component
                 ) && $rule->value !== $currentRuleName
             )
             ->mapWithKeys(
-                fn(CustomFieldValidationRule $rule) => [
+                fn (CustomFieldValidationRule $rule) => [
                     $rule->value => $rule->getLabel(),
                 ]
             )
@@ -238,12 +238,12 @@ final class CustomFieldValidationComponent extends Component
     private function getAllowedRuleValues(Get $get): array
     {
         $fieldType = $this->getFieldType($get);
-        if (!$fieldType instanceof CustomFieldType) {
+        if (! $fieldType instanceof CustomFieldType) {
             return [];
         }
 
         return collect($fieldType->allowedValidationRules())
-            ->pluck("value")
+            ->pluck('value')
             ->toArray();
     }
 
@@ -256,19 +256,19 @@ final class CustomFieldValidationComponent extends Component
             return;
         }
 
-        $set("parameters", []);
+        $set('parameters', []);
 
-        if ($state === null || $state === "" || $state === "0") {
+        if ($state === null || $state === '' || $state === '0') {
             return;
         }
 
         $rule = CustomFieldValidationRule::tryFrom($state);
         if ($rule && $rule->allowedParameterCount() > 0) {
             $parameters = array_fill(0, $rule->allowedParameterCount(), [
-                "value" => "",
-                "key" => Str::uuid()->toString(),
+                'value' => '',
+                'key' => Str::uuid()->toString(),
             ]);
-            $set("parameters", $parameters);
+            $set('parameters', $parameters);
         }
     }
 
@@ -279,7 +279,7 @@ final class CustomFieldValidationComponent extends Component
         Get $get,
         Component $component
     ): array {
-        $ruleName = $get("../../name");
+        $ruleName = $get('../../name');
         $parameterIndex = $this->getParameterIndex($component);
 
         return CustomFieldValidationRule::getParameterValidationRuleFor(
@@ -292,10 +292,10 @@ final class CustomFieldValidationComponent extends Component
         Get $get,
         ?Component $component = null
     ): string {
-        $ruleName = $get("name") ?? $get("../../name");
+        $ruleName = $get('name') ?? $get('../../name');
 
         if (empty($ruleName)) {
-            return "";
+            return '';
         }
 
         if ($component instanceof Component) {
@@ -309,14 +309,14 @@ final class CustomFieldValidationComponent extends Component
 
         // For repeater-level hints when parameters are insufficient
         $rule = CustomFieldValidationRule::tryFrom($ruleName);
-        $parameters = $get("parameters") ?? [];
+        $parameters = $get('parameters') ?? [];
 
         if (
-            !$rule ||
+            ! $rule ||
             $rule->allowedParameterCount() <= 0 ||
             count($parameters) >= $rule->allowedParameterCount()
         ) {
-            return "";
+            return '';
         }
 
         $requiredCount = $rule->allowedParameterCount();
@@ -324,22 +324,22 @@ final class CustomFieldValidationComponent extends Component
         return match ($requiredCount) {
             2 => match ($rule) {
                 CustomFieldValidationRule::BETWEEN => __(
-                    "custom-fields::custom-fields.validation.between_validation_error"
+                    'custom-fields::custom-fields.validation.between_validation_error'
                 ),
                 CustomFieldValidationRule::DIGITS_BETWEEN => __(
-                    "custom-fields::custom-fields.validation.digits_between_validation_error"
+                    'custom-fields::custom-fields.validation.digits_between_validation_error'
                 ),
                 CustomFieldValidationRule::DECIMAL => __(
-                    "custom-fields::custom-fields.validation.decimal_validation_error"
+                    'custom-fields::custom-fields.validation.decimal_validation_error'
                 ),
                 default => __(
-                    "custom-fields::custom-fields.validation.parameter_missing",
-                    ["count" => $requiredCount]
+                    'custom-fields::custom-fields.validation.parameter_missing',
+                    ['count' => $requiredCount]
                 ),
             },
             default => __(
-                "custom-fields::custom-fields.validation.parameter_missing",
-                ["count" => $requiredCount]
+                'custom-fields::custom-fields.validation.parameter_missing',
+                ['count' => $requiredCount]
             ),
         };
     }
@@ -354,7 +354,7 @@ final class CustomFieldValidationComponent extends Component
             return;
         }
 
-        $ruleName = $get("../../name");
+        $ruleName = $get('../../name');
         if (empty($ruleName)) {
             return;
         }
@@ -366,7 +366,7 @@ final class CustomFieldValidationComponent extends Component
             $parameterIndex
         );
 
-        $set("value", $normalizedValue);
+        $set('value', $normalizedValue);
     }
 
     private function dehydrateParameterValue(
@@ -378,7 +378,7 @@ final class CustomFieldValidationComponent extends Component
             return null;
         }
 
-        $ruleName = $get("../../name");
+        $ruleName = $get('../../name');
         if (empty($ruleName)) {
             return $state;
         }
@@ -394,7 +394,7 @@ final class CustomFieldValidationComponent extends Component
 
     private function getParameterCount(Get $get): int
     {
-        $ruleName = $get("name");
+        $ruleName = $get('name');
         if (empty($ruleName)) {
             return 1;
         }
@@ -409,21 +409,21 @@ final class CustomFieldValidationComponent extends Component
     private function getMaxParameterCount(Get $get): int
     {
         return CustomFieldValidationRule::getAllowedParametersCountForRule(
-            $get("name")
+            $get('name')
         );
     }
 
     private function canDeleteParameter(Get $get): bool
     {
-        $ruleName = $get("name");
+        $ruleName = $get('name');
         if (empty($ruleName)) {
             return true;
         }
 
         $rule = CustomFieldValidationRule::tryFrom($ruleName);
-        $parameterCount = count($get("parameters") ?? []);
+        $parameterCount = count($get('parameters') ?? []);
 
-        return !(
+        return ! (
             $rule &&
             $rule->allowedParameterCount() > 0 &&
             $parameterCount <= $rule->allowedParameterCount()
@@ -431,12 +431,12 @@ final class CustomFieldValidationComponent extends Component
     }
 
     /**
-     * @param array<string, mixed> $state
+     * @param  array<string, mixed>  $state
      */
     private function generateRuleLabel(array $state): string
     {
-        $ruleName = $state["name"] ?? "";
-        $parameters = $state["parameters"] ?? [];
+        $ruleName = $state['name'] ?? '';
+        $parameters = $state['parameters'] ?? [];
 
         return CustomFieldValidationRule::getLabelForRule(
             $ruleName,
@@ -464,7 +464,7 @@ final class CustomFieldValidationComponent extends Component
         );
         if ($customFieldConfig !== null) {
             $validRules = [];
-            foreach ($customFieldConfig["validation_rules"] as $ruleValue) {
+            foreach ($customFieldConfig['validation_rules'] as $ruleValue) {
                 try {
                     $validRules[] = CustomFieldValidationRule::from($ruleValue);
                 } catch (ValueError) {
@@ -481,7 +481,7 @@ final class CustomFieldValidationComponent extends Component
 
     private function getFieldType(Get $get): ?CustomFieldType
     {
-        $fieldType = $get("../../type");
+        $fieldType = $get('../../type');
 
         if (empty($fieldType)) {
             return null;
@@ -497,12 +497,12 @@ final class CustomFieldValidationComponent extends Component
     }
 
     /**
-     * @param array<string, mixed> $existingRules
+     * @param  array<string, mixed>  $existingRules
      */
     private function isRuleDuplicate(array $existingRules, string $rule): bool
     {
         return collect($existingRules)->contains(
-            fn(array $existingRule): bool => ($existingRule["name"] ?? "") === $rule
+            fn (array $existingRule): bool => ($existingRule['name'] ?? '') === $rule
         );
     }
 
@@ -545,7 +545,7 @@ final class CustomFieldValidationComponent extends Component
         }
 
         // Fallback: extract from component ID
-        $idParts = explode("-", (string) $component->getId());
+        $idParts = explode('-', (string) $component->getId());
         if (count($idParts) > 1) {
             $lastPart = end($idParts);
             if (is_numeric($lastPart)) {

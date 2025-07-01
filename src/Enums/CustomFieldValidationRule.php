@@ -159,7 +159,7 @@ enum CustomFieldValidationRule: string implements HasLabel
 
     /**
      * Check if a rule value is considered empty.
-     * 
+     *
      * Utility method to eliminate repeated null/empty checks throughout the enum.
      */
     private static function isEmptyRule(mixed $rule): bool

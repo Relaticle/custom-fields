@@ -18,39 +18,36 @@ use Relaticle\CustomFields\Support\Utils;
 final readonly class FieldConfigurator
 {
     public function __construct(
-        private ValidationService          $validationService,
+        private ValidationService $validationService,
         private CoreVisibilityLogicService $coreVisibilityLogic,
-        private FrontendVisibilityService  $frontendVisibilityService
-    )
-    {
-    }
+        private FrontendVisibilityService $frontendVisibilityService
+    ) {}
 
     /**
-     * @param Collection<int, CustomField> $allFields
-     * @param array<string> $dependentFieldCodes
+     * @param  Collection<int, CustomField>  $allFields
+     * @param  array<string>  $dependentFieldCodes
      */
     public function configure(
-        Field       $field,
+        Field $field,
         CustomField $customField,
-        Collection  $allFields,
-        array       $dependentFieldCodes
-    ): Field
-    {
+        Collection $allFields,
+        array $dependentFieldCodes
+    ): Field {
         return $field
             ->name("custom_fields.{$customField->code}")
             ->label($customField->name)
             ->afterStateHydrated(
-                fn($component, $state, $record) => $component->state(
+                fn (mixed $component, mixed $state, mixed $record): mixed => $component->state(
                     $this->getFieldValue($customField, $state, $record)
                 )
             )
             ->dehydrated(
-                fn(
-                    $state
+                fn (
+                    mixed $state
                 ): bool => Utils::isConditionalVisibilityFeatureEnabled() &&
                     ($this->coreVisibilityLogic->shouldAlwaysSave(
-                            $customField
-                        ) ||
+                        $customField
+                    ) ||
                         filled($state))
             )
             ->required($this->validationService->isRequired($customField))
@@ -59,7 +56,7 @@ final readonly class FieldConfigurator
             ->when(
                 Utils::isConditionalVisibilityFeatureEnabled() &&
                 $this->hasVisibilityConditions($customField),
-                fn(Field $field): Field => $this->applyVisibility(
+                fn (Field $field): Field => $this->applyVisibility(
                     $field,
                     $customField,
                     $allFields
@@ -68,16 +65,15 @@ final readonly class FieldConfigurator
             ->when(
                 Utils::isConditionalVisibilityFeatureEnabled() &&
                 filled($dependentFieldCodes),
-                fn(Field $field): Field => $field->live()
+                fn (Field $field): Field => $field->live()
             );
     }
 
     private function getFieldValue(
         CustomField $customField,
-        mixed       $state,
-        mixed       $record
-    ): mixed
-    {
+        mixed $state,
+        mixed $record
+    ): mixed {
         return value(function () use ($customField, $state, $record) {
             $value =
                 $record?->getCustomFieldValue($customField) ??
@@ -103,14 +99,13 @@ final readonly class FieldConfigurator
     }
 
     /**
-     * @param Collection<int, CustomField> $allFields
+     * @param  Collection<int, CustomField>  $allFields
      */
     private function applyVisibility(
-        Field       $field,
+        Field $field,
         CustomField $customField,
-        Collection  $allFields
-    ): Field
-    {
+        Collection $allFields
+    ): Field {
         $jsExpression = $this->frontendVisibilityService->buildVisibilityExpression(
             $customField,
             $allFields

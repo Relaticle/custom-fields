@@ -9,6 +9,9 @@ use Illuminate\Contracts\Container\BindingResolutionException;
 use Relaticle\CustomFields\Integration\AbstractComponentFactory;
 use Relaticle\CustomFields\Models\CustomField;
 
+/**
+ * @extends AbstractComponentFactory<ColumnInterface, Column>
+ */
 final class FieldColumnFactory extends AbstractComponentFactory
 {
     /**
@@ -16,7 +19,7 @@ final class FieldColumnFactory extends AbstractComponentFactory
      */
     public function create(CustomField $customField): Column
     {
-        /** @var ColumnInterface */
+        /** @var ColumnInterface $component */
         $component = $this->createComponent($customField, 'table_column', ColumnInterface::class);
 
         return $component->make($customField)

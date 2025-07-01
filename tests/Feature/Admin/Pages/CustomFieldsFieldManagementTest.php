@@ -16,7 +16,7 @@ beforeEach(function (): void {
     // Arrange: Create authenticated user for all tests
     $this->user = User::factory()->create();
     $this->actingAs($this->user);
-    
+
     // Set up common test entity types for all tests
     $this->postEntityType = Post::class;
     $this->userEntityType = User::class;
@@ -28,7 +28,6 @@ describe('ManageCustomFieldSection - Field Management', function (): void {
             ->forEntityType($this->userEntityType)
             ->create();
     });
-
 
     it('can update field order within a section', function (): void {
         // Arrange
@@ -94,7 +93,7 @@ describe('ManageCustomField - Field Actions', function (): void {
         $this->section = CustomFieldSection::factory()
             ->forEntityType($this->userEntityType)
             ->create();
-        
+
         $this->field = CustomField::factory()
             ->create([
                 'custom_field_section_id' => $this->section->getKey(),
@@ -102,7 +101,6 @@ describe('ManageCustomField - Field Actions', function (): void {
                 'type' => CustomFieldType::TEXT,
             ]);
     });
-
 
     it('can activate an inactive field', function (): void {
         // Arrange
@@ -189,6 +187,6 @@ describe('ManageCustomField - Field Actions', function (): void {
         livewire(ManageCustomField::class, [
             'field' => $this->field,
         ])->call('setWidth', $this->field->getKey(), 75)
-          ->assertDispatched('field-width-updated', $this->field->getKey(), 75);
+            ->assertDispatched('field-width-updated', $this->field->getKey(), 75);
     });
 });

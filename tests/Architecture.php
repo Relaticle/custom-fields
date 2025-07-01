@@ -6,9 +6,6 @@ use Filament\Resources\Pages\Page;
 use Filament\Resources\Resource;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Database\Eloquent\Model;
-use Relaticle\CustomFields\Commands\FilamentCustomFieldCommand;
-use Relaticle\CustomFields\Commands\OptimizeDatabaseCommand;
-use Relaticle\CustomFields\Commands\UpgradeCommand;
 use Relaticle\CustomFields\Models\Concerns\UsesCustomFields;
 use Relaticle\CustomFields\Models\Contracts\HasCustomFields;
 use Relaticle\CustomFields\Models\CustomField;
@@ -64,14 +61,6 @@ arch('Middleware follows naming convention')
 arch('Exceptions follow naming convention')
     ->expect('Relaticle\CustomFields\Exceptions')
     ->toHaveSuffix('Exception');
-
-arch('Main commands follow naming convention')
-    ->expect([
-        FilamentCustomFieldCommand::class,
-        OptimizeDatabaseCommand::class,
-        UpgradeCommand::class,
-    ])
-    ->toHaveSuffix('Command');
 
 arch('Jobs follow proper structure')
     ->expect('Relaticle\CustomFields\Jobs')

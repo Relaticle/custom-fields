@@ -12,9 +12,6 @@ use Filament\Support\Facades\FilamentIcon;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Filesystem\Filesystem;
 use Livewire\Livewire;
-use Relaticle\CustomFields\Commands\FilamentCustomFieldCommand;
-use Relaticle\CustomFields\Commands\OptimizeDatabaseCommand;
-use Relaticle\CustomFields\Commands\UpgradeCommand;
 use Relaticle\CustomFields\Contracts\CustomsFieldsMigrators;
 use Relaticle\CustomFields\Contracts\ValueResolvers;
 use Relaticle\CustomFields\Integration\Migrations\CustomFieldsMigrator;
@@ -161,11 +158,7 @@ class CustomFieldsServiceProvider extends PackageServiceProvider
      */
     protected function getCommands(): array
     {
-        return [
-            FilamentCustomFieldCommand::class,
-            UpgradeCommand::class,
-            OptimizeDatabaseCommand::class,
-        ];
+        return [];
     }
 
     /**

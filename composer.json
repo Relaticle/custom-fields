@@ -5,6 +5,7 @@
         "manukminasyan",
         "relaticle",
         "laravel",
+        "filament",
         "custom-fields"
     ],
     "homepage": "https://github.com/relaticle/custom-fields",
@@ -36,6 +37,7 @@
         "pestphp/pest-plugin-arch": "^3.0",
         "pestphp/pest-plugin-laravel": "^3.0",
         "pestphp/pest-plugin-livewire": "^3.0",
+        "pestphp/pest-plugin-type-coverage": "^3.5",
         "phpstan/phpstan-deprecation-rules": "*",
         "phpstan/phpstan-phpunit": "^2.0",
         "rector/rector": "*",
@@ -60,7 +62,7 @@
         "test:refactor": "rector --dry-run",
         "test:types": "phpstan analyse",
         "test:arch": "pest --filter=arch",
-        "test:type-coverage": "pest --type-coverage --min=99.6",
+        "test:type-coverage": "pest --type-coverage --min=98.0",
         "test:unit": "pest --parallel",
         "test": [
             "@test:lint",

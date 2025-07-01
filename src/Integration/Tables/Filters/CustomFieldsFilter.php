@@ -11,6 +11,7 @@ use Illuminate\Database\Eloquent\Model;
 use Relaticle\CustomFields\Enums\CustomFieldType;
 use Relaticle\CustomFields\Models\Contracts\HasCustomFields;
 use Relaticle\CustomFields\Models\CustomField;
+use Relaticle\CustomFields\Services\FieldTypeRegistryService;
 use Relaticle\CustomFields\Support\Utils;
 
 final readonly class CustomFieldsFilter
@@ -29,7 +30,7 @@ final readonly class CustomFieldsFilter
             return [];
         }
 
-        $fieldFilterFactory = new FieldFilterFactory(app(), app(\Relaticle\CustomFields\Services\FieldTypeRegistryService::class));
+        $fieldFilterFactory = new FieldFilterFactory(app(), app(FieldTypeRegistryService::class));
 
         return $instance
             ->customFields()
@@ -54,11 +55,11 @@ final readonly class CustomFieldsFilter
         RelationManager $relationManager
     ): array {
         $model = $relationManager->getRelationship()->getModel();
-        
+
         if (! $model instanceof HasCustomFields) {
             return [];
         }
-        
+
         return CustomFieldsFilter::all($model);
     }
 }

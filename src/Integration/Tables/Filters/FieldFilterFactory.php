@@ -12,6 +12,9 @@ use Relaticle\CustomFields\Integration\AbstractComponentFactory;
 use Relaticle\CustomFields\Models\CustomField;
 use RuntimeException;
 
+/**
+ * @extends AbstractComponentFactory<FilterInterface, BaseFilter>
+ */
 final class FieldFilterFactory extends AbstractComponentFactory
 {
     /**

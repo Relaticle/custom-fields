@@ -9,10 +9,10 @@ use Relaticle\CustomFields\Support\Utils;
 
 /**
  * Trait for configuring color options in form components.
- * 
+ *
  * Standardizes color option handling across components that support
  * colored options (Radio, CheckboxList, ToggleButtons, etc.).
- * 
+ *
  * Different components require different approaches:
  * - Radio/CheckboxList: Use descriptions with color indicators
  * - ToggleButtons: Use native colors() method
@@ -25,40 +25,40 @@ trait ConfiguresColorOptions
      */
     protected function hasColorOptionsEnabled(CustomField $customField): bool
     {
-        return Utils::isSelectOptionColorsFeatureEnabled() 
+        return Utils::isSelectOptionColorsFeatureEnabled()
             && $customField->settings->enable_option_colors;
     }
 
     /**
      * Get options filtered to only those with colors.
-     * 
+     *
      * @return array<int|string, string> Options that have colors
      */
     protected function getColoredOptions(CustomField $customField): array
     {
         return $customField->options
-            ->filter(fn ($option) => $option->settings->color ?? false)
-            ->mapWithKeys(fn ($option) => [$option->id => $option->name])
+            ->filter(fn (mixed $option): bool => $option->settings->color ?? false)
+            ->mapWithKeys(fn (mixed $option): array => [$option->id => $option->name])
             ->all();
     }
 
     /**
      * Get color mapping for ToggleButtons-style components.
-     * 
+     *
      * @return array<int|string, string> Option ID => color mappings
      */
     protected function getColorMapping(CustomField $customField): array
     {
         return $customField->options
-            ->filter(fn ($option) => $option->settings->color ?? false)
-            ->mapWithKeys(fn ($option) => [$option->id => $option->settings->color])
+            ->filter(fn (mixed $option): bool => $option->settings->color ?? false)
+            ->mapWithKeys(fn (mixed $option): array => [$option->id => $option->settings->color])
             ->all();
     }
 
     /**
      * Generate color indicator descriptions for Radio/CheckboxList style components.
-     * 
-     * @param array<int|string> $optionIds
+     *
+     * @param  array<int|string>  $optionIds
      * @return array<int|string, string> Option ID => description mappings
      */
     protected function getColorDescriptions(array $optionIds, CustomField $customField): array
@@ -71,13 +71,13 @@ trait ConfiguresColorOptions
 
     /**
      * Generate HTML for colored option indicator.
-     * 
+     *
      * Creates a small colored square indicator for an option.
      */
     protected function getColoredOptionDescription(string $optionId, CustomField $customField): string
     {
         $option = $customField->options->firstWhere('id', $optionId);
-        if (!$option || !$option->settings->color) {
+        if (! $option || ! $option->settings->color) {
             return '';
         }
 
@@ -86,13 +86,13 @@ trait ConfiguresColorOptions
 
     /**
      * Get enhanced options with HTML color indicators for Select-style components.
-     * 
+     *
      * @return array<int|string, string> Option ID => HTML label mappings
      */
     protected function getSelectColoredOptions(CustomField $customField): array
     {
         return $customField->options
-            ->mapWithKeys(function ($option) {
+            ->mapWithKeys(function (mixed $option): array {
                 $color = $option->settings->color;
                 $text = $option->name;
 

@@ -13,7 +13,7 @@ beforeEach(function (): void {
     // Arrange: Create authenticated user for all tests
     $this->user = User::factory()->create();
     $this->actingAs($this->user);
-    
+
     // Set up common test entity types for all tests
     $this->postEntityType = Post::class;
     $this->userEntityType = User::class;
@@ -40,7 +40,6 @@ describe('CustomFieldsPage - Business Logic and Integration', function (): void 
         ]);
     });
 
-
     it('filters sections by entity type correctly', function (): void {
         // Arrange
         $userSection = CustomFieldSection::factory()
@@ -56,7 +55,7 @@ describe('CustomFieldsPage - Business Logic and Integration', function (): void 
 
         // Assert
         $component->assertSee($userSection->name)
-                  ->assertDontSee($postSection->name);
+            ->assertDontSee($postSection->name);
     });
 
 });

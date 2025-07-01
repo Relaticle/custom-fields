@@ -7,7 +7,6 @@ namespace Relaticle\CustomFields\Integration\Forms;
 use Filament\Schemas\Components\Fieldset;
 use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Components\Section;
-use InvalidArgumentException;
 use Relaticle\CustomFields\Enums\CustomFieldSectionType;
 use Relaticle\CustomFields\Models\CustomFieldSection;
 

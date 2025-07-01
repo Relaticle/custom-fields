@@ -5,10 +5,10 @@ declare(strict_types=1);
 namespace Relaticle\CustomFields\Filament\Schemas;
 
 use Filament\Facades\Filament;
-use Filament\Schemas\Components\Component;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
+use Filament\Schemas\Components\Component;
 use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Components\Utilities\Set;

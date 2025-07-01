@@ -16,6 +16,9 @@ use Relaticle\CustomFields\Integration\Infolists\Sections\SectionInfolistsCompon
 use Relaticle\CustomFields\Models\CustomFieldSection;
 use RuntimeException;
 
+/**
+ * @extends AbstractComponentFactory<SectionInfolistsComponentInterface, Section|Fieldset|Grid>
+ */
 final class SectionInfolistsFactory extends AbstractComponentFactory
 {
     /**

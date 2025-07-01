@@ -14,7 +14,7 @@ beforeEach(function (): void {
     // Arrange: Create authenticated user for all tests
     $this->user = User::factory()->create();
     $this->actingAs($this->user);
-    
+
     // Set up common test entity types for all tests
     $this->postEntityType = Post::class;
     $this->userEntityType = User::class;
@@ -70,7 +70,7 @@ describe('CustomFieldsPage - Section Management', function (): void {
         // Assert - either validation error OR no new section created
         try {
             $response->assertHasFormErrors(['code']);
-        } catch (\Exception $e) {
+        } catch (Exception) {
             // Alternative check: ensure no duplicate was created
             $sectionsWithSameCode = CustomFieldSection::where('code', 'unique_test_code')
                 ->where('entity_type', $this->userEntityType)
@@ -145,7 +145,7 @@ describe('ManageCustomFieldSection - Section Actions', function (): void {
 
         // Assert
         $livewireTest->assertHasNoFormErrors();
-        
+
         $this->assertDatabaseHas(CustomFieldSection::class, [
             'id' => $this->section->getKey(),
             'name' => $newData['name'],

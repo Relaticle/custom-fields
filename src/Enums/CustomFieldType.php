@@ -32,7 +32,7 @@ enum CustomFieldType: string implements HasLabel
 
     /**
      * 🚀 PERFORMANCE: Cached static options with 5-minute TTL
-     * 
+     *
      * @return array<string, string>
      */
     public static function options(): array
@@ -65,7 +65,7 @@ enum CustomFieldType: string implements HasLabel
 
     /**
      * 🚀 ENHANCED: Better integration with FieldTypeRegistryService
-     * 
+     *
      * @return Collection<int, array{label: string, value: string, icon: string}>
      */
     public static function optionsForSelect(): Collection
@@ -75,7 +75,7 @@ enum CustomFieldType: string implements HasLabel
 
     /**
      * 🚀 PERFORMANCE: Cached static icons with 5-minute TTL
-     * 
+     *
      * @return array<string, string>
      */
     public static function icons(): array
@@ -108,7 +108,7 @@ enum CustomFieldType: string implements HasLabel
 
     /**
      * 🚀 PERFORMANCE: Cached optionable types
-     * 
+     *
      * @return Collection<int, mixed>
      */
     public static function optionables(): Collection
@@ -200,7 +200,7 @@ enum CustomFieldType: string implements HasLabel
 
     /**
      * 🚀 PERFORMANCE: Cached encryptable types
-     * 
+     *
      * @return Collection<int, mixed>
      */
     public static function encryptables(): Collection
@@ -220,7 +220,7 @@ enum CustomFieldType: string implements HasLabel
 
     /**
      * 🚀 PERFORMANCE: Cached searchable types
-     * 
+     *
      * @return Collection<int, mixed>
      */
     public static function searchables(): Collection
@@ -241,7 +241,7 @@ enum CustomFieldType: string implements HasLabel
 
     /**
      * 🚀 PERFORMANCE: Cached filterable types
-     * 
+     *
      * @return Collection<int, mixed>
      */
     public static function filterable(): Collection
@@ -279,7 +279,7 @@ enum CustomFieldType: string implements HasLabel
 
     /**
      * 🚀 ENHANCED: Better validation rules with caching per type
-     * 
+     *
      * @return array<int, CustomFieldValidationRule>
      */
     public function allowedValidationRules(): array
@@ -287,7 +287,7 @@ enum CustomFieldType: string implements HasLabel
         return Cache::remember(
             "custom-fields.field-types.validation-rules.{$this->value}",
             300, // 5 minutes
-            fn () => match ($this) {
+            fn (): array => match ($this) {
                 self::TEXT => [
                     CustomFieldValidationRule::REQUIRED,
                     CustomFieldValidationRule::MIN,
@@ -400,7 +400,7 @@ enum CustomFieldType: string implements HasLabel
 
     /**
      * 🚀 NEW: Get all field type values as array (for validation, etc.)
-     * 
+     *
      * @return array<int, string>
      */
     public static function values(): array
@@ -408,13 +408,13 @@ enum CustomFieldType: string implements HasLabel
         return Cache::remember(
             'custom-fields.field-types.values',
             300, // 5 minutes
-            fn () => array_map(fn (self $case) => $case->value, self::cases())
+            fn (): array => array_map(fn (self $case) => $case->value, self::cases())
         );
     }
 
     /**
      * 🚀 NEW: Get field types by category
-     * 
+     *
      * @return Collection<int, self>
      */
     public static function byCategory(FieldCategory $category): Collection
@@ -423,7 +423,7 @@ enum CustomFieldType: string implements HasLabel
             "custom-fields.field-types.by-category.{$category->value}",
             300, // 5 minutes
             fn () => collect(self::cases())
-                ->filter(fn (self $type) => $type->getCategory() === $category)
+                ->filter(fn (self $type): bool => $type->getCategory() === $category)
         );
     }
 

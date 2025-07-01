@@ -11,6 +11,9 @@ use Relaticle\CustomFields\Integration\AbstractComponentFactory;
 use Relaticle\CustomFields\Integration\Forms\Components\FieldComponentInterface;
 use Relaticle\CustomFields\Models\CustomField;
 
+/**
+ * @extends AbstractComponentFactory<FieldComponentInterface, Field>
+ */
 final class FieldComponentFactory extends AbstractComponentFactory
 {
     /**

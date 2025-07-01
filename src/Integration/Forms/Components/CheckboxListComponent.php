@@ -12,8 +12,8 @@ use Relaticle\CustomFields\Models\CustomField;
 
 final readonly class CheckboxListComponent extends AbstractFormComponent
 {
-    use ConfiguresLookups;
     use ConfiguresColorOptions;
+    use ConfiguresLookups;
 
     public function create(CustomField $customField): Field
     {
@@ -24,7 +24,7 @@ final readonly class CheckboxListComponent extends AbstractFormComponent
         $field->options($options);
 
         // Add color styling if enabled (only for non-lookup fields)
-        if (!$this->usesLookupType($customField) && $this->hasColorOptionsEnabled($customField)) {
+        if (! $this->usesLookupType($customField) && $this->hasColorOptionsEnabled($customField)) {
             $coloredOptions = $this->getColoredOptions($customField);
 
             if (count($coloredOptions) > 0) {

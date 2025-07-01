@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Relaticle\CustomFields\Integration\Tables\Columns;
 
-use Filament\Tables\Columns\Column;
 use Filament\Resources\RelationManagers\RelationManager;
+use Filament\Tables\Columns\Column;
 use Illuminate\Contracts\Container\BindingResolutionException;
 use Relaticle\CustomFields\Models\Contracts\HasCustomFields;
 use Relaticle\CustomFields\Models\CustomField;
@@ -32,7 +32,7 @@ final readonly class CustomFieldsColumn
             ->with('options')
             ->get()
             ->map(
-                fn (CustomField $customField) => $fieldColumnFactory
+                fn (CustomField $customField): Column => $fieldColumnFactory
                     ->create($customField)
                     ->toggleable(
                         condition: Utils::isTableColumnsToggleableEnabled(),
@@ -50,11 +50,11 @@ final readonly class CustomFieldsColumn
         RelationManager $relationManager
     ): array {
         $model = $relationManager->getRelationship()->getModel();
-        
+
         if (! $model instanceof HasCustomFields) {
             return [];
         }
-        
+
         return CustomFieldsColumn::all($model);
     }
 }

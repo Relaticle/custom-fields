@@ -15,7 +15,7 @@ beforeEach(function (): void {
     // Arrange: Create authenticated user for all tests
     $this->user = User::factory()->create();
     $this->actingAs($this->user);
-    
+
     // Set up common test entity types for all tests
     $this->postEntityType = Post::class;
     $this->userEntityType = User::class;

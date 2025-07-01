@@ -13,10 +13,10 @@ use Relaticle\CustomFields\Models\CustomField;
  * 🚀 OPTIMIZED: Enhanced helper service for field type operations
  * Provides unified interface for both built-in and custom field types.
  */
-final class FieldTypeHelperService
+final readonly class FieldTypeHelperService
 {
     public function __construct(
-        private readonly FieldTypeRegistryService $registry
+        private FieldTypeRegistryService $registry
     ) {}
 
     /**
@@ -31,7 +31,7 @@ final class FieldTypeHelperService
 
         // For custom types, check registry
         $customType = $this->registry->getFieldType($type);
-        
+
         return $customType['icon'] ?? 'mdi-help-circle';
     }
 
@@ -47,7 +47,7 @@ final class FieldTypeHelperService
 
         // For custom types, check registry
         $customType = $this->registry->getFieldType($type);
-        
+
         return $customType['label'] ?? 'Unknown Type';
     }
 
@@ -63,7 +63,7 @@ final class FieldTypeHelperService
 
         // For custom types, check registry
         $customType = $this->registry->getFieldType($type);
-        
+
         return $customType['category'] ?? 'unknown';
     }
 
@@ -79,8 +79,8 @@ final class FieldTypeHelperService
 
         // For custom types, try to convert category string to enum
         $customType = $this->registry->getFieldType($type);
-        
-        return $customType ? FieldCategory::tryFrom($customType['category']) : null;
+
+        return $customType !== null ? FieldCategory::tryFrom($customType['category']) : null;
     }
 
     /**
@@ -95,7 +95,7 @@ final class FieldTypeHelperService
 
         // For custom types, check based on category
         $category = $this->getCategoryEnum($type);
-        
+
         return $category?->isOptionable() ?? false;
     }
 
@@ -111,7 +111,7 @@ final class FieldTypeHelperService
 
         // For custom types, check based on category
         $category = $this->getCategoryEnum($type);
-        
+
         return $category === FieldCategory::BOOLEAN;
     }
 
@@ -127,13 +127,13 @@ final class FieldTypeHelperService
 
         // For custom types, check based on category
         $category = $this->getCategoryEnum($type);
-        
+
         return $category?->hasMultipleValues() ?? false;
     }
 
     /**
      * 🚀 PERFORMANCE: Optimized operators with enum delegation
-     * 
+     *
      * @return array<Operator>
      */
     public function getCompatibleOperators(CustomFieldType|string $type): array
@@ -145,7 +145,7 @@ final class FieldTypeHelperService
 
         // For custom types, check based on category
         $category = $this->getCategoryEnum($type);
-        
+
         return $category?->getCompatibleOperators() ?? [
             Operator::EQUALS,
             Operator::NOT_EQUALS,
@@ -191,12 +191,12 @@ final class FieldTypeHelperService
             return false;
         }
 
-        return $this->registry->hasFieldType($type) && !CustomFieldType::isBuiltInType($type);
+        return $this->registry->hasFieldType($type) && ! CustomFieldType::isBuiltInType($type);
     }
 
     /**
      * 🚀 NEW: Get all validation rules for a type (built-in or custom)
-     * 
+     *
      * @return array<string>
      */
     public function getValidationRules(CustomFieldType|string $type): array
@@ -211,7 +211,7 @@ final class FieldTypeHelperService
 
         // For custom types, check registry
         $customType = $this->registry->getFieldType($type);
-        
+
         return $customType['validation_rules'] ?? [];
     }
 
@@ -227,7 +227,7 @@ final class FieldTypeHelperService
 
         // For custom types, check registry
         $customType = $this->registry->getFieldType($type);
-        
+
         return $customType['searchable'] ?? false;
     }
 
@@ -243,7 +243,7 @@ final class FieldTypeHelperService
 
         // For custom types, check registry
         $customType = $this->registry->getFieldType($type);
-        
+
         return $customType['filterable'] ?? false;
     }
 
@@ -259,7 +259,7 @@ final class FieldTypeHelperService
 
         // For custom types, check registry
         $customType = $this->registry->getFieldType($type);
-        
+
         return $customType['encryptable'] ?? false;
     }
 

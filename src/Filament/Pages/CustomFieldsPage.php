@@ -35,11 +35,11 @@ class CustomFieldsPage extends Page
     protected static bool $shouldRegisterNavigation = true;
 
     #[Url(history: true, keep: true)]
-    public $currentEntityType;
+    public ?string $currentEntityType = null;
 
     public function mount(): void
     {
-        if (! $this->currentEntityType) {
+        if (blank($this->currentEntityType)) {
             $this->setCurrentEntityType(EntityTypeService::getDefaultOption());
         }
     }
@@ -66,7 +66,7 @@ class CustomFieldsPage extends Page
         return EntityTypeService::getOptions();
     }
 
-    public function setCurrentEntityType($entityType): void
+    public function setCurrentEntityType(?string $entityType): void
     {
         $this->currentEntityType = $entityType;
     }
@@ -88,7 +88,10 @@ class CustomFieldsPage extends Page
             ->modalWidth(Width::TwoExtraLarge);
     }
 
-    public function updateSectionsOrder($sections): void
+    /**
+     * @param  array<int, int>  $sections
+     */
+    public function updateSectionsOrder(array $sections): void
     {
         $sectionModel = CustomFieldsModel::newSectionModel();
 
@@ -117,7 +120,7 @@ class CustomFieldsPage extends Page
     #[On('section-deleted')]
     public function sectionDeleted(): void
     {
-        $this->sections = $this->sections->filter(fn ($section) => $section->exists);
+        $this->sections = $this->sections->filter(fn (CustomFieldSection $section): bool => $section->exists);
     }
 
     #[Override]

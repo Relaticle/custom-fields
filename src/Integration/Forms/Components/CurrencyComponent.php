@@ -21,7 +21,7 @@ final readonly class CurrencyComponent extends AbstractFormComponent
             ->minValue(0)
             ->default(0)
             ->rules(['numeric', 'min:0'])
-            ->formatStateUsing(fn ($state): string => number_format((float) $state, 2))
-            ->dehydrateStateUsing(fn ($state) => Str::of($state)->replace(['$', ','], '')->toFloat());
+            ->formatStateUsing(fn (mixed $state): string => number_format((float) $state, 2))
+            ->dehydrateStateUsing(fn (mixed $state): float => Str::of($state)->replace(['$', ','], '')->toFloat());
     }
 }

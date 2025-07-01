@@ -12,6 +12,7 @@ final readonly class MultiSelectComponent extends AbstractFormComponent
     public function create(CustomField $customField): Field
     {
         $selectComponent = new SelectComponent($this->configurator);
+
         return $selectComponent->create($customField)->multiple();
     }
 }

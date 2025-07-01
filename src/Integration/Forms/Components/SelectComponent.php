@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Relaticle\CustomFields\Integration\Forms\Components;
 
-use Filament\Forms\Components\Field;
 use Filament\Forms\Components\Select;
 use Relaticle\CustomFields\Integration\Forms\Components\Traits\ConfiguresColorOptions;
 use Relaticle\CustomFields\Integration\Forms\Components\Traits\ConfiguresLookups;
@@ -12,10 +11,10 @@ use Relaticle\CustomFields\Models\CustomField;
 
 final readonly class SelectComponent extends AbstractFormComponent
 {
-    use ConfiguresLookups;
     use ConfiguresColorOptions;
+    use ConfiguresLookups;
 
-    public function create(CustomField $customField): Field
+    public function create(CustomField $customField): Select
     {
         $field = Select::make("custom_fields.{$customField->code}")->searchable();
 
@@ -38,5 +37,4 @@ final readonly class SelectComponent extends AbstractFormComponent
 
         return $field;
     }
-
 }

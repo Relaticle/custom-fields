@@ -31,8 +31,7 @@ class CustomFieldsPlugin implements Plugin
             ->pages([
                 CustomFieldsPage::class,
             ])
-            ->tenantMiddleware([SetTenantContextMiddleware::class], true)
-            ->discoverPages(in: __DIR__.'/Filament/Pages', for: 'ManukMinasyan\\FilamentCustomField\\Filament\\Pages');
+            ->tenantMiddleware([SetTenantContextMiddleware::class], true);
     }
 
     public function boot(Panel $panel): void

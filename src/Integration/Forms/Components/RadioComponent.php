@@ -6,15 +6,14 @@ namespace Relaticle\CustomFields\Integration\Forms\Components;
 
 use Filament\Forms\Components\Field;
 use Filament\Forms\Components\Radio;
-use Illuminate\Support\Collection;
 use Relaticle\CustomFields\Integration\Forms\Components\Traits\ConfiguresColorOptions;
 use Relaticle\CustomFields\Integration\Forms\Components\Traits\ConfiguresLookups;
 use Relaticle\CustomFields\Models\CustomField;
 
 final readonly class RadioComponent extends AbstractFormComponent
 {
-    use ConfiguresLookups;
     use ConfiguresColorOptions;
+    use ConfiguresLookups;
 
     public function create(CustomField $customField): Field
     {
@@ -25,7 +24,7 @@ final readonly class RadioComponent extends AbstractFormComponent
         $field->options($options);
 
         // Add color styling if enabled (only for non-lookup fields)
-        if (!$this->usesLookupType($customField) && $this->hasColorOptionsEnabled($customField)) {
+        if (! $this->usesLookupType($customField) && $this->hasColorOptionsEnabled($customField)) {
             $coloredOptions = $this->getColoredOptions($customField);
 
             if (count($coloredOptions) > 0) {
