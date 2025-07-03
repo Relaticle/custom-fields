@@ -9,7 +9,7 @@ use Filament\Actions\Action;
 use Filament\Contracts\Plugin;
 use Filament\Panel;
 use Filament\Support\Concerns\EvaluatesClosures;
-use Relaticle\CustomFields\Filament\Pages\CustomFieldsPage;
+use Relaticle\CustomFields\Filament\Management\Pages\CustomFieldsManagementPage;
 use Relaticle\CustomFields\Http\Middleware\SetTenantContextMiddleware;
 use Relaticle\CustomFields\Services\TenantContextService;
 use Relaticle\CustomFields\Support\Utils;
@@ -29,7 +29,7 @@ class CustomFieldsPlugin implements Plugin
     {
         $panel
             ->pages([
-                CustomFieldsPage::class,
+                CustomFieldsManagementPage::class,
             ])
             ->tenantMiddleware([SetTenantContextMiddleware::class], true);
     }

@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Relaticle\CustomFields\Contracts;
 
 use Relaticle\CustomFields\Enums\CustomFieldValidationRule;
-use Relaticle\CustomFields\Enums\FieldCategory;
+use Relaticle\CustomFields\Enums\FieldDataType;
 
 /**
  * Contract for defining custom field types that can be registered dynamically.
@@ -29,9 +29,9 @@ interface FieldTypeDefinitionInterface
     public function getIcon(): string;
 
     /**
-     * Get the field category this type belongs to.
+     * Get the field data type for this field type.
      */
-    public function getCategory(): FieldCategory;
+    public function getDataType(): FieldDataType;
 
     /**
      * Get the allowed validation rules for this field type.

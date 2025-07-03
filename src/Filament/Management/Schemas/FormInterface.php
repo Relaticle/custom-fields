@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Relaticle\CustomFields\Filament\Schemas;
+namespace Relaticle\CustomFields\Filament\Management\Schemas;
 
 use Filament\Schemas\Components\Component;
 

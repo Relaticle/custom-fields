@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Relaticle\CustomFields\Filament\Forms\Components;
+namespace Relaticle\CustomFields\Filament\Management\Forms\Components;
 
 use Exception;
 use Filament\Forms\Components\Hidden;
@@ -16,11 +16,10 @@ use Filament\Schemas\Components\Utilities\Set;
 use Illuminate\Support\Arr;
 use Relaticle\CustomFields\CustomFields;
 use Relaticle\CustomFields\Enums\CustomFieldType;
-use Relaticle\CustomFields\Enums\FieldCategory;
+use Relaticle\CustomFields\Enums\FieldDataType;
 use Relaticle\CustomFields\Enums\Logic;
 use Relaticle\CustomFields\Enums\Mode;
 use Relaticle\CustomFields\Enums\Operator;
-use Relaticle\CustomFields\Services\FieldTypeHelperService;
 use Relaticle\CustomFields\Services\Visibility\BackendVisibilityService;
 use ValueError;
 
@@ -32,9 +31,7 @@ class VisibilityComponent extends Component
     protected string $view = 'filament-schemas::components.grid';
 
     public function __construct(
-        private ?FieldTypeHelperService $fieldTypeHelper = null
     ) {
-        $this->fieldTypeHelper ??= app(FieldTypeHelperService::class);
         $this->schema([$this->buildFieldset()]);
         $this->columnSpanFull();
     }
@@ -372,9 +369,9 @@ class VisibilityComponent extends Component
             }
 
             return match ($fieldType->getCategory()) {
-                FieldCategory::NUMERIC => 'Enter a number',
-                FieldCategory::DATE => 'Enter a date (YYYY-MM-DD)',
-                FieldCategory::BOOLEAN => 'true or false',
+                FieldDataType::NUMERIC => 'Enter a number',
+                FieldDataType::DATE => 'Enter a date (YYYY-MM-DD)',
+                FieldDataType::BOOLEAN => 'true or false',
                 default => 'Enter comparison value',
             };
         } catch (Exception) {

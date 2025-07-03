@@ -19,8 +19,8 @@ use Livewire\Attributes\Computed;
 use Livewire\Attributes\On;
 use Livewire\Component;
 use Relaticle\CustomFields\CustomFields;
-use Relaticle\CustomFields\Filament\Schemas\FieldForm;
-use Relaticle\CustomFields\Filament\Schemas\SectionForm;
+use Relaticle\CustomFields\Filament\Management\Schemas\FieldForm;
+use Relaticle\CustomFields\Filament\Management\Schemas\SectionForm;
 use Relaticle\CustomFields\Models\CustomFieldSection;
 use Relaticle\CustomFields\Support\Utils;
 

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Relaticle\CustomFields\Filament\Pages;
+namespace Relaticle\CustomFields\Filament\Management\Pages;
 
 use BackedEnum;
 use Filament\Actions\Action;
@@ -19,12 +19,13 @@ use Override;
 use Relaticle\CustomFields\CustomFields as CustomFieldsModel;
 use Relaticle\CustomFields\CustomFieldsPlugin;
 use Relaticle\CustomFields\Enums\CustomFieldSectionType;
-use Relaticle\CustomFields\Filament\Schemas\SectionForm;
+use Relaticle\CustomFields\Facades\CustomFieldsType;
+use Relaticle\CustomFields\Filament\Management\Schemas\SectionForm;
 use Relaticle\CustomFields\Models\CustomFieldSection;
 use Relaticle\CustomFields\Services\EntityTypeService;
 use Relaticle\CustomFields\Support\Utils;
 
-class CustomFieldsPage extends Page
+class CustomFieldsManagementPage extends Page
 {
     protected static string|BackedEnum|null $navigationIcon = 'heroicon-m-document-text';
 

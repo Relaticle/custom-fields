@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Relaticle\CustomFields\Filament\Forms\Components;
+namespace Relaticle\CustomFields\Filament\Management\Forms\Components;
 
 use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Select;

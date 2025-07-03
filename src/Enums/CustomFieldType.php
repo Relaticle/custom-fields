@@ -131,7 +131,7 @@ enum CustomFieldType: string implements HasLabel
      * 🎯 REVOLUTIONARY UNIFIED CLASSIFICATION SYSTEM
      * Single source of truth for all field type characteristics.
      */
-    public function getCategory(): FieldCategory
+    public function getCategory(): FieldDataType
     {
         return match ($this) {
             self::TEXT,
@@ -139,42 +139,42 @@ enum CustomFieldType: string implements HasLabel
             self::LINK,
             self::RICH_EDITOR,
             self::MARKDOWN_EDITOR,
-            self::COLOR_PICKER => FieldCategory::TEXT,
+            self::COLOR_PICKER => FieldDataType::TEXT,
 
-            self::NUMBER, self::CURRENCY => FieldCategory::NUMERIC,
+            self::NUMBER, self::CURRENCY => FieldDataType::NUMERIC,
 
-            self::DATE, self::DATE_TIME => FieldCategory::DATE,
+            self::DATE, self::DATE_TIME => FieldDataType::DATE,
 
-            self::TOGGLE, self::CHECKBOX => FieldCategory::BOOLEAN,
+            self::TOGGLE, self::CHECKBOX => FieldDataType::BOOLEAN,
 
-            self::SELECT, self::RADIO => FieldCategory::SINGLE_OPTION,
+            self::SELECT, self::RADIO => FieldDataType::SINGLE_OPTION,
 
             self::MULTI_SELECT,
             self::CHECKBOX_LIST,
             self::TAGS_INPUT,
-            self::TOGGLE_BUTTONS => FieldCategory::MULTI_OPTION,
+            self::TOGGLE_BUTTONS => FieldDataType::MULTI_OPTION,
         };
     }
 
     // 🔥 SIMPLIFIED BOOLEAN METHODS - One-liner delegates
     public function isBoolean(): bool
     {
-        return $this->getCategory() === FieldCategory::BOOLEAN;
+        return $this->getCategory() === FieldDataType::BOOLEAN;
     }
 
     public function isNumeric(): bool
     {
-        return $this->getCategory() === FieldCategory::NUMERIC;
+        return $this->getCategory() === FieldDataType::NUMERIC;
     }
 
     public function isTextBased(): bool
     {
-        return $this->getCategory() === FieldCategory::TEXT;
+        return $this->getCategory() === FieldDataType::TEXT;
     }
 
     public function isDateBased(): bool
     {
-        return $this->getCategory() === FieldCategory::DATE;
+        return $this->getCategory() === FieldDataType::DATE;
     }
 
     public function isOptionable(): bool
@@ -184,7 +184,7 @@ enum CustomFieldType: string implements HasLabel
 
     public function hasMultipleValues(): bool
     {
-        return $this->getCategory() === FieldCategory::MULTI_OPTION;
+        return $this->getCategory() === FieldDataType::MULTI_OPTION;
     }
 
     /**
@@ -417,7 +417,7 @@ enum CustomFieldType: string implements HasLabel
      *
      * @return Collection<int, self>
      */
-    public static function byCategory(FieldCategory $category): Collection
+    public static function byCategory(FieldDataType $category): Collection
     {
         return Cache::remember(
             "custom-fields.field-types.by-category.{$category->value}",
@@ -453,7 +453,7 @@ enum CustomFieldType: string implements HasLabel
         }
 
         // Clear category-based caches
-        foreach (FieldCategory::cases() as $category) {
+        foreach (FieldDataType::cases() as $category) {
             Cache::forget("custom-fields.field-types.by-category.{$category->value}");
         }
     }

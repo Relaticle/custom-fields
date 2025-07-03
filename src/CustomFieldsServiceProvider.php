@@ -20,11 +20,9 @@ use Relaticle\CustomFields\Livewire\ManageCustomFieldSection;
 use Relaticle\CustomFields\Livewire\ManageCustomFieldWidth;
 use Relaticle\CustomFields\Models\CustomField;
 use Relaticle\CustomFields\Models\CustomFieldSection;
+use Relaticle\CustomFields\Providers\FieldTypeServiceProvider;
 use Relaticle\CustomFields\Providers\ImportsServiceProvider;
 use Relaticle\CustomFields\Providers\ValidationServiceProvider;
-use Relaticle\CustomFields\Services\FieldTypeDiscoveryService;
-use Relaticle\CustomFields\Services\FieldTypeHelperService;
-use Relaticle\CustomFields\Services\FieldTypeRegistryService;
 use Relaticle\CustomFields\Services\TenantContextService;
 use Relaticle\CustomFields\Services\ValueResolver\ValueResolver;
 use Relaticle\CustomFields\Support\Utils;
@@ -40,6 +38,7 @@ class CustomFieldsServiceProvider extends PackageServiceProvider
 
     public function bootingPackage(): void
     {
+        $this->app->register(FieldTypeServiceProvider::class);
         $this->app->register(ImportsServiceProvider::class);
         $this->app->register(ValidationServiceProvider::class);
 
@@ -47,11 +46,6 @@ class CustomFieldsServiceProvider extends PackageServiceProvider
         $this->app->singleton(ValueResolvers::class, ValueResolver::class);
 
         $this->app->singleton(TenantContextService::class);
-
-        // Register field type extension services
-        $this->app->singleton(FieldTypeDiscoveryService::class);
-        $this->app->singleton(FieldTypeRegistryService::class);
-        $this->app->singleton(FieldTypeHelperService::class);
 
         if (Utils::isTenantEnabled()) {
             foreach (Filament::getPanels() as $panel) {

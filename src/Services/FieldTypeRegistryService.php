@@ -237,45 +237,45 @@ final class FieldTypeRegistryService
     {
         $this->cachedOptions = [];
 
-        // Add built-in field types
-        foreach (CustomFieldType::cases() as $type) {
-            $this->cachedOptions[$type->value] = [
-                'label' => $type->getLabel(),
-                'icon' => $type->getIcon(),
-                'category' => $type->getCategory()->value,
-                'validation_rules' => array_map(
-                    fn (mixed $rule): string => $rule->value,
-                    $type->allowedValidationRules()
-                ),
-                'form_component' => $this->getBuiltInFormComponent($type),
-                'table_column' => $this->getBuiltInTableColumn($type),
-                'infolist_entry' => $this->getBuiltInInfolistEntry($type),
-                'searchable' => CustomFieldType::searchables()->contains($type),
-                'filterable' => CustomFieldType::filterable()->contains($type),
-                'encryptable' => CustomFieldType::encryptables()->contains($type),
-                'priority' => 100, // Built-in types have default priority
-            ];
-        }
-
-        // Add custom field types
-        foreach ($this->customFieldTypes as $key => $fieldType) {
-            $this->cachedOptions[$key] = [
-                'label' => $fieldType->getLabel(),
-                'icon' => $fieldType->getIcon(),
-                'category' => $fieldType->getCategory()->value,
-                'validation_rules' => array_map(
-                    fn (mixed $rule): string => $rule->value,
-                    $fieldType->getAllowedValidationRules()
-                ),
-                'form_component' => $fieldType->getFormComponentClass(),
-                'table_column' => $fieldType->getTableColumnClass(),
-                'infolist_entry' => $fieldType->getInfolistEntryClass(),
-                'searchable' => $fieldType->isSearchable(),
-                'filterable' => $fieldType->isFilterable(),
-                'encryptable' => $fieldType->isEncryptable(),
-                'priority' => $fieldType->getPriority(),
-            ];
-        }
+//        // Add built-in field types
+//        foreach (CustomFieldType::cases() as $type) {
+//            $this->cachedOptions[$type->value] = [
+//                'label' => $type->getLabel(),
+//                'icon' => $type->getIcon(),
+//                'category' => $type->getCategory()->value,
+//                'validation_rules' => array_map(
+//                    fn (mixed $rule): string => $rule->value,
+//                    $type->allowedValidationRules()
+//                ),
+//                'form_component' => $this->getBuiltInFormComponent($type),
+//                'table_column' => $this->getBuiltInTableColumn($type),
+//                'infolist_entry' => $this->getBuiltInInfolistEntry($type),
+//                'searchable' => CustomFieldType::searchables()->contains($type),
+//                'filterable' => CustomFieldType::filterable()->contains($type),
+//                'encryptable' => CustomFieldType::encryptables()->contains($type),
+//                'priority' => 100, // Built-in types have default priority
+//            ];
+//        }
+//
+//        // Add custom field types
+//        foreach ($this->customFieldTypes as $key => $fieldType) {
+//            $this->cachedOptions[$key] = [
+//                'label' => $fieldType->getLabel(),
+//                'icon' => $fieldType->getIcon(),
+//                'category' => $fieldType->getCategory()->value,
+//                'validation_rules' => array_map(
+//                    fn (mixed $rule): string => $rule->value,
+//                    $fieldType->getAllowedValidationRules()
+//                ),
+//                'form_component' => $fieldType->getFormComponentClass(),
+//                'table_column' => $fieldType->getTableColumnClass(),
+//                'infolist_entry' => $fieldType->getInfolistEntryClass(),
+//                'searchable' => $fieldType->isSearchable(),
+//                'filterable' => $fieldType->isFilterable(),
+//                'encryptable' => $fieldType->isEncryptable(),
+//                'priority' => $fieldType->getPriority(),
+//            ];
+//        }
     }
 
     /**

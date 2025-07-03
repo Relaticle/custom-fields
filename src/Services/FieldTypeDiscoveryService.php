@@ -169,7 +169,7 @@ final class FieldTypeDiscoveryService
         $psr4Map = require $composerPath;
 
         // Normalize namespace
-        $namespace = trim($namespace, '\\').'\\';
+        $namespace = trim($namespace, '\\') . '\\';
 
         if (isset($psr4Map[$namespace])) {
             $paths = is_array($psr4Map[$namespace]) ? $psr4Map[$namespace] : [$psr4Map[$namespace]];
@@ -183,7 +183,7 @@ final class FieldTypeDiscoveryService
                 $relativePath = str_replace($prefix, '', $namespace);
                 $basePath = is_array($paths) ? $paths[0] : $paths;
 
-                return $basePath.str_replace('\\', '/', $relativePath);
+                return $basePath . str_replace('\\', '/', $relativePath);
             }
         }
 

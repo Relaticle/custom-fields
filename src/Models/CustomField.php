@@ -59,8 +59,6 @@ class CustomField extends Model
     /** @use HasFactory<CustomFieldFactory> */
     use HasFactory;
 
-    use HasFieldTypeHelpers;
-
     /**
      * @var array<string>|bool
      */

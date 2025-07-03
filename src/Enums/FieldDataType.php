@@ -7,12 +7,13 @@ namespace Relaticle\CustomFields\Enums;
 /**
  * Field categories for unified classification system.
  */
-enum FieldCategory: string
+enum FieldDataType: string
 {
     case TEXT = 'text';
     case NUMERIC = 'numeric';
     case DATE = 'date';
     case BOOLEAN = 'boolean';
+    case SINGLE_CHOICE = 'single_choice';
     case SINGLE_OPTION = 'single_option';
     case MULTI_OPTION = 'multi_option';
 
