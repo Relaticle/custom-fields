@@ -7,7 +7,6 @@ namespace Relaticle\CustomFields\Filament\Integration\Forms;
 use Filament\Forms\Components\Field;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
-use Relaticle\CustomFields\Enums\CustomFieldType;
 use Relaticle\CustomFields\Models\CustomField;
 use Relaticle\CustomFields\Services\ValidationService;
 use Relaticle\CustomFields\Services\Visibility\CoreVisibilityLogicService;
@@ -82,8 +81,7 @@ final readonly class FieldConfigurator
 
             return $value instanceof Carbon
                 ? $value->format(
-                    $customField->getFieldTypeValue() ===
-                    CustomFieldType::DATE->value
+                    $customField->isDateField()
                         ? FieldTypeUtils::getDateFormat()
                         : FieldTypeUtils::getDateTimeFormat()
                 )

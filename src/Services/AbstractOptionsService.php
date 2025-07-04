@@ -45,6 +45,8 @@ abstract class AbstractOptionsService
         $allowedResources = config(static::$allowedConfigKey, []);
         $disallowedResources = config(static::$disallowedConfigKey, []);
 
+        // TODO: Only models that implement HasCustomFields should be allowed
+
         return (! empty($allowedResources) && ! in_array($resource, $allowedResources, true))
             || in_array($resource, $disallowedResources, true);
     }

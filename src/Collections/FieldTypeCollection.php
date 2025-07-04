@@ -1,6 +1,4 @@
 <?php
-// ABOUTME: Collection wrapper for FieldTypeData objects with chainable filtering methods
-// ABOUTME: Provides fluent API for querying and manipulating field type collections
 
 declare(strict_types=1);
 

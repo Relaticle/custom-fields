@@ -7,7 +7,7 @@ use Illuminate\Support\Facades\Facade;
 use Relaticle\CustomFields\Filament\Integration\CustomFieldsManager;
 
 /**
- * @method static Component makeFormComponent()
+ * @method static Component formComponent()
  *
  * @see FieldTypeManager
  */

@@ -22,6 +22,7 @@ trait InteractsWithCustomFields
         $model = $this instanceof RelationManager ? $this->getRelationship()->getModel()::class : $this->getModel();
         $instance = app($model);
 
+
         try {
             $table = static::getResource()::table($table);
         } catch (Exception) {
