@@ -21,8 +21,6 @@ use Relaticle\CustomFields\Models\CustomField;
  */
 final readonly class BackendVisibilityService
 {
-    public $fieldTypeHelper;
-
     public function __construct(
         private CoreVisibilityLogicService $coreLogic,
     ) {}
@@ -163,7 +161,7 @@ final readonly class BackendVisibilityService
         if (
             $value === null ||
             $value === '' ||
-            ! $this->fieldTypeHelper->isOptionable($field->type ?? '')
+            ! $field->isChoiceField()
         ) {
             return $value;
         }
@@ -172,7 +170,7 @@ final readonly class BackendVisibilityService
         $options = $field->options()->get()->keyBy('id');
 
         // Single value optionable fields
-        if (! $field->type->hasMultipleValues()) {
+        if (! $field->isMultiChoiceField()) {
             return is_numeric($value)
                 ? $options->get($value)->name ?? $value
                 : $value;
@@ -285,7 +283,7 @@ final readonly class BackendVisibilityService
             ->with('options')
             ->first();
 
-        if (! $field || ! $this->fieldTypeHelper->isOptionable($field->type)) {
+        if (! $field || ! $field->isChoiceField()) {
             return [];
         }
 

@@ -7,7 +7,7 @@ parameters:
         - src
         - tests
     excludePaths:
-        - src/Filament/Pages/CustomFieldsPage.php
+        - src/Filament/Management/Pages/CustomFieldsManagementPage.php
         - src/Livewire
         - tests
     ignoreErrors:

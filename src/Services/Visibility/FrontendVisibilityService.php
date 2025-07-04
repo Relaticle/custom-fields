@@ -24,8 +24,6 @@ use Relaticle\CustomFields\Models\CustomField;
  */
 final readonly class FrontendVisibilityService
 {
-    public $fieldTypeHelper;
-
     public function __construct(
         private CoreVisibilityLogicService $coreLogic,
     ) {}
@@ -239,7 +237,7 @@ final readonly class FrontendVisibilityService
         ?CustomField $targetField
     ): string {
         return when(
-            $this->fieldTypeHelper->isOptionable($targetField->type ?? ''),
+            $targetField->isChoiceField(),
             fn (): string => $this->buildOptionExpression(
                 $fieldValue,
                 $value,
@@ -262,7 +260,7 @@ final readonly class FrontendVisibilityService
         ?CustomField $targetField
     ): string {
         return when(
-            $this->fieldTypeHelper->isOptionable($targetField->type ?? ''),
+            $targetField->isChoiceField(),
             fn (): string => $this->buildOptionExpression(
                 $fieldValue,
                 $value,

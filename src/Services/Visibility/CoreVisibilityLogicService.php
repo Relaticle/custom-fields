@@ -25,8 +25,6 @@ use Spatie\LaravelData\DataCollection;
  */
 final readonly class CoreVisibilityLogicService
 {
-    public $fieldTypeHelper;
-
     /**
      * Extract visibility data from a custom field.
      * This is the authoritative method for getting visibility configuration.
@@ -264,8 +262,7 @@ final readonly class CoreVisibilityLogicService
             return "Operator '{$operator->value}' is not compatible with field type '{$field->type->value}'";
         }
 
-        dd($field);
-        if ($this->conditionRequiresOptionableField($operator) && ! $this->fieldTypeHelper->isOptionable($field->type)) {
+        if ($this->conditionRequiresOptionableField($operator) && ! $field->isChoiceField()) {
             return "Operator '{$operator->value}' can only be used with optionable fields (select, radio, etc.)";
         }
 
