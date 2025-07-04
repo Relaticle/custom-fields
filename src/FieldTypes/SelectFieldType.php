@@ -6,15 +6,14 @@ namespace Relaticle\CustomFields\FieldTypes;
 
 use Relaticle\CustomFields\Contracts\FieldTypeDefinitionInterface;
 use Relaticle\CustomFields\Enums\FieldDataType;
-use Relaticle\CustomFields\FieldTypes\Concerns\DelegatesValidationToDataType;
 use Relaticle\CustomFields\FieldTypes\Concerns\HasCommonFieldProperties;
 use Relaticle\CustomFields\Filament\Integration\Forms\Components\SelectComponent;
 use Relaticle\CustomFields\Filament\Integration\Tables\Columns\SingleValueColumn;
-use Relaticle\CustomFields\Integration\Infolists\Fields\SingleValueEntry;
+use Relaticle\CustomFields\Filament\Integration\Tables\Filters\SelectFilter;
+use Relaticle\CustomFields\Filament\Integration\Infolists\Fields\SingleValueEntry;
 
 class SelectFieldType implements FieldTypeDefinitionInterface
 {
-    use DelegatesValidationToDataType;
     use HasCommonFieldProperties;
 
     public function getKey(): string
@@ -45,6 +44,11 @@ class SelectFieldType implements FieldTypeDefinitionInterface
     public function getTableColumnClass(): string
     {
         return SingleValueColumn::class;
+    }
+
+    public function getTableFilterClass(): ?string
+    {
+        return SelectFilter::class;
     }
 
     public function getInfolistEntryClass(): string

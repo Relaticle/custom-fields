@@ -34,13 +34,6 @@ interface FieldTypeDefinitionInterface
     public function getDataType(): FieldDataType;
 
     /**
-     * Get the allowed validation rules for this field type.
-     *
-     * @return array<int, CustomFieldValidationRule>
-     */
-    public function getAllowedValidationRules(): array;
-
-    /**
      * Get the form component class for this field type.
      * Must implement FieldComponentInterface.
      *
@@ -55,6 +48,14 @@ interface FieldTypeDefinitionInterface
      * @return class-string
      */
     public function getTableColumnClass(): string;
+
+    /**
+     * Get the table filter class for this field type.
+     * Must implement FilterInterface.
+     *
+     * @return class-string|null
+     */
+    public function getTableFilterClass(): ?string;
 
     /**
      * Get the infolist entry class for this field type.

@@ -10,22 +10,8 @@ namespace Relaticle\CustomFields\FieldTypes\Concerns;
  */
 trait HasCommonFieldProperties
 {
-    /**
-     * Determine if this field type supports conditional visibility.
-     * Default: true (most fields support this feature)
-     */
-    public function supportsConditionalVisibility(): bool
-    {
-        return true;
-    }
-
-    /**
-     * Determine if this field type supports storing multiple values.
-     * Default: false (most fields store single values)
-     */
-    public function supportsMultiplicity(): bool
-    {
-        return false;
+    public function getTableFilterClass(): ?string {
+        return null;
     }
 
     /**

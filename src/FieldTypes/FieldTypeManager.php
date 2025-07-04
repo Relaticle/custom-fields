@@ -14,7 +14,7 @@ final class FieldTypeManager
 {
     use EvaluatesClosures;
 
-    const DEFAULT_FIELD_TYPES = [
+    const array DEFAULT_FIELD_TYPES = [
         SelectFieldType::class,
         DateTimeFieldType::class,
     ];
@@ -79,9 +79,10 @@ final class FieldTypeManager
                 label: $fieldType->getLabel(),
                 icon: $fieldType->getIcon(),
                 dataType: $fieldType->getDataType(),
+                tableColumn: $fieldType->getTableColumnClass(),
+                tableFilter: $fieldType->getTableFilterClass(),
                 formComponent: $fieldType->getFormComponentClass(),
-                tableComponent: $fieldType->getTableColumnClass(),
-                infolistComponent: $fieldType->getInfolistEntryClass(),
+                infolistEntry: $fieldType->getInfolistEntryClass(),
             );
         }
 

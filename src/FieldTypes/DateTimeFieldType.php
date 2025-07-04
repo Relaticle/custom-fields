@@ -6,7 +6,6 @@ namespace Relaticle\CustomFields\FieldTypes;
 
 use Relaticle\CustomFields\Contracts\FieldTypeDefinitionInterface;
 use Relaticle\CustomFields\Enums\FieldDataType;
-use Relaticle\CustomFields\FieldTypes\Concerns\DelegatesValidationToDataType;
 use Relaticle\CustomFields\FieldTypes\Concerns\HasCommonFieldProperties;
 use Relaticle\CustomFields\Filament\Integration\Forms\Components\DateTimeComponent;
 use Relaticle\CustomFields\Filament\Integration\Tables\Columns\DateTimeColumn;
@@ -14,7 +13,6 @@ use Relaticle\CustomFields\Filament\Integration\Infolists\Fields\DateTimeEntry;
 
 class DateTimeFieldType implements FieldTypeDefinitionInterface
 {
-    use DelegatesValidationToDataType;
     use HasCommonFieldProperties;
 
     public function getKey(): string

@@ -7,15 +7,22 @@ namespace Relaticle\CustomFields\Filament\Integration\Tables\Filters;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Tables\Filters\BaseFilter;
 use Illuminate\Contracts\Container\BindingResolutionException;
-use Illuminate\Database\Eloquent\Model;
-use Relaticle\CustomFields\Enums\CustomFieldType;
+use Relaticle\CustomFields\Facades\CustomFieldsType;
 use Relaticle\CustomFields\Models\Contracts\HasCustomFields;
 use Relaticle\CustomFields\Models\CustomField;
-use Relaticle\CustomFields\Services\FieldTypeRegistryService;
 use Relaticle\CustomFields\Support\Utils;
 
 final readonly class CustomFieldsFilter
 {
+    private HasCustomFields $instance;
+
+    public function make(string $model): static
+    {
+        $this->instance = app($model);
+
+        return $this;
+    }
+
     /**
      * @return array<BaseFilter>
      *
@@ -24,18 +31,18 @@ final readonly class CustomFieldsFilter
     /**
      * @return array<BaseFilter>
      */
-    public static function all(Model&HasCustomFields $instance): array
+    public function all(): array
     {
         if (Utils::isTableFiltersEnabled() === false) {
             return [];
         }
 
-        $fieldFilterFactory = new FieldFilterFactory(app(), app(FieldTypeRegistryService::class));
+        $fieldFilterFactory = new FieldFilterFactory;
 
-        return $instance
+        return $this->instance
             ->customFields()
             ->with('options')
-            ->whereIn('type', CustomFieldType::filterable()->pluck('value'))
+            ->whereIn('type', CustomFieldsType::toCollection()->onlyFilterables()->keys())
             ->nonEncrypted()
             ->get()
             ->map(
@@ -48,10 +55,8 @@ final readonly class CustomFieldsFilter
 
     /**
      * @return array<BaseFilter>
-     *
-     * @throws BindingResolutionException
      */
-    public static function forRelationManager(
+    public function forRelationManager(
         RelationManager $relationManager
     ): array {
         $model = $relationManager->getRelationship()->getModel();
@@ -60,6 +65,8 @@ final readonly class CustomFieldsFilter
             return [];
         }
 
-        return CustomFieldsFilter::all($model);
+        $this->instance = $model;
+
+        return $this->all();
     }
 }

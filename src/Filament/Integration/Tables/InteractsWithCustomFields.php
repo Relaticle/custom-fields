@@ -9,6 +9,7 @@ use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Tables\Table;
 use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Database\Eloquent\Builder;
+use Relaticle\CustomFields\Facades\CustomFields;
 use Relaticle\CustomFields\Filament\Integration\Tables\Columns\CustomFieldsColumn;
 use Relaticle\CustomFields\Filament\Integration\Tables\Filters\CustomFieldsFilter;
 
@@ -20,8 +21,6 @@ trait InteractsWithCustomFields
     public function table(Table $table): Table
     {
         $model = $this instanceof RelationManager ? $this->getRelationship()->getModel()::class : $this->getModel();
-        $instance = app($model);
-
 
         try {
             $table = static::getResource()::table($table);
@@ -29,11 +28,14 @@ trait InteractsWithCustomFields
             $table = parent::table($table);
         }
 
+        $columns = CustomFields::tableColumns()->make($model)->all();
+        $filters = CustomFields::tableFilters()->make($model)->all();
+
         return $table->modifyQueryUsing(function (Builder $query): void {
             $query->with('customFieldValues.customField');
         })
             ->deferFilters(false)
-            ->pushColumns(CustomFieldsColumn::all($instance))
-            ->pushFilters(CustomFieldsFilter::all($instance));
+            ->pushColumns($columns)
+            ->pushFilters($filters);
     }
 }

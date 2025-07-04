@@ -19,7 +19,7 @@ final class FieldColumnFactory
      */
     public function create(CustomField $customField): Column
     {
-        $component = app($customField->typeData->tableComponent);
+        $component = app($customField->typeData->tableColumn);
         return $component->make($customField)->columnSpan($customField->width->getSpanValue());
     }
 }

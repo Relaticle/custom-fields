@@ -4,6 +4,7 @@ namespace Relaticle\CustomFields\Filament\Integration;
 
 use Relaticle\CustomFields\Filament\Integration\Forms\CustomFieldsForm;
 use Relaticle\CustomFields\Filament\Integration\Tables\Columns\CustomFieldsColumn;
+use Relaticle\CustomFields\Filament\Integration\Tables\Filters\CustomFieldsFilter;
 
 class CustomFieldsManager
 {
@@ -12,9 +13,13 @@ class CustomFieldsManager
         return app(CustomFieldsForm::class);
     }
 
-    public function tableColumns($model)
+    public function tableColumns()
     {
-        $instance = app($model);
-        return CustomFieldsColumn::all($instance);
+        return app(CustomFieldsColumn::class);
+    }
+
+    public function tableFilters()
+    {
+        return app(CustomFieldsFilter::class);
     }
 }
