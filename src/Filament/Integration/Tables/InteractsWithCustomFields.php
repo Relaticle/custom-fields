@@ -2,15 +2,15 @@
 
 declare(strict_types=1);
 
-namespace Relaticle\CustomFields\Integration\Tables;
+namespace Relaticle\CustomFields\Filament\Integration\Tables;
 
 use Exception;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Tables\Table;
 use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Database\Eloquent\Builder;
-use Relaticle\CustomFields\Integration\Tables\Columns\CustomFieldsColumn;
-use Relaticle\CustomFields\Integration\Tables\Filters\CustomFieldsFilter;
+use Relaticle\CustomFields\Filament\Integration\Tables\Columns\CustomFieldsColumn;
+use Relaticle\CustomFields\Filament\Integration\Tables\Filters\CustomFieldsFilter;
 
 trait InteractsWithCustomFields
 {

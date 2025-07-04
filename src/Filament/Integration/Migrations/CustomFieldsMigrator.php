@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Relaticle\CustomFields\Integration\Migrations;
+namespace Relaticle\CustomFields\Filament\Integration\Migrations;
 
 use Exception;
 use Illuminate\Support\Facades\DB;

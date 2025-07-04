@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Relaticle\CustomFields\Integration\Actions\Imports\ColumnConfigurators;
+namespace Relaticle\CustomFields\Filament\Integration\Actions\Imports\ColumnConfigurators;
 
 use Carbon\Carbon;
 use Exception;

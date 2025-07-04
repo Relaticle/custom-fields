@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Relaticle\CustomFields\Integration\Tables\Filters;
+namespace Relaticle\CustomFields\Filament\Integration\Tables\Filters;
 
 use Filament\Tables\Filters\SelectFilter as FilamentSelectFilter;
 use Illuminate\Database\Eloquent\Builder;

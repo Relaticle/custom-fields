@@ -9,7 +9,6 @@ use Illuminate\Support\Collection;
 use Relaticle\CustomFields\CustomFields;
 use Relaticle\CustomFields\Models\Contracts\HasCustomFields;
 use Relaticle\CustomFields\Models\CustomField;
-use Relaticle\CustomFields\Services\FieldTypeHelperService;
 
 /**
  * Backend Visibility Service
@@ -24,7 +23,6 @@ final readonly class BackendVisibilityService
 {
     public function __construct(
         private CoreVisibilityLogicService $coreLogic,
-        private FieldTypeHelperService $fieldTypeHelper
     ) {}
 
     /**

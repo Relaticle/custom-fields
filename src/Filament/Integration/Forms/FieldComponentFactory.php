@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-namespace Relaticle\CustomFields\Integration\Forms;
+namespace Relaticle\CustomFields\Filament\Integration\Forms;
 
 use Filament\Forms\Components\Field;
 use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Support\Collection;
-use Relaticle\CustomFields\Integration\AbstractComponentFactory;
-use Relaticle\CustomFields\Integration\Forms\Components\FieldComponentInterface;
+use Relaticle\CustomFields\Filament\Integration\AbstractComponentFactory;
+use Relaticle\CustomFields\Filament\Integration\Forms\Components\FieldComponentInterface;
 use Relaticle\CustomFields\Models\CustomField;
 
 /**

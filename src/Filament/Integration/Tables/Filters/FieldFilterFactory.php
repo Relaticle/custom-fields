@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-namespace Relaticle\CustomFields\Integration\Tables\Filters;
+namespace Relaticle\CustomFields\Filament\Integration\Tables\Filters;
 
 use Filament\Tables\Filters\BaseFilter;
 use Illuminate\Contracts\Container\BindingResolutionException;
 use InvalidArgumentException;
 use Relaticle\CustomFields\Enums\CustomFieldType;
-use Relaticle\CustomFields\Integration\AbstractComponentFactory;
+use Relaticle\CustomFields\Filament\Integration\AbstractComponentFactory;
 use Relaticle\CustomFields\Models\CustomField;
 use RuntimeException;
 

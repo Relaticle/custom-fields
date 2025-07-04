@@ -2,16 +2,16 @@
 
 declare(strict_types=1);
 
-namespace Relaticle\CustomFields\Integration\Actions\Imports;
+namespace Relaticle\CustomFields\Filament\Integration\Actions\Imports;
 
 use Filament\Actions\Imports\ImportColumn;
 use Relaticle\CustomFields\Data\ValidationRuleData;
 use Relaticle\CustomFields\Enums\CustomFieldType;
-use Relaticle\CustomFields\Integration\Actions\Imports\ColumnConfigurators\BasicColumnConfigurator;
-use Relaticle\CustomFields\Integration\Actions\Imports\ColumnConfigurators\ColumnConfiguratorInterface;
-use Relaticle\CustomFields\Integration\Actions\Imports\ColumnConfigurators\MultiSelectColumnConfigurator;
-use Relaticle\CustomFields\Integration\Actions\Imports\ColumnConfigurators\SelectColumnConfigurator;
-use Relaticle\CustomFields\Integration\Actions\Imports\Exceptions\UnsupportedColumnTypeException;
+use Relaticle\CustomFields\Filament\Integration\Actions\Imports\ColumnConfigurators\BasicColumnConfigurator;
+use Relaticle\CustomFields\Filament\Integration\Actions\Imports\ColumnConfigurators\ColumnConfiguratorInterface;
+use Relaticle\CustomFields\Filament\Integration\Actions\Imports\ColumnConfigurators\MultiSelectColumnConfigurator;
+use Relaticle\CustomFields\Filament\Integration\Actions\Imports\ColumnConfigurators\SelectColumnConfigurator;
+use Relaticle\CustomFields\Filament\Integration\Actions\Imports\Exceptions\UnsupportedColumnTypeException;
 use Relaticle\CustomFields\Models\CustomField;
 
 /**

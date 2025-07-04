@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Relaticle\CustomFields\Integration\Actions\Exports;
+namespace Relaticle\CustomFields\Filament\Integration\Actions\Exports;
 
 use Filament\Actions\Exports\ExportColumn;
 use Illuminate\Support\Collection;

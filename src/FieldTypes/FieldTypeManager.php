@@ -59,10 +59,6 @@ class FieldTypeManager
         return $this->cachedFieldTypes;
     }
 
-    /**
-     * @param string $fieldType
-     * @return FieldTypeData
-     */
     public function getFieldType(string $fieldType): FieldTypeData
     {
         return $this->toDataCollection()->firstWhere('key', $fieldType);
@@ -88,5 +84,33 @@ class FieldTypeManager
         }
 
         return collect($fieldTypes)->sortBy('label')->values();
+    }
+
+    public function choiceables(): Collection
+    {
+        return $this->toDataCollection()
+            ->filter(fn (FieldTypeData $fieldType) => $fieldType->dataType->isChoiceField())
+            ->sortBy('label');
+    }
+
+    public function searchables(): Collection
+    {
+        return $this->toDataCollection()
+            ->filter(fn (FieldTypeData $fieldType) => $fieldType->searchable)
+            ->sortBy('label');
+    }
+
+    public function sortables(): Collection
+    {
+        return $this->toDataCollection()
+            ->filter(fn (FieldTypeData $fieldType) => $fieldType->sortable)
+            ->sortBy('label');
+    }
+
+    public function filterables(): Collection
+    {
+        return $this->toDataCollection()
+            ->filter(fn (FieldTypeData $fieldType) => $fieldType->filterable)
+            ->sortBy('label');
     }
 }

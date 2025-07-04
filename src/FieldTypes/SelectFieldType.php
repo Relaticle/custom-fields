@@ -8,7 +8,7 @@ use Relaticle\CustomFields\Contracts\FieldTypeDefinitionInterface;
 use Relaticle\CustomFields\Enums\FieldDataType;
 use Relaticle\CustomFields\FieldTypes\Concerns\DelegatesValidationToDataType;
 use Relaticle\CustomFields\FieldTypes\Concerns\HasCommonFieldProperties;
-use Relaticle\CustomFields\Filament\Fields\Forms\SelectInput;
+use Relaticle\CustomFields\Filament\Integration\Forms\Components\SelectComponent;
 use Relaticle\CustomFields\Filament\Fields\Infolists\Entries\SelectEntry;
 use Relaticle\CustomFields\Filament\Fields\Tables\Columns\SelectColumn;
 
@@ -39,7 +39,7 @@ class SelectFieldType implements FieldTypeDefinitionInterface
 
     public function getFormComponentClass(): string
     {
-        return SelectInput::class;
+        return SelectComponent::class;
     }
 
     public function getTableColumnClass(): string

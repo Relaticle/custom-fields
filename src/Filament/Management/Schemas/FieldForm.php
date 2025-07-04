@@ -23,6 +23,7 @@ use Illuminate\Support\Str;
 use Illuminate\Validation\Rules\Unique;
 use Relaticle\CustomFields\CustomFields;
 use Relaticle\CustomFields\Enums\CustomFieldType;
+use Relaticle\CustomFields\Facades\CustomFieldsType;
 use Relaticle\CustomFields\Filament\Management\Forms\Components\CustomFieldValidationComponent;
 use Relaticle\CustomFields\Filament\Management\Forms\Components\TypeField;
 use Relaticle\CustomFields\Filament\Management\Forms\Components\VisibilityComponent;
@@ -72,7 +73,7 @@ class FieldForm implements FormInterface
                 fn (Get $get): bool => $get('options_lookup_type') ===
                     'options' &&
                     in_array(
-                        (string)$get('type')['key'],
+                        (string)$get('type'),
                         CustomFieldType::optionables()
                             ->pluck('value')
                             ->toArray()
@@ -326,7 +327,7 @@ class FieldForm implements FormInterface
                                             Get $get
                                         ): bool => CustomFieldType::searchables()->contains(
                                             'value',
-                                            (string)$get('type')['key']
+                                            (string)$get('type')
                                         )
                                     )
                                     ->disabled(
@@ -366,7 +367,7 @@ class FieldForm implements FormInterface
                                         ): bool => Utils::isValuesEncryptionFeatureEnabled() &&
                                             CustomFieldType::encryptables()->contains(
                                                 'value',
-                                                (string)$get('type')['key']
+                                                (string)$get('type')
                                             )
                                     )
                                     ->default(false),
@@ -388,7 +389,7 @@ class FieldForm implements FormInterface
                                         fn (
                                             Get $get
                                         ): bool => Utils::isSelectOptionColorsFeatureEnabled() &&
-                                            in_array((string)$get('type')['key'], [
+                                            in_array((string)$get('type'), [
                                                 CustomFieldType::SELECT,
                                                 CustomFieldType::MULTI_SELECT,
                                             ])
@@ -403,10 +404,10 @@ class FieldForm implements FormInterface
                             )
                             ->visible(
                                 fn (Get $get): bool => in_array(
-                                    $get('type')['key'],
-                                    CustomFieldType::optionables()
+                                    $get('type'),
+                                    dd(CustomFieldsType::choiceables()
                                         ->pluck('value')
-                                        ->toArray()
+                                        ->toArray()),
                                 )
                             )
                             ->disabled(

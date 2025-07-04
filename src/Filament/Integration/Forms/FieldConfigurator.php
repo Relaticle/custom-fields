@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Relaticle\CustomFields\Integration\Forms;
+namespace Relaticle\CustomFields\Filament\Integration\Forms;
 
 use Filament\Forms\Components\Field;
 use Illuminate\Support\Carbon;

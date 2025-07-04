@@ -2,14 +2,14 @@
 
 declare(strict_types=1);
 
-namespace Relaticle\CustomFields\Integration\Actions\Imports;
+namespace Relaticle\CustomFields\Filament\Integration\Actions\Imports;
 
 use Filament\Actions\Imports\ImportColumn;
 use Illuminate\Database\Eloquent\Model;
 use Psr\Log\LoggerInterface;
 use Relaticle\CustomFields\CustomFields;
-use Relaticle\CustomFields\Integration\Actions\Imports\Exceptions\UnsupportedColumnTypeException;
-use Relaticle\CustomFields\Integration\Actions\Imports\ValueConverters\ValueConverterInterface;
+use Relaticle\CustomFields\Filament\Integration\Actions\Imports\Exceptions\UnsupportedColumnTypeException;
+use Relaticle\CustomFields\Filament\Integration\Actions\Imports\ValueConverters\ValueConverterInterface;
 use Relaticle\CustomFields\Models\Contracts\HasCustomFields;
 use Relaticle\CustomFields\Models\CustomField;
 use Relaticle\CustomFields\Services\EntityTypeService;

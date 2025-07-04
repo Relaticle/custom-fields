@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Relaticle\CustomFields\Integration\Actions\Imports\Exceptions;
+namespace Relaticle\CustomFields\Filament\Integration\Actions\Imports\Exceptions;
 
 use Exception;
 

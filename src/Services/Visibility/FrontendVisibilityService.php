@@ -11,7 +11,6 @@ use Relaticle\CustomFields\Enums\Logic;
 use Relaticle\CustomFields\Enums\Mode;
 use Relaticle\CustomFields\Enums\Operator;
 use Relaticle\CustomFields\Models\CustomField;
-use Relaticle\CustomFields\Services\FieldTypeHelperService;
 
 /**
  * Frontend Visibility Service
@@ -27,7 +26,6 @@ final readonly class FrontendVisibilityService
 {
     public function __construct(
         private CoreVisibilityLogicService $coreLogic,
-        private FieldTypeHelperService $fieldTypeHelper
     ) {}
 
     /**

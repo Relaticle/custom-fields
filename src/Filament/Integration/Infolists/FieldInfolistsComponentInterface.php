@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Relaticle\CustomFields\Integration\Infolists;
+namespace Relaticle\CustomFields\Filament\Integration\Infolists;
 
 use Filament\Infolists\Components\Entry;
 use Relaticle\CustomFields\Models\CustomField;

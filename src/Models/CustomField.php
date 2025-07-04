@@ -6,20 +6,22 @@ namespace Relaticle\CustomFields\Models;
 
 use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 use Illuminate\Database\Eloquent\Attributes\ScopedBy;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Override;
-use Relaticle\CustomFields\Casts\CustomFieldTypeCast;
 use Relaticle\CustomFields\CustomFields;
 use Relaticle\CustomFields\Data\CustomFieldSettingsData;
+use Relaticle\CustomFields\Data\FieldTypeData;
 use Relaticle\CustomFields\Data\ValidationRuleData;
 use Relaticle\CustomFields\Database\Factories\CustomFieldFactory;
 use Relaticle\CustomFields\Enums\CustomFieldType;
 use Relaticle\CustomFields\Enums\CustomFieldWidth;
+use Relaticle\CustomFields\Facades\CustomFieldsType;
 use Relaticle\CustomFields\Models\Concerns\Activable;
-use Relaticle\CustomFields\Models\Concerns\HasFieldTypeHelpers;
+use Relaticle\CustomFields\Models\Concerns\HasFieldType;
 use Relaticle\CustomFields\Models\Scopes\CustomFieldsActivableScope;
 use Relaticle\CustomFields\Models\Scopes\SortOrderScope;
 use Relaticle\CustomFields\Models\Scopes\TenantScope;
@@ -58,6 +60,8 @@ class CustomField extends Model
 
     /** @use HasFactory<CustomFieldFactory> */
     use HasFactory;
+
+    use HasFieldType;
 
     /**
      * @var array<string>|bool
@@ -105,12 +109,12 @@ class CustomField extends Model
     protected function casts(): array
     {
         return [
-            'type' => CustomFieldTypeCast::class,
+            'type' => 'string',
             'width' => CustomFieldWidth::class,
-            'validation_rules' => DataCollection::class.':'.ValidationRuleData::class.',default',
+            'validation_rules' => DataCollection::class . ':' . ValidationRuleData::class . ',default',
             'active' => 'boolean',
             'system_defined' => 'boolean',
-            'settings' => CustomFieldSettingsData::class.':default',
+            'settings' => CustomFieldSettingsData::class . ':default',
         ];
     }
 
@@ -139,6 +143,16 @@ class CustomField extends Model
     {
         /** @var HasMany<CustomFieldOption, self> */
         return $this->hasMany(CustomFields::optionModel());
+    }
+
+    /**
+     * @noinspection PhpUnused
+     */
+    public function typeData(): Attribute
+    {
+        return Attribute::make(
+            get: fn (mixed $value, array $attributes): FieldTypeData => CustomFieldsType::getFieldType($attributes['type'])
+        );
     }
 
     /**

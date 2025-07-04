@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-namespace Relaticle\CustomFields\Integration\Infolists\Fields;
+namespace Relaticle\CustomFields\Filament\Integration\Infolists\Fields;
 
 use Filament\Infolists\Components\Entry;
 use Filament\Infolists\Components\TextEntry as BaseTextEntry;
 use Filament\Support\Colors\Color;
-use Relaticle\CustomFields\Integration\Infolists\FieldInfolistsComponentInterface;
-use Relaticle\CustomFields\Integration\Infolists\FieldInfolistsConfigurator;
+use Relaticle\CustomFields\Filament\Integration\Infolists\FieldInfolistsComponentInterface;
+use Relaticle\CustomFields\Filament\Integration\Infolists\FieldInfolistsConfigurator;
 use Relaticle\CustomFields\Models\CustomField;
 use Relaticle\CustomFields\Services\ValueResolver\LookupSingleValueResolver;
 use Relaticle\CustomFields\Support\Utils;

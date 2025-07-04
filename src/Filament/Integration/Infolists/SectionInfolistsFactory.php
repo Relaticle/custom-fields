@@ -2,17 +2,17 @@
 
 declare(strict_types=1);
 
-namespace Relaticle\CustomFields\Integration\Infolists;
+namespace Relaticle\CustomFields\Filament\Integration\Infolists;
 
 use Filament\Schemas\Components\Fieldset;
 use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Components\Section;
 use InvalidArgumentException;
 use Relaticle\CustomFields\Enums\CustomFieldSectionType;
-use Relaticle\CustomFields\Integration\AbstractComponentFactory;
-use Relaticle\CustomFields\Integration\Infolists\Sections\FieldsetInfolistsComponent;
-use Relaticle\CustomFields\Integration\Infolists\Sections\HeadlessInfolistsComponent;
-use Relaticle\CustomFields\Integration\Infolists\Sections\SectionInfolistsComponent;
+use Relaticle\CustomFields\Filament\Integration\AbstractComponentFactory;
+use Relaticle\CustomFields\Filament\Integration\Infolists\Sections\FieldsetInfolistsComponent;
+use Relaticle\CustomFields\Filament\Integration\Infolists\Sections\HeadlessInfolistsComponent;
+use Relaticle\CustomFields\Filament\Integration\Infolists\Sections\SectionInfolistsComponent;
 use Relaticle\CustomFields\Models\CustomFieldSection;
 use RuntimeException;
 

@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-namespace Relaticle\CustomFields\Integration\Forms\Components;
+namespace Relaticle\CustomFields\Filament\Integration\Forms\Components;
 
 use Filament\Forms\Components\Field;
 use Filament\Forms\Components\Radio;
-use Relaticle\CustomFields\Integration\Forms\Components\Traits\ConfiguresColorOptions;
-use Relaticle\CustomFields\Integration\Forms\Components\Traits\ConfiguresLookups;
+use Relaticle\CustomFields\Filament\Integration\Forms\Components\Traits\ConfiguresColorOptions;
+use Relaticle\CustomFields\Filament\Integration\Forms\Components\Traits\ConfiguresLookups;
 use Relaticle\CustomFields\Models\CustomField;
 
 final readonly class RadioComponent extends AbstractFormComponent

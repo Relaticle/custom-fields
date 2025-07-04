@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Relaticle\CustomFields\Integration\Infolists;
+namespace Relaticle\CustomFields\Filament\Integration\Infolists;
 
 use Filament\Schemas\Components\Fieldset;
 use Filament\Schemas\Components\Grid;

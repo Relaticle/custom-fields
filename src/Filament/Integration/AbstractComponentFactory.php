@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Relaticle\CustomFields\Integration;
+namespace Relaticle\CustomFields\Filament\Integration;
 
 use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Contracts\Container\Container;
@@ -49,15 +49,9 @@ abstract class AbstractComponentFactory
      */
     protected function createComponent(CustomField $customField, string $componentKey, string $expectedInterface): object
     {
-        $customFieldType = $customField->getFieldTypeValue();
+        $customFieldType = $customField->typeData;
 
-        $fieldTypeConfig = $this->fieldTypeRegistry->getFieldType($customFieldType);
-
-        if ($fieldTypeConfig === null) {
-            throw new InvalidArgumentException("No {$componentKey} registered for custom field type: {$customFieldType}");
-        }
-
-        $componentClass = $fieldTypeConfig[$componentKey];
+        $componentClass = $customFieldType->formComponent;
 
         if (! isset($this->instanceCache[$componentClass])) {
             $component = $this->container->make($componentClass);

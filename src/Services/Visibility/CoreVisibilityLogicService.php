@@ -11,7 +11,6 @@ use Relaticle\CustomFields\Enums\Logic;
 use Relaticle\CustomFields\Enums\Mode;
 use Relaticle\CustomFields\Enums\Operator;
 use Relaticle\CustomFields\Models\CustomField;
-use Relaticle\CustomFields\Services\FieldTypeHelperService;
 use Spatie\LaravelData\DataCollection;
 
 /**
@@ -27,7 +26,6 @@ use Spatie\LaravelData\DataCollection;
 final readonly class CoreVisibilityLogicService
 {
     public function __construct(
-        private FieldTypeHelperService $fieldTypeHelper,
     ) {}
 
     /**
@@ -267,6 +265,7 @@ final readonly class CoreVisibilityLogicService
             return "Operator '{$operator->value}' is not compatible with field type '{$field->type->value}'";
         }
 
+        dd($field);
         if ($this->conditionRequiresOptionableField($operator) && ! $this->fieldTypeHelper->isOptionable($field->type)) {
             return "Operator '{$operator->value}' can only be used with optionable fields (select, radio, etc.)";
         }

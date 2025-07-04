@@ -14,26 +14,22 @@ enum FieldDataType: string
     case DATE = 'date';
     case BOOLEAN = 'boolean';
     case SINGLE_CHOICE = 'single_choice';
-    case SINGLE_OPTION = 'single_option';
-    case MULTI_OPTION = 'multi_option';
+    case MULTI_CHOICE = 'multi_option';
 
     /**
      * Check if this category represents optionable fields.
      */
-    public function isOptionable(): bool
+    public function isChoiceField(): bool
     {
         return in_array($this, [
-            self::SINGLE_OPTION,
-            self::MULTI_OPTION,
+            self::SINGLE_CHOICE,
+            self::MULTI_CHOICE,
         ], true);
     }
 
-    /**
-     * Check if this category supports multiple values.
-     */
-    public function hasMultipleValues(): bool
+    public function isMultiChoiceField(): bool
     {
-        return $this === self::MULTI_OPTION;
+        return $this === self::MULTI_CHOICE;
     }
 
     /**
@@ -65,13 +61,13 @@ enum FieldDataType: string
                 Operator::IS_EMPTY,
                 Operator::IS_NOT_EMPTY,
             ],
-            self::SINGLE_OPTION => [
+            self::SINGLE_CHOICE => [
                 Operator::EQUALS,
                 Operator::NOT_EQUALS,
                 Operator::IS_EMPTY,
                 Operator::IS_NOT_EMPTY,
             ],
-            self::MULTI_OPTION => [
+            self::MULTI_CHOICE => [
                 Operator::CONTAINS,
                 Operator::NOT_CONTAINS,
                 Operator::IS_EMPTY,

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Relaticle\CustomFields\Integration\Tables\Filters;
+namespace Relaticle\CustomFields\Filament\Integration\Tables\Filters;
 
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Tables\Filters\BaseFilter;

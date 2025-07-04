@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Relaticle\CustomFields\Integration\Tables\Columns;
+namespace Relaticle\CustomFields\Filament\Integration\Tables\Columns;
 
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Tables\Columns\Column;

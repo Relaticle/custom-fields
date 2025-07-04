@@ -1,22 +1,22 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Relaticle\CustomFields\Facades;
 
 use Closure;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Facade;
+use Relaticle\CustomFields\Data\FieldTypeData;
 use Relaticle\CustomFields\FieldTypes\FieldTypeManager;
 
 /**
- * @method static array<string, array<int | string, string | int>> getColors()
- * @method static ?array<int | string, string | int> getColor(string $color)
- * @method static array<string> getComponentClasses(class-string<HasColor> | HasColor $component, ?string $color)
- * @method static array<string> getComponentCustomStyles(class-string<HasColor> | HasColor $component, array<string> $color)
- * @method static void addShades(string $alias, array<int> $shades)
- * @method static array<int> | null getAddedShades(string $alias)
- * @method static array<int> | null getOverridingShades(string $alias)
- * @method static array<int> | null getRemovedShades(string $alias)
- * @method static void overrideShades(string $alias, array<int> $shades)
- * @method static void removeShades(string $alias, array<int> $shades)
+ * @method static Collection<string, FieldTypeData> toDataCollection()
+ * @method static Collection<string, FieldTypeData> choiceables()
+ * @method static Collection<string, FieldTypeData> searchables()
+ * @method static Collection<string, FieldTypeData> sortables()
+ * @method static Collection<string, FieldTypeData> filterables()
+ *
  *
  * @see FieldTypeManager
  */
