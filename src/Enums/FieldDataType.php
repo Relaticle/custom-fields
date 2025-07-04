@@ -9,9 +9,11 @@ namespace Relaticle\CustomFields\Enums;
  */
 enum FieldDataType: string
 {
+    case STRING = 'string';
     case TEXT = 'text';
     case NUMERIC = 'numeric';
     case DATE = 'date';
+    case DATE_TIME = 'date_time';
     case BOOLEAN = 'boolean';
     case SINGLE_CHOICE = 'single_choice';
     case MULTI_CHOICE = 'multi_option';

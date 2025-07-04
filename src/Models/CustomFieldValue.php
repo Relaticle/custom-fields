@@ -12,8 +12,11 @@ use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
 use Relaticle\CustomFields\CustomFields;
+use Relaticle\CustomFields\Data\FieldTypeData;
 use Relaticle\CustomFields\Database\Factories\CustomFieldValueFactory;
 use Relaticle\CustomFields\Enums\CustomFieldType;
+use Relaticle\CustomFields\Enums\FieldDataType;
+use Relaticle\CustomFields\Facades\CustomFieldsType;
 use Relaticle\CustomFields\Models\Scopes\TenantScope;
 use Relaticle\CustomFields\Services\FieldTypeRegistryService;
 use Relaticle\CustomFields\Support\SafeValueConverter;
@@ -77,52 +80,21 @@ class CustomFieldValue extends Model
         ];
     }
 
-    public static function getValueColumn(CustomFieldType|string $type): string
+    public static function getValueColumn(string $fieldType): string
     {
-        // Handle enum types
-        if ($type instanceof CustomFieldType) {
-            return match ($type) {
-                CustomFieldType::TEXT,
-                CustomFieldType::TEXTAREA,
-                CustomFieldType::RICH_EDITOR,
-                CustomFieldType::MARKDOWN_EDITOR => 'text_value',
-                CustomFieldType::LINK,
-                CustomFieldType::COLOR_PICKER => 'string_value',
-                CustomFieldType::NUMBER,
-                CustomFieldType::RADIO,
-                CustomFieldType::SELECT => 'integer_value',
-                CustomFieldType::CHECKBOX,
-                CustomFieldType::TOGGLE => 'boolean_value',
-                CustomFieldType::CHECKBOX_LIST,
-                CustomFieldType::TOGGLE_BUTTONS,
-                CustomFieldType::TAGS_INPUT,
-                CustomFieldType::MULTI_SELECT => 'json_value',
-                CustomFieldType::CURRENCY => 'float_value',
-                CustomFieldType::DATE => 'date_value',
-                CustomFieldType::DATE_TIME => 'datetime_value',
-            };
-        }
+        $fieldType = CustomFieldsType::getFieldType($fieldType);
+        $dataType = $fieldType->dataType;
 
-        // Handle custom field types (strings) - determine column based on category
-        if (app()->bound(FieldTypeRegistryService::class)) {
-            $registry = app(FieldTypeRegistryService::class);
-            $fieldTypeConfig = $registry->getFieldType($type);
-
-            if ($fieldTypeConfig !== null) {
-                return match ($fieldTypeConfig['category']) {
-                    'text' => 'text_value',
-                    'numeric' => 'integer_value',
-                    'date' => 'date_value',
-                    'boolean' => 'boolean_value',
-                    'single_option' => 'integer_value',
-                    'multi_option' => 'json_value',
-                    default => 'text_value',
-                };
-            }
-        }
-
-        // Fallback for unknown types
-        return 'text_value';
+        return match ($dataType) {
+            FieldDataType::STRING => 'string_value',
+            FieldDataType::TEXT => 'text_value',
+            FieldDataType::NUMERIC => 'float_value',
+            FieldDataType::DATE => 'date_value',
+            FieldDataType::DATE_TIME => 'datetime_value',
+            FieldDataType::BOOLEAN => 'boolean_value',
+            FieldDataType::SINGLE_CHOICE => 'integer_value',
+            FieldDataType::MULTI_CHOICE => 'json_value',
+        };
     }
 
     /**
