@@ -405,9 +405,7 @@ class FieldForm implements FormInterface
                             ->visible(
                                 fn (Get $get): bool => in_array(
                                     $get('type'),
-                                    dd(CustomFieldsType::choiceables()
-                                        ->pluck('value')
-                                        ->toArray()),
+                                    CustomFieldsType::toCollection()->onlyChoiceables()->keys()->toArray()
                                 )
                             )
                             ->disabled(

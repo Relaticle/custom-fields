@@ -54,10 +54,8 @@ class TypeField extends Select
      */
     protected function getAllFormattedOptions(): array
     {
-        return CustomFieldsType::toDataCollection()
-            ->mapWithKeys(
-                fn (FieldTypeData $data): array => [$data->key => $this->getHtmlOption($data)]
-            )
+        return CustomFieldsType::toCollection()
+            ->mapWithKeys(fn (FieldTypeData $data): array => [$data->key => $this->getHtmlOption($data)])
             ->toArray();
     }
 

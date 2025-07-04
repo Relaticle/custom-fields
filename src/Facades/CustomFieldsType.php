@@ -11,11 +11,7 @@ use Relaticle\CustomFields\Data\FieldTypeData;
 use Relaticle\CustomFields\FieldTypes\FieldTypeManager;
 
 /**
- * @method static Collection<string, FieldTypeData> toDataCollection()
- * @method static Collection<string, FieldTypeData> choiceables()
- * @method static Collection<string, FieldTypeData> searchables()
- * @method static Collection<string, FieldTypeData> sortables()
- * @method static Collection<string, FieldTypeData> filterables()
+ * @method static Collection<string, FieldTypeData> toCollection()
  *
  *
  * @see FieldTypeManager

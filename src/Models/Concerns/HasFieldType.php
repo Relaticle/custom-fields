@@ -4,8 +4,8 @@ namespace Relaticle\CustomFields\Models\Concerns;
 
 trait HasFieldType
 {
-    public function isChoiceable(): bool
+    public function isChoiceField(): bool
     {
-        return $this->field_type->dataType->isChoiceable();
+        return $this->typeData->isChoiceField();
     }
 }

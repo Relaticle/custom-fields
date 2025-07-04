@@ -4,7 +4,7 @@ namespace Relaticle\CustomFields\FieldTypes;
 
 use Closure;
 use Filament\Support\Concerns\EvaluatesClosures;
-use Illuminate\Support\Collection;
+use Relaticle\CustomFields\Collections\FieldTypeCollection;
 use Relaticle\CustomFields\Contracts\FieldTypeDefinitionInterface;
 use Relaticle\CustomFields\Data\FieldTypeData;
 
@@ -61,10 +61,15 @@ class FieldTypeManager
 
     public function getFieldType(string $fieldType): FieldTypeData
     {
-        return $this->toDataCollection()->firstWhere('key', $fieldType);
+        return $this->toCollection()->firstWhere('key', $fieldType);
     }
 
-    public function toDataCollection(): Collection
+    public function all(): FieldTypeCollection
+    {
+        return $this->toCollection();
+    }
+
+    public function toCollection(): FieldTypeCollection
     {
         $fieldTypes = [];
 
@@ -72,7 +77,7 @@ class FieldTypeManager
             /** @var FieldTypeDefinitionInterface $fieldType */
             $fieldType = new $fieldTypeClass;
 
-            $fieldTypes[] = new FieldTypeData(
+            $fieldTypes[$fieldType->getKey()] = new FieldTypeData(
                 key: $fieldType->getKey(),
                 label: $fieldType->getLabel(),
                 icon: $fieldType->getIcon(),
@@ -83,34 +88,6 @@ class FieldTypeManager
             );
         }
 
-        return collect($fieldTypes)->sortBy('label')->values();
-    }
-
-    public function choiceables(): Collection
-    {
-        return $this->toDataCollection()
-            ->filter(fn (FieldTypeData $fieldType) => $fieldType->dataType->isChoiceField())
-            ->sortBy('label');
-    }
-
-    public function searchables(): Collection
-    {
-        return $this->toDataCollection()
-            ->filter(fn (FieldTypeData $fieldType) => $fieldType->searchable)
-            ->sortBy('label');
-    }
-
-    public function sortables(): Collection
-    {
-        return $this->toDataCollection()
-            ->filter(fn (FieldTypeData $fieldType) => $fieldType->sortable)
-            ->sortBy('label');
-    }
-
-    public function filterables(): Collection
-    {
-        return $this->toDataCollection()
-            ->filter(fn (FieldTypeData $fieldType) => $fieldType->filterable)
-            ->sortBy('label');
+        return FieldTypeCollection::make($fieldTypes)->sortBy('label');
     }
 }
