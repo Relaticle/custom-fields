@@ -111,10 +111,10 @@ class CustomField extends Model
         return [
             'type' => 'string',
             'width' => CustomFieldWidth::class,
-            'validation_rules' => DataCollection::class . ':' . ValidationRuleData::class . ',default',
+            'validation_rules' => DataCollection::class.':'.ValidationRuleData::class.',default',
             'active' => 'boolean',
             'system_defined' => 'boolean',
-            'settings' => CustomFieldSettingsData::class . ':default',
+            'settings' => CustomFieldSettingsData::class.':default',
         ];
     }
 

@@ -12,13 +12,10 @@ use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
 use Relaticle\CustomFields\CustomFields;
-use Relaticle\CustomFields\Data\FieldTypeData;
 use Relaticle\CustomFields\Database\Factories\CustomFieldValueFactory;
-use Relaticle\CustomFields\Enums\CustomFieldType;
 use Relaticle\CustomFields\Enums\FieldDataType;
 use Relaticle\CustomFields\Facades\CustomFieldsType;
 use Relaticle\CustomFields\Models\Scopes\TenantScope;
-use Relaticle\CustomFields\Services\FieldTypeRegistryService;
 use Relaticle\CustomFields\Support\SafeValueConverter;
 
 /**

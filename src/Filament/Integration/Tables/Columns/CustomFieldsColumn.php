@@ -19,14 +19,14 @@ final class CustomFieldsColumn
 
     private HasCustomFields $instance;
 
-    private bool | Closure $isToggleable = true;
+    private bool|Closure $isToggleable = true;
 
-    private bool | Closure $isToggledHiddenByDefault = true;
+    private bool|Closure $isToggledHiddenByDefault = true;
 
     public function make(string $model): static
     {
         $this->instance = app($model);
-        
+
         return $this;
     }
 
@@ -72,10 +72,10 @@ final class CustomFieldsColumn
             return [];
         }
 
-        return (new static)->make($model::class)->all();
+        return (new self)->make($model::class)->all();
     }
 
-    public function toggleable(bool | Closure $condition = true, bool | Closure $isToggledHiddenByDefault = false): static
+    public function toggleable(bool|Closure $condition = true, bool|Closure $isToggledHiddenByDefault = false): static
     {
         $this->isToggleable = $condition;
         $this->toggledHiddenByDefault($isToggledHiddenByDefault);
@@ -83,7 +83,7 @@ final class CustomFieldsColumn
         return $this;
     }
 
-    public function toggledHiddenByDefault(bool | Closure $condition = true): static
+    public function toggledHiddenByDefault(bool|Closure $condition = true): static
     {
         $this->isToggledHiddenByDefault = $condition;
 

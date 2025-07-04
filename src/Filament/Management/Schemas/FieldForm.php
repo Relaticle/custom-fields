@@ -51,7 +51,7 @@ class FieldForm implements FormInterface
                     ->columnSpan(3)
                     ->hexColor()
                     ->visible(
-                        fn(
+                        fn (
                             Get $get
                         ): bool => Utils::isSelectOptionColorsFeatureEnabled() &&
                             $get('../../settings.enable_option_colors')
@@ -70,10 +70,10 @@ class FieldForm implements FormInterface
             ->columnSpanFull()
             ->label(__('custom-fields::custom-fields.field.form.options.label'))
             ->visible(
-                fn(Get $get): bool => $get('options_lookup_type') ===
+                fn (Get $get): bool => $get('options_lookup_type') ===
                     'options' &&
                     in_array(
-                        (string)$get('type'),
+                        (string) $get('type'),
                         CustomFieldType::optionables()
                             ->pluck('value')
                             ->toArray()
@@ -110,7 +110,7 @@ class FieldForm implements FormInterface
                             ->options(EntityTypeService::getOptions())
                             ->disabled()
                             ->default(
-                                fn() => request(
+                                fn () => request(
                                     'entityType',
                                     EntityTypeService::getDefaultOption()
                                 )
@@ -123,15 +123,15 @@ class FieldForm implements FormInterface
                                 )
                             )
                             ->disabled(
-                                fn(
+                                fn (
                                     ?CustomField $record
-                                ): bool => (bool)$record?->exists
+                                ): bool => (bool) $record?->exists
                             )
                             ->live()
                             ->afterStateHydrated(function (
                                 Select $component,
-                                       $state,
-                                       $record
+                                $state,
+                                $record
                             ): void {
                                 if (blank($state)) {
                                     $component->state(
@@ -155,22 +155,22 @@ class FieldForm implements FormInterface
                             ->required()
                             ->maxLength(50)
                             ->disabled(
-                                fn(
+                                fn (
                                     ?CustomField $record
-                                ): bool => (bool)$record?->system_defined
+                                ): bool => (bool) $record?->system_defined
                             )
                             ->unique(
                                 table: CustomFields::customFieldModel(),
                                 column: 'name',
                                 ignoreRecord: true,
-                                modifyRuleUsing: fn(
+                                modifyRuleUsing: fn (
                                     Unique $rule,
-                                    Get    $get
+                                    Get $get
                                 ) => $rule
                                     ->where('entity_type', $get('entity_type'))
                                     ->when(
                                         Utils::isTenantEnabled(),
-                                        fn(Unique $rule) => $rule->where(
+                                        fn (Unique $rule) => $rule->where(
                                             config(
                                                 'custom-fields.column_names.tenant_foreign_key'
                                             ),
@@ -179,8 +179,8 @@ class FieldForm implements FormInterface
                                     )
                             )
                             ->afterStateUpdated(function (
-                                Get     $get,
-                                Set     $set,
+                                Get $get,
+                                Set $set,
                                 ?string $old,
                                 ?string $state
                             ): void {
@@ -215,22 +215,22 @@ class FieldForm implements FormInterface
                             ->alphaDash()
                             ->maxLength(50)
                             ->disabled(
-                                fn(
+                                fn (
                                     ?CustomField $record
-                                ): bool => (bool)$record?->system_defined
+                                ): bool => (bool) $record?->system_defined
                             )
                             ->unique(
                                 table: CustomFields::customFieldModel(),
                                 column: 'code',
                                 ignoreRecord: true,
-                                modifyRuleUsing: fn(
+                                modifyRuleUsing: fn (
                                     Unique $rule,
-                                    Get    $get
+                                    Get $get
                                 ) => $rule
                                     ->where('entity_type', $get('entity_type'))
                                     ->when(
                                         Utils::isTenantEnabled(),
-                                        fn(Unique $rule) => $rule->where(
+                                        fn (Unique $rule) => $rule->where(
                                             config(
                                                 'custom-fields.column_names.tenant_foreign_key'
                                             ),
@@ -239,7 +239,7 @@ class FieldForm implements FormInterface
                                     )
                             )
                             ->afterStateUpdated(function (
-                                Set     $set,
+                                Set $set,
                                 ?string $state
                             ): void {
                                 $set(
@@ -266,7 +266,7 @@ class FieldForm implements FormInterface
                                     )
                                     ->afterStateHydrated(function (
                                         Toggle $component,
-                                               $state
+                                        $state
                                     ): void {
                                         if (is_null($state)) {
                                             $component->state(true);
@@ -281,7 +281,7 @@ class FieldForm implements FormInterface
                                     )
                                     ->afterStateHydrated(function (
                                         Toggle $component,
-                                               $state
+                                        $state
                                     ): void {
                                         if (is_null($state)) {
                                             $component->state(true);
@@ -300,15 +300,15 @@ class FieldForm implements FormInterface
                                         )
                                     )
                                     ->visible(
-                                        fn(Get $get): bool => $get(
-                                                'settings.visible_in_list'
-                                            ) &&
+                                        fn (Get $get): bool => $get(
+                                            'settings.visible_in_list'
+                                        ) &&
                                             Utils::isTableColumnsToggleableEnabled() &&
                                             Utils::isTableColumnsToggleableUserControlEnabled()
                                     )
                                     ->afterStateHydrated(function (
                                         Toggle $component,
-                                               $state
+                                        $state
                                     ): void {
                                         if (is_null($state)) {
                                             $component->state(
@@ -320,17 +320,17 @@ class FieldForm implements FormInterface
                                 Toggle::make('settings.searchable')
                                     ->inline(false)
                                     ->visible(
-                                        fn(
+                                        fn (
                                             Get $get
                                         ): bool => CustomFieldType::searchables()->contains(
                                             'value',
-                                            (string)$get('type')
+                                            (string) $get('type')
                                         )
                                     )
                                     ->disabled(
-                                        fn(Get $get): bool => $get(
-                                                'settings.encrypted'
-                                            ) === true
+                                        fn (Get $get): bool => $get(
+                                            'settings.encrypted'
+                                        ) === true
                                     )
                                     ->label(
                                         __(
@@ -339,7 +339,7 @@ class FieldForm implements FormInterface
                                     )
                                     ->afterStateHydrated(function (
                                         Toggle $component,
-                                               $state
+                                        $state
                                     ): void {
                                         if (is_null($state)) {
                                             $component->state(false);
@@ -349,9 +349,9 @@ class FieldForm implements FormInterface
                                     ->inline(false)
                                     ->live()
                                     ->disabled(
-                                        fn(
+                                        fn (
                                             ?CustomField $record
-                                        ): bool => (bool)$record?->exists
+                                        ): bool => (bool) $record?->exists
                                     )
                                     ->label(
                                         __(
@@ -359,12 +359,12 @@ class FieldForm implements FormInterface
                                         )
                                     )
                                     ->visible(
-                                        fn(
+                                        fn (
                                             Get $get
                                         ): bool => Utils::isValuesEncryptionFeatureEnabled() &&
                                             CustomFieldType::encryptables()->contains(
                                                 'value',
-                                                (string)$get('type')
+                                                (string) $get('type')
                                             )
                                     )
                                     ->default(false),
@@ -383,10 +383,10 @@ class FieldForm implements FormInterface
                                         )
                                     )
                                     ->visible(
-                                        fn(
+                                        fn (
                                             Get $get
                                         ): bool => Utils::isSelectOptionColorsFeatureEnabled() &&
-                                            in_array((string)$get('type'), [
+                                            in_array((string) $get('type'), [
                                                 CustomFieldType::SELECT,
                                                 CustomFieldType::MULTI_SELECT,
                                             ])
@@ -400,15 +400,15 @@ class FieldForm implements FormInterface
                                 )
                             )
                             ->visible(
-                                fn(Get $get): bool => in_array(
+                                fn (Get $get): bool => in_array(
                                     $get('type'),
                                     CustomFieldsType::toCollection()->onlyChoiceables()->keys()->toArray()
                                 )
                             )
                             ->disabled(
-                                fn(
+                                fn (
                                     ?CustomField $record
-                                ): bool => (bool)$record?->system_defined
+                                ): bool => (bool) $record?->system_defined
                             )
                             ->live()
                             ->options([
@@ -421,8 +421,8 @@ class FieldForm implements FormInterface
                             ])
                             ->afterStateHydrated(function (
                                 Select $component,
-                                       $state,
-                                       $record
+                                $state,
+                                $record
                             ): void {
                                 if (blank($state)) {
                                     $optionsLookupType = $record?->lookup_type
@@ -432,10 +432,10 @@ class FieldForm implements FormInterface
                                 }
                             })
                             ->afterStateUpdated(function (
-                                Select  $component,
+                                Select $component,
                                 ?string $state,
-                                Set     $set,
-                                        $record
+                                Set $set,
+                                $record
                             ): void {
                                 if ($state === 'options') {
                                     $set('lookup_type', null, true, true);
@@ -456,9 +456,9 @@ class FieldForm implements FormInterface
                                 )
                             )
                             ->visible(
-                                fn(Get $get): bool => $get(
-                                        'options_lookup_type'
-                                    ) === 'lookup'
+                                fn (Get $get): bool => $get(
+                                    'options_lookup_type'
+                                ) === 'lookup'
                             )
                             ->live()
                             ->options(LookupTypeService::getOptions())
@@ -469,7 +469,7 @@ class FieldForm implements FormInterface
                     ]),
                     Tab::make('Visibility')
                         ->visible(
-                            fn(): bool => Utils::isConditionalVisibilityFeatureEnabled()
+                            fn (): bool => Utils::isConditionalVisibilityFeatureEnabled()
                         )
                         ->schema([VisibilityComponent::make()]),
                     Tab::make(

@@ -21,6 +21,8 @@ use Relaticle\CustomFields\Models\CustomField;
  */
 final readonly class BackendVisibilityService
 {
+    public $fieldTypeHelper;
+
     public function __construct(
         private CoreVisibilityLogicService $coreLogic,
     ) {}

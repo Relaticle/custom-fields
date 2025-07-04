@@ -12,26 +12,26 @@ final class FieldTypeCollection extends Collection
 {
     public function onlyChoiceables(): static
     {
-        return $this->filter(fn (FieldTypeData $fieldType) => $fieldType->dataType->isChoiceField());
+        return $this->filter(fn (FieldTypeData $fieldType): bool => $fieldType->dataType->isChoiceField());
     }
 
     public function onlySearchables(): static
     {
-        return $this->filter(fn (FieldTypeData $fieldType) => $fieldType->searchable);
+        return $this->filter(fn (FieldTypeData $fieldType): bool => $fieldType->searchable);
     }
 
     public function onlySortables(): static
     {
-        return $this->filter(fn (FieldTypeData $fieldType) => $fieldType->sortable);
+        return $this->filter(fn (FieldTypeData $fieldType): bool => $fieldType->sortable);
     }
 
     public function onlyFilterables(): static
     {
-        return $this->filter(fn (FieldTypeData $fieldType) => $fieldType->filterable);
+        return $this->filter(fn (FieldTypeData $fieldType): bool => $fieldType->filterable);
     }
 
     public function whereDataType(FieldDataType $dataType): static
     {
-        return $this->filter(fn (FieldTypeData $fieldType) => $fieldType->dataType === $dataType);
+        return $this->filter(fn (FieldTypeData $fieldType): bool => $fieldType->dataType === $dataType);
     }
 }

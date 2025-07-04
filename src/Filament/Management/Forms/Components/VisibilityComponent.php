@@ -28,6 +28,8 @@ use ValueError;
  */
 class VisibilityComponent extends Component
 {
+    public $fieldTypeHelper;
+
     protected string $view = 'filament-schemas::components.grid';
 
     public function __construct(

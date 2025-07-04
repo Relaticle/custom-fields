@@ -22,17 +22,17 @@ final class FieldTypeManager
     /**
      * @var array<array<string, array<int, string> | string> | Closure>
      */
-    protected array $fieldTypes = [];
+    private array $fieldTypes = [];
 
     /**
      * @var array<string, array<int, string>>
      */
-    protected array $cachedFieldTypes;
+    private array $cachedFieldTypes;
 
     /**
      * @param  array<string, array<int, string> | string> | Closure  $fieldTypes
      */
-    public function register(array | Closure $fieldTypes): static
+    public function register(array|Closure $fieldTypes): static
     {
         $this->fieldTypes[] = $fieldTypes;
 
@@ -48,7 +48,7 @@ final class FieldTypeManager
             return $this->cachedFieldTypes;
         }
 
-        array_unshift($this->fieldTypes, static::DEFAULT_FIELD_TYPES);
+        array_unshift($this->fieldTypes, self::DEFAULT_FIELD_TYPES);
 
         foreach ($this->fieldTypes as $fieldTypes) {
             $fieldTypes = $this->evaluate($fieldTypes);

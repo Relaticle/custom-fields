@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Relaticle\CustomFields\Contracts;
 
-use Relaticle\CustomFields\Enums\CustomFieldValidationRule;
 use Relaticle\CustomFields\Enums\FieldDataType;
 
 /**

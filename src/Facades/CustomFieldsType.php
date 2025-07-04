@@ -13,7 +13,6 @@ use Relaticle\CustomFields\FieldTypes\FieldTypeManager;
 /**
  * @method static Collection<string, FieldTypeData> toCollection()
  *
- *
  * @see FieldTypeManager
  */
 class CustomFieldsType extends Facade
@@ -26,7 +25,7 @@ class CustomFieldsType extends Facade
     /**
      * @param  array<string, array<int | string, string | int> | string> | Closure  $fieldTypes
      */
-    public static function register(array | Closure $fieldTypes): void
+    public static function register(array|Closure $fieldTypes): void
     {
         static::resolved(function (FieldTypeManager $fieldTypeManager) use ($fieldTypes): void {
             $fieldTypeManager->register($fieldTypes);

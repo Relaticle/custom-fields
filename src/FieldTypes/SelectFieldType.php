@@ -8,9 +8,9 @@ use Relaticle\CustomFields\Contracts\FieldTypeDefinitionInterface;
 use Relaticle\CustomFields\Enums\FieldDataType;
 use Relaticle\CustomFields\FieldTypes\Concerns\HasCommonFieldProperties;
 use Relaticle\CustomFields\Filament\Integration\Forms\Components\SelectComponent;
+use Relaticle\CustomFields\Filament\Integration\Infolists\Fields\SingleValueEntry;
 use Relaticle\CustomFields\Filament\Integration\Tables\Columns\SingleValueColumn;
 use Relaticle\CustomFields\Filament\Integration\Tables\Filters\SelectFilter;
-use Relaticle\CustomFields\Filament\Integration\Infolists\Fields\SingleValueEntry;
 
 class SelectFieldType implements FieldTypeDefinitionInterface
 {

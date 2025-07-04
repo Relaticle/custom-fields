@@ -19,7 +19,6 @@ use Override;
 use Relaticle\CustomFields\CustomFields as CustomFieldsModel;
 use Relaticle\CustomFields\CustomFieldsPlugin;
 use Relaticle\CustomFields\Enums\CustomFieldSectionType;
-use Relaticle\CustomFields\Facades\CustomFieldsType;
 use Relaticle\CustomFields\Filament\Management\Schemas\SectionForm;
 use Relaticle\CustomFields\Models\CustomFieldSection;
 use Relaticle\CustomFields\Services\EntityTypeService;

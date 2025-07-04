@@ -25,8 +25,7 @@ use Spatie\LaravelData\DataCollection;
  */
 final readonly class CoreVisibilityLogicService
 {
-    public function __construct(
-    ) {}
+    public $fieldTypeHelper;
 
     /**
      * Extract visibility data from a custom field.

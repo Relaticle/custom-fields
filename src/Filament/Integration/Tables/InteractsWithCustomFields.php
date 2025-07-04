@@ -10,8 +10,6 @@ use Filament\Tables\Table;
 use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Database\Eloquent\Builder;
 use Relaticle\CustomFields\Facades\CustomFields;
-use Relaticle\CustomFields\Filament\Integration\Tables\Columns\CustomFieldsColumn;
-use Relaticle\CustomFields\Filament\Integration\Tables\Filters\CustomFieldsFilter;
 
 trait InteractsWithCustomFields
 {

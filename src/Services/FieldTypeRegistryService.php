@@ -9,21 +9,9 @@ use Illuminate\Support\Facades\Cache;
 use InvalidArgumentException;
 use Relaticle\CustomFields\Contracts\FieldTypeDefinitionInterface;
 use Relaticle\CustomFields\Enums\CustomFieldType;
-use Relaticle\CustomFields\Enums\FieldComponentType;
 use Relaticle\CustomFields\Integration\Forms\Components\FieldComponentInterface;
 use Relaticle\CustomFields\Integration\Infolists\FieldInfolistsComponentInterface;
-use Relaticle\CustomFields\Integration\Infolists\Fields\BooleanEntry;
-use Relaticle\CustomFields\Integration\Infolists\Fields\ColorEntry;
-use Relaticle\CustomFields\Integration\Infolists\Fields\HtmlEntry;
-use Relaticle\CustomFields\Integration\Infolists\Fields\MultiValueEntry;
-use Relaticle\CustomFields\Integration\Infolists\Fields\SingleValueEntry;
-use Relaticle\CustomFields\Integration\Infolists\Fields\TextEntry;
-use Relaticle\CustomFields\Integration\Tables\Columns\ColorColumn;
 use Relaticle\CustomFields\Integration\Tables\Columns\ColumnInterface;
-use Relaticle\CustomFields\Integration\Tables\Columns\IconColumn;
-use Relaticle\CustomFields\Integration\Tables\Columns\MultiValueColumn;
-use Relaticle\CustomFields\Integration\Tables\Columns\SingleValueColumn;
-use Relaticle\CustomFields\Integration\Tables\Columns\TextColumn;
 use RuntimeException;
 
 /**
@@ -237,45 +225,45 @@ final class FieldTypeRegistryService
     {
         $this->cachedOptions = [];
 
-//        // Add built-in field types
-//        foreach (CustomFieldType::cases() as $type) {
-//            $this->cachedOptions[$type->value] = [
-//                'label' => $type->getLabel(),
-//                'icon' => $type->getIcon(),
-//                'category' => $type->getCategory()->value,
-//                'validation_rules' => array_map(
-//                    fn (mixed $rule): string => $rule->value,
-//                    $type->allowedValidationRules()
-//                ),
-//                'form_component' => $this->getBuiltInFormComponent($type),
-//                'table_column' => $this->getBuiltInTableColumn($type),
-//                'infolist_entry' => $this->getBuiltInInfolistEntry($type),
-//                'searchable' => CustomFieldType::searchables()->contains($type),
-//                'filterable' => CustomFieldType::filterable()->contains($type),
-//                'encryptable' => CustomFieldType::encryptables()->contains($type),
-//                'priority' => 100, // Built-in types have default priority
-//            ];
-//        }
-//
-//        // Add custom field types
-//        foreach ($this->customFieldTypes as $key => $fieldType) {
-//            $this->cachedOptions[$key] = [
-//                'label' => $fieldType->getLabel(),
-//                'icon' => $fieldType->getIcon(),
-//                'category' => $fieldType->getCategory()->value,
-//                'validation_rules' => array_map(
-//                    fn (mixed $rule): string => $rule->value,
-//                    $fieldType->getAllowedValidationRules()
-//                ),
-//                'form_component' => $fieldType->getFormComponentClass(),
-//                'table_column' => $fieldType->getTableColumnClass(),
-//                'infolist_entry' => $fieldType->getInfolistEntryClass(),
-//                'searchable' => $fieldType->isSearchable(),
-//                'filterable' => $fieldType->isFilterable(),
-//                'encryptable' => $fieldType->isEncryptable(),
-//                'priority' => $fieldType->getPriority(),
-//            ];
-//        }
+        //        // Add built-in field types
+        //        foreach (CustomFieldType::cases() as $type) {
+        //            $this->cachedOptions[$type->value] = [
+        //                'label' => $type->getLabel(),
+        //                'icon' => $type->getIcon(),
+        //                'category' => $type->getCategory()->value,
+        //                'validation_rules' => array_map(
+        //                    fn (mixed $rule): string => $rule->value,
+        //                    $type->allowedValidationRules()
+        //                ),
+        //                'form_component' => $this->getBuiltInFormComponent($type),
+        //                'table_column' => $this->getBuiltInTableColumn($type),
+        //                'infolist_entry' => $this->getBuiltInInfolistEntry($type),
+        //                'searchable' => CustomFieldType::searchables()->contains($type),
+        //                'filterable' => CustomFieldType::filterable()->contains($type),
+        //                'encryptable' => CustomFieldType::encryptables()->contains($type),
+        //                'priority' => 100, // Built-in types have default priority
+        //            ];
+        //        }
+        //
+        //        // Add custom field types
+        //        foreach ($this->customFieldTypes as $key => $fieldType) {
+        //            $this->cachedOptions[$key] = [
+        //                'label' => $fieldType->getLabel(),
+        //                'icon' => $fieldType->getIcon(),
+        //                'category' => $fieldType->getCategory()->value,
+        //                'validation_rules' => array_map(
+        //                    fn (mixed $rule): string => $rule->value,
+        //                    $fieldType->getAllowedValidationRules()
+        //                ),
+        //                'form_component' => $fieldType->getFormComponentClass(),
+        //                'table_column' => $fieldType->getTableColumnClass(),
+        //                'infolist_entry' => $fieldType->getInfolistEntryClass(),
+        //                'searchable' => $fieldType->isSearchable(),
+        //                'filterable' => $fieldType->isFilterable(),
+        //                'encryptable' => $fieldType->isEncryptable(),
+        //                'priority' => $fieldType->getPriority(),
+        //            ];
+        //        }
     }
 
     /**
@@ -319,77 +307,5 @@ final class FieldTypeRegistryService
         if (! is_subclass_of($infolistEntry, FieldInfolistsComponentInterface::class)) {
             throw new RuntimeException("Infolist entry class '{$infolistEntry}' must implement FieldInfolistsComponentInterface.");
         }
-    }
-
-    /**
-     * Get the built-in form component class for a field type.
-     */
-    private function getBuiltInFormComponent(CustomFieldType $type): string
-    {
-        $componentClass = FieldComponentType::getComponentClass($type->value);
-
-        if ($componentClass === null) {
-            throw new InvalidArgumentException('No component found for field type: '.$type->value);
-        }
-
-        return $componentClass;
-    }
-
-    /**
-     * Get the built-in table column class for a field type.
-     */
-    private function getBuiltInTableColumn(CustomFieldType $type): string
-    {
-        $map = [
-            CustomFieldType::TEXT->value => TextColumn::class,
-            CustomFieldType::TEXTAREA->value => TextColumn::class,
-            CustomFieldType::NUMBER->value => TextColumn::class,
-            CustomFieldType::CURRENCY->value => TextColumn::class,
-            CustomFieldType::DATE->value => TextColumn::class,
-            CustomFieldType::DATE_TIME->value => TextColumn::class,
-            CustomFieldType::LINK->value => TextColumn::class,
-            CustomFieldType::CHECKBOX->value => IconColumn::class,
-            CustomFieldType::TOGGLE->value => IconColumn::class,
-            CustomFieldType::COLOR_PICKER->value => ColorColumn::class,
-            CustomFieldType::SELECT->value => SingleValueColumn::class,
-            CustomFieldType::RADIO->value => TextColumn::class,
-            CustomFieldType::MULTI_SELECT->value => MultiValueColumn::class,
-            CustomFieldType::CHECKBOX_LIST->value => MultiValueColumn::class,
-            CustomFieldType::TAGS_INPUT->value => MultiValueColumn::class,
-            CustomFieldType::TOGGLE_BUTTONS->value => MultiValueColumn::class,
-            CustomFieldType::RICH_EDITOR->value => 'Relaticle\CustomFields\Integration\Tables\Columns\HtmlColumn',
-            CustomFieldType::MARKDOWN_EDITOR->value => 'Relaticle\CustomFields\Integration\Tables\Columns\HtmlColumn',
-        ];
-
-        return $map[$type->value];
-    }
-
-    /**
-     * Get the built-in infolist entry class for a field type.
-     */
-    private function getBuiltInInfolistEntry(CustomFieldType $type): string
-    {
-        $map = [
-            CustomFieldType::TEXT->value => TextEntry::class,
-            CustomFieldType::TEXTAREA->value => TextEntry::class,
-            CustomFieldType::NUMBER->value => TextEntry::class,
-            CustomFieldType::CURRENCY->value => TextEntry::class,
-            CustomFieldType::DATE->value => TextEntry::class,
-            CustomFieldType::DATE_TIME->value => TextEntry::class,
-            CustomFieldType::LINK->value => TextEntry::class,
-            CustomFieldType::CHECKBOX->value => BooleanEntry::class,
-            CustomFieldType::TOGGLE->value => BooleanEntry::class,
-            CustomFieldType::COLOR_PICKER->value => ColorEntry::class,
-            CustomFieldType::SELECT->value => SingleValueEntry::class,
-            CustomFieldType::RADIO->value => TextEntry::class,
-            CustomFieldType::MULTI_SELECT->value => MultiValueEntry::class,
-            CustomFieldType::CHECKBOX_LIST->value => MultiValueEntry::class,
-            CustomFieldType::TAGS_INPUT->value => MultiValueEntry::class,
-            CustomFieldType::TOGGLE_BUTTONS->value => MultiValueEntry::class,
-            CustomFieldType::RICH_EDITOR->value => HtmlEntry::class,
-            CustomFieldType::MARKDOWN_EDITOR->value => HtmlEntry::class,
-        ];
-
-        return $map[$type->value];
     }
 }

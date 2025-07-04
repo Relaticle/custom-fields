@@ -10,7 +10,8 @@ namespace Relaticle\CustomFields\FieldTypes\Concerns;
  */
 trait HasCommonFieldProperties
 {
-    public function getTableFilterClass(): ?string {
+    public function getTableFilterClass(): ?string
+    {
         return null;
     }
 

@@ -18,13 +18,13 @@ class CustomFields extends Facade
         return CustomFieldsManager::class;
     }
 
-//    /**
-//     * @param  array<string, array<int | string, string | int> | string> | Closure  $fieldTypes
-//     */
-//    public static function register(array | Closure $fieldTypes): void
-//    {
-//        static::resolved(function (FieldTypeManager $fieldTypeManager) use ($fieldTypes): void {
-//            $fieldTypeManager->register($fieldTypes);
-//        });
-//    }
+    //    /**
+    //     * @param  array<string, array<int | string, string | int> | string> | Closure  $fieldTypes
+    //     */
+    //    public static function register(array | Closure $fieldTypes): void
+    //    {
+    //        static::resolved(function (FieldTypeManager $fieldTypeManager) use ($fieldTypes): void {
+    //            $fieldTypeManager->register($fieldTypes);
+    //        });
+    //    }
 }
