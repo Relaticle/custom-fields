@@ -9,8 +9,8 @@ use Relaticle\CustomFields\Enums\FieldDataType;
 use Relaticle\CustomFields\FieldTypes\Concerns\DelegatesValidationToDataType;
 use Relaticle\CustomFields\FieldTypes\Concerns\HasCommonFieldProperties;
 use Relaticle\CustomFields\Filament\Integration\Forms\Components\SelectComponent;
-use Relaticle\CustomFields\Filament\Fields\Infolists\Entries\SelectEntry;
-use Relaticle\CustomFields\Filament\Fields\Tables\Columns\SelectColumn;
+use Relaticle\CustomFields\Filament\Integration\Tables\Columns\SingleValueColumn;
+use Relaticle\CustomFields\Integration\Infolists\Fields\SingleValueEntry;
 
 class SelectFieldType implements FieldTypeDefinitionInterface
 {
@@ -44,12 +44,12 @@ class SelectFieldType implements FieldTypeDefinitionInterface
 
     public function getTableColumnClass(): string
     {
-        return SelectColumn::class;
+        return SingleValueColumn::class;
     }
 
     public function getInfolistEntryClass(): string
     {
-        return SelectEntry::class;
+        return SingleValueEntry::class;
     }
 
     /**

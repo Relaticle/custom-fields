@@ -56,10 +56,6 @@ abstract class AbstractComponentFactory
         if (! isset($this->instanceCache[$componentClass])) {
             $component = $this->container->make($componentClass);
 
-            if (! $component instanceof $expectedInterface) {
-                throw new RuntimeException("Component class {$componentClass} must implement {$expectedInterface}");
-            }
-
             $this->instanceCache[$componentClass] = $component;
         }
 

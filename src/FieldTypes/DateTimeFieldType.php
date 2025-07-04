@@ -8,9 +8,9 @@ use Relaticle\CustomFields\Contracts\FieldTypeDefinitionInterface;
 use Relaticle\CustomFields\Enums\FieldDataType;
 use Relaticle\CustomFields\FieldTypes\Concerns\DelegatesValidationToDataType;
 use Relaticle\CustomFields\FieldTypes\Concerns\HasCommonFieldProperties;
-use Relaticle\CustomFields\Filament\Fields\Forms\SelectInput;
-use Relaticle\CustomFields\Filament\Fields\Infolists\Entries\SelectEntry;
-use Relaticle\CustomFields\Filament\Fields\Tables\Columns\SelectColumn;
+use Relaticle\CustomFields\Filament\Integration\Forms\Components\DateTimeComponent;
+use Relaticle\CustomFields\Filament\Integration\Tables\Columns\DateTimeColumn;
+use Relaticle\CustomFields\Filament\Integration\Infolists\Fields\DateTimeEntry;
 
 class DateTimeFieldType implements FieldTypeDefinitionInterface
 {
@@ -34,22 +34,22 @@ class DateTimeFieldType implements FieldTypeDefinitionInterface
 
     public function getDataType(): FieldDataType
     {
-        return FieldDataType::SINGLE_CHOICE;
+        return FieldDataType::DATE_TIME;
     }
 
     public function getFormComponentClass(): string
     {
-        return SelectInput::class;
+        return DateTimeComponent::class;
     }
 
     public function getTableColumnClass(): string
     {
-        return SelectColumn::class;
+        return DateTimeColumn::class;
     }
 
     public function getInfolistEntryClass(): string
     {
-        return SelectEntry::class;
+        return DateTimeEntry::class;
     }
 
     /**

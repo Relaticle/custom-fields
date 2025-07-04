@@ -12,17 +12,14 @@ use Relaticle\CustomFields\Models\CustomField;
 /**
  * @extends AbstractComponentFactory<ColumnInterface, Column>
  */
-final class FieldColumnFactory extends AbstractComponentFactory
+final class FieldColumnFactory
 {
     /**
      * @throws BindingResolutionException
      */
     public function create(CustomField $customField): Column
     {
-        /** @var ColumnInterface $component */
-        $component = $this->createComponent($customField, 'table_column', ColumnInterface::class);
-
-        return $component->make($customField)
-            ->columnSpan($customField->width->getSpanValue());
+        $component = app($customField->typeData->tableComponent);
+        return $component->make($customField)->columnSpan($customField->width->getSpanValue());
     }
 }
