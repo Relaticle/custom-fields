@@ -6,6 +6,11 @@ trait HasFieldType
 {
     public function isChoiceField(): bool
     {
-        return $this->typeData->isChoiceField();
+        return $this->typeData->dataType->isChoiceField();
+    }
+
+    public function isMultiChoiceField(): bool
+    {
+        return $this->typeData->dataType->isMultiChoiceField();
     }
 }

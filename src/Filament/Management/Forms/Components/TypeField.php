@@ -7,7 +7,6 @@ namespace Relaticle\CustomFields\Filament\Management\Forms\Components;
 use Filament\Forms\Components\Select;
 use Illuminate\Support\Facades\Cache;
 use Relaticle\CustomFields\Data\FieldTypeData;
-use Relaticle\CustomFields\Enums\CustomFieldType;
 use Relaticle\CustomFields\Facades\CustomFieldsType;
 
 class TypeField extends Select
@@ -23,28 +22,6 @@ class TypeField extends Select
             ->allowHtml()
             ->gridContainer()
             ->options(fn (): array => $this->getAllFormattedOptions());
-    }
-
-    /**
-     * Get filtered options based on search query.
-     *
-     * @return array<string, string>
-     */
-    protected function getFilteredOptions(?string $search = null): array
-    {
-        // If search is null or empty string, return all options
-        if ($search === null || trim($search) === '' || strlen($search) < 2) {
-            return $this->getAllFormattedOptions();
-        }
-
-        return CustomFieldType::optionsForSelect()
-            ->filter(fn (array $data): bool => stripos($data['label'], $search) !== false)
-            ->mapWithKeys(
-                fn (array $data): array => [
-                    $data['value'] => $this->getHtmlOption($data),
-                ]
-            )
-            ->toArray();
     }
 
     /**

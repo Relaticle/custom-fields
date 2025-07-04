@@ -78,7 +78,7 @@ final readonly class FieldConfigurator
             $value =
                 $record?->getCustomFieldValue($customField) ??
                 ($state ??
-                    ($customField->hasFieldTypeMultipleValues() ? [] : null));
+                    ($customField->isMultiChoiceField() ? [] : null));
 
             return $value instanceof Carbon
                 ? $value->format(

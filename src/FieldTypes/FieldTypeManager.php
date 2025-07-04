@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Relaticle\CustomFields\FieldTypes;
 
 use Closure;
@@ -8,7 +10,7 @@ use Relaticle\CustomFields\Collections\FieldTypeCollection;
 use Relaticle\CustomFields\Contracts\FieldTypeDefinitionInterface;
 use Relaticle\CustomFields\Data\FieldTypeData;
 
-class FieldTypeManager
+final class FieldTypeManager
 {
     use EvaluatesClosures;
 
@@ -62,11 +64,6 @@ class FieldTypeManager
     public function getFieldType(string $fieldType): FieldTypeData
     {
         return $this->toCollection()->firstWhere('key', $fieldType);
-    }
-
-    public function all(): FieldTypeCollection
-    {
-        return $this->toCollection();
     }
 
     public function toCollection(): FieldTypeCollection
