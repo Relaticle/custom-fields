@@ -13,7 +13,7 @@
         "issues": "https://github.com/relaticle/custom-fields/issues",
         "source": "https://github.com/relaticle/custom-fields"
     },
-    "license": "Apache-2.0",
+    "license": "GPL-3.0-only",
     "authors": [
         {
             "name": "manukminasyan",
