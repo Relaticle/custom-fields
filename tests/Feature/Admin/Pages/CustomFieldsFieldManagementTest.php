@@ -2,7 +2,6 @@
 
 declare(strict_types=1);
 
-use Relaticle\CustomFields\Enums\CustomFieldType;
 use Relaticle\CustomFields\Livewire\ManageCustomField;
 use Relaticle\CustomFields\Livewire\ManageCustomFieldSection;
 use Relaticle\CustomFields\Models\CustomField;
@@ -263,7 +262,7 @@ describe('Enhanced field management with datasets', function (): void {
 
     it('handles complex field configurations with options', function (): void {
         $selectField = CustomField::factory()
-            ->ofType(CustomFieldType::SELECT)
+            ->ofType('select')
             ->withOptions([
                 'Option 1',
                 'Option 2',
@@ -381,7 +380,7 @@ describe('Custom Fields Management Workflow - Phase 2.1', function (): void {
     it('can handle field interdependencies and validation chains', function (): void {
         // Create a trigger field
         $triggerField = CustomField::factory()
-            ->ofType(CustomFieldType::SELECT)
+            ->ofType('select')
             ->withOptions([
                 'Option A',
                 'Option B',
@@ -411,7 +410,7 @@ describe('Custom Fields Management Workflow - Phase 2.1', function (): void {
 
         // Create a chain: Field C depends on Field B which depends on Field A
         $fieldB = CustomField::factory()
-            ->ofType(CustomFieldType::NUMBER)
+            ->ofType('number')
             ->conditionallyVisible('trigger_field', 'equals', 'b')
             ->create([
                 'custom_field_section_id' => $this->section->getKey(),
@@ -438,7 +437,7 @@ describe('Custom Fields Management Workflow - Phase 2.1', function (): void {
         // Test each field type in the group
         foreach ($fieldTypes as $fieldType) {
             $field = CustomField::factory()
-                ->ofType(CustomFieldType::from($fieldType))
+                ->ofType($fieldType)
                 ->create([
                     'custom_field_section_id' => $this->section->getKey(),
                     'entity_type' => $this->userEntityType,
@@ -460,7 +459,13 @@ describe('Custom Fields Management Workflow - Phase 2.1', function (): void {
 
     it('can handle custom field type registration and discovery', function (): void {
         // Test that all 18 field types are properly discoverable
-        $fieldTypes = CustomFieldType::cases();
+        // Test that all 18 field types are properly discoverable
+        $fieldTypes = [
+            'text', 'number', 'currency', 'checkbox', 'toggle',
+            'date', 'datetime', 'textarea', 'rich_editor', 'markdown_editor',
+            'link', 'color_picker', 'select', 'multi_select', 'radio',
+            'checkbox_list', 'tags_input', 'toggle_buttons',
+        ];
         expect($fieldTypes)->toHaveCount(18);
 
         // Test each field type can be created and managed
@@ -479,7 +484,7 @@ describe('Custom Fields Management Workflow - Phase 2.1', function (): void {
                 ->assertSuccessful()
                 ->assertSee($field->name);
 
-            expect($field)->toHaveFieldType($fieldType->value);
+            expect($field)->toHaveFieldType($fieldType);
         }
     });
     it('validates field type constraints and behaviors', function (): void {
@@ -499,7 +504,7 @@ describe('Custom Fields Management Workflow - Phase 2.1', function (): void {
 
         // Test select field with options constraint
         $selectField = CustomField::factory()
-            ->ofType(CustomFieldType::SELECT)
+            ->ofType('select')
             ->withOptions([
                 'Option 1',
                 'Option 2',

@@ -5,7 +5,6 @@ declare(strict_types=1);
 use Relaticle\CustomFields\Data\CustomFieldSettingsData;
 use Relaticle\CustomFields\Data\VisibilityConditionData;
 use Relaticle\CustomFields\Data\VisibilityData;
-use Relaticle\CustomFields\Enums\CustomFieldType;
 use Relaticle\CustomFields\Enums\Logic;
 use Relaticle\CustomFields\Enums\Mode;
 use Relaticle\CustomFields\Enums\Operator;
@@ -227,7 +226,7 @@ describe('Custom Fields Integration in Tables', function (): void {
             [
                 'custom_field_section_id' => $this->section->id,
                 'code' => 'number_field',
-                'type' => CustomFieldType::NUMBER,
+                'type' => 'number',
                 'entity_type' => Post::class,
                 'settings' => new CustomFieldSettingsData(
                     visible_in_list: true,

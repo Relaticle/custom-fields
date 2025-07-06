@@ -3,7 +3,6 @@
 declare(strict_types=1);
 
 use Relaticle\CustomFields\Data\VisibilityData;
-use Relaticle\CustomFields\Enums\CustomFieldType;
 use Relaticle\CustomFields\Enums\Logic;
 use Relaticle\CustomFields\Enums\Mode;
 use Relaticle\CustomFields\Enums\Operator;
@@ -26,7 +25,7 @@ beforeEach(function (): void {
         'custom_field_section_id' => $this->section->id,
         'name' => 'Status',
         'code' => 'status',
-        'type' => CustomFieldType::SELECT,
+        'type' => 'select',
     ]);
 
     // Create conditional field that shows when status equals "active"

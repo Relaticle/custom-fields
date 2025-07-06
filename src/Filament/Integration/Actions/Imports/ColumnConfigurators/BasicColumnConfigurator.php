@@ -7,7 +7,8 @@ namespace Relaticle\CustomFields\Filament\Integration\Actions\Imports\ColumnConf
 use Carbon\Carbon;
 use Exception;
 use Filament\Actions\Imports\ImportColumn;
-use Relaticle\CustomFields\Enums\CustomFieldType;
+use Relaticle\CustomFields\Contracts\FieldImportExportInterface;
+use Relaticle\CustomFields\Facades\CustomFieldsType;
 use Relaticle\CustomFields\Models\CustomField;
 
 /**
@@ -23,46 +24,30 @@ final class BasicColumnConfigurator implements ColumnConfiguratorInterface
      */
     public function configure(ImportColumn $column, CustomField $customField): void
     {
-        // Apply specific configuration based on field type
-        match ($customField->type) {
-            // Numeric types
-            CustomFieldType::NUMBER => $column->numeric(),
+        // Check if field type implements import/export interface
+        $fieldTypeInstance = CustomFieldsType::getFieldTypeInstance($customField->type);
 
-            // Currency with special formatting
-            CustomFieldType::CURRENCY => $this->configureCurrencyColumn($column),
+        if ($fieldTypeInstance instanceof FieldImportExportInterface) {
+            // Let the field type configure itself
+            $fieldTypeInstance->configureImportColumn($column);
 
-            // Boolean fields
-            CustomFieldType::CHECKBOX, CustomFieldType::TOGGLE => $column->boolean(),
+            // Set example if provided
+            $example = $fieldTypeInstance->getImportExample();
+            if ($example !== null) {
+                $column->example($example);
+            }
 
-            // Date fields - use castStateUsing for proper date handling
-            CustomFieldType::DATE => $this->configureDateColumn($column),
-            CustomFieldType::DATE_TIME => $this->configureDateTimeColumn($column),
+            return;
+        }
 
-            // Default for all other field types
+        // Apply default configuration based on data type
+        match ($customField->typeData->dataType->value) {
+            'numeric' => $column->numeric(),
+            'boolean' => $column->boolean(),
+            'date' => $this->configureDateColumn($column),
+            'date_time' => $this->configureDateTimeColumn($column),
             default => $this->setExampleValue($column, $customField),
         };
-    }
-
-    /**
-     * Configure a currency column with special formatting.
-     *
-     * @param  ImportColumn  $column  The column to configure
-     * @return ImportColumn The configured column
-     */
-    private function configureCurrencyColumn(ImportColumn $column): ImportColumn
-    {
-        return $column->numeric()->castStateUsing(function ($state): ?float {
-            if (blank($state)) {
-                return null;
-            }
-
-            // Remove currency symbols and formatting chars
-            if (is_string($state)) {
-                $state = preg_replace('/[^0-9.-]/', '', $state);
-            }
-
-            return round(floatval($state), 2);
-        });
     }
 
     /**
@@ -112,16 +97,15 @@ final class BasicColumnConfigurator implements ColumnConfiguratorInterface
         // Generate appropriate example values based on field type
         $example = match ($customField->type) {
             'text' => 'Sample text',
-            CustomFieldType::NUMBER => '42',
-            CustomFieldType::CURRENCY => '99.99',
-            CustomFieldType::CHECKBOX, CustomFieldType::TOGGLE => 'Yes',
-            CustomFieldType::DATE => now()->format('Y-m-d'),
-            CustomFieldType::DATE_TIME => now()->format('Y-m-d H:i:s'),
+            'number' => '42',
+            'currency' => '99.99',
+            'checkbox', 'toggle' => 'Yes',
+            'date' => now()->format('Y-m-d'),
+            'datetime' => now()->format('Y-m-d H:i:s'),
             'textarea' => 'Sample longer text with multiple words',
-            CustomFieldType::RICH_EDITOR,
-            CustomFieldType::MARKDOWN_EDITOR => "# Sample Header\nSample content with **formatting**",
-            CustomFieldType::LINK => 'https://example.com',
-            CustomFieldType::COLOR_PICKER => '#3366FF',
+            'rich_editor', 'markdown_editor' => "# Sample Header\nSample content with **formatting**",
+            'link' => 'https://example.com',
+            'color_picker' => '#3366FF',
             default => null,
         };
 

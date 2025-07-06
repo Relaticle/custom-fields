@@ -9,7 +9,6 @@ use Illuminate\Support\Facades\DB;
 use Relaticle\CustomFields\Contracts\CustomsFieldsMigrators;
 use Relaticle\CustomFields\CustomFields;
 use Relaticle\CustomFields\Data\CustomFieldData;
-use Relaticle\CustomFields\Enums\CustomFieldType;
 use Relaticle\CustomFields\Exceptions\CustomFieldAlreadyExistsException;
 use Relaticle\CustomFields\Exceptions\CustomFieldDoesNotExistException;
 use Relaticle\CustomFields\Exceptions\FieldTypeNotOptionableException;
@@ -312,6 +311,22 @@ class CustomFieldsMigrator implements CustomsFieldsMigrators
 
     protected function isCustomFieldTypeOptionable(): bool
     {
-        return CustomFieldType::optionables()->contains('value', $this->customFieldData->type->value);
+        // Get the field type data to check if it's a choice field
+        if ($this->customField instanceof CustomField) {
+            return $this->customField->isChoiceField();
+        }
+
+        // For new fields, check based on the field type string
+        $fieldType = is_string($this->customFieldData->type)
+            ? $this->customFieldData->type
+            : $this->customFieldData->type->value;
+
+        return in_array($fieldType, [
+            'select',
+            'multi_select',
+            'radio',
+            'checkbox_list',
+            'toggle_buttons',
+        ]);
     }
 }

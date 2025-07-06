@@ -46,6 +46,11 @@ final class FieldTypeManager
     private array $cachedFieldTypes;
 
     /**
+     * @var array<string, FieldTypeDefinitionInterface>
+     */
+    private array $cachedInstances = [];
+
+    /**
      * @param  array<string, array<int, string> | string> | Closure  $fieldTypes
      */
     public function register(array|Closure $fieldTypes): static
@@ -82,6 +87,31 @@ final class FieldTypeManager
         return $this->toCollection()->firstWhere('key', $fieldType);
     }
 
+    /**
+     * Get a field type instance by key.
+     */
+    public function getFieldTypeInstance(string $key): ?FieldTypeDefinitionInterface
+    {
+        if (isset($this->cachedInstances[$key])) {
+            return $this->cachedInstances[$key];
+        }
+
+        // Build collection if needed (which also caches instances)
+        $this->toCollection();
+
+        return $this->cachedInstances[$key] ?? null;
+    }
+
+    /**
+     * Check if a field type implements a specific interface.
+     */
+    public function fieldTypeImplements(string $key, string $interface): bool
+    {
+        $instance = $this->getFieldTypeInstance($key);
+
+        return $instance instanceof FieldTypeDefinitionInterface && $instance instanceof $interface;
+    }
+
     public function toCollection(): FieldTypeCollection
     {
         $fieldTypes = [];
@@ -104,6 +134,9 @@ final class FieldTypeManager
                 filterable: $fieldType->isFilterable(),
                 validationRules: $fieldType->allowedValidationRules()
             );
+
+            // Cache the instance
+            $this->cachedInstances[$fieldType->getKey()] = $fieldType;
         }
 
         return FieldTypeCollection::make($fieldTypes)->sortBy('label');

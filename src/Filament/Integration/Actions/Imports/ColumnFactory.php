@@ -6,7 +6,6 @@ namespace Relaticle\CustomFields\Filament\Integration\Actions\Imports;
 
 use Filament\Actions\Imports\ImportColumn;
 use Relaticle\CustomFields\Data\ValidationRuleData;
-use Relaticle\CustomFields\Enums\CustomFieldType;
 use Relaticle\CustomFields\Filament\Integration\Actions\Imports\ColumnConfigurators\BasicColumnConfigurator;
 use Relaticle\CustomFields\Filament\Integration\Actions\Imports\ColumnConfigurators\ColumnConfiguratorInterface;
 use Relaticle\CustomFields\Filament\Integration\Actions\Imports\ColumnConfigurators\MultiSelectColumnConfigurator;
@@ -80,7 +79,7 @@ final class ColumnFactory
      */
     private function configureColumnByFieldType(ImportColumn $column, CustomField $customField): void
     {
-        $fieldType = $customField->getFieldTypeValue();
+        $fieldType = $customField->type;
 
         if (isset($this->configurators[$fieldType])) {
             $this->configurators[$fieldType]->configure($column, $customField);
@@ -118,18 +117,25 @@ final class ColumnFactory
      */
     private function registerDefaultConfigurators(): void
     {
+        // Get all field types from the manager
+        $fieldTypes = [
+            'text', 'number', 'link', 'textarea', 'checkbox', 'checkbox_list',
+            'radio', 'rich_editor', 'markdown_editor', 'tags_input', 'color_picker',
+            'toggle', 'toggle_buttons', 'currency', 'date', 'datetime', 'select', 'multi_select',
+        ];
+
         // Register basic column configurators
-        foreach (CustomFieldType::cases() as $type) {
-            $this->configurators[$type->value] = $this->basicColumnConfigurator;
+        foreach ($fieldTypes as $type) {
+            $this->configurators[$type] = $this->basicColumnConfigurator;
         }
 
         // Register specific configurators for complex types
-        $this->registerConfigurator(CustomFieldType::SELECT->value, $this->selectColumnConfigurator);
-        $this->registerConfigurator(CustomFieldType::RADIO->value, $this->selectColumnConfigurator);
+        $this->registerConfigurator('select', $this->selectColumnConfigurator);
+        $this->registerConfigurator('radio', $this->selectColumnConfigurator);
 
-        $this->registerConfigurator(CustomFieldType::MULTI_SELECT->value, $this->multiSelectColumnConfigurator);
-        $this->registerConfigurator(CustomFieldType::CHECKBOX_LIST->value, $this->multiSelectColumnConfigurator);
-        $this->registerConfigurator(CustomFieldType::TAGS_INPUT->value, $this->multiSelectColumnConfigurator);
-        $this->registerConfigurator(CustomFieldType::TOGGLE_BUTTONS->value, $this->multiSelectColumnConfigurator);
+        $this->registerConfigurator('multi_select', $this->multiSelectColumnConfigurator);
+        $this->registerConfigurator('checkbox_list', $this->multiSelectColumnConfigurator);
+        $this->registerConfigurator('tags_input', $this->multiSelectColumnConfigurator);
+        $this->registerConfigurator('toggle_buttons', $this->multiSelectColumnConfigurator);
     }
 }

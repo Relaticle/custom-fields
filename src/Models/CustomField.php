@@ -31,7 +31,7 @@ use Spatie\LaravelData\DataCollection;
 /**
  * @property string $name
  * @property string $code
- * @property CustomFieldType|string $type
+ * @property string $type
  * @property string $entity_type
  * @property string $lookup_type
  * @property DataCollection<int, ValidationRuleData> $validation_rules
@@ -49,7 +49,7 @@ use Spatie\LaravelData\DataCollection;
  * @method static CustomFieldQueryBuilder<CustomField> nonEncrypted()
  * @method static CustomFieldQueryBuilder<CustomField> forEntity(string $model)
  * @method static CustomFieldQueryBuilder<CustomField> forMorphEntity(string $entity)
- * @method static CustomFieldQueryBuilder<CustomField> forType(CustomFieldType $type)
+ * @method static CustomFieldQueryBuilder<CustomField> forType(string $type)
  */
 #[ScopedBy([TenantScope::class, SortOrderScope::class])]
 #[ObservedBy(CustomFieldObserver::class)]

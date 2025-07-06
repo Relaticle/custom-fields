@@ -238,7 +238,7 @@ class VisibilityComponent extends Component
         try {
             $fieldType = $this->getFieldType($fieldCode, $get);
 
-            if (! $fieldType) {
+            if ($fieldType === null || $fieldType === '' || $fieldType === '0') {
                 return false;
             }
 
@@ -263,7 +263,7 @@ class VisibilityComponent extends Component
         try {
             $fieldType = $this->getFieldType($fieldCode, $get);
 
-            if (! $fieldType) {
+            if ($fieldType === null || $fieldType === '' || $fieldType === '0') {
                 return true;
             }
 
@@ -300,7 +300,7 @@ class VisibilityComponent extends Component
         try {
             $fieldType = $this->getFieldType($fieldCode, $get);
 
-            if (! $fieldType) {
+            if ($fieldType === null || $fieldType === '' || $fieldType === '0') {
                 return false;
             }
 
@@ -374,7 +374,7 @@ class VisibilityComponent extends Component
         try {
             $fieldType = $this->getFieldType($fieldCode, $get);
 
-            if (! $fieldType) {
+            if ($fieldType === null || $fieldType === '' || $fieldType === '0') {
                 return 'Enter comparison value';
             }
 
@@ -472,9 +472,14 @@ class VisibilityComponent extends Component
         try {
             $fieldType = $this->getFieldType($fieldCode, $get);
 
-            return $fieldType instanceof CustomFieldType
-                ? Operator::forFieldType($fieldType)
-                : Operator::options();
+            if ($fieldType === null || $fieldType === '' || $fieldType === '0') {
+                return Operator::options();
+            }
+
+            // Get field type data to get the data type
+            $fieldTypeData = CustomFieldsType::getFieldType($fieldType);
+
+            return $fieldTypeData->dataType->getCompatibleOperatorOptions();
         } catch (Exception) {
             return Operator::options();
         }

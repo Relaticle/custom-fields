@@ -8,6 +8,7 @@ use Exception;
 use Filament\Facades\Filament;
 use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Support\Collection;
+use Relaticle\CustomFields\Models\Contracts\HasCustomFields;
 
 abstract class AbstractOptionsService
 {

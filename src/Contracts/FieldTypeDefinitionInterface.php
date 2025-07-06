@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Relaticle\CustomFields\Contracts;
 
+use Relaticle\CustomFields\Enums\CustomFieldValidationRule;
 use Relaticle\CustomFields\Enums\FieldDataType;
 
 /**
@@ -93,7 +94,7 @@ interface FieldTypeDefinitionInterface
     /**
      * Get allowed validation rules for this field type.
      *
-     * @return array<int, \Relaticle\CustomFields\Enums\CustomFieldValidationRule>
+     * @return array<int, CustomFieldValidationRule>
      */
     public function allowedValidationRules(): array;
 }

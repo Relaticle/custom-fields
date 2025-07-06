@@ -4,10 +4,13 @@ declare(strict_types=1);
 
 namespace Relaticle\CustomFields\FieldTypes;
 
+use Filament\Actions\Imports\ImportColumn;
+use Relaticle\CustomFields\Contracts\FieldImportExportInterface;
 use Relaticle\CustomFields\Contracts\FieldTypeDefinitionInterface;
 use Relaticle\CustomFields\Enums\CustomFieldValidationRule;
 use Relaticle\CustomFields\Enums\FieldDataType;
 use Relaticle\CustomFields\FieldTypes\Concerns\HasCommonFieldProperties;
+use Relaticle\CustomFields\FieldTypes\Concerns\HasImportExportDefaults;
 use Relaticle\CustomFields\Filament\Integration\Forms\Components\CurrencyInputComponent;
 use Relaticle\CustomFields\Filament\Integration\Infolists\Fields\TextEntry;
 use Relaticle\CustomFields\Filament\Integration\Tables\Columns\TextColumn;
@@ -17,9 +20,10 @@ use Relaticle\CustomFields\Filament\Integration\Tables\Filters\TextFilter;
  * ABOUTME: Field type definition for Currency fields
  * ABOUTME: Provides Currency functionality with appropriate validation rules
  */
-class CurrencyFieldType implements FieldTypeDefinitionInterface
+class CurrencyFieldType implements FieldImportExportInterface, FieldTypeDefinitionInterface
 {
     use HasCommonFieldProperties;
+    use HasImportExportDefaults;
 
     public function getKey(): string
     {
@@ -73,5 +77,32 @@ class CurrencyFieldType implements FieldTypeDefinitionInterface
             CustomFieldValidationRule::MIN,
             CustomFieldValidationRule::MAX,
         ];
+    }
+
+    /**
+     * Provide a custom example for currency fields.
+     */
+    public function getImportExample(): ?string
+    {
+        return '99.99';
+    }
+
+    /**
+     * Configure import column with currency-specific handling.
+     */
+    public function configureImportColumn(ImportColumn $column): void
+    {
+        $column->numeric()->castStateUsing(function ($state): ?float {
+            if (blank($state)) {
+                return null;
+            }
+
+            // Remove currency symbols and formatting chars
+            if (is_string($state)) {
+                $state = preg_replace('/[^0-9.-]/', '', $state);
+            }
+
+            return round(floatval($state), 2);
+        });
     }
 }

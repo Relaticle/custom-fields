@@ -3,7 +3,6 @@
 declare(strict_types=1);
 
 use Relaticle\CustomFields\Data\ValidationRuleData;
-use Relaticle\CustomFields\Enums\CustomFieldType;
 use Relaticle\CustomFields\Models\CustomField;
 use Relaticle\CustomFields\Models\CustomFieldSection;
 use Relaticle\CustomFields\Tests\Fixtures\Models\Post;
@@ -182,7 +181,7 @@ describe('Custom Fields Integration', function (): void {
                 'custom_field_section_id' => $section->id,
                 'name' => 'View Count',
                 'code' => 'view_count',
-                'type' => CustomFieldType::NUMBER,
+                'type' => 'number',
                 'sort_order' => 2,
                 'entity_type' => Post::class,
                 'validation_rules' => [],
@@ -272,7 +271,7 @@ describe('Custom Fields Integration', function (): void {
         CustomField::factory()->create([
             'custom_field_section_id' => $section->id,
             'code' => 'test_field',
-            'type' => CustomFieldType::from($fieldType),
+            'type' => $fieldType,
             'entity_type' => Post::class,
             'validation_rules' => [
                 new ValidationRuleData(name: $rule, parameters: []),

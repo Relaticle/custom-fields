@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Relaticle\CustomFields\Enums;
 
+use Relaticle\CustomFields\Facades\CustomFieldsType;
+
 /**
  * Clean condition operators with predictable behavior.
  */
@@ -171,7 +173,7 @@ enum Operator: string
     public static function forFieldType(string $fieldType): array
     {
         // For string field types, use the new field type system
-        $fieldTypeData = \Relaticle\CustomFields\Facades\CustomFieldsType::getFieldType($fieldType);
+        $fieldTypeData = CustomFieldsType::getFieldType($fieldType);
 
         return $fieldTypeData->dataType->getCompatibleOperatorOptions();
     }

@@ -2,7 +2,6 @@
 
 declare(strict_types=1);
 
-
 // Comprehensive field type configurations dataset for all 18 field types
 dataset('field_type_configurations', fn (): array => [
     'text_field_basic' => [

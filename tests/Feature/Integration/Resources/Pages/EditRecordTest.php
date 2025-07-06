@@ -6,7 +6,6 @@ use Filament\Actions\DeleteAction;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Relaticle\CustomFields\Data\ValidationRuleData;
-use Relaticle\CustomFields\Enums\CustomFieldType;
 use Relaticle\CustomFields\Models\CustomField;
 use Relaticle\CustomFields\Models\CustomFieldSection;
 use Relaticle\CustomFields\Tests\Fixtures\Models\Post;
@@ -205,7 +204,7 @@ describe('Custom Fields Integration', function (): void {
                 'custom_field_section_id' => $this->section->id,
                 'name' => 'View Count',
                 'code' => 'view_count',
-                'type' => CustomFieldType::NUMBER,
+                'type' => 'number',
                 'entity_type' => Post::class,
             ],
         ]);
@@ -311,7 +310,7 @@ describe('Custom Fields Integration', function (): void {
         $customField = CustomField::factory()->create([
             'custom_field_section_id' => $this->section->id,
             'code' => 'test_field',
-            'type' => CustomFieldType::from($fieldType),
+            'type' => $fieldType,
             'entity_type' => Post::class,
             'validation_rules' => [
                 new ValidationRuleData(name: $rule, parameters: $rule === 'min' ? [3] : []),
@@ -372,13 +371,13 @@ describe('Custom Fields Integration', function (): void {
             [
                 'custom_field_section_id' => $this->section->id,
                 'code' => 'number_field',
-                'type' => CustomFieldType::NUMBER,
+                'type' => 'number',
                 'entity_type' => Post::class,
             ],
             [
                 'custom_field_section_id' => $this->section->id,
                 'code' => 'date_field',
-                'type' => CustomFieldType::DATE,
+                'type' => 'date',
                 'entity_type' => Post::class,
             ],
         ]);
