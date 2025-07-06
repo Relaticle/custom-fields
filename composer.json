@@ -63,7 +63,7 @@
         "test:types": "phpstan analyse",
         "test:arch": "pest --filter=arch",
         "test:type-coverage": "pest --type-coverage --min=98.0",
-        "test:unit": "pest --parallel",
+        "test:pest": "pest --parallel",
         "test": [
             "@test:lint",
             "@test:refactor",

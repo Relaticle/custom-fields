@@ -119,7 +119,7 @@ composer test:refactor      # Check for refactoring opportunities
 composer test:types         # Run PHPStan static analysis
 composer test:arch          # Run architecture tests
 composer test:type-coverage # Check type coverage (min 99.6%)
-composer test:unit          # Run unit tests in parallel
+composer test:pest          # Run Pest tests in parallel
 
 # Run specific test files or directories
 vendor/bin/pest tests/Feature/Admin
