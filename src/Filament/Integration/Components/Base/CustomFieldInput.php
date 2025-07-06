@@ -77,18 +77,19 @@ abstract class CustomFieldInput implements FormComponentInterface
         $field->statePath($this->getStateAttributeName($customField));
 
         // Basic configuration
-        $field->label($customField->label)
-            ->required($customField->is_required ?? false)
-            ->disabled($customField->is_readonly ?? false);
+        $field->label($customField->name)
+            ->required(false)
+            ->disabled(false);
 
-        // Add helper text if available
-        if ($customField->help_text) {
-            $field->helperText($customField->help_text);
+        // Add helper text if available from config
+        $config = $customField->field_config ?? [];
+        if (isset($config['help_text'])) {
+            $field->helperText($config['help_text']);
         }
 
-        // Add hint if available
-        if ($customField->hint) {
-            $field->hint($customField->hint);
+        // Add hint if available from config
+        if (isset($config['hint'])) {
+            $field->hint($config['hint']);
         }
 
         // Get field configuration

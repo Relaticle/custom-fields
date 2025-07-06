@@ -27,7 +27,7 @@ abstract class CustomFieldFilter implements TableFilterInterface
     {
         // Create the base filter
         $filter = Filter::make("custom_fields_{$customField->code}")
-            ->label($customField->label);
+            ->label($customField->name);
 
         // Configure the filter form
         $filter->form([

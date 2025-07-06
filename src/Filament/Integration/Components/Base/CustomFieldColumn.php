@@ -52,7 +52,7 @@ abstract class CustomFieldColumn implements TableColumnInterface
     protected function configureColumn(Column $column, CustomField $customField): void
     {
         // Basic configuration
-        $column->label($customField->label);
+        $column->label($customField->name);
 
         // Configure state retrieval
         $column->getStateUsing(fn ($record) => $this->resolveState($record, $customField));

@@ -66,15 +66,16 @@ abstract class CustomFieldEntry implements InfolistEntryInterface
     protected function configureEntry(Entry $entry, CustomField $customField): void
     {
         // Basic configuration
-        $entry->label($customField->label);
+        $entry->label($customField->name);
 
         // Configure state path
         // Note: Unlike form components, infolist entries don't have getStateUsing method
         // The state is resolved through the column name/path
 
-        // Add helper text as tooltip if available
-        if ($customField->help_text) {
-            $entry->tooltip($customField->help_text);
+        // Add helper text as tooltip if available from config
+        $config = $customField->field_config ?? [];
+        if (isset($config['help_text'])) {
+            $entry->tooltip($config['help_text']);
         }
 
         // Get field configuration

@@ -26,6 +26,13 @@ use Relaticle\CustomFields\Providers\ValidationServiceProvider;
 use Relaticle\CustomFields\Services\TenantContextService;
 use Relaticle\CustomFields\Services\ValueResolver\ValueResolver;
 use Relaticle\CustomFields\Support\Utils;
+use Relaticle\CustomFields\Contracts\Factories\ComponentFactoryInterface;
+use Relaticle\CustomFields\Filament\Integration\Factories\FormComponentFactory;
+use Relaticle\CustomFields\Filament\Integration\Factories\TableComponentFactory;
+use Relaticle\CustomFields\Filament\Integration\Factories\InfolistComponentFactory;
+use Relaticle\CustomFields\Filament\Integration\Builders\FormBuilder;
+use Relaticle\CustomFields\Filament\Integration\Builders\TableBuilder;
+use Relaticle\CustomFields\Filament\Integration\Builders\InfolistBuilder;
 use Spatie\LaravelPackageTools\Commands\InstallCommand;
 use Spatie\LaravelPackageTools\Package;
 use Spatie\LaravelPackageTools\PackageServiceProvider;
@@ -46,6 +53,11 @@ class CustomFieldsServiceProvider extends PackageServiceProvider
         $this->app->singleton(ValueResolvers::class, ValueResolver::class);
 
         $this->app->singleton(TenantContextService::class);
+
+        // Register factory singletons
+        $this->app->singleton(FormComponentFactory::class);
+        $this->app->singleton(TableComponentFactory::class);
+        $this->app->singleton(InfolistComponentFactory::class);
 
         if (Utils::isTenantEnabled()) {
             foreach (Filament::getPanels() as $panel) {
