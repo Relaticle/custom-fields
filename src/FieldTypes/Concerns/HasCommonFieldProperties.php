@@ -23,7 +23,7 @@ trait HasCommonFieldProperties
      */
     public function isFilterable(): bool
     {
-        return true;
+        return false;
     }
 
     /**

@@ -57,6 +57,11 @@ class SelectFieldType implements FieldTypeDefinitionInterface
         return SingleValueEntry::class;
     }
 
+    public function isFilterable(): bool
+    {
+        return true;
+    }
+
     /**
      * Select fields have medium priority.
      */
