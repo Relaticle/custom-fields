@@ -195,7 +195,12 @@ final readonly class CoreVisibilityLogicService
      */
     public function isOperatorCompatible(Operator $operator, CustomField $field): bool
     {
-        $compatibleOperators = $field->getFieldTypeCompatibleOperators();
+        $typeData = $field->typeData;
+        if (!$typeData) {
+            return false;
+        }
+        
+        $compatibleOperators = $typeData->dataType->getCompatibleOperators();
 
         return in_array($operator, $compatibleOperators, true);
     }
@@ -208,13 +213,32 @@ final readonly class CoreVisibilityLogicService
      */
     public function getFieldMetadata(CustomField $field): array
     {
+        $typeData = $field->typeData;
+        
+        if (!$typeData) {
+            return [
+                'code' => $field->code,
+                'type' => $field->type,
+                'category' => 'string',
+                'is_optionable' => false,
+                'has_multiple_values' => false,
+                'compatible_operators' => [],
+                'has_visibility_conditions' => false,
+                'visibility_mode' => Mode::ALWAYS_VISIBLE->value,
+                'visibility_logic' => Logic::ALL->value,
+                'visibility_conditions' => [],
+                'dependent_fields' => [],
+                'always_save' => false,
+            ];
+        }
+        
         return [
             'code' => $field->code,
-            'type' => $field->getFieldTypeValue(),
-            'category' => $field->getFieldTypeCategory(),
-            'is_optionable' => $field->isFieldTypeOptionable(),
-            'has_multiple_values' => $field->hasFieldTypeMultipleValues(),
-            'compatible_operators' => $field->getFieldTypeCompatibleOperators(),
+            'type' => $field->type,
+            'category' => $typeData->dataType->value,
+            'is_optionable' => $typeData->dataType->isChoiceField(),
+            'has_multiple_values' => $typeData->dataType->isMultiChoiceField(),
+            'compatible_operators' => $typeData->dataType->getCompatibleOperators(),
             'has_visibility_conditions' => $this->hasVisibilityConditions($field),
             'visibility_mode' => $this->getVisibilityMode($field)->value,
             'visibility_logic' => $this->getVisibilityLogic($field)->value,
@@ -259,7 +283,7 @@ final readonly class CoreVisibilityLogicService
     public function getOperatorValidationError(Operator $operator, CustomField $field): ?string
     {
         if (! $this->isOperatorCompatible($operator, $field)) {
-            return "Operator '{$operator->value}' is not compatible with field type '{$field->type->value}'";
+            return "Operator '{$operator->value}' is not compatible with field type '{$field->type}'";
         }
 
         if ($this->conditionRequiresOptionableField($operator) && ! $field->isChoiceField()) {

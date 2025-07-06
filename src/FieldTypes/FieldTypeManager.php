@@ -82,7 +82,7 @@ final class FieldTypeManager
         return $this->cachedFieldTypes;
     }
 
-    public function getFieldType(string $fieldType): FieldTypeData
+    public function getFieldType(string $fieldType): ?FieldTypeData
     {
         return $this->toCollection()->firstWhere('key', $fieldType);
     }

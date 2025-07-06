@@ -17,17 +17,17 @@ readonly class ValueResolver implements ValueResolvers
 
     public function resolve(HasCustomFields $record, CustomField $customField, bool $exportable = false): mixed
     {
-        if (! $customField->isFieldTypeOptionable()) {
+        if (! $customField->isChoiceField()) {
             $value = $record->getCustomFieldValue($customField);
 
-            if ($exportable && $customField->isFieldTypeBoolean()) {
+            if ($exportable && in_array($customField->type, ['checkbox', 'toggle'])) {
                 return $value ? 'Yes' : 'No';
             }
 
             return $value;
         }
 
-        if ($customField->hasFieldTypeMultipleValues()) {
+        if ($customField->isMultiChoiceField()) {
             return $this->multiValueResolver->resolve($record, $customField);
         }
 

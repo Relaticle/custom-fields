@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-use Relaticle\CustomFields\Filament\Pages\CustomFieldsPage;
+use Relaticle\CustomFields\Filament\Management\Pages\CustomFieldsManagementPage as CustomFieldsPage;
 use Relaticle\CustomFields\Livewire\ManageCustomFieldSection;
 use Relaticle\CustomFields\Models\CustomFieldSection;
 use Relaticle\CustomFields\Tests\Fixtures\Models\Post;

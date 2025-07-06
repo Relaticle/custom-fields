@@ -12,7 +12,7 @@
         />
 
         <x-filament::icon
-                :icon="$field->typeData->icon"
+                :icon="$field->typeData?->icon ?? 'heroicon-o-document-text'"
                 class="h-5 w-5 text-gray-500 dark:text-gray-400"
                 :aria-label="$field->name"
         />

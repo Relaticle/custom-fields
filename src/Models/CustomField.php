@@ -150,7 +150,7 @@ class CustomField extends Model
     public function typeData(): Attribute
     {
         return Attribute::make(
-            get: fn (mixed $value, array $attributes): FieldTypeData => CustomFieldsType::getFieldType($attributes['type'])
+            get: fn (mixed $value, array $attributes): ?FieldTypeData => CustomFieldsType::getFieldType($attributes['type'])
         );
     }
 

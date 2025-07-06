@@ -8,7 +8,7 @@ use Relaticle\CustomFields\Contracts\FieldTypeDefinitionInterface;
 use Relaticle\CustomFields\Enums\CustomFieldValidationRule;
 use Relaticle\CustomFields\Enums\FieldDataType;
 use Relaticle\CustomFields\FieldTypes\Concerns\HasCommonFieldProperties;
-use Relaticle\CustomFields\Filament\Integration\Forms\Components\NumberInputComponent;
+use Relaticle\CustomFields\Filament\Integration\Forms\Components\NumberComponent;
 use Relaticle\CustomFields\Filament\Integration\Infolists\Fields\TextEntry;
 use Relaticle\CustomFields\Filament\Integration\Tables\Columns\TextColumn;
 use Relaticle\CustomFields\Filament\Integration\Tables\Filters\TextFilter;
@@ -43,7 +43,7 @@ class NumberFieldType implements FieldTypeDefinitionInterface
 
     public function getFormComponentClass(): string
     {
-        return NumberInputComponent::class;
+        return NumberComponent::class;
     }
 
     public function getTableColumnClass(): string

@@ -343,7 +343,8 @@ final readonly class FrontendVisibilityService
         $resolvedValue = $this->resolveOptionValue($value, $targetField);
         $jsValue = $this->formatJsValue($resolvedValue);
 
-        $condition = $targetField->type->hasMultipleValues()
+        $typeData = $targetField->typeData;
+        $condition = ($typeData && $typeData->dataType->isMultiChoiceField())
             ? $this->buildMultiValueOptionCondition(
                 $fieldValue,
                 $resolvedValue,

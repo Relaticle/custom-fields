@@ -11,7 +11,7 @@ use Relaticle\CustomFields\Enums\CustomFieldValidationRule;
 use Relaticle\CustomFields\Enums\FieldDataType;
 use Relaticle\CustomFields\FieldTypes\Concerns\HasCommonFieldProperties;
 use Relaticle\CustomFields\FieldTypes\Concerns\HasImportExportDefaults;
-use Relaticle\CustomFields\Filament\Integration\Forms\Components\CurrencyInputComponent;
+use Relaticle\CustomFields\Filament\Integration\Forms\Components\CurrencyComponent;
 use Relaticle\CustomFields\Filament\Integration\Infolists\Fields\TextEntry;
 use Relaticle\CustomFields\Filament\Integration\Tables\Columns\TextColumn;
 use Relaticle\CustomFields\Filament\Integration\Tables\Filters\TextFilter;
@@ -47,7 +47,7 @@ class CurrencyFieldType implements FieldImportExportInterface, FieldTypeDefiniti
 
     public function getFormComponentClass(): string
     {
-        return CurrencyInputComponent::class;
+        return CurrencyComponent::class;
     }
 
     public function getTableColumnClass(): string
