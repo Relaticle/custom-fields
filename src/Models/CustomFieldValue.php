@@ -85,11 +85,11 @@ class CustomFieldValue extends Model
         return match ($dataType) {
             FieldDataType::STRING => 'string_value',
             FieldDataType::TEXT => 'text_value',
-            FieldDataType::NUMERIC => 'float_value',
+            FieldDataType::NUMERIC, FieldDataType::SINGLE_CHOICE => 'integer_value',
+            FieldDataType::FLOAT => 'float_value',
             FieldDataType::DATE => 'date_value',
             FieldDataType::DATE_TIME => 'datetime_value',
             FieldDataType::BOOLEAN => 'boolean_value',
-            FieldDataType::SINGLE_CHOICE => 'integer_value',
             FieldDataType::MULTI_CHOICE => 'json_value',
         };
     }

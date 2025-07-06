@@ -12,6 +12,7 @@ enum FieldDataType: string
     case STRING = 'string';
     case TEXT = 'text';
     case NUMERIC = 'numeric';
+    case FLOAT = 'float';
     case DATE = 'date';
     case DATE_TIME = 'date_time';
     case BOOLEAN = 'boolean';

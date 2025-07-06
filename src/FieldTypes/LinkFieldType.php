@@ -8,10 +8,9 @@ use Relaticle\CustomFields\Contracts\FieldTypeDefinitionInterface;
 use Relaticle\CustomFields\Enums\CustomFieldValidationRule;
 use Relaticle\CustomFields\Enums\FieldDataType;
 use Relaticle\CustomFields\FieldTypes\Concerns\HasCommonFieldProperties;
-use Relaticle\CustomFields\Filament\Integration\Forms\Components\LinkInputComponent;
+use Relaticle\CustomFields\Filament\Integration\Forms\Components\LinkComponent;
 use Relaticle\CustomFields\Filament\Integration\Infolists\Fields\TextEntry;
 use Relaticle\CustomFields\Filament\Integration\Tables\Columns\TextColumn;
-use Relaticle\CustomFields\Filament\Integration\Tables\Filters\TextFilter;
 
 /**
  * ABOUTME: Field type definition for Link fields
@@ -43,17 +42,12 @@ class LinkFieldType implements FieldTypeDefinitionInterface
 
     public function getFormComponentClass(): string
     {
-        return LinkInputComponent::class;
+        return LinkComponent::class;
     }
 
     public function getTableColumnClass(): string
     {
         return TextColumn::class;
-    }
-
-    public function getTableFilterClass(): ?string
-    {
-        return TextFilter::class;
     }
 
     public function getInfolistEntryClass(): string

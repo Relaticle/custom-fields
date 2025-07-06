@@ -42,7 +42,7 @@ class CurrencyFieldType implements FieldImportExportInterface, FieldTypeDefiniti
 
     public function getDataType(): FieldDataType
     {
-        return FieldDataType::NUMERIC;
+        return FieldDataType::FLOAT;
     }
 
     public function getFormComponentClass(): string

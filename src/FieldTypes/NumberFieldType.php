@@ -11,7 +11,6 @@ use Relaticle\CustomFields\FieldTypes\Concerns\HasCommonFieldProperties;
 use Relaticle\CustomFields\Filament\Integration\Forms\Components\NumberComponent;
 use Relaticle\CustomFields\Filament\Integration\Infolists\Fields\TextEntry;
 use Relaticle\CustomFields\Filament\Integration\Tables\Columns\TextColumn;
-use Relaticle\CustomFields\Filament\Integration\Tables\Filters\TextFilter;
 
 /**
  * ABOUTME: Field type definition for numeric input fields
@@ -49,11 +48,6 @@ class NumberFieldType implements FieldTypeDefinitionInterface
     public function getTableColumnClass(): string
     {
         return TextColumn::class;
-    }
-
-    public function getTableFilterClass(): ?string
-    {
-        return TextFilter::class;
     }
 
     public function getInfolistEntryClass(): string
