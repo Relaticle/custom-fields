@@ -23,7 +23,7 @@ abstract class CustomFieldFilter implements TableFilterInterface
      * @param  CustomField  $customField
      * @return BaseFilter
      */
-    public function make(CustomField $customField): BaseFilter
+    public function makeTableFilter(CustomField $customField): BaseFilter
     {
         // Create the base filter
         $filter = Filter::make("custom_fields_{$customField->code}")

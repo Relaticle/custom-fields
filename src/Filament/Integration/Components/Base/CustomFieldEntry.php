@@ -25,7 +25,7 @@ abstract class CustomFieldEntry implements InfolistEntryInterface
      * @param  CustomField  $customField
      * @return Entry
      */
-    public function make(CustomField $customField): Entry
+    public function makeInfolistEntry(CustomField $customField): Entry
     {
         // Create the specific entry component
         $entry = $this->createEntry($customField);
@@ -68,8 +68,9 @@ abstract class CustomFieldEntry implements InfolistEntryInterface
         // Basic configuration
         $entry->label($customField->label);
 
-        // Configure state retrieval
-        $entry->getStateUsing(fn ($record) => $this->resolveState($record, $customField));
+        // Configure state path
+        // Note: Unlike form components, infolist entries don't have getStateUsing method
+        // The state is resolved through the column name/path
 
         // Add helper text as tooltip if available
         if ($customField->help_text) {
@@ -244,5 +245,17 @@ abstract class CustomFieldEntry implements InfolistEntryInterface
         }
 
         return $entry;
+    }
+    
+    /**
+     * Get the custom field state key for infolist entries
+     *
+     * @param  CustomField  $customField
+     * @return string
+     */
+    protected function getCustomFieldStateKey(CustomField $customField): string
+    {
+        // Use a relationship path that Filament can resolve to the custom field value
+        return "customFieldValues.{$customField->id}.value";
     }
 }

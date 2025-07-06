@@ -23,7 +23,11 @@
       "Bash(vendor/bin/phpstan analyse:*)",
       "Bash(composer:*)",
       "Bash(git push:*)",
-      "Bash(vendor/bin/pest:*)"
+      "Bash(vendor/bin/pest:*)",
+      "Bash(gh pr create:*)",
+      "Bash(grep:*)",
+      "Bash(sed:*)",
+      "Bash(git restore:*)"
     ],
     "deny": []
   }

@@ -9,5 +9,5 @@ use Relaticle\CustomFields\Models\CustomField;
 
 interface InfolistEntryInterface
 {
-    public function make(CustomField $customField): Entry;
+    public function makeInfolistEntry(CustomField $customField): Entry;
 }

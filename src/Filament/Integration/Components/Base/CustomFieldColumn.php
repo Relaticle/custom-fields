@@ -22,7 +22,7 @@ abstract class CustomFieldColumn implements TableColumnInterface
     /**
      * Create and configure a table column component
      */
-    public function make(CustomField $customField): Column
+    public function makeTableColumn(CustomField $customField): Column
     {
         // Create the specific column component
         $column = $this->createColumn($customField);
@@ -218,5 +218,17 @@ abstract class CustomFieldColumn implements TableColumnInterface
         }
 
         return $column;
+    }
+    
+    /**
+     * Get the custom field state key for table columns
+     *
+     * @param  CustomField  $customField
+     * @return string
+     */
+    protected function getCustomFieldStateKey(CustomField $customField): string
+    {
+        // Use a relationship path that Filament can resolve to the custom field value
+        return "customFieldValues.{$customField->id}.value";
     }
 }

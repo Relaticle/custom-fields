@@ -56,7 +56,7 @@ trait HasCustomFieldState
         }
 
         // Return type-specific defaults
-        return match ($field->type->value) {
+        return match ($field->type) {
             'boolean', 'toggle' => false,
             'number', 'currency' => 0,
             'multiselect', 'checkbox_list', 'tags' => [],
@@ -79,7 +79,7 @@ trait HasCustomFieldState
         }
 
         // Process based on field type
-        return match ($field->type->value) {
+        return match ($field->type) {
             'number', 'currency' => $this->processNumericValue($value),
             'boolean', 'toggle' => $this->processBooleanValue($value),
             'date' => $this->processDateValue($value),
@@ -229,7 +229,7 @@ trait HasCustomFieldState
         }
 
         // Prepare based on field type
-        return match ($field->type->value) {
+        return match ($field->type) {
             'multiselect', 'checkbox_list', 'tags' => json_encode($value),
             'boolean', 'toggle' => (bool) $value,
             'number' => is_numeric($value) ? (float) $value : null,

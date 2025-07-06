@@ -78,8 +78,8 @@ abstract class CustomFieldInput implements FormComponentInterface
 
         // Basic configuration
         $field->label($customField->label)
-            ->required($customField->is_required)
-            ->disabled($customField->is_readonly);
+            ->required($customField->is_required ?? false)
+            ->disabled($customField->is_readonly ?? false);
 
         // Add helper text if available
         if ($customField->help_text) {
@@ -172,7 +172,7 @@ abstract class CustomFieldInput implements FormComponentInterface
     {
         $config = $customField->field_config ?? [];
 
-        return match ($customField->type->value) {
+        return match ($customField->type) {
             'email' => ['email'],
             'url' => ['url'],
             'number' => array_filter([

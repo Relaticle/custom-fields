@@ -9,5 +9,5 @@ use Relaticle\CustomFields\Models\CustomField;
 
 interface TableColumnInterface
 {
-    public function make(CustomField $customField): Column;
+    public function makeTableColumn(CustomField $customField): Column;
 }
