@@ -1,0 +1,403 @@
+parameters:
+	ignoreErrors:
+		-
+			message: '#^Class Relaticle\\CustomFields\\Collections\\FieldTypeCollection extends generic class Illuminate\\Support\\Collection but does not specify its types\: TKey, TValue$#'
+			identifier: missingType.generics
+			count: 1
+			path: src/Collections/FieldTypeCollection.php
+
+		-
+			message: '#^Class Relaticle\\CustomFields\\Integration\\Migrations\\CustomFieldsMigrator not found\.$#'
+			identifier: class.notFound
+			count: 1
+			path: src/CustomFieldsServiceProvider.php
+
+		-
+			message: '#^Access to undefined constant Relaticle\\CustomFields\\Enums\\FieldDataType\:\:MULTI_OPTION\.$#'
+			identifier: classConstant.notFound
+			count: 2
+			path: src/Enums/CustomFieldType.php
+
+		-
+			message: '#^Access to undefined constant Relaticle\\CustomFields\\Enums\\FieldDataType\:\:SINGLE_OPTION\.$#'
+			identifier: classConstant.notFound
+			count: 1
+			path: src/Enums/CustomFieldType.php
+
+		-
+			message: '#^Call to an undefined method Relaticle\\CustomFields\\Enums\\FieldDataType\:\:isOptionable\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: src/Enums/CustomFieldType.php
+
+		-
+			message: '#^Class Relaticle\\CustomFields\\Integration\\Forms\\Components\\CheckboxComponent not found\.$#'
+			identifier: class.notFound
+			count: 1
+			path: src/Enums/FieldComponentType.php
+
+		-
+			message: '#^Class Relaticle\\CustomFields\\Integration\\Forms\\Components\\CheckboxListComponent not found\.$#'
+			identifier: class.notFound
+			count: 1
+			path: src/Enums/FieldComponentType.php
+
+		-
+			message: '#^Class Relaticle\\CustomFields\\Integration\\Forms\\Components\\ColorPickerComponent not found\.$#'
+			identifier: class.notFound
+			count: 1
+			path: src/Enums/FieldComponentType.php
+
+		-
+			message: '#^Class Relaticle\\CustomFields\\Integration\\Forms\\Components\\CurrencyComponent not found\.$#'
+			identifier: class.notFound
+			count: 1
+			path: src/Enums/FieldComponentType.php
+
+		-
+			message: '#^Class Relaticle\\CustomFields\\Integration\\Forms\\Components\\DateComponent not found\.$#'
+			identifier: class.notFound
+			count: 1
+			path: src/Enums/FieldComponentType.php
+
+		-
+			message: '#^Class Relaticle\\CustomFields\\Integration\\Forms\\Components\\DateTimeComponent not found\.$#'
+			identifier: class.notFound
+			count: 1
+			path: src/Enums/FieldComponentType.php
+
+		-
+			message: '#^Class Relaticle\\CustomFields\\Integration\\Forms\\Components\\LinkComponent not found\.$#'
+			identifier: class.notFound
+			count: 1
+			path: src/Enums/FieldComponentType.php
+
+		-
+			message: '#^Class Relaticle\\CustomFields\\Integration\\Forms\\Components\\MarkdownEditorComponent not found\.$#'
+			identifier: class.notFound
+			count: 1
+			path: src/Enums/FieldComponentType.php
+
+		-
+			message: '#^Class Relaticle\\CustomFields\\Integration\\Forms\\Components\\MultiSelectComponent not found\.$#'
+			identifier: class.notFound
+			count: 1
+			path: src/Enums/FieldComponentType.php
+
+		-
+			message: '#^Class Relaticle\\CustomFields\\Integration\\Forms\\Components\\NumberComponent not found\.$#'
+			identifier: class.notFound
+			count: 1
+			path: src/Enums/FieldComponentType.php
+
+		-
+			message: '#^Class Relaticle\\CustomFields\\Integration\\Forms\\Components\\RadioComponent not found\.$#'
+			identifier: class.notFound
+			count: 1
+			path: src/Enums/FieldComponentType.php
+
+		-
+			message: '#^Class Relaticle\\CustomFields\\Integration\\Forms\\Components\\RichEditorComponent not found\.$#'
+			identifier: class.notFound
+			count: 1
+			path: src/Enums/FieldComponentType.php
+
+		-
+			message: '#^Class Relaticle\\CustomFields\\Integration\\Forms\\Components\\SelectComponent not found\.$#'
+			identifier: class.notFound
+			count: 1
+			path: src/Enums/FieldComponentType.php
+
+		-
+			message: '#^Class Relaticle\\CustomFields\\Integration\\Forms\\Components\\TagsInputComponent not found\.$#'
+			identifier: class.notFound
+			count: 1
+			path: src/Enums/FieldComponentType.php
+
+		-
+			message: '#^Class Relaticle\\CustomFields\\Integration\\Forms\\Components\\TextInputComponent not found\.$#'
+			identifier: class.notFound
+			count: 1
+			path: src/Enums/FieldComponentType.php
+
+		-
+			message: '#^Class Relaticle\\CustomFields\\Integration\\Forms\\Components\\TextareaFormComponent not found\.$#'
+			identifier: class.notFound
+			count: 1
+			path: src/Enums/FieldComponentType.php
+
+		-
+			message: '#^Class Relaticle\\CustomFields\\Integration\\Forms\\Components\\ToggleButtonsComponent not found\.$#'
+			identifier: class.notFound
+			count: 1
+			path: src/Enums/FieldComponentType.php
+
+		-
+			message: '#^Class Relaticle\\CustomFields\\Integration\\Forms\\Components\\ToggleComponent not found\.$#'
+			identifier: class.notFound
+			count: 1
+			path: src/Enums/FieldComponentType.php
+
+		-
+			message: '#^Match expression does not handle remaining values\: Relaticle\\CustomFields\\Enums\\FieldDataType\:\:DATE_TIME\|Relaticle\\CustomFields\\Enums\\FieldDataType\:\:STRING$#'
+			identifier: match.unhandled
+			count: 1
+			path: src/Enums/FieldDataType.php
+
+		-
+			message: '#^Access to an undefined property Relaticle\\CustomFields\\Models\\CustomField\:\:\$typeData\.$#'
+			identifier: property.notFound
+			count: 1
+			path: src/Filament/Integration/AbstractComponentFactory.php
+
+		-
+			message: '#^Method Relaticle\\CustomFields\\Filament\\Integration\\AbstractComponentFactory\:\:createComponent\(\) has InvalidArgumentException in PHPDoc @throws tag but it''s not thrown\.$#'
+			identifier: throws.unusedType
+			count: 1
+			path: src/Filament/Integration/AbstractComponentFactory.php
+
+		-
+			message: '#^Method Relaticle\\CustomFields\\Filament\\Integration\\AbstractComponentFactory\:\:createComponent\(\) has RuntimeException in PHPDoc @throws tag but it''s not thrown\.$#'
+			identifier: throws.unusedType
+			count: 1
+			path: src/Filament/Integration/AbstractComponentFactory.php
+
+		-
+			message: '#^Call to an undefined method Relaticle\\CustomFields\\Models\\CustomField\:\:getFieldTypeValue\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: src/Filament/Integration/Actions/Imports/ColumnFactory.php
+
+		-
+			message: '#^Method Relaticle\\CustomFields\\Filament\\Integration\\CustomFieldsManager\:\:formComponent\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: src/Filament/Integration/CustomFieldsManager.php
+
+		-
+			message: '#^Method Relaticle\\CustomFields\\Filament\\Integration\\CustomFieldsManager\:\:infolistEntries\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: src/Filament/Integration/CustomFieldsManager.php
+
+		-
+			message: '#^Method Relaticle\\CustomFields\\Filament\\Integration\\CustomFieldsManager\:\:tableColumns\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: src/Filament/Integration/CustomFieldsManager.php
+
+		-
+			message: '#^Method Relaticle\\CustomFields\\Filament\\Integration\\CustomFieldsManager\:\:tableFilters\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: src/Filament/Integration/CustomFieldsManager.php
+
+		-
+			message: '#^Access to an undefined property Relaticle\\CustomFields\\Models\\CustomField\:\:\$typeData\.$#'
+			identifier: property.notFound
+			count: 1
+			path: src/Filament/Integration/Infolists/FieldInfolistsFactory.php
+
+		-
+			message: '#^Access to an undefined property Relaticle\\CustomFields\\Models\\CustomField\:\:\$typeData\.$#'
+			identifier: property.notFound
+			count: 1
+			path: src/Filament/Integration/Tables/Columns/FieldColumnFactory.php
+
+		-
+			message: '#^Class Relaticle\\CustomFields\\Filament\\Integration\\Tables\\Columns\\FieldColumnFactory has @extends tag, but does not extend any class\.$#'
+			identifier: generics.noParent
+			count: 1
+			path: src/Filament/Integration/Tables/Columns/FieldColumnFactory.php
+
+		-
+			message: '#^Call to an undefined method Illuminate\\Support\\Collection\<string, Relaticle\\CustomFields\\Data\\FieldTypeData\>\:\:onlyFilterables\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: src/Filament/Integration/Tables/Filters/CustomFieldsFilter.php
+
+		-
+			message: '#^Class Relaticle\\CustomFields\\Filament\\Integration\\Tables\\Filters\\CustomFieldsFilter has an uninitialized readonly property \$instance\. Assign it in the constructor\.$#'
+			identifier: property.uninitializedReadonly
+			count: 1
+			path: src/Filament/Integration/Tables/Filters/CustomFieldsFilter.php
+
+		-
+			message: '#^Readonly property Relaticle\\CustomFields\\Filament\\Integration\\Tables\\Filters\\CustomFieldsFilter\:\:\$instance is assigned outside of the constructor\.$#'
+			identifier: property.readOnlyAssignNotInConstructor
+			count: 2
+			path: src/Filament/Integration/Tables/Filters/CustomFieldsFilter.php
+
+		-
+			message: '#^Access to an undefined property Relaticle\\CustomFields\\Models\\CustomField\:\:\$typeData\.$#'
+			identifier: property.notFound
+			count: 1
+			path: src/Filament/Integration/Tables/Filters/FieldFilterFactory.php
+
+		-
+			message: '#^Method Relaticle\\CustomFields\\Filament\\Integration\\Tables\\Filters\\FieldFilterFactory\:\:create\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: src/Filament/Integration/Tables/Filters/FieldFilterFactory.php
+
+		-
+			message: '#^Property Relaticle\\CustomFields\\Filament\\Management\\Forms\\Components\\VisibilityComponent\:\:\$fieldTypeHelper has no type specified\.$#'
+			identifier: missingType.property
+			count: 1
+			path: src/Filament/Management/Forms/Components/VisibilityComponent.php
+
+		-
+			message: '#^Call to an undefined method Illuminate\\Support\\Collection\<string, Relaticle\\CustomFields\\Data\\FieldTypeData\>\:\:onlyChoiceables\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: src/Filament/Management/Schemas/FieldForm.php
+
+		-
+			message: '#^Call to function in_array\(\) with string and array\{Relaticle\\CustomFields\\Enums\\CustomFieldType\:\:SELECT, Relaticle\\CustomFields\\Enums\\CustomFieldType\:\:MULTI_SELECT\} will always evaluate to false\.$#'
+			identifier: function.impossibleType
+			count: 1
+			path: src/Filament/Management/Schemas/FieldForm.php
+
+		-
+			message: '#^Access to an undefined property Relaticle\\CustomFields\\Models\\CustomField\:\:\$typeData\.$#'
+			identifier: property.notFound
+			count: 3
+			path: src/Models/CustomField.php
+
+		-
+			message: '#^Method Relaticle\\CustomFields\\Models\\CustomField\:\:typeData\(\) return type with generic class Illuminate\\Database\\Eloquent\\Casts\\Attribute does not specify its types\: TGet, TSet$#'
+			identifier: missingType.generics
+			count: 1
+			path: src/Models/CustomField.php
+
+		-
+			message: '#^Anonymous function has invalid return type Relaticle\\CustomFields\\Integration\\Actions\\Imports\\CustomFieldsImporter\.$#'
+			identifier: class.notFound
+			count: 1
+			path: src/Providers/ImportsServiceProvider.php
+
+		-
+			message: '#^Class Relaticle\\CustomFields\\Integration\\Actions\\Imports\\ColumnConfigurators\\BasicColumnConfigurator not found\.$#'
+			identifier: class.notFound
+			count: 1
+			path: src/Providers/ImportsServiceProvider.php
+
+		-
+			message: '#^Class Relaticle\\CustomFields\\Integration\\Actions\\Imports\\ColumnConfigurators\\MultiSelectColumnConfigurator not found\.$#'
+			identifier: class.notFound
+			count: 1
+			path: src/Providers/ImportsServiceProvider.php
+
+		-
+			message: '#^Class Relaticle\\CustomFields\\Integration\\Actions\\Imports\\ColumnConfigurators\\SelectColumnConfigurator not found\.$#'
+			identifier: class.notFound
+			count: 1
+			path: src/Providers/ImportsServiceProvider.php
+
+		-
+			message: '#^Class Relaticle\\CustomFields\\Integration\\Actions\\Imports\\ColumnFactory not found\.$#'
+			identifier: class.notFound
+			count: 2
+			path: src/Providers/ImportsServiceProvider.php
+
+		-
+			message: '#^Class Relaticle\\CustomFields\\Integration\\Actions\\Imports\\CustomFieldsImporter not found\.$#'
+			identifier: class.notFound
+			count: 1
+			path: src/Providers/ImportsServiceProvider.php
+
+		-
+			message: '#^Class Relaticle\\CustomFields\\Integration\\Actions\\Imports\\Matchers\\LookupMatcher not found\.$#'
+			identifier: class.notFound
+			count: 1
+			path: src/Providers/ImportsServiceProvider.php
+
+		-
+			message: '#^Class Relaticle\\CustomFields\\Integration\\Actions\\Imports\\Matchers\\LookupMatcherInterface not found\.$#'
+			identifier: class.notFound
+			count: 1
+			path: src/Providers/ImportsServiceProvider.php
+
+		-
+			message: '#^Class Relaticle\\CustomFields\\Integration\\Actions\\Imports\\ValueConverters\\ValueConverter not found\.$#'
+			identifier: class.notFound
+			count: 1
+			path: src/Providers/ImportsServiceProvider.php
+
+		-
+			message: '#^Class Relaticle\\CustomFields\\Integration\\Actions\\Imports\\ValueConverters\\ValueConverterInterface not found\.$#'
+			identifier: class.notFound
+			count: 2
+			path: src/Providers/ImportsServiceProvider.php
+
+		-
+			message: '#^Instantiated class Relaticle\\CustomFields\\Integration\\Actions\\Imports\\CustomFieldsImporter not found\.$#'
+			identifier: class.notFound
+			count: 1
+			path: src/Providers/ImportsServiceProvider.php
+
+		-
+			message: '#^Class Relaticle\\CustomFields\\Integration\\Forms\\Components\\FieldComponentInterface not found\.$#'
+			identifier: class.notFound
+			count: 1
+			path: src/Services/FieldTypeRegistryService.php
+
+		-
+			message: '#^Class Relaticle\\CustomFields\\Integration\\Infolists\\FieldInfolistsComponentInterface not found\.$#'
+			identifier: class.notFound
+			count: 1
+			path: src/Services/FieldTypeRegistryService.php
+
+		-
+			message: '#^Class Relaticle\\CustomFields\\Integration\\Tables\\Columns\\ColumnInterface not found\.$#'
+			identifier: class.notFound
+			count: 1
+			path: src/Services/FieldTypeRegistryService.php
+
+		-
+			message: '#^Call to an undefined method Relaticle\\CustomFields\\Models\\CustomField\:\:hasFieldTypeMultipleValues\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: src/Services/ValueResolver/ValueResolver.php
+
+		-
+			message: '#^Call to an undefined method Relaticle\\CustomFields\\Models\\CustomField\:\:isFieldTypeBoolean\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: src/Services/ValueResolver/ValueResolver.php
+
+		-
+			message: '#^Call to an undefined method Relaticle\\CustomFields\\Models\\CustomField\:\:isFieldTypeOptionable\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: src/Services/ValueResolver/ValueResolver.php
+
+		-
+			message: '#^Call to an undefined method Relaticle\\CustomFields\\Models\\CustomField\:\:getFieldTypeCategory\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: src/Services/Visibility/CoreVisibilityLogicService.php
+
+		-
+			message: '#^Call to an undefined method Relaticle\\CustomFields\\Models\\CustomField\:\:getFieldTypeCompatibleOperators\(\)\.$#'
+			identifier: method.notFound
+			count: 2
+			path: src/Services/Visibility/CoreVisibilityLogicService.php
+
+		-
+			message: '#^Call to an undefined method Relaticle\\CustomFields\\Models\\CustomField\:\:getFieldTypeValue\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: src/Services/Visibility/CoreVisibilityLogicService.php
+
+		-
+			message: '#^Call to an undefined method Relaticle\\CustomFields\\Models\\CustomField\:\:hasFieldTypeMultipleValues\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: src/Services/Visibility/CoreVisibilityLogicService.php
+
+		-
+			message: '#^Call to an undefined method Relaticle\\CustomFields\\Models\\CustomField\:\:isFieldTypeOptionable\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: src/Services/Visibility/CoreVisibilityLogicService.php
