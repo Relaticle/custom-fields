@@ -4,317 +4,101 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-CustomFields is a Laravel/Filament package that provides a dynamic custom fields system, allowing developers to add custom fields to Eloquent models without database migrations. It supports 32+ field types with features like conditional visibility, multi-tenancy, import/export, and field encryption.
-
-## Installation and Setup
-
-### Package Installation Steps
-- Install the package using Composer:
-  1. `composer require relaticle/custom-fields`
-  2. `php artisan vendor:publish --tag="custom-fields-migrations"`
-  3. `php artisan migrate`
-
-### Filament Panel Integration
-- Register the Custom Fields Plugin in your panel configuration:
-```php
-use Relaticle\CustomFields\CustomFieldsPlugin;
-use Filament\Panel;
-
-public function panel(Panel $panel): Panel
-{
-    return $panel
-        ->plugins([
-            CustomFieldsPlugin::make(),
-        ]);
-}
-```
-
-### Model Setup
-- Implement `HasCustomFields` interface and use `UsesCustomFields` trait in your model:
-```php
-use Relaticle\CustomFields\Models\Contracts\HasCustomFields;
-use Relaticle\CustomFields\Models\Concerns\UsesCustomFields;
-use Illuminate\Database\Eloquent\Model;
-
-class Company extends Model implements HasCustomFields
-{
-    use UsesCustomFields;
-    // ... your existing model code
-}
-```
-
-### Form Integration
-- Add custom fields to resource forms using `CustomFieldsComponent`:
-```php
-use Relaticle\CustomFields\Filament\Integration\Forms\CustomFieldsForm;
-
-public static function form(Form $form): Form
-{
-    return $form
-        ->schema([
-            // Existing form fields
-            Forms\Components\TextInput::make('name')->required(),
-            
-            // Custom Fields Form Component
-            CustomFieldsForm::make()->columnSpanFull(),
-        ]);
-}
-```
-
-### Table View Integration
-- Use `InteractsWithCustomFields` trait in list records page:
-```php
-use Relaticle\CustomFields\Filament\Integration\Tables\InteractsWithCustomFields;
-
-class ListCompanies extends ListRecords
-{
-    use InteractsWithCustomFields;
-    // ...
-}
-```
-
-### Infolist Integration
-- Include `CustomFieldsInfolists` in view or info list:
-```php
-use Relaticle\CustomFields\Filament\Integration\Infolists\CustomFieldsInfolists;
-
-public function getInfolist(): array
-{
-    return [
-        CustomFieldsInfolists::make() ->columnSpanFull(),
-    ];
-}
-```
-
-### Export Integration
-- Use `CustomFieldsExporter` for including custom fields in exports:
-```php
-use Relaticle\CustomFields\Filament\Integration\Actions\Exports\CustomFieldsExporter;
-
-class CompanyExporter extends Exporter
-{
-    public static function getColumns(): array
-    {
-        return [
-            // Existing export columns
-            ...CustomFieldsExporter::getColumns(self::getModel()),
-        ];
-    }
-}
-```
+Custom Fields is a Laravel/Filament plugin that enables adding dynamic custom fields to Eloquent models without database
+migrations. It provides 32+ field types with conditional visibility, multi-tenancy support, and full Filament
+integration.
 
 ## Development Commands
 
-### Testing
+### Setup
+
 ```bash
-# Run all tests (lint, refactor check, types, type coverage, unit tests)
-composer test
-
-# Run tests with code coverage report
-composer test-coverage
-
-# Run individual test suites
-composer test:lint          # Check code formatting
-composer test:refactor      # Check for refactoring opportunities
-composer test:types         # Run PHPStan static analysis
-composer test:arch          # Run architecture tests
-composer test:type-coverage # Check type coverage (min 99.6%)
-composer test:unit          # Run unit tests in parallel
-
-# Run specific test files or directories
-vendor/bin/pest tests/Feature/Admin
-vendor/bin/pest --filter="test name pattern"
+composer install
+npm install
 ```
 
-### Code Quality
-```bash
-# Format code (Laravel Pint)
-composer lint
+### Build and Development
 
-# Apply Rector refactoring
-composer refactor
-```
-
-### Frontend Build
 ```bash
-# Watch and build for development
+# Watch files during development
 npm run dev
 
 # Build for production
 npm run build
+
+# Individual development tasks
+npm run dev:styles   # Watch CSS changes
+npm run dev:scripts  # Watch JS changes
 ```
 
-Note: The package uses Tailwind CSS v4 with PostCSS. Styles are automatically prefixed with `.custom-fields-component` to prevent conflicts with the host application.
+### Testing
 
-### Package Development
 ```bash
-# Install dependencies
-composer install
-npm install
+# Run full test suite (recommended before commits)
+composer test
 
-# Publish migrations for testing
-php artisan vendor:publish --tag="custom-fields-migrations"
-php artisan migrate
+# Individual test commands
+composer test:lint          # Laravel Pint code style check
+composer test:refactor      # Rector dry-run refactoring check
+composer test:types         # PHPStan static analysis (level 6)
+composer test:type-coverage # Type coverage check (min 98%)
+composer test:unit          # Pest unit tests (parallel execution)
+composer test:arch          # Architecture tests
 
-# Interactive debugging and testing
-php ../filament-4-packages/artisan tinker
+# Run tests with coverage report
+composer test-coverage
+
+# Fix code style issues
+composer lint
 ```
 
-Note: Laravel Tinker provides an interactive REPL for debugging and testing. Use it to inspect models, test queries, explore the field type registry, and debug package functionality in real-time.
+### Code Quality
 
-## Architecture & Key Concepts
-
-### Package Structure
-The package follows Laravel package development best practices with clear separation of concerns:
-
-- **Service Layer** (`src/Services/`): Business logic for validation, visibility rules, field types, etc.
-- **Data Transfer Objects** (`src/Data/`): Type-safe data structures using spatie/laravel-data
-- **Filament Integration** (`src/Filament/`): Components, forms, tables, and admin pages
-- **Models & Contracts** (`src/Models/`, `src/Contracts/`): Core domain models and interfaces
-- **Field Type System** (`src/Enums/FieldType.php`, `src/Services/FieldTypes/`): Extensible field type architecture
-
-### Key Architectural Patterns
-
-1. **Field Type Registry**: Field types are registered through a discovery system that scans for classes implementing `FieldTypeDefinitionInterface`. Custom field types can be added via configuration.
-
-2. **Tenant Isolation**: When multi-tenancy is enabled, all queries are automatically scoped to the current tenant using global scopes and the `tenant_id` column.
-
-3. **Value Storage**: Field values are stored in a polymorphic `custom_field_values` table with JSON data column, allowing flexible storage for any field type.
-
-4. **Form Component Integration**: The package provides a single `CustomFieldsComponent` that dynamically renders all custom fields for a model in Filament forms.
-
-### Database Schema
-```
-custom_field_sections -> custom_fields -> custom_field_values
-                                      `-> custom_field_options
-```
-
-### Testing Architecture
-- Uses Pest PHP with feature and unit test organization
-- Test fixtures include complete Filament panel setup with test models (Post, User)
-- In-memory SQLite database for fast, isolated tests
-- Comprehensive feature tests for all Filament pages and resources
-
-## Working with the Codebase
-
-### Adding New Field Types
-1. Create a class implementing `FieldTypeDefinitionInterface`
-2. Add to config `field_type_discovery.classes` or place in a scanned directory
-3. Implement required methods: `component()`, `tableColumn()`, `rules()`, etc.
-
-### Testing Patterns
-```php
-// Feature test for Filament pages
-it('can access custom fields page', function () {
-    Livewire::test(CustomFieldsPage::class)
-        ->assertSuccessful()
-        ->assertSee('Custom Fields');
-});
-
-// Test with database interactions
-it('can create a new record with valid data', function (): void {
-    // Arrange
-    $newData = Post::factory()->make();
-
-    // Act
-    $livewireTest = livewire(CreatePost::class)
-        ->fillForm([
-            'author_id' => $newData->author->getKey(),
-            'content' => $newData->content,
-            'tags' => $newData->tags,
-            'title' => $newData->title,
-            'rating' => $newData->rating,
-        ])
-        ->call('create');
-
-    // Assert
-    $livewireTest->assertHasNoFormErrors()
-        ->assertRedirect();
-
-    $this->assertDatabaseHas(Post::class, [
-        'author_id' => $newData->author->getKey(),
-        'content' => $newData->content,
-        'tags' => json_encode($newData->tags),
-        'title' => $newData->title,
-        'rating' => $newData->rating,
-    ]);
-
-    $this->assertDatabaseCount('posts', 1);
-});
-```
-
-### Common Development Tasks
-
-#### Running Tests for a Specific Feature
 ```bash
-# Test a specific feature area
-composer test -- --filter="CustomFieldsPage"
+# Apply code style fixes
+composer lint
 
-# Test with verbose output
-composer test -- --verbose
+# Apply automated refactoring
+composer refactor
 ```
 
-#### Debugging Field Type Issues
-1. Check field type registration in `config/custom-fields.php`
-2. Verify field type class implements all required interfaces
-3. Use `php ../filament-4-packages/artisan tinker` to inspect field type registry
-4. Check `storage/logs/laravel.log` for registration errors
+## Architecture Overview
 
-#### Working with Migrations
-```bash
-# Create a custom fields migration
-php artisan make:custom-fields-migration add_new_field_type
+### Core Structure
 
-# Run migrations with specific path
-php artisan migrate --path=database/custom-fields
-```
+- **Service Provider**: `CustomFieldsServiceProvider` - Main package entry point
+- **Plugin**: `CustomFieldsPlugin` - Filament integration layer
+- **Models**: Located in `src/Models/` with repository pattern implementation
+- **Field Types**: Located in `src/FieldTypes/` implementing common interfaces
+- **Components**: Factory pattern for forms, tables, and infolists in `src/Filament/`
 
-## Package Metadata
+### Key Patterns
 
-- **Package Name**: `relaticle/custom-fields`
-- **Repository**: https://github.com/relaticle/custom-fields
-- **License**: Apache-2.0
-- **PHP Version**: ≥8.3
-- **Laravel Version**: 12.x
+1. **Factory Pattern**: Component factories create form/table/infolist components dynamically
+2. **Strategy Pattern**: Each field type implements common interfaces for consistent behavior
+3. **Repository Pattern**: Models use scopes and query builders for data access
+4. **Observer Pattern**: Model observers handle lifecycle events
+5. **DTO Pattern**: Using Spatie Laravel Data for type-safe data transfer
 
-## Code Quality Standards
+### Testing Approach
 
-- **PHPStan**: Level 6 static analysis
-- **Laravel Pint**: Code formatting based on Laravel's coding style
-- **Rector**: PHP 8.3 with multiple rule sets for code quality and type safety
-- **Pest PHP**: Modern testing with architecture tests and type coverage (min 99.6%)
-- **Testing**: Parallel test execution with strict settings and random test order
+- Uses Pest PHP with SQLite in-memory database
+- Tests located in `tests/` directory
+- Custom test traits and expectations available
+- Parallel test execution enabled for speed
+- Best Practices for testing located in `./docs/pestphp-testing-best-practices.md`
 
-## Important Configuration
+### Configuration
 
-### Multi-tenancy
-Enable in `config/custom-fields.php` before running migrations:
-```php
-'tenant_aware' => true,
-'column_names' => [
-    'tenant_foreign_key' => 'tenant_id',
-],
-```
+- Main config file: `config/custom-fields.php`
+- Supports extensive customization of features, resources, and field types
+- Multi-tenancy configuration options available
 
-### Field Type Configuration
-Configure specific field types in `config/custom-fields.php`:
-```php
-'field_types_configuration' => [
-    'date' => [
-        'native' => false,
-        'format' => 'Y-m-d',
-    ],
-],
-```
+## Important Development Notes
 
-### Resource Permissions
-Control which resources can have custom fields:
-```php
-'allowed_entity_resources' => [
-    App\Filament\Resources\UserResource::class,
-],
-```
-
-# Documentation and Best Practices
-
-- @~/.claude/docs/pestphp-testing-best-practices.md
+1. **Type Safety**: Project maintains 98% type coverage minimum - ensure all new code is properly typed
+2. **Code Style**: Follows PSR-12 via Laravel Pint - run `composer lint` before committing
+3. **Static Analysis**: PHPStan level 6 - fix all reported issues before committing
+4. **Field Type Development**: New field types should extend `BaseFieldType` and implement required interfaces
+5. **Filament Components**: Use existing component factories when adding UI elements
+6. **Database**: Custom fields are stored in JSON columns with proper casting and validation
