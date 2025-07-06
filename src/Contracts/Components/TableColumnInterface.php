@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-namespace Relaticle\CustomFields\Filament\Integration\Tables\Columns;
+namespace Relaticle\CustomFields\Contracts\Components;
 
 use Filament\Tables\Columns\Column;
 use Relaticle\CustomFields\Models\CustomField;
 
-interface ColumnInterface
+interface TableColumnInterface
 {
     public function make(CustomField $customField): Column;
 }

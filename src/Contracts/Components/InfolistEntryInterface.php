@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-namespace Relaticle\CustomFields\Filament\Integration\Infolists;
+namespace Relaticle\CustomFields\Contracts\Components;
 
 use Filament\Infolists\Components\Entry;
 use Relaticle\CustomFields\Models\CustomField;
 
-interface FieldInfolistsComponentInterface
+interface InfolistEntryInterface
 {
     public function make(CustomField $customField): Entry;
 }

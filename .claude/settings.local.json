@@ -20,7 +20,8 @@
       "Bash(gh issue create:*)",
       "Bash(gh issue comment:*)",
       "Bash(git branch:*)",
-      "Bash(vendor/bin/phpstan analyse:*)"
+      "Bash(vendor/bin/phpstan analyse:*)",
+      "Bash(composer:*)"
     ],
     "deny": []
   }

@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-namespace Relaticle\CustomFields\Filament\Integration\Forms\Components;
+namespace Relaticle\CustomFields\Contracts\Components;
 
 use Filament\Forms\Components\Field;
 use Illuminate\Support\Collection;
 use Relaticle\CustomFields\Models\CustomField;
 
-interface FieldComponentInterface
+interface FormComponentInterface
 {
     /**
      * @param  array<string>  $dependentFieldCodes
