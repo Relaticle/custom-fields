@@ -2,14 +2,15 @@
 
 ## Overview
 
-This specification outlines the refactoring of the Custom Fields package to provide a more flexible, maintainable API that follows Laravel conventions and reduces code duplication.
+This specification outlines the refactoring of the Custom Fields package to provide a more flexible, maintainable API
+that follows Laravel conventions and reduces code duplication.
 
 ## Current Architecture Issues
 
 1. **Limited Flexibility**: Current API returns a single component, making it difficult to:
-   - Mix custom fields with regular fields at specific positions
-   - Apply different layouts or groupings
-   - Exclude certain fields conditionally
+    - Mix custom fields with regular fields at specific positions
+    - Apply different layouts or groupings
+    - Exclude certain fields conditionally
 
 2. **Code Duplication**: Multiple factory classes with nearly identical logic
 3. **Inconsistent Patterns**: Different approaches for Forms, Tables, and Infolists
@@ -59,11 +60,13 @@ $entries = CustomFields::infolist()
 ### Builder Methods
 
 All builders support:
+
 - `forModel($modelOrClass)`: Accept both model instance and class name
 - `only(array $fields)`: Include only specified field codes
 - `except(array $fields)`: Exclude specified field codes
 
 Context-specific methods:
+
 - Table Builder: `columns()`, `filters()`
 - Form Builder: `components()`, `build()`
 - Infolist Builder: `components()`, `build()`
@@ -95,6 +98,7 @@ Collection([
 ```
 
 Key points:
+
 - All fields are guaranteed to have a section
 - Empty sections (after filtering) are automatically removed
 - Components are ready to use or further customize
@@ -237,17 +241,17 @@ class ColumnFactory extends AbstractComponentFactory
 ### Migration Path
 
 1. Keep existing API working:
-   - `CustomFields::formComponent()` continues to work
-   - Returns same component structure as before
+    - `CustomFields::formComponent()` continues to work
+    - Returns same component structure as before
 
 2. New API available alongside:
-   - Developers can gradually migrate to new API
-   - Both APIs use same underlying implementation
+    - Developers can gradually migrate to new API
+    - Both APIs use same underlying implementation
 
 ### Benefits
 
 1. **Flexibility**: Developers can position custom fields anywhere in their forms
-2. **Consistency**: Same patterns across Forms, Tables, and Infolists  
+2. **Consistency**: Same patterns across Forms, Tables, and Infolists
 3. **Maintainability**: Reduced code duplication through inheritance
 4. **Laravel Conventions**: Familiar builder pattern matching Query Builder
 5. **Performance**: Efficient eager loading and filtering at query level

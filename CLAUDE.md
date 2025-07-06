@@ -317,4 +317,4 @@ Control which resources can have custom fields:
 
 # Documentation and Best Practices
 
-- @~/.claude/docs/pestphp-testing-best-practices.md
+- ./.claude/docs/pestphp-testing-best-practices.md
