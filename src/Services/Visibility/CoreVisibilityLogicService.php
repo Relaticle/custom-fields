@@ -196,10 +196,10 @@ final readonly class CoreVisibilityLogicService
     public function isOperatorCompatible(Operator $operator, CustomField $field): bool
     {
         $typeData = $field->typeData;
-        if (!$typeData) {
+        if (! $typeData) {
             return false;
         }
-        
+
         $compatibleOperators = $typeData->dataType->getCompatibleOperators();
 
         return in_array($operator, $compatibleOperators, true);
@@ -214,8 +214,8 @@ final readonly class CoreVisibilityLogicService
     public function getFieldMetadata(CustomField $field): array
     {
         $typeData = $field->typeData;
-        
-        if (!$typeData) {
+
+        if (! $typeData) {
             return [
                 'code' => $field->code,
                 'type' => $field->type,
@@ -231,7 +231,7 @@ final readonly class CoreVisibilityLogicService
                 'always_save' => false,
             ];
         }
-        
+
         return [
             'code' => $field->code,
             'type' => $field->type,
