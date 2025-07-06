@@ -256,6 +256,11 @@ class ColumnFactory extends AbstractComponentFactory
 4. **Laravel Conventions**: Familiar builder pattern matching Query Builder
 5. **Performance**: Efficient eager loading and filtering at query level
 
+### Implementation Architecture
+
+For the detailed implementation architecture following Filament-native patterns, please refer
+to [Enhanced Architecture Document](./enhanced-architecture.md).
+
 ### Next Steps
 
 1. Create base builder classes and interfaces
