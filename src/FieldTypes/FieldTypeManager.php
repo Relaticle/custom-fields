@@ -15,8 +15,24 @@ final class FieldTypeManager
     use EvaluatesClosures;
 
     const array DEFAULT_FIELD_TYPES = [
-        SelectFieldType::class,
+        TextFieldType::class,
+        NumberFieldType::class,
+        LinkFieldType::class,
+        TextareaFieldType::class,
+        CheckboxFieldType::class,
+        CheckboxListFieldType::class,
+        RadioFieldType::class,
+        RichEditorFieldType::class,
+        MarkdownEditorFieldType::class,
+        TagsInputFieldType::class,
+        ColorPickerFieldType::class,
+        ToggleFieldType::class,
+        ToggleButtonsFieldType::class,
+        CurrencyFieldType::class,
+        DateFieldType::class,
         DateTimeFieldType::class,
+        SelectFieldType::class,
+        MultiSelectFieldType::class,
     ];
 
     /**
@@ -83,6 +99,10 @@ final class FieldTypeManager
                 tableFilter: $fieldType->getTableFilterClass(),
                 formComponent: $fieldType->getFormComponentClass(),
                 infolistEntry: $fieldType->getInfolistEntryClass(),
+                searchable: $fieldType->isSearchable(),
+                sortable: $fieldType->isSortable(),
+                filterable: $fieldType->isFilterable(),
+                validationRules: $fieldType->allowedValidationRules()
             );
         }
 

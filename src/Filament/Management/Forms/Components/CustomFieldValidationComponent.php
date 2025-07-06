@@ -15,17 +15,15 @@ use Filament\Schemas\Components\Utilities\Set;
 use Illuminate\Support\Str;
 use Relaticle\CustomFields\Enums\CustomFieldType;
 use Relaticle\CustomFields\Enums\CustomFieldValidationRule;
-use Relaticle\CustomFields\Services\FieldTypeRegistryService;
-use ValueError;
+use Relaticle\CustomFields\Facades\CustomFieldsType;
+use Relaticle\CustomFields\FieldTypes\FieldTypeManager;
 
 final class CustomFieldValidationComponent extends Component
 {
     protected string $view = 'filament-schemas::components.grid';
 
     public function __construct(
-        private ?FieldTypeRegistryService $fieldTypeRegistry = null
     ) {
-        $this->fieldTypeRegistry ??= app(FieldTypeRegistryService::class);
         $this->schema([$this->buildValidationRulesRepeater()]);
         $this->columnSpanFull();
     }
@@ -204,14 +202,7 @@ final class CustomFieldValidationComponent extends Component
             return [];
         }
 
-        // Convert enum to string value if needed
-        $fieldTypeKeyString = $fieldTypeKey instanceof CustomFieldType
-            ? $fieldTypeKey->value
-            : $fieldTypeKey;
-
-        $allowedRules = $this->getAllowedValidationRulesForFieldType(
-            $fieldTypeKeyString
-        );
+        $allowedRules = $this->getAllowedValidationRulesForFieldType($fieldTypeKey);
         $existingRules = $get('../../validation_rules') ?? [];
         $currentRuleName = $get('name');
 
@@ -238,9 +229,6 @@ final class CustomFieldValidationComponent extends Component
     private function getAllowedRuleValues(Get $get): array
     {
         $fieldType = $this->getFieldType($get);
-        if (! $fieldType instanceof CustomFieldType) {
-            return [];
-        }
 
         return collect($fieldType->allowedValidationRules())
             ->pluck('value')
@@ -452,48 +440,14 @@ final class CustomFieldValidationComponent extends Component
     private function getAllowedValidationRulesForFieldType(
         string $fieldTypeKey
     ): array {
-        // Try built-in field type first
-        $builtInType = CustomFieldType::tryFrom($fieldTypeKey);
-        if ($builtInType) {
-            return $builtInType->allowedValidationRules();
-        }
+        $fieldType = CustomFieldsType::getFieldType($fieldTypeKey);
 
-        // Check custom field types
-        $customFieldConfig = $this->fieldTypeRegistry->getFieldType(
-            $fieldTypeKey
-        );
-        if ($customFieldConfig !== null) {
-            $validRules = [];
-            foreach ($customFieldConfig['validation_rules'] as $ruleValue) {
-                try {
-                    $validRules[] = CustomFieldValidationRule::from($ruleValue);
-                } catch (ValueError) {
-                    // Skip invalid validation rules instead of failing
-                    continue;
-                }
-            }
-
-            return $validRules;
-        }
-
-        return [];
+        dd($fieldType->allowedValidationRules());
     }
 
-    private function getFieldType(Get $get): ?CustomFieldType
+    private function getFieldType(Get $get): string
     {
-        $fieldType = $get('../../type');
-
-        if (empty($fieldType)) {
-            return null;
-        }
-
-        // If already a CustomFieldType enum, return it directly
-        if ($fieldType instanceof CustomFieldType) {
-            return $fieldType;
-        }
-
-        // Otherwise try to convert from string
-        return CustomFieldType::tryFrom($fieldType);
+        return $get('../../type');
     }
 
     /**

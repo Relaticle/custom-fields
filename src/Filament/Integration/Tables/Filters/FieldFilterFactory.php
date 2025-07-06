@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Relaticle\CustomFields\Filament\Integration\Tables\Filters;
 
 use Illuminate\Contracts\Container\BindingResolutionException;
-use Relaticle\CustomFields\Filament\Integration\AbstractComponentFactory;
 use Relaticle\CustomFields\Models\CustomField;
 
 final class FieldFilterFactory

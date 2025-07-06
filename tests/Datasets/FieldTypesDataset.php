@@ -2,12 +2,11 @@
 
 declare(strict_types=1);
 
-use Relaticle\CustomFields\Enums\CustomFieldType;
 
 // Comprehensive field type configurations dataset for all 18 field types
 dataset('field_type_configurations', fn (): array => [
     'text_field_basic' => [
-        'fieldType' => CustomFieldType::TEXT->value,
+        'fieldType' => 'text',
         'config' => [
             'required' => true,
             'validation_rules' => [
@@ -23,7 +22,7 @@ dataset('field_type_configurations', fn (): array => [
         'expectedComponent' => 'TextInput',
     ],
     'number_field_basic' => [
-        'fieldType' => CustomFieldType::NUMBER->value,
+        'fieldType' => 'number',
         'config' => [
             'required' => true,
             'validation_rules' => [
@@ -40,7 +39,7 @@ dataset('field_type_configurations', fn (): array => [
         'expectedComponent' => 'TextInput',
     ],
     'currency_field' => [
-        'fieldType' => CustomFieldType::CURRENCY->value,
+        'fieldType' => 'currency',
         'config' => [
             'validation_rules' => [
                 ['name' => 'numeric', 'parameters' => []],
@@ -55,7 +54,7 @@ dataset('field_type_configurations', fn (): array => [
         'expectedComponent' => 'TextInput',
     ],
     'date_field' => [
-        'fieldType' => CustomFieldType::DATE->value,
+        'fieldType' => 'date',
         'config' => [
             'validation_rules' => [
                 ['name' => 'date', 'parameters' => []],
@@ -70,7 +69,7 @@ dataset('field_type_configurations', fn (): array => [
         'expectedComponent' => 'DatePicker',
     ],
     'datetime_field' => [
-        'fieldType' => CustomFieldType::DATE_TIME->value,
+        'fieldType' => 'date_time',
         'config' => [
             'validation_rules' => [
                 ['name' => 'date', 'parameters' => []],
@@ -83,7 +82,7 @@ dataset('field_type_configurations', fn (): array => [
         'expectedComponent' => 'DateTimePicker',
     ],
     'textarea_field' => [
-        'fieldType' => CustomFieldType::TEXTAREA->value,
+        'fieldType' => 'textarea',
         'config' => [
             'validation_rules' => [
                 ['name' => 'min', 'parameters' => [10]],
@@ -97,7 +96,7 @@ dataset('field_type_configurations', fn (): array => [
         'expectedComponent' => 'Textarea',
     ],
     'select_field' => [
-        'fieldType' => CustomFieldType::SELECT->value,
+        'fieldType' => 'select',
         'config' => [
             'validation_rules' => [
                 ['name' => 'in', 'parameters' => ['red', 'green', 'blue']],
@@ -115,7 +114,7 @@ dataset('field_type_configurations', fn (): array => [
         'expectedComponent' => 'Select',
     ],
     'multi_select_field' => [
-        'fieldType' => CustomFieldType::MULTI_SELECT->value,
+        'fieldType' => 'multi_select',
         'config' => [
             'validation_rules' => [
                 ['name' => 'array', 'parameters' => []],
@@ -136,7 +135,7 @@ dataset('field_type_configurations', fn (): array => [
         'expectedComponent' => 'Select',
     ],
     'checkbox_field' => [
-        'fieldType' => CustomFieldType::CHECKBOX->value,
+        'fieldType' => 'checkbox',
         'config' => [
             'validation_rules' => [
                 ['name' => 'boolean', 'parameters' => []],
@@ -149,7 +148,7 @@ dataset('field_type_configurations', fn (): array => [
         'expectedComponent' => 'Checkbox',
     ],
     'checkbox_list_field' => [
-        'fieldType' => CustomFieldType::CHECKBOX_LIST->value,
+        'fieldType' => 'checkbox_list',
         'config' => [
             'validation_rules' => [
                 ['name' => 'array', 'parameters' => []],
@@ -169,7 +168,7 @@ dataset('field_type_configurations', fn (): array => [
         'expectedComponent' => 'CheckboxList',
     ],
     'radio_field' => [
-        'fieldType' => CustomFieldType::RADIO->value,
+        'fieldType' => 'radio',
         'config' => [
             'validation_rules' => [
                 ['name' => 'in', 'parameters' => ['small', 'medium', 'large']],
@@ -187,7 +186,7 @@ dataset('field_type_configurations', fn (): array => [
         'expectedComponent' => 'Radio',
     ],
     'toggle_field' => [
-        'fieldType' => CustomFieldType::TOGGLE->value,
+        'fieldType' => 'toggle',
         'config' => [
             'validation_rules' => [
                 ['name' => 'boolean', 'parameters' => []],
@@ -200,7 +199,7 @@ dataset('field_type_configurations', fn (): array => [
         'expectedComponent' => 'Toggle',
     ],
     'toggle_buttons_field' => [
-        'fieldType' => CustomFieldType::TOGGLE_BUTTONS->value,
+        'fieldType' => 'toggle_buttons',
         'config' => [
             'validation_rules' => [
                 ['name' => 'array', 'parameters' => []],
@@ -218,7 +217,7 @@ dataset('field_type_configurations', fn (): array => [
         'expectedComponent' => 'ToggleButtons',
     ],
     'rich_editor_field' => [
-        'fieldType' => CustomFieldType::RICH_EDITOR->value,
+        'fieldType' => 'rich_editor',
         'config' => [
             'validation_rules' => [
                 ['name' => 'string', 'parameters' => []],
@@ -232,7 +231,7 @@ dataset('field_type_configurations', fn (): array => [
         'expectedComponent' => 'RichEditor',
     ],
     'markdown_editor_field' => [
-        'fieldType' => CustomFieldType::MARKDOWN_EDITOR->value,
+        'fieldType' => 'markdown_editor',
         'config' => [
             'validation_rules' => [
                 ['name' => 'string', 'parameters' => []],
@@ -246,7 +245,7 @@ dataset('field_type_configurations', fn (): array => [
         'expectedComponent' => 'MarkdownEditor',
     ],
     'tags_input_field' => [
-        'fieldType' => CustomFieldType::TAGS_INPUT->value,
+        'fieldType' => 'tags_input',
         'config' => [
             'validation_rules' => [
                 ['name' => 'array', 'parameters' => []],
@@ -261,7 +260,7 @@ dataset('field_type_configurations', fn (): array => [
         'expectedComponent' => 'TagsInput',
     ],
     'color_picker_field' => [
-        'fieldType' => CustomFieldType::COLOR_PICKER->value,
+        'fieldType' => 'color_picker',
         'config' => [
             'validation_rules' => [
                 ['name' => 'string', 'parameters' => []],
@@ -275,7 +274,7 @@ dataset('field_type_configurations', fn (): array => [
         'expectedComponent' => 'ColorPicker',
     ],
     'link_field' => [
-        'fieldType' => CustomFieldType::LINK->value,
+        'fieldType' => 'link',
         'config' => [
             'validation_rules' => [
                 ['name' => 'url', 'parameters' => []],
@@ -295,12 +294,12 @@ dataset('field_type_categories', fn (): array => [
     'text_category' => [
         'category' => 'text',
         'fieldTypes' => [
-            CustomFieldType::TEXT->value,
-            CustomFieldType::TEXTAREA->value,
-            CustomFieldType::LINK->value,
-            CustomFieldType::RICH_EDITOR->value,
-            CustomFieldType::MARKDOWN_EDITOR->value,
-            CustomFieldType::COLOR_PICKER->value,
+            'text',
+            'textarea',
+            'link',
+            'rich_editor',
+            'markdown_editor',
+            'color_picker',
         ],
         'characteristics' => [
             'encryptable' => true,
@@ -312,8 +311,8 @@ dataset('field_type_categories', fn (): array => [
     'numeric_category' => [
         'category' => 'numeric',
         'fieldTypes' => [
-            CustomFieldType::NUMBER->value,
-            CustomFieldType::CURRENCY->value,
+            'number',
+            'currency',
         ],
         'characteristics' => [
             'encryptable' => false,
@@ -325,8 +324,8 @@ dataset('field_type_categories', fn (): array => [
     'date_category' => [
         'category' => 'date',
         'fieldTypes' => [
-            CustomFieldType::DATE->value,
-            CustomFieldType::DATE_TIME->value,
+            'date',
+            'date_time',
         ],
         'characteristics' => [
             'encryptable' => false,
@@ -338,8 +337,8 @@ dataset('field_type_categories', fn (): array => [
     'boolean_category' => [
         'category' => 'boolean',
         'fieldTypes' => [
-            CustomFieldType::TOGGLE->value,
-            CustomFieldType::CHECKBOX->value,
+            'toggle',
+            'checkbox',
         ],
         'characteristics' => [
             'encryptable' => false,
@@ -349,10 +348,10 @@ dataset('field_type_categories', fn (): array => [
         ],
     ],
     'single_option_category' => [
-        'category' => 'single_option',
+        'category' => 'single_choice',
         'fieldTypes' => [
-            CustomFieldType::SELECT->value,
-            CustomFieldType::RADIO->value,
+            'select',
+            'radio',
         ],
         'characteristics' => [
             'encryptable' => false,
@@ -362,12 +361,12 @@ dataset('field_type_categories', fn (): array => [
         ],
     ],
     'multi_option_category' => [
-        'category' => 'multi_option',
+        'category' => 'multi_choice',
         'fieldTypes' => [
-            CustomFieldType::MULTI_SELECT->value,
-            CustomFieldType::CHECKBOX_LIST->value,
-            CustomFieldType::TAGS_INPUT->value,
-            CustomFieldType::TOGGLE_BUTTONS->value,
+            'multi_select',
+            'checkbox_list',
+            'tags_input',
+            'toggle_buttons',
         ],
         'characteristics' => [
             'encryptable' => false,
@@ -382,66 +381,66 @@ dataset('field_type_categories', fn (): array => [
 dataset('field_type_component_mappings', fn (): array => [
     'text_input_types' => [
         'fieldTypes' => [
-            CustomFieldType::TEXT->value,
-            CustomFieldType::NUMBER->value,
-            CustomFieldType::CURRENCY->value,
-            CustomFieldType::LINK->value,
+            'text',
+            'number',
+            'currency',
+            'link',
         ],
         'expectedComponent' => 'TextInput',
     ],
     'textarea_types' => [
-        'fieldTypes' => [CustomFieldType::TEXTAREA->value],
+        'fieldTypes' => ['textarea'],
         'expectedComponent' => 'Textarea',
     ],
     'select_types' => [
         'fieldTypes' => [
-            CustomFieldType::SELECT->value,
-            CustomFieldType::MULTI_SELECT->value,
+            'select',
+            'multi_select',
         ],
         'expectedComponent' => 'Select',
     ],
     'checkbox_types' => [
-        'fieldTypes' => [CustomFieldType::CHECKBOX->value],
+        'fieldTypes' => ['checkbox'],
         'expectedComponent' => 'Checkbox',
     ],
     'checkbox_list_types' => [
-        'fieldTypes' => [CustomFieldType::CHECKBOX_LIST->value],
+        'fieldTypes' => ['checkbox_list'],
         'expectedComponent' => 'CheckboxList',
     ],
     'radio_types' => [
-        'fieldTypes' => [CustomFieldType::RADIO->value],
+        'fieldTypes' => ['radio'],
         'expectedComponent' => 'Radio',
     ],
     'toggle_types' => [
-        'fieldTypes' => [CustomFieldType::TOGGLE->value],
+        'fieldTypes' => ['toggle'],
         'expectedComponent' => 'Toggle',
     ],
     'toggle_buttons_types' => [
-        'fieldTypes' => [CustomFieldType::TOGGLE_BUTTONS->value],
+        'fieldTypes' => ['toggle_buttons'],
         'expectedComponent' => 'ToggleButtons',
     ],
     'date_picker_types' => [
-        'fieldTypes' => [CustomFieldType::DATE->value],
+        'fieldTypes' => ['date'],
         'expectedComponent' => 'DatePicker',
     ],
     'datetime_picker_types' => [
-        'fieldTypes' => [CustomFieldType::DATE_TIME->value],
+        'fieldTypes' => ['date_time'],
         'expectedComponent' => 'DateTimePicker',
     ],
     'rich_editor_types' => [
-        'fieldTypes' => [CustomFieldType::RICH_EDITOR->value],
+        'fieldTypes' => ['rich_editor'],
         'expectedComponent' => 'RichEditor',
     ],
     'markdown_editor_types' => [
-        'fieldTypes' => [CustomFieldType::MARKDOWN_EDITOR->value],
+        'fieldTypes' => ['markdown_editor'],
         'expectedComponent' => 'MarkdownEditor',
     ],
     'tags_input_types' => [
-        'fieldTypes' => [CustomFieldType::TAGS_INPUT->value],
+        'fieldTypes' => ['tags_input'],
         'expectedComponent' => 'TagsInput',
     ],
     'color_picker_types' => [
-        'fieldTypes' => [CustomFieldType::COLOR_PICKER->value],
+        'fieldTypes' => ['color_picker'],
         'expectedComponent' => 'ColorPicker',
     ],
 ]);
@@ -450,7 +449,7 @@ dataset('field_type_component_mappings', fn (): array => [
 dataset('edge_case_scenarios', fn (): array => [
     'empty_validation_rules' => [
         'scenario' => 'field_with_no_validation',
-        'fieldType' => CustomFieldType::TEXT->value,
+        'fieldType' => 'text',
         'config' => ['validation_rules' => []],
         'testValues' => [
             'valid' => ['any value', null, '', 123, []],
@@ -460,7 +459,7 @@ dataset('edge_case_scenarios', fn (): array => [
     ],
     'conflicting_validation_rules' => [
         'scenario' => 'conflicting_min_max',
-        'fieldType' => CustomFieldType::TEXT->value,
+        'fieldType' => 'text',
         'config' => [
             'validation_rules' => [
                 ['name' => 'min', 'parameters' => [10]],
@@ -475,7 +474,7 @@ dataset('edge_case_scenarios', fn (): array => [
     ],
     'unicode_content' => [
         'scenario' => 'unicode_text_field',
-        'fieldType' => CustomFieldType::TEXT->value,
+        'fieldType' => 'text',
         'config' => [
             'validation_rules' => [
                 ['name' => 'string', 'parameters' => []],
@@ -490,7 +489,7 @@ dataset('edge_case_scenarios', fn (): array => [
     ],
     'large_array_field' => [
         'scenario' => 'large_multi_select',
-        'fieldType' => CustomFieldType::MULTI_SELECT->value,
+        'fieldType' => 'multi_select',
         'config' => [
             'validation_rules' => [
                 ['name' => 'array', 'parameters' => []],
@@ -506,7 +505,7 @@ dataset('edge_case_scenarios', fn (): array => [
     ],
     'deeply_nested_conditions' => [
         'scenario' => 'complex_visibility_chain',
-        'fieldType' => CustomFieldType::TEXT->value,
+        'fieldType' => 'text',
         'config' => [
             'frontend_visibility_conditions' => [
                 ['field_code' => 'field_a', 'operator' => 'equals', 'value' => 'show'],
@@ -522,7 +521,7 @@ dataset('edge_case_scenarios', fn (): array => [
     ],
     'special_characters_in_options' => [
         'scenario' => 'special_chars_in_select_options',
-        'fieldType' => CustomFieldType::SELECT->value,
+        'fieldType' => 'select',
         'config' => [
             'options' => [
                 ['label' => 'Option with "quotes"', 'value' => 'quotes'],
@@ -539,7 +538,7 @@ dataset('edge_case_scenarios', fn (): array => [
     ],
     'performance_stress_test' => [
         'scenario' => 'many_validation_rules',
-        'fieldType' => CustomFieldType::TEXT->value,
+        'fieldType' => 'text',
         'config' => [
             'validation_rules' => [
                 ['name' => 'required', 'parameters' => []],

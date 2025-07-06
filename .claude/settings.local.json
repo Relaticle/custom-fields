@@ -15,7 +15,13 @@
       "Bash(./vendor/bin/pint:*)",
       "Bash(./vendor/bin/rector process tests/Pest.php)",
       "Bash(php vendor/bin/pest:*)",
-      "Bash(./vendor/bin/pest:*)"
+      "Bash(./vendor/bin/pest:*)",
+      "Bash(grep:*)",
+      "Bash(php vendor/bin/phpunit:*)",
+      "Bash(./vendor/bin/testbench:*)",
+      "Bash(php:*)",
+      "Bash(vendor/bin/phpunit:*)",
+      "Bash(vendor/bin/pest:*)"
     ],
     "deny": []
   }

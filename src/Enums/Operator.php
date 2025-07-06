@@ -163,10 +163,16 @@ enum Operator: string
     }
 
     /**
+     * Get compatible operators for a field type.
+     *
+     * @param  string  $fieldType  The field type
      * @return array<string, string>
      */
-    public static function forFieldType(CustomFieldType $fieldType): array
+    public static function forFieldType(string $fieldType): array
     {
-        return $fieldType->getCategory()->getCompatibleOperatorOptions();
+        // For string field types, use the new field type system
+        $fieldTypeData = \Relaticle\CustomFields\Facades\CustomFieldsType::getFieldType($fieldType);
+
+        return $fieldTypeData->dataType->getCompatibleOperatorOptions();
     }
 }

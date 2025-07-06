@@ -91,7 +91,7 @@ describe('Conditional Visibility in Infolists', function (): void {
             'custom_field_section_id' => $this->section->id,
             'name' => 'Status',
             'code' => 'status',
-            'type' => CustomFieldType::TEXT,
+            'type' => 'text',
             'entity_type' => Post::class,
             'settings' => new CustomFieldSettingsData(
                 visible_in_view: true,
@@ -102,7 +102,7 @@ describe('Conditional Visibility in Infolists', function (): void {
             'custom_field_section_id' => $this->section->id,
             'name' => 'Priority',
             'code' => 'priority',
-            'type' => CustomFieldType::TEXT,
+            'type' => 'text',
             'entity_type' => Post::class,
             'settings' => new CustomFieldSettingsData(
                 visible_in_view: true,
@@ -155,7 +155,7 @@ describe('Conditional Visibility in Infolists', function (): void {
             'custom_field_section_id' => $this->section->id,
             'name' => 'Status',
             'code' => 'status',
-            'type' => CustomFieldType::TEXT,
+            'type' => 'text',
             'entity_type' => Post::class,
             'settings' => new CustomFieldSettingsData(
                 visible_in_view: true,
@@ -166,7 +166,7 @@ describe('Conditional Visibility in Infolists', function (): void {
             'custom_field_section_id' => $this->section->id,
             'name' => 'Internal Notes',
             'code' => 'internal_notes',
-            'type' => CustomFieldType::TEXTAREA,
+            'type' => 'textarea',
             'entity_type' => Post::class,
             'settings' => new CustomFieldSettingsData(
                 visible_in_view: true,

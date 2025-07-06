@@ -27,7 +27,7 @@ expect()->extend('toHaveValidationError', function (string $fieldCode, string $r
     return $this;
 });
 
-expect()->extend('toHaveFieldType', fn (string $expectedType): Expectation => expect($this->value->type->value)->toBe($expectedType));
+expect()->extend('toHaveFieldType', fn (string $expectedType): Expectation => expect($this->value->type)->toBe($expectedType));
 
 expect()->extend('toBeActive', fn (): Expectation => expect($this->value->active)->toBeTrue());
 
@@ -57,21 +57,21 @@ expect()->extend('toHaveVisibilityCondition', function (string $fieldCode, strin
 
 expect()->extend('toHaveCorrectComponent', function (string $expectedComponent): Expectation {
     $fieldType = $this->value->type;
-    $actualComponent = match ($fieldType->value) {
+    $actualComponent = match ($fieldType) {
         'text', 'number', 'currency', 'link' => 'TextInput',
         'textarea' => 'Textarea',
-        'select', 'multi-select' => 'Select',
+        'select', 'multi_select' => 'Select',
         'checkbox' => 'Checkbox',
-        'checkbox-list' => 'CheckboxList',
+        'checkbox_list' => 'CheckboxList',
         'radio' => 'Radio',
         'toggle' => 'Toggle',
         'date' => 'DatePicker',
-        'date-time' => 'DateTimePicker',
-        'rich-editor' => 'RichEditor',
-        'markdown-editor' => 'MarkdownEditor',
-        'tags-input' => 'TagsInput',
-        'color-picker' => 'ColorPicker',
-        'toggle-buttons' => 'ToggleButtons',
+        'date_time' => 'DateTimePicker',
+        'rich_editor' => 'RichEditor',
+        'markdown_editor' => 'MarkdownEditor',
+        'tags_input' => 'TagsInput',
+        'color_picker' => 'ColorPicker',
+        'toggle_buttons' => 'ToggleButtons',
         default => 'Unknown'
     };
 

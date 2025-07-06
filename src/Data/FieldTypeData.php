@@ -22,6 +22,7 @@ final class FieldTypeData extends Data implements Stringable
         public bool $searchable = false,
         public bool $sortable = false,
         public bool $filterable = false,
+        public array $validationRules = [],
     ) {}
 
     public function __toString(): string

@@ -22,7 +22,6 @@ use Filament\Schemas\Components\Utilities\Set;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rules\Unique;
 use Relaticle\CustomFields\CustomFields;
-use Relaticle\CustomFields\Enums\CustomFieldType;
 use Relaticle\CustomFields\Facades\CustomFieldsType;
 use Relaticle\CustomFields\Filament\Management\Forms\Components\CustomFieldValidationComponent;
 use Relaticle\CustomFields\Filament\Management\Forms\Components\TypeField;
@@ -60,7 +59,7 @@ class FieldForm implements FormInterface
             ])
             ->columns(12)
             ->columnSpanFull()
-            ->requiredUnless('type', CustomFieldType::TAGS_INPUT->value)
+            ->requiredUnless('type', 'tags_input')
             ->hiddenLabel()
             ->defaultItems(1)
             ->minItems(1)
@@ -74,9 +73,7 @@ class FieldForm implements FormInterface
                     'options' &&
                     in_array(
                         (string) $get('type'),
-                        CustomFieldType::optionables()
-                            ->pluck('value')
-                            ->toArray()
+                        ['select', 'radio', 'multi_select', 'checkbox_list', 'tags_input', 'toggle_buttons']
                     )
             )
             ->mutateRelationshipDataBeforeCreateUsing(function (
@@ -322,9 +319,9 @@ class FieldForm implements FormInterface
                                     ->visible(
                                         fn (
                                             Get $get
-                                        ): bool => CustomFieldType::searchables()->contains(
-                                            'value',
-                                            (string) $get('type')
+                                        ): bool => in_array(
+                                            (string) $get('type'),
+                                            ['text', 'textarea', 'rich_editor', 'markdown_editor', 'tags_input', 'date', 'date_time']
                                         )
                                     )
                                     ->disabled(
@@ -362,9 +359,9 @@ class FieldForm implements FormInterface
                                         fn (
                                             Get $get
                                         ): bool => Utils::isValuesEncryptionFeatureEnabled() &&
-                                            CustomFieldType::encryptables()->contains(
-                                                'value',
-                                                (string) $get('type')
+                                            in_array(
+                                                (string) $get('type'),
+                                                ['text', 'textarea', 'link', 'rich_editor', 'markdown_editor', 'color_picker']
                                             )
                                     )
                                     ->default(false),
@@ -387,8 +384,8 @@ class FieldForm implements FormInterface
                                             Get $get
                                         ): bool => Utils::isSelectOptionColorsFeatureEnabled() &&
                                             in_array((string) $get('type'), [
-                                                CustomFieldType::SELECT,
-                                                CustomFieldType::MULTI_SELECT,
+                                                'select',
+                                                'multi_select',
                                             ])
                                     ),
                             ]),

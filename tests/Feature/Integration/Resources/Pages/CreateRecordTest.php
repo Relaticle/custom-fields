@@ -173,7 +173,7 @@ describe('Custom Fields Integration', function (): void {
                 'custom_field_section_id' => $section->id,
                 'name' => 'SEO Title',
                 'code' => 'seo_title',
-                'type' => CustomFieldType::TEXT,
+                'type' => 'text',
                 'sort_order' => 1,
                 'entity_type' => Post::class,
                 'validation_rules' => [],
@@ -238,7 +238,7 @@ describe('Custom Fields Integration', function (): void {
             'custom_field_section_id' => $section->id,
             'name' => 'Meta Description',
             'code' => 'meta_description',
-            'type' => CustomFieldType::TEXT,
+            'type' => 'text',
             'sort_order' => 1,
             'entity_type' => Post::class,
             'validation_rules' => [
@@ -313,7 +313,7 @@ describe('Form Field Visibility and State', function (): void {
             'custom_field_section_id' => $section->id,
             'name' => 'Test Field',
             'code' => 'test_field',
-            'type' => CustomFieldType::TEXT,
+            'type' => 'text',
             'entity_type' => Post::class,
         ]);
 

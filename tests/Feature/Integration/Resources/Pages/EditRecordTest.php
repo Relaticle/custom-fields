@@ -171,7 +171,7 @@ describe('Custom Fields Integration', function (): void {
             'custom_field_section_id' => $this->section->id,
             'name' => 'SEO Title',
             'code' => 'seo_title',
-            'type' => CustomFieldType::TEXT,
+            'type' => 'text',
             'entity_type' => Post::class,
         ]);
 
@@ -198,7 +198,7 @@ describe('Custom Fields Integration', function (): void {
                 'custom_field_section_id' => $this->section->id,
                 'name' => 'SEO Title',
                 'code' => 'seo_title',
-                'type' => CustomFieldType::TEXT,
+                'type' => 'text',
                 'entity_type' => Post::class,
             ],
             [
@@ -247,7 +247,7 @@ describe('Custom Fields Integration', function (): void {
         $existingCustomField = CustomField::factory()->create([
             'custom_field_section_id' => $this->section->id,
             'code' => 'existing_field',
-            'type' => CustomFieldType::TEXT,
+            'type' => 'text',
             'entity_type' => Post::class,
         ]);
 
@@ -257,7 +257,7 @@ describe('Custom Fields Integration', function (): void {
         $newCustomField = CustomField::factory()->create([
             'custom_field_section_id' => $this->section->id,
             'code' => 'new_field',
-            'type' => CustomFieldType::TEXT,
+            'type' => 'text',
             'entity_type' => Post::class,
         ]);
 
@@ -285,7 +285,7 @@ describe('Custom Fields Integration', function (): void {
             'custom_field_section_id' => $this->section->id,
             'name' => 'Meta Description',
             'code' => 'meta_description',
-            'type' => CustomFieldType::TEXT,
+            'type' => 'text',
             'entity_type' => Post::class,
             'validation_rules' => [
                 new ValidationRuleData(name: 'required', parameters: []),
@@ -339,7 +339,7 @@ describe('Custom Fields Integration', function (): void {
         $customField = CustomField::factory()->create([
             'custom_field_section_id' => $this->section->id,
             'code' => 'clearable_field',
-            'type' => CustomFieldType::TEXT,
+            'type' => 'text',
             'entity_type' => Post::class,
         ]);
 
@@ -366,7 +366,7 @@ describe('Custom Fields Integration', function (): void {
             [
                 'custom_field_section_id' => $this->section->id,
                 'code' => 'text_field',
-                'type' => CustomFieldType::TEXT,
+                'type' => 'text',
                 'entity_type' => Post::class,
             ],
             [

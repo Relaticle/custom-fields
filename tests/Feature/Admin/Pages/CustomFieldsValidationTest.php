@@ -2,7 +2,6 @@
 
 declare(strict_types=1);
 
-use Relaticle\CustomFields\Enums\CustomFieldType;
 use Relaticle\CustomFields\Enums\CustomFieldValidationRule;
 use Relaticle\CustomFields\Livewire\ManageCustomFieldSection;
 use Relaticle\CustomFields\Models\CustomField;
@@ -36,7 +35,7 @@ describe('CustomFieldsPage - Field Validation Testing', function (): void {
         ])->callAction('createField', [
             'name' => '',
             'code' => 'test_code',
-            'type' => CustomFieldType::TEXT->value,
+            'type' => 'text',
         ])->assertHasFormErrors(['name']);
     });
 
@@ -47,7 +46,7 @@ describe('CustomFieldsPage - Field Validation Testing', function (): void {
         ])->callAction('createField', [
             'name' => 'Test Field',
             'code' => '',
-            'type' => CustomFieldType::TEXT->value,
+            'type' => 'text',
         ])->assertHasFormErrors(['code']);
     });
 
@@ -68,7 +67,7 @@ describe('CustomFieldsPage - Field Validation Testing', function (): void {
             'custom_field_section_id' => $this->section->getKey(),
             'entity_type' => $this->userEntityType,
             'code' => 'existing_code',
-            'type' => CustomFieldType::TEXT,
+            'type' => 'text',
         ]);
 
         // Act & Assert - try to create field with same code
@@ -78,7 +77,7 @@ describe('CustomFieldsPage - Field Validation Testing', function (): void {
         ])->callAction('createField', [
             'name' => 'New Field',
             'code' => $existingField->code,
-            'type' => CustomFieldType::TEXT->value,
+            'type' => 'text',
         ])->assertHasFormErrors(['code']);
     });
 
@@ -86,7 +85,7 @@ describe('CustomFieldsPage - Field Validation Testing', function (): void {
         // Test that allowed rules work
         foreach ($allowedRules as $rule) {
             $field = CustomField::factory()
-                ->ofType(CustomFieldType::from($fieldType))
+                ->ofType($fieldType)
                 ->withValidation([$rule])
                 ->create([
                     'custom_field_section_id' => $this->section->getKey(),
@@ -106,7 +105,7 @@ describe('CustomFieldsPage - Field Validation Testing', function (): void {
 
     it('handles all validation rules with their parameters correctly', function (string $rule, array $parameters, mixed $validValue, mixed $invalidValue): void {
         $field = CustomField::factory()
-            ->ofType(CustomFieldType::TEXT) // Use TEXT as it supports most rules
+            ->ofType('text') // Use TEXT as it supports most rules
             ->withValidation([['name' => $rule, 'parameters' => $parameters]])
             ->create([
                 'custom_field_section_id' => $this->section->getKey(),
@@ -124,7 +123,7 @@ describe('CustomFieldsPage - Field Validation Testing', function (): void {
         it('creates fields with correct component mappings', function (array $fieldTypes, string $expectedComponent): void {
             foreach ($fieldTypes as $fieldType) {
                 $field = CustomField::factory()
-                    ->ofType(CustomFieldType::from($fieldType))
+                    ->ofType($fieldType)
                     ->create([
                         'custom_field_section_id' => $this->section->getKey(),
                         'entity_type' => $this->userEntityType,
@@ -138,7 +137,7 @@ describe('CustomFieldsPage - Field Validation Testing', function (): void {
 
         it('creates fields with proper validation and state', function (): void {
             $field = CustomField::factory()
-                ->ofType(CustomFieldType::TEXT)
+                ->ofType('text')
                 ->required()
                 ->withLength(3, 255)
                 ->create([
@@ -155,7 +154,7 @@ describe('CustomFieldsPage - Field Validation Testing', function (): void {
 
         it('creates fields with visibility conditions', function (): void {
             $dependentField = CustomField::factory()
-                ->ofType(CustomFieldType::SELECT)
+                ->ofType('select')
                 ->withOptions([
                     'Show',
                     'Hide',
@@ -167,7 +166,7 @@ describe('CustomFieldsPage - Field Validation Testing', function (): void {
                 ]);
 
             $conditionalField = CustomField::factory()
-                ->ofType(CustomFieldType::TEXT)
+                ->ofType('text')
                 ->conditionallyVisible('trigger_field', 'equals', 'show')
                 ->create([
                     'custom_field_section_id' => $this->section->getKey(),
@@ -179,7 +178,7 @@ describe('CustomFieldsPage - Field Validation Testing', function (): void {
 
         it('handles encrypted fields properly', function (): void {
             $field = CustomField::factory()
-                ->ofType(CustomFieldType::TEXT)
+                ->ofType('text')
                 ->encrypted()
                 ->create([
                     'custom_field_section_id' => $this->section->getKey(),
@@ -187,12 +186,12 @@ describe('CustomFieldsPage - Field Validation Testing', function (): void {
                 ]);
 
             expect($field->settings->encrypted)->toBeTrue()
-                ->and($field->type->value)->toBe('text');
+                ->and($field->type)->toBe('text');
         });
 
         it('creates system-defined fields correctly', function (): void {
             $field = CustomField::factory()
-                ->ofType(CustomFieldType::TEXT)
+                ->ofType('text')
                 ->systemDefined()
                 ->inactive()
                 ->create([

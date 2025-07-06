@@ -7,7 +7,6 @@ namespace Relaticle\CustomFields\Support;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
-use Relaticle\CustomFields\Enums\CustomFieldType;
 
 /**
  * Class for handling database field constraints and converting them to validation rules.
@@ -40,90 +39,90 @@ final class DatabaseFieldConstraints
             'text_value' => [
                 'max' => 65535,
                 'validator' => 'max',
-                'field_types' => [CustomFieldType::TEXT, CustomFieldType::TEXTAREA, CustomFieldType::RICH_EDITOR, CustomFieldType::MARKDOWN_EDITOR],
+                'field_types' => ['text', 'textarea', 'rich_editor', 'markdown_editor'],
             ],
             'string_value' => [
                 'max' => 255,
                 'validator' => 'max',
-                'field_types' => [CustomFieldType::LINK, CustomFieldType::COLOR_PICKER],
+                'field_types' => ['link', 'color_picker'],
             ],
             'integer_value' => [
                 'min' => -9223372036854775808,
                 'max' => 9223372036854775807,
                 'validator' => 'between',
-                'field_types' => [CustomFieldType::NUMBER, CustomFieldType::RADIO, CustomFieldType::SELECT],
+                'field_types' => ['number', 'radio', 'select'],
             ],
             'float_value' => [
                 'max_digits' => 30,
                 'max_decimals' => 15,
                 'validator' => ['digits_between:1,30', 'decimal:0,15'],
-                'field_types' => [CustomFieldType::CURRENCY],
+                'field_types' => ['currency'],
             ],
             'json_value' => [
                 'max_items' => 500, // Reasonable limit for array items
                 'max_item_length' => 255, // Each array item string length
                 'validator' => null, // Custom validation needed
-                'field_types' => [CustomFieldType::CHECKBOX_LIST, CustomFieldType::TOGGLE_BUTTONS, CustomFieldType::TAGS_INPUT, CustomFieldType::MULTI_SELECT],
+                'field_types' => ['checkbox_list', 'toggle_buttons', 'tags_input', 'multi_select'],
             ],
         ],
         'pgsql' => [
             'text_value' => [
                 'max' => 1073741823, // Postgres has much larger text capacity
                 'validator' => 'max',
-                'field_types' => [CustomFieldType::TEXT, CustomFieldType::TEXTAREA, CustomFieldType::RICH_EDITOR, CustomFieldType::MARKDOWN_EDITOR],
+                'field_types' => ['text', 'textarea', 'rich_editor', 'markdown_editor'],
             ],
             'string_value' => [
                 'max' => 255,
                 'validator' => 'max',
-                'field_types' => [CustomFieldType::LINK, CustomFieldType::COLOR_PICKER],
+                'field_types' => ['link', 'color_picker'],
             ],
             'integer_value' => [
                 'min' => -9223372036854775808,
                 'max' => 9223372036854775807,
                 'validator' => 'between',
-                'field_types' => [CustomFieldType::NUMBER, CustomFieldType::RADIO, CustomFieldType::SELECT],
+                'field_types' => ['number', 'radio', 'select'],
             ],
             'float_value' => [
                 'max_digits' => 30,
                 'max_decimals' => 15,
                 'validator' => ['digits_between:1,30', 'decimal:0,15'],
-                'field_types' => [CustomFieldType::CURRENCY],
+                'field_types' => ['currency'],
             ],
             'json_value' => [
                 'max_items' => 500,
                 'max_item_length' => 255,
                 'validator' => null,
-                'field_types' => [CustomFieldType::CHECKBOX_LIST, CustomFieldType::TOGGLE_BUTTONS, CustomFieldType::TAGS_INPUT, CustomFieldType::MULTI_SELECT],
+                'field_types' => ['checkbox_list', 'toggle_buttons', 'tags_input', 'multi_select'],
             ],
         ],
         'sqlite' => [
             'text_value' => [
                 'max' => 1000000000, // SQLite has essentially no limit, but setting a reasonable one
                 'validator' => 'max',
-                'field_types' => [CustomFieldType::TEXT, CustomFieldType::TEXTAREA, CustomFieldType::RICH_EDITOR, CustomFieldType::MARKDOWN_EDITOR],
+                'field_types' => ['text', 'textarea', 'rich_editor', 'markdown_editor'],
             ],
             'string_value' => [
                 'max' => 255,
                 'validator' => 'max',
-                'field_types' => [CustomFieldType::LINK, CustomFieldType::COLOR_PICKER],
+                'field_types' => ['link', 'color_picker'],
             ],
             'integer_value' => [
                 'min' => -9223372036854775808,
                 'max' => 9223372036854775807,
                 'validator' => 'between',
-                'field_types' => [CustomFieldType::NUMBER, CustomFieldType::RADIO, CustomFieldType::SELECT],
+                'field_types' => ['number', 'radio', 'select'],
             ],
             'float_value' => [
                 'max_digits' => 30,
                 'max_decimals' => 15,
                 'validator' => ['digits_between:1,30', 'decimal:0,15'],
-                'field_types' => [CustomFieldType::CURRENCY],
+                'field_types' => ['currency'],
             ],
             'json_value' => [
                 'max_items' => 500,
                 'max_item_length' => 255,
                 'validator' => null,
-                'field_types' => [CustomFieldType::CHECKBOX_LIST, CustomFieldType::TOGGLE_BUTTONS, CustomFieldType::TAGS_INPUT, CustomFieldType::MULTI_SELECT],
+                'field_types' => ['checkbox_list', 'toggle_buttons', 'tags_input', 'multi_select'],
             ],
         ],
     ];
@@ -152,10 +151,10 @@ final class DatabaseFieldConstraints
     /**
      * Get the constraints for a specific field type.
      *
-     * @param  CustomFieldType  $fieldType  The field type
+     * @param  string  $fieldType  The field type
      * @return array<string, mixed>|null The constraints array or null if not found
      */
-    public static function getConstraintsForFieldType(CustomFieldType $fieldType): ?array
+    public static function getConstraintsForFieldType(string $fieldType): ?array
     {
         $driver = self::getDatabaseDriver();
         $columnName = self::getColumnNameForFieldType($fieldType);
@@ -170,7 +169,7 @@ final class DatabaseFieldConstraints
     /**
      * Get the column name for a specific field type.
      */
-    private static function getColumnNameForFieldType(CustomFieldType $fieldType): ?string
+    private static function getColumnNameForFieldType(string $fieldType): ?string
     {
         $driver = self::getDatabaseDriver();
 
@@ -453,16 +452,16 @@ final class DatabaseFieldConstraints
      * It will return separate min/max rules instead of a between rule to allow for
      * better merging with user-defined rules.
      *
-     * @param  CustomFieldType  $fieldType  The field type
+     * @param  string  $fieldType  The field type
      * @param  bool  $isEncrypted  Whether the field is encrypted
      * @return array<int, string> Array of validation rules
      *
      * @deprecated Use getValidationRulesForColumn() instead
      */
-    public static function getValidationRulesForFieldType(CustomFieldType $fieldType, bool $isEncrypted = false): array
+    public static function getValidationRulesForFieldType(string $fieldType, bool $isEncrypted = false): array
     {
         // Get cached rules if available
-        $cacheKey = self::CACHE_PREFIX.'_rules_'.$fieldType->value.'_'.($isEncrypted ? '1' : '0');
+        $cacheKey = self::CACHE_PREFIX.'_rules_'.$fieldType.'_'.($isEncrypted ? '1' : '0');
 
         return Cache::remember($cacheKey, self::CACHE_TTL, function () use ($fieldType, $isEncrypted): array {
             $constraints = self::getConstraintsForFieldType($fieldType);
@@ -498,9 +497,9 @@ final class DatabaseFieldConstraints
 
                         // For integer_value fields, add numeric validation to ensure proper format
                         if (isset($constraints['field_types']) &&
-                            (in_array(CustomFieldType::NUMBER, $constraints['field_types']) ||
-                             in_array(CustomFieldType::RADIO, $constraints['field_types']) ||
-                             in_array(CustomFieldType::SELECT, $constraints['field_types']))) {
+                            (in_array('number', $constraints['field_types']) ||
+                             in_array('radio', $constraints['field_types']) ||
+                             in_array('select', $constraints['field_types']))) {
                             $rules[] = 'numeric';
                             // Add integer validation to ensure we're dealing with integer values
                             $rules[] = 'integer';
@@ -547,33 +546,33 @@ final class DatabaseFieldConstraints
     /**
      * Get validation rules specific to field type data validation requirements.
      *
-     * @param  CustomFieldType  $fieldType  The field type
+     * @param  string  $fieldType  The field type
      * @return array<int, string> Array of validation rules
      *
      * @deprecated Use getColumnSpecificRules() instead
      */
-    private static function getTypeSpecificRules(CustomFieldType $fieldType): array
+    private static function getTypeSpecificRules(string $fieldType): array
     {
         $rules = [];
 
         // Add type-specific validation rules
         switch ($fieldType) {
-            case CustomFieldType::CURRENCY:
-            case CustomFieldType::NUMBER:
+            case 'currency':
+            case 'number':
                 $rules[] = 'numeric';
                 break;
-            case CustomFieldType::DATE:
+            case 'date':
                 $rules[] = 'date';
                 break;
-            case CustomFieldType::DATE_TIME:
+            case 'date_time':
                 $rules[] = 'datetime';
                 break;
-            case CustomFieldType::TEXT:
-            case CustomFieldType::TEXTAREA:
-            case CustomFieldType::RICH_EDITOR:
-            case CustomFieldType::MARKDOWN_EDITOR:
-            case CustomFieldType::LINK:
-            case CustomFieldType::COLOR_PICKER:
+            case 'text':
+            case 'textarea':
+            case 'rich_editor':
+            case 'markdown_editor':
+            case 'link':
+            case 'color_picker':
                 $rules[] = 'string';
                 break;
         }
@@ -616,20 +615,21 @@ final class DatabaseFieldConstraints
      * Get validation rules for array/json field types.
      * These rules ensure JSON data fits within database constraints.
      *
-     * @param  CustomFieldType  $fieldType  The field type
+     * @param  string  $fieldType  The field type
      * @param  bool  $isEncrypted  Whether the field is encrypted
      * @return array<int, string> Array of validation rules
      *
      * @deprecated Use getJsonValidationRules() instead
      */
-    public static function getJsonValidationRulesForFieldType(CustomFieldType $fieldType, bool $isEncrypted = false): array
+    public static function getJsonValidationRulesForFieldType(string $fieldType, bool $isEncrypted = false): array
     {
         // Cache the rules to avoid repeated processing
-        $cacheKey = self::CACHE_PREFIX.'_json_rules_'.$fieldType->value.'_'.($isEncrypted ? '1' : '0');
+        $cacheKey = self::CACHE_PREFIX.'_json_rules_'.$fieldType.'_'.($isEncrypted ? '1' : '0');
 
         return Cache::remember($cacheKey, self::CACHE_TTL, function () use ($fieldType, $isEncrypted): array {
             // Only apply these rules to array-type fields
-            if (! $fieldType->hasMultipleValues()) {
+            $multiValueTypes = ['checkbox_list', 'toggle_buttons', 'tags_input', 'multi_select'];
+            if (! in_array($fieldType, $multiValueTypes)) {
                 return [];
             }
 
@@ -646,18 +646,21 @@ final class DatabaseFieldConstraints
         // Clear driver cache
         Cache::forget(self::CACHE_PREFIX.'_driver');
 
-        // Clear all field type rule caches - both encrypted and non-encrypted variants
-        foreach (CustomFieldType::cases() as $fieldType) {
+        // Clear all column-based rule caches - both encrypted and non-encrypted variants
+        $columns = ['text_value', 'string_value', 'integer_value', 'float_value', 'json_value',
+            'boolean_value', 'date_value', 'datetime_value'];
+
+        foreach ($columns as $column) {
             // Clear non-encrypted rules
-            Cache::forget(self::CACHE_PREFIX.'_rules_'.$fieldType->value.'_0');
+            Cache::forget(self::CACHE_PREFIX.'_column_rules_'.$column.'_0');
 
             // Clear encrypted rules
-            Cache::forget(self::CACHE_PREFIX.'_rules_'.$fieldType->value.'_1');
+            Cache::forget(self::CACHE_PREFIX.'_column_rules_'.$column.'_1');
 
             // Clear JSON rules if applicable
-            if ($fieldType->hasMultipleValues()) {
-                Cache::forget(self::CACHE_PREFIX.'_json_rules_'.$fieldType->value.'_0');
-                Cache::forget(self::CACHE_PREFIX.'_json_rules_'.$fieldType->value.'_1');
+            if ($column === 'json_value') {
+                Cache::forget(self::CACHE_PREFIX.'_json_rules_'.$column.'_0');
+                Cache::forget(self::CACHE_PREFIX.'_json_rules_'.$column.'_1');
             }
         }
 

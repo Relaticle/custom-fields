@@ -15,11 +15,11 @@ use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Components\Utilities\Set;
 use Illuminate\Support\Arr;
 use Relaticle\CustomFields\CustomFields;
-use Relaticle\CustomFields\Enums\CustomFieldType;
 use Relaticle\CustomFields\Enums\FieldDataType;
 use Relaticle\CustomFields\Enums\Logic;
 use Relaticle\CustomFields\Enums\Mode;
 use Relaticle\CustomFields\Enums\Operator;
+use Relaticle\CustomFields\Facades\CustomFieldsType;
 use Relaticle\CustomFields\Services\Visibility\BackendVisibilityService;
 use ValueError;
 
@@ -238,8 +238,14 @@ class VisibilityComponent extends Component
         try {
             $fieldType = $this->getFieldType($fieldCode, $get);
 
-            return $fieldType instanceof CustomFieldType &&
-                $this->fieldTypeHelper->isOptionable($fieldType);
+            if (! $fieldType) {
+                return false;
+            }
+
+            // For string types, check the field type data
+            $fieldTypeData = CustomFieldsType::getFieldType($fieldType);
+
+            return $fieldTypeData->dataType->isChoiceField();
         } catch (Exception) {
             return false;
         }
@@ -257,12 +263,16 @@ class VisibilityComponent extends Component
         try {
             $fieldType = $this->getFieldType($fieldCode, $get);
 
-            if (! $fieldType instanceof CustomFieldType) {
+            if (! $fieldType) {
                 return true;
             }
 
+            // Check if field has multiple values
+            $fieldTypeData = CustomFieldsType::getFieldType($fieldType);
+            $hasMultipleValues = $fieldTypeData->dataType->isMultiChoiceField();
+
             // Multi-value fields require multiple selection for CONTAINS/NOT_CONTAINS
-            if ($fieldType->hasMultipleValues()) {
+            if ($hasMultipleValues) {
                 return ! in_array($operator, [
                     Operator::CONTAINS->value,
                     Operator::NOT_CONTAINS->value,
@@ -290,12 +300,16 @@ class VisibilityComponent extends Component
         try {
             $fieldType = $this->getFieldType($fieldCode, $get);
 
-            if (! $fieldType instanceof CustomFieldType) {
+            if (! $fieldType) {
                 return false;
             }
 
+            // Check if field has multiple values
+            $fieldTypeData = CustomFieldsType::getFieldType($fieldType);
+            $hasMultipleValues = $fieldTypeData->dataType->isMultiChoiceField();
+
             // Multi-value fields support multiple selection for CONTAINS/NOT_CONTAINS
-            if ($fieldType->hasMultipleValues()) {
+            if ($hasMultipleValues) {
                 return in_array($operator, [
                     Operator::CONTAINS->value,
                     Operator::NOT_CONTAINS->value,
@@ -360,19 +374,24 @@ class VisibilityComponent extends Component
         try {
             $fieldType = $this->getFieldType($fieldCode, $get);
 
-            if (! $fieldType instanceof CustomFieldType) {
+            if (! $fieldType) {
                 return 'Enter comparison value';
             }
 
-            if ($this->fieldTypeHelper->isOptionable($fieldType)) {
+            // Get field data type
+            $fieldTypeData = CustomFieldsType::getFieldType($fieldType);
+            $dataType = $fieldTypeData->dataType;
+            $isOptionable = $fieldTypeData->dataType->isChoiceField();
+
+            if ($isOptionable) {
                 return $this->requiresMultipleValues($get)
                     ? 'Select one or more options'
                     : 'Select an option';
             }
 
-            return match ($fieldType->getCategory()) {
+            return match ($dataType) {
                 FieldDataType::NUMERIC => 'Enter a number',
-                FieldDataType::DATE => 'Enter a date (YYYY-MM-DD)',
+                FieldDataType::DATE, FieldDataType::DATE_TIME => 'Enter a date (YYYY-MM-DD)',
                 FieldDataType::BOOLEAN => 'true or false',
                 default => 'Enter comparison value',
             };
@@ -461,7 +480,7 @@ class VisibilityComponent extends Component
         }
     }
 
-    private function getFieldType(string $fieldCode, Get $get): CustomFieldType|null|string
+    private function getFieldType(string $fieldCode, Get $get): ?string
     {
         try {
             $entityType = $this->getEntityType($get);

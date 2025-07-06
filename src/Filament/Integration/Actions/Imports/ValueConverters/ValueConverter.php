@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Relaticle\CustomFields\Filament\Integration\Actions\Imports\ValueConverters;
 
 use Illuminate\Database\Eloquent\Model;
-use Relaticle\CustomFields\Enums\CustomFieldType;
 use Relaticle\CustomFields\Models\Contracts\HasCustomFields;
 use Relaticle\CustomFields\Models\CustomField;
 use Relaticle\CustomFields\Services\EntityTypeService;
@@ -70,7 +69,7 @@ final class ValueConverter implements ValueConverterInterface
      */
     private function isSingleValueSelectField(CustomField $field): bool
     {
-        return in_array($field->type, [CustomFieldType::SELECT, CustomFieldType::RADIO], true);
+        return in_array($field->type, ['select', 'radio'], true);
     }
 
     /**
@@ -82,10 +81,10 @@ final class ValueConverter implements ValueConverterInterface
     private function isMultiValueSelectField(CustomField $field): bool
     {
         return in_array($field->type, [
-            CustomFieldType::MULTI_SELECT,
-            CustomFieldType::CHECKBOX_LIST,
-            CustomFieldType::TAGS_INPUT,
-            CustomFieldType::TOGGLE_BUTTONS,
+            'multi_select',
+            'checkbox_list',
+            'tags_input',
+            'toggle_buttons',
         ], true);
     }
 
@@ -105,7 +104,8 @@ final class ValueConverter implements ValueConverterInterface
 
             // If no match, try case-insensitive match
             if (! $option) {
-                $option = $field->options->first(fn ($opt): bool => strtolower((string) $opt->name) === strtolower($value)
+                $option = $field->options->first(
+                    fn ($opt): bool => strtolower((string) $opt->name) === strtolower($value)
                 );
             }
 
@@ -144,7 +144,8 @@ final class ValueConverter implements ValueConverterInterface
 
                 // If no match, try case-insensitive match
                 if (! $option) {
-                    $option = $field->options->first(fn ($opt): bool => strtolower((string) $opt->name) === strtolower($singleValue)
+                    $option = $field->options->first(
+                        fn ($opt): bool => strtolower((string) $opt->name) === strtolower($singleValue)
                     );
                 }
 

@@ -8,7 +8,6 @@ use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Contracts\Container\Container;
 use InvalidArgumentException;
 use Relaticle\CustomFields\Models\CustomField;
-use Relaticle\CustomFields\Services\FieldTypeRegistryService;
 use RuntimeException;
 
 /**
@@ -37,7 +36,6 @@ abstract class AbstractComponentFactory
 
     public function __construct(
         protected readonly Container $container,
-        protected readonly FieldTypeRegistryService $fieldTypeRegistry
     ) {}
 
     /**

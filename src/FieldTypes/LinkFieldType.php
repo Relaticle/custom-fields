@@ -1,0 +1,77 @@
+<?php
+
+declare(strict_types=1);
+
+namespace Relaticle\CustomFields\FieldTypes;
+
+use Relaticle\CustomFields\Contracts\FieldTypeDefinitionInterface;
+use Relaticle\CustomFields\Enums\CustomFieldValidationRule;
+use Relaticle\CustomFields\Enums\FieldDataType;
+use Relaticle\CustomFields\FieldTypes\Concerns\HasCommonFieldProperties;
+use Relaticle\CustomFields\Filament\Integration\Forms\Components\LinkInputComponent;
+use Relaticle\CustomFields\Filament\Integration\Infolists\Fields\TextEntry;
+use Relaticle\CustomFields\Filament\Integration\Tables\Columns\TextColumn;
+use Relaticle\CustomFields\Filament\Integration\Tables\Filters\TextFilter;
+
+/**
+ * ABOUTME: Field type definition for Link fields
+ * ABOUTME: Provides Link functionality with appropriate validation rules
+ */
+class LinkFieldType implements FieldTypeDefinitionInterface
+{
+    use HasCommonFieldProperties;
+
+    public function getKey(): string
+    {
+        return 'link';
+    }
+
+    public function getLabel(): string
+    {
+        return 'Link';
+    }
+
+    public function getIcon(): string
+    {
+        return 'mdi-link';
+    }
+
+    public function getDataType(): FieldDataType
+    {
+        return FieldDataType::TEXT;
+    }
+
+    public function getFormComponentClass(): string
+    {
+        return LinkInputComponent::class;
+    }
+
+    public function getTableColumnClass(): string
+    {
+        return TextColumn::class;
+    }
+
+    public function getTableFilterClass(): ?string
+    {
+        return TextFilter::class;
+    }
+
+    public function getInfolistEntryClass(): string
+    {
+        return TextEntry::class;
+    }
+
+    public function getPriority(): int
+    {
+        return 60;
+    }
+
+    public function allowedValidationRules(): array
+    {
+        return [
+            CustomFieldValidationRule::REQUIRED,
+            CustomFieldValidationRule::URL,
+            CustomFieldValidationRule::UNIQUE,
+        ];
+    }
+}

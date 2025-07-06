@@ -16,7 +16,7 @@ enum FieldDataType: string
     case DATE_TIME = 'date_time';
     case BOOLEAN = 'boolean';
     case SINGLE_CHOICE = 'single_choice';
-    case MULTI_CHOICE = 'multi_option';
+    case MULTI_CHOICE = 'multi_choice';
 
     /**
      * Check if this category represents optionable fields.
@@ -42,7 +42,7 @@ enum FieldDataType: string
     public function getCompatibleOperators(): array
     {
         return match ($this) {
-            self::TEXT => [
+            self::STRING, self::TEXT => [
                 Operator::EQUALS,
                 Operator::NOT_EQUALS,
                 Operator::CONTAINS,
@@ -50,7 +50,7 @@ enum FieldDataType: string
                 Operator::IS_EMPTY,
                 Operator::IS_NOT_EMPTY,
             ],
-            self::NUMERIC, self::DATE => [
+            self::NUMERIC, self::DATE, self::DATE_TIME => [
                 Operator::EQUALS,
                 Operator::NOT_EQUALS,
                 Operator::GREATER_THAN,

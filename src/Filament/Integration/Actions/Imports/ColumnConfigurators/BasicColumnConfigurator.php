@@ -111,13 +111,13 @@ final class BasicColumnConfigurator implements ColumnConfiguratorInterface
     {
         // Generate appropriate example values based on field type
         $example = match ($customField->type) {
-            CustomFieldType::TEXT => 'Sample text',
+            'text' => 'Sample text',
             CustomFieldType::NUMBER => '42',
             CustomFieldType::CURRENCY => '99.99',
             CustomFieldType::CHECKBOX, CustomFieldType::TOGGLE => 'Yes',
             CustomFieldType::DATE => now()->format('Y-m-d'),
             CustomFieldType::DATE_TIME => now()->format('Y-m-d H:i:s'),
-            CustomFieldType::TEXTAREA => 'Sample longer text with multiple words',
+            'textarea' => 'Sample longer text with multiple words',
             CustomFieldType::RICH_EDITOR,
             CustomFieldType::MARKDOWN_EDITOR => "# Sample Header\nSample content with **formatting**",
             CustomFieldType::LINK => 'https://example.com',

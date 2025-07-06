@@ -14,7 +14,7 @@ use Illuminate\Filesystem\Filesystem;
 use Livewire\Livewire;
 use Relaticle\CustomFields\Contracts\CustomsFieldsMigrators;
 use Relaticle\CustomFields\Contracts\ValueResolvers;
-use Relaticle\CustomFields\Integration\Migrations\CustomFieldsMigrator;
+use Relaticle\CustomFields\Filament\Integration\Migrations\CustomFieldsMigrator;
 use Relaticle\CustomFields\Livewire\ManageCustomField;
 use Relaticle\CustomFields\Livewire\ManageCustomFieldSection;
 use Relaticle\CustomFields\Livewire\ManageCustomFieldWidth;

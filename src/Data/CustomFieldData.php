@@ -24,7 +24,7 @@ final class CustomFieldData extends Data
     public function __construct(
         public string $name,
         public string $code,
-        public CustomFieldType $type,
+        public string $type,
         public CustomFieldSectionData $section,
         public bool $active = true,
         public bool $systemDefined = false,

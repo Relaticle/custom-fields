@@ -9,7 +9,6 @@ use Illuminate\Support\Carbon;
 use Relaticle\CustomFields\Data\CustomFieldSettingsData;
 use Relaticle\CustomFields\Data\VisibilityConditionData;
 use Relaticle\CustomFields\Data\VisibilityData;
-use Relaticle\CustomFields\Enums\CustomFieldType;
 use Relaticle\CustomFields\Enums\Mode;
 use Relaticle\CustomFields\Enums\Operator;
 use Relaticle\CustomFields\Models\CustomField;
@@ -38,7 +37,7 @@ final class CustomFieldFactory extends Factory
         return [
             'code' => $this->faker->unique()->word(),
             'name' => $this->faker->name(),
-            'type' => $this->faker->randomElement(CustomFieldType::cases()),
+            'type' => $this->faker->randomElement(['text', 'number', 'link', 'textarea', 'date', 'date_time', 'checkbox', 'checkbox_list', 'radio', 'select', 'multi_select', 'rich_editor', 'markdown_editor', 'tags_input', 'color_picker', 'toggle', 'toggle_buttons', 'currency']),
             'entity_type' => User::class,
             'sort_order' => 1,
             'validation_rules' => [],
@@ -179,29 +178,29 @@ final class CustomFieldFactory extends Factory
     /**
      * Create a field of specific type with appropriate validation.
      */
-    public function ofType(CustomFieldType $type): self
+    public function ofType(string $type): self
     {
         $defaultValidation = match ($type) {
-            CustomFieldType::TEXT => [
+            'text' => [
                 ['name' => 'string', 'parameters' => []],
                 ['name' => 'max', 'parameters' => [255]],
             ],
-            CustomFieldType::NUMBER => [
+            'number' => [
                 ['name' => 'numeric', 'parameters' => []],
             ],
-            CustomFieldType::LINK => [
+            'link' => [
                 ['name' => 'url', 'parameters' => []],
             ],
-            CustomFieldType::DATE => [
+            'date' => [
                 ['name' => 'date', 'parameters' => []],
             ],
-            CustomFieldType::CHECKBOX, CustomFieldType::TOGGLE => [
+            'checkbox', 'toggle' => [
                 ['name' => 'boolean', 'parameters' => []],
             ],
-            CustomFieldType::SELECT, CustomFieldType::RADIO => [
+            'select', 'radio' => [
                 ['name' => 'in', 'parameters' => ['option1', 'option2', 'option3']],
             ],
-            CustomFieldType::MULTI_SELECT, CustomFieldType::CHECKBOX_LIST, CustomFieldType::TAGS_INPUT => [
+            'multi_select', 'checkbox_list', 'tags_input' => [
                 ['name' => 'array', 'parameters' => []],
             ],
             default => [],

@@ -3,7 +3,6 @@
 namespace Relaticle\CustomFields\QueryBuilders;
 
 use Illuminate\Database\Eloquent\Builder;
-use Relaticle\CustomFields\Enums\CustomFieldType;
 use Relaticle\CustomFields\Models\CustomField;
 use Relaticle\CustomFields\Services\EntityTypeService;
 
@@ -15,7 +14,7 @@ use Relaticle\CustomFields\Services\EntityTypeService;
 class CustomFieldQueryBuilder extends Builder
 {
     /** @return CustomFieldQueryBuilder<TModelClass> */
-    public function forType(CustomFieldType $type): self
+    public function forType(string $type): self
     {
         return $this->where('type', $type);
     }

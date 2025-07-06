@@ -53,11 +53,11 @@ class DateTimeColumn extends Component implements ColumnInterface
                     $value = $this->locale->call($this, $value);
                 }
 
-                if ($value && $customField->type === CustomFieldType::DATE_TIME) {
+                if ($value && $customField->type === 'date_time') {
                     return $value->format(FieldTypeUtils::getDateTimeFormat());
                 }
 
-                if ($value && $customField->type === CustomFieldType::DATE) {
+                if ($value && $customField->type === 'date') {
                     return $value->format(FieldTypeUtils::getDateFormat());
                 }
 

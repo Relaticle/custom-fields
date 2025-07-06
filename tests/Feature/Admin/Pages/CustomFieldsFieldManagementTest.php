@@ -32,14 +32,14 @@ describe('ManageCustomFieldSection - Field Management', function (): void {
     it('can update field order within a section', function (): void {
         // Arrange - use enhanced factory methods
         $field1 = CustomField::factory()
-            ->ofType(CustomFieldType::TEXT)
+            ->ofType('text')
             ->create([
                 'custom_field_section_id' => $this->section->getKey(),
                 'entity_type' => $this->userEntityType,
                 'sort_order' => 0,
             ]);
         $field2 = CustomField::factory()
-            ->ofType(CustomFieldType::TEXT)
+            ->ofType('text')
             ->create([
                 'custom_field_section_id' => $this->section->getKey(),
                 'entity_type' => $this->userEntityType,
@@ -64,7 +64,7 @@ describe('ManageCustomFieldSection - Field Management', function (): void {
                 'custom_field_section_id' => $this->section->getKey(),
                 'entity_type' => $this->userEntityType,
                 'width' => 50,
-                'type' => CustomFieldType::TEXT,
+                'type' => 'text',
             ]);
 
         // Act
@@ -92,7 +92,7 @@ describe('ManageCustomField - Field Actions', function (): void {
             ->create([
                 'custom_field_section_id' => $this->section->getKey(),
                 'entity_type' => $this->userEntityType,
-                'type' => CustomFieldType::TEXT,
+                'type' => 'text',
             ]);
     });
 
@@ -103,7 +103,7 @@ describe('ManageCustomField - Field Actions', function (): void {
                 'custom_field_section_id' => $this->section->getKey(),
                 'entity_type' => $this->userEntityType,
                 'active' => false,
-                'type' => CustomFieldType::TEXT,
+                'type' => 'text',
             ]);
 
         // Act
@@ -139,7 +139,7 @@ describe('ManageCustomField - Field Actions', function (): void {
                 'entity_type' => $this->userEntityType,
                 'active' => false,
                 'system_defined' => false,
-                'type' => CustomFieldType::TEXT,
+                'type' => 'text',
             ]);
 
         // Act
@@ -167,7 +167,7 @@ describe('ManageCustomField - Field Actions', function (): void {
                 'entity_type' => $this->userEntityType,
                 'active' => false,
                 'system_defined' => true,
-                'type' => CustomFieldType::TEXT,
+                'type' => 'text',
             ]);
 
         // Act & Assert
@@ -194,7 +194,7 @@ describe('Enhanced field management with datasets', function (): void {
 
     it('can handle field state transitions correctly', function (): void {
         $field = CustomField::factory()
-            ->ofType(CustomFieldType::TEXT)
+            ->ofType('text')
             ->create([
                 'custom_field_section_id' => $this->section->getKey(),
                 'entity_type' => $this->userEntityType,
@@ -221,7 +221,7 @@ describe('Enhanced field management with datasets', function (): void {
     it('validates field deletion restrictions correctly', function (): void {
         // System-defined field cannot be deleted
         $systemField = CustomField::factory()
-            ->ofType(CustomFieldType::TEXT)
+            ->ofType('text')
             ->systemDefined()
             ->inactive()
             ->create([
@@ -235,7 +235,7 @@ describe('Enhanced field management with datasets', function (): void {
 
         // Active field cannot be deleted
         $activeField = CustomField::factory()
-            ->ofType(CustomFieldType::TEXT)
+            ->ofType('text')
             ->create([
                 'custom_field_section_id' => $this->section->getKey(),
                 'entity_type' => $this->userEntityType,
@@ -247,7 +247,7 @@ describe('Enhanced field management with datasets', function (): void {
 
         // Only inactive, non-system fields can be deleted
         $deletableField = CustomField::factory()
-            ->ofType(CustomFieldType::TEXT)
+            ->ofType('text')
             ->inactive()
             ->create([
                 'custom_field_section_id' => $this->section->getKey(),
@@ -311,7 +311,7 @@ describe('Custom Fields Management Workflow - Phase 2.1', function (): void {
 
         // Step 2: Create field with validation
         $field = CustomField::factory()
-            ->ofType(CustomFieldType::TEXT)
+            ->ofType('text')
             ->withValidation([
                 ['name' => 'required', 'parameters' => []],
                 ['name' => 'min', 'parameters' => [3]],
@@ -396,7 +396,7 @@ describe('Custom Fields Management Workflow - Phase 2.1', function (): void {
 
         // Create a dependent field with visibility conditions
         $dependentField = CustomField::factory()
-            ->ofType(CustomFieldType::TEXT)
+            ->ofType('text')
             ->conditionallyVisible('trigger_field', 'equals', 'a')
             ->create([
                 'custom_field_section_id' => $this->section->getKey(),
@@ -421,7 +421,7 @@ describe('Custom Fields Management Workflow - Phase 2.1', function (): void {
             ]);
 
         $fieldC = CustomField::factory()
-            ->ofType(CustomFieldType::TEXT)
+            ->ofType('text')
             ->conditionallyVisible('field_b', 'greater_than', '10')
             ->create([
                 'custom_field_section_id' => $this->section->getKey(),
@@ -485,7 +485,7 @@ describe('Custom Fields Management Workflow - Phase 2.1', function (): void {
     it('validates field type constraints and behaviors', function (): void {
         // Test text field constraints
         $textField = CustomField::factory()
-            ->ofType(CustomFieldType::TEXT)
+            ->ofType('text')
             ->create([
                 'custom_field_section_id' => $this->section->getKey(),
                 'entity_type' => $this->userEntityType,
@@ -566,7 +566,7 @@ describe('Custom Fields Management Workflow - Phase 2.1', function (): void {
     it('can handle system-defined vs user-defined field workflows', function (): void {
         // Create user-defined field
         $userField = CustomField::factory()
-            ->ofType(CustomFieldType::TEXT)
+            ->ofType('text')
             ->create([
                 'custom_field_section_id' => $this->section->getKey(),
                 'entity_type' => $this->userEntityType,
@@ -576,7 +576,7 @@ describe('Custom Fields Management Workflow - Phase 2.1', function (): void {
 
         // Create system-defined field
         $systemField = CustomField::factory()
-            ->ofType(CustomFieldType::TEXT)
+            ->ofType('text')
             ->systemDefined()
             ->create([
                 'custom_field_section_id' => $this->section->getKey(),

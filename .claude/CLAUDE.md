@@ -46,7 +46,7 @@ class Company extends Model implements HasCustomFields
 ### Form Integration
 - Add custom fields to resource forms using `CustomFieldsComponent`:
 ```php
-use Relaticle\CustomFields\Integration\Forms\CustomFieldsForm;
+use Relaticle\CustomFields\Filament\Integration\Forms\CustomFieldsForm;
 
 public static function form(Form $form): Form
 {
@@ -64,7 +64,7 @@ public static function form(Form $form): Form
 ### Table View Integration
 - Use `InteractsWithCustomFields` trait in list records page:
 ```php
-use Relaticle\CustomFields\Integration\Tables\InteractsWithCustomFields;
+use Relaticle\CustomFields\Filament\Integration\Tables\InteractsWithCustomFields;
 
 class ListCompanies extends ListRecords
 {
@@ -76,7 +76,7 @@ class ListCompanies extends ListRecords
 ### Infolist Integration
 - Include `CustomFieldsInfolists` in view or info list:
 ```php
-use Relaticle\CustomFields\Integration\Infolists\CustomFieldsInfolists;
+use Relaticle\CustomFields\Filament\Integration\Infolists\CustomFieldsInfolists;
 
 public function getInfolist(): array
 {
@@ -89,7 +89,7 @@ public function getInfolist(): array
 ### Export Integration
 - Use `CustomFieldsExporter` for including custom fields in exports:
 ```php
-use Relaticle\CustomFields\Integration\Actions\Exports\CustomFieldsExporter;
+use Relaticle\CustomFields\Filament\Integration\Actions\Exports\CustomFieldsExporter;
 
 class CompanyExporter extends Exporter
 {

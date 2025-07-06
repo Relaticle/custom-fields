@@ -34,7 +34,7 @@ beforeEach(function (): void {
         'custom_field_section_id' => $this->section->id,
         'name' => 'Details',
         'code' => 'details',
-        'type' => CustomFieldType::TEXT,
+        'type' => 'text',
         'settings' => [
             'visibility' => [
                 'mode' => Mode::SHOW_WHEN,
@@ -56,7 +56,7 @@ beforeEach(function (): void {
         'custom_field_section_id' => $this->section->id,
         'name' => 'Actions',
         'code' => 'actions',
-        'type' => CustomFieldType::TEXT,
+        'type' => 'text',
         'settings' => [
             'visibility' => [
                 'mode' => Mode::HIDE_WHEN,
@@ -78,7 +78,7 @@ beforeEach(function (): void {
         'custom_field_section_id' => $this->section->id,
         'name' => 'Advanced',
         'code' => 'advanced',
-        'type' => CustomFieldType::TEXT,
+        'type' => 'text',
         'settings' => [
             'visibility' => [
                 'mode' => Mode::SHOW_WHEN,
@@ -105,7 +105,7 @@ beforeEach(function (): void {
         'custom_field_section_id' => $this->section->id,
         'name' => 'Name',
         'code' => 'name',
-        'type' => CustomFieldType::TEXT,
+        'type' => 'text',
     ]);
 
     $this->user = User::factory()->create();
@@ -198,7 +198,7 @@ test('complex conditions work identically in backend and frontend', function ():
         'custom_field_section_id' => $this->section->id,
         'name' => 'Dependent',
         'code' => 'dependent',
-        'type' => CustomFieldType::TEXT,
+        'type' => 'text',
         'settings' => [
             'visibility' => [
                 'mode' => Mode::SHOW_WHEN,

@@ -70,6 +70,11 @@ interface FieldTypeDefinitionInterface
     public function isSearchable(): bool;
 
     /**
+     * Determine if this field type is sortable in tables.
+     */
+    public function isSortable(): bool;
+
+    /**
      * Determine if this field type is filterable in tables.
      */
     public function isFilterable(): bool;
@@ -84,4 +89,11 @@ interface FieldTypeDefinitionInterface
      * Lower numbers appear first.
      */
     public function getPriority(): int;
+
+    /**
+     * Get allowed validation rules for this field type.
+     *
+     * @return array<int, \Relaticle\CustomFields\Enums\CustomFieldValidationRule>
+     */
+    public function allowedValidationRules(): array;
 }
