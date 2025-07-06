@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Relaticle\CustomFields\Data;
 
-use Relaticle\CustomFields\Enums\CustomFieldType;
 use Relaticle\CustomFields\Enums\CustomFieldWidth;
 use Spatie\LaravelData\Attributes\MapName;
 use Spatie\LaravelData\Data;

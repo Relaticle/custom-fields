@@ -8,10 +8,9 @@ use Relaticle\CustomFields\Contracts\FieldTypeDefinitionInterface;
 use Relaticle\CustomFields\Enums\CustomFieldValidationRule;
 use Relaticle\CustomFields\Enums\FieldDataType;
 use Relaticle\CustomFields\FieldTypes\Concerns\HasCommonFieldProperties;
-use Relaticle\CustomFields\Filament\Integration\Forms\Components\DatePickerComponent;
+use Relaticle\CustomFields\Filament\Integration\Forms\Components\DateComponent;
 use Relaticle\CustomFields\Filament\Integration\Infolists\Fields\TextEntry;
 use Relaticle\CustomFields\Filament\Integration\Tables\Columns\DateTimeColumn;
-use Relaticle\CustomFields\Filament\Integration\Tables\Filters\DateFilter;
 
 /**
  * ABOUTME: Field type definition for Date fields
@@ -43,17 +42,12 @@ class DateFieldType implements FieldTypeDefinitionInterface
 
     public function getFormComponentClass(): string
     {
-        return DatePickerComponent::class;
+        return DateComponent::class;
     }
 
     public function getTableColumnClass(): string
     {
         return DateTimeColumn::class;
-    }
-
-    public function getTableFilterClass(): ?string
-    {
-        return DateFilter::class;
     }
 
     public function getInfolistEntryClass(): string
@@ -70,8 +64,8 @@ class DateFieldType implements FieldTypeDefinitionInterface
     {
         return [
             CustomFieldValidationRule::REQUIRED,
-            CustomFieldValidationRule::MIN_DATE,
-            CustomFieldValidationRule::MAX_DATE,
+            CustomFieldValidationRule::AFTER,
+            CustomFieldValidationRule::BEFORE,
         ];
     }
 }

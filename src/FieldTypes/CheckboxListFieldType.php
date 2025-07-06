@@ -70,8 +70,8 @@ class CheckboxListFieldType implements FieldTypeDefinitionInterface
     {
         return [
             CustomFieldValidationRule::REQUIRED,
-            CustomFieldValidationRule::MIN_OPTIONS,
-            CustomFieldValidationRule::MAX_OPTIONS,
+            CustomFieldValidationRule::MIN,
+            CustomFieldValidationRule::MAX,
         ];
     }
 }

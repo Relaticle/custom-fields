@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Relaticle\CustomFields\FieldTypes;
 
 use Relaticle\CustomFields\Contracts\FieldTypeDefinitionInterface;
+use Relaticle\CustomFields\Enums\CustomFieldValidationRule;
 use Relaticle\CustomFields\Enums\FieldDataType;
 use Relaticle\CustomFields\FieldTypes\Concerns\HasCommonFieldProperties;
 use Relaticle\CustomFields\Filament\Integration\Forms\Components\SelectComponent;
@@ -62,5 +63,22 @@ class SelectFieldType implements FieldTypeDefinitionInterface
     public function getPriority(): int
     {
         return 50;
+    }
+
+    /**
+     * Get allowed validation rules for this field type.
+     * Default: empty array (no validation rules)
+     *
+     * @return array<int, CustomFieldValidationRule>
+     */
+    public function allowedValidationRules(): array
+    {
+        return [
+            CustomFieldValidationRule::REQUIRED,
+            CustomFieldValidationRule::IN,
+            CustomFieldValidationRule::EXISTS,
+            CustomFieldValidationRule::NOT_IN,
+            CustomFieldValidationRule::ENUM,
+        ];
     }
 }

@@ -13,10 +13,9 @@ use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Components\Utilities\Set;
 use Illuminate\Support\Str;
-use Relaticle\CustomFields\Enums\CustomFieldType;
+use Relaticle\CustomFields\Data\FieldTypeData;
 use Relaticle\CustomFields\Enums\CustomFieldValidationRule;
 use Relaticle\CustomFields\Facades\CustomFieldsType;
-use Relaticle\CustomFields\FieldTypes\FieldTypeManager;
 
 final class CustomFieldValidationComponent extends Component
 {
@@ -230,7 +229,7 @@ final class CustomFieldValidationComponent extends Component
     {
         $fieldType = $this->getFieldType($get);
 
-        return collect($fieldType->allowedValidationRules())
+        return collect($fieldType->validationRules)
             ->pluck('value')
             ->toArray();
     }
@@ -442,12 +441,12 @@ final class CustomFieldValidationComponent extends Component
     ): array {
         $fieldType = CustomFieldsType::getFieldType($fieldTypeKey);
 
-        dd($fieldType->allowedValidationRules());
+        return $fieldType->validationRules;
     }
 
-    private function getFieldType(Get $get): string
+    private function getFieldType(Get $get): FieldTypeData
     {
-        return $get('../../type');
+        return CustomFieldsType::getFieldType($get('../../type'));
     }
 
     /**
