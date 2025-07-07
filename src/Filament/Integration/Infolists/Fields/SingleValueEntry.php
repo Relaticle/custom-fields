@@ -6,15 +6,16 @@ namespace Relaticle\CustomFields\Filament\Integration\Infolists\Fields;
 
 use Filament\Infolists\Components\Entry;
 use Filament\Infolists\Components\TextEntry as BaseTextEntry;
-use Filament\Support\Colors\Color;
+use Relaticle\CustomFields\Filament\Integration\Concerns\Shared\ConfiguresBadgeColors;
 use Relaticle\CustomFields\Filament\Integration\Infolists\FieldInfolistsComponentInterface;
 use Relaticle\CustomFields\Filament\Integration\Infolists\FieldInfolistsConfigurator;
 use Relaticle\CustomFields\Models\CustomField;
 use Relaticle\CustomFields\Services\ValueResolver\LookupSingleValueResolver;
-use Relaticle\CustomFields\Support\Utils;
 
 final readonly class SingleValueEntry implements FieldInfolistsComponentInterface
 {
+    use ConfiguresBadgeColors;
+
     public function __construct(
         private FieldInfolistsConfigurator $configurator,
         private LookupSingleValueResolver $valueResolver
@@ -24,14 +25,7 @@ final readonly class SingleValueEntry implements FieldInfolistsComponentInterfac
     {
         $entry = BaseTextEntry::make("custom_fields.{$customField->code}");
 
-        if (Utils::isSelectOptionColorsFeatureEnabled() && $customField->settings->enable_option_colors && ! $customField->lookup_type) {
-            $entry->badge()
-                ->color(function ($state) use ($customField): array {
-                    $color = $customField->options->where('name', $state)->first()?->settings->color;
-
-                    return Color::hex($color ?? '#000000');
-                });
-        }
+        $entry = $this->applyBadgeColorsIfEnabled($entry, $customField);
 
         return $this->configurator->configure(
             $entry,

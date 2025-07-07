@@ -4,17 +4,18 @@ declare(strict_types=1);
 
 namespace Relaticle\CustomFields\Filament\Integration\Tables\Columns;
 
-use Filament\Support\Colors\Color;
 use Filament\Tables\Columns\Column as BaseColumn;
 use Filament\Tables\Columns\TextColumn as BaseTextColumn;
 use Illuminate\Database\Eloquent\Builder;
+use Relaticle\CustomFields\Filament\Integration\Concerns\Shared\ConfiguresBadgeColors;
 use Relaticle\CustomFields\Models\Contracts\HasCustomFields;
 use Relaticle\CustomFields\Models\CustomField;
 use Relaticle\CustomFields\Services\ValueResolver\LookupSingleValueResolver;
-use Relaticle\CustomFields\Support\Utils;
 
 final readonly class SingleValueColumn implements ColumnInterface
 {
+    use ConfiguresBadgeColors;
+
     public function __construct(public LookupSingleValueResolver $valueResolver) {}
 
     public function make(CustomField $customField): BaseColumn
@@ -40,16 +41,6 @@ final readonly class SingleValueColumn implements ColumnInterface
             ->getStateUsing(fn (HasCustomFields $record): string => $this->valueResolver->resolve($record, $customField))
             ->searchable(false);
 
-        // Use colored badge for field with enabled option colors
-        if (Utils::isSelectOptionColorsFeatureEnabled() && $customField->settings->enable_option_colors && ! $customField->lookup_type) {
-            $column->badge()
-                ->color(function ($state) use ($customField): array {
-                    $color = $customField->options->where('name', $state)->first()?->settings->color;
-
-                    return Color::hex($color ?? '#000000');
-                });
-        }
-
-        return $column;
+        return $this->applyBadgeColorsIfEnabled($column, $customField);
     }
 }

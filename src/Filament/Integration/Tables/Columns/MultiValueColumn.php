@@ -4,16 +4,17 @@ declare(strict_types=1);
 
 namespace Relaticle\CustomFields\Filament\Integration\Tables\Columns;
 
-use Filament\Support\Colors\Color;
 use Filament\Tables\Columns\Column as BaseColumn;
 use Filament\Tables\Columns\TextColumn as BaseTextColumn;
+use Relaticle\CustomFields\Filament\Integration\Concerns\Shared\ConfiguresBadgeColors;
 use Relaticle\CustomFields\Models\Contracts\HasCustomFields;
 use Relaticle\CustomFields\Models\CustomField;
 use Relaticle\CustomFields\Services\ValueResolver\LookupMultiValueResolver;
-use Relaticle\CustomFields\Support\Utils;
 
 final readonly class MultiValueColumn implements ColumnInterface
 {
+    use ConfiguresBadgeColors;
+
     public function __construct(public LookupMultiValueResolver $valueResolver) {}
 
     public function make(CustomField $customField): BaseColumn
@@ -25,15 +26,6 @@ final readonly class MultiValueColumn implements ColumnInterface
 
         $column->getStateUsing(fn (HasCustomFields $record): array => $this->valueResolver->resolve($record, $customField));
 
-        if (Utils::isSelectOptionColorsFeatureEnabled() && $customField->settings->enable_option_colors && ! $customField->lookup_type) {
-            $column->badge()
-                ->color(function ($state) use ($customField): array {
-                    $color = $customField->options->where('name', $state)->first()?->settings->color;
-
-                    return Color::hex($color ?? '#000000');
-                });
-        }
-
-        return $column;
+        return $this->applyBadgeColorsIfEnabled($column, $customField);
     }
 }

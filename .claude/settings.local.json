@@ -22,7 +22,8 @@
       "Bash(php:*)",
       "Bash(vendor/bin/phpunit:*)",
       "Bash(vendor/bin/pest:*)",
-      "Bash(true)"
+      "Bash(true)",
+      "Bash(composer validate:*)"
     ],
     "deny": []
   }
