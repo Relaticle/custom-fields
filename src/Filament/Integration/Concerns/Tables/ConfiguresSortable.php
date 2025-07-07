@@ -6,6 +6,7 @@ namespace Relaticle\CustomFields\Filament\Integration\Concerns\Tables;
 
 use Filament\Tables\Columns\Column;
 use Illuminate\Database\Eloquent\Builder;
+use Relaticle\CustomFields\Filament\Integration\Concerns\Shared\ConfiguresEncryption;
 use Relaticle\CustomFields\Models\CustomField;
 
 /**
@@ -14,7 +15,7 @@ use Relaticle\CustomFields\Models\CustomField;
  */
 trait ConfiguresSortable
 {
-    use \Relaticle\CustomFields\Filament\Integration\Concerns\Shared\ConfiguresEncryption;
+    use ConfiguresEncryption;
 
     /**
      * Configure sortable behavior for a column.

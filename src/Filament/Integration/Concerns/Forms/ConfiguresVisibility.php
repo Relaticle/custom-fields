@@ -34,7 +34,7 @@ trait ConfiguresVisibility
         }
 
         if ($coreVisibilityLogic->hasVisibilityConditions($customField)) {
-            $field = $this->applyVisibility(
+            return $this->applyVisibility(
                 $field,
                 $customField,
                 $allFields,

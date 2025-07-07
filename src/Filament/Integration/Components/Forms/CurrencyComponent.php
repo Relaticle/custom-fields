@@ -7,6 +7,7 @@ namespace Relaticle\CustomFields\Filament\Integration\Components\Forms;
 use Filament\Forms\Components\Field;
 use Filament\Forms\Components\TextInput;
 use Illuminate\Support\Str;
+use Relaticle\CustomFields\Filament\Integration\Base\AbstractFormComponent;
 use Relaticle\CustomFields\Models\CustomField;
 
 final readonly class CurrencyComponent extends AbstractFormComponent

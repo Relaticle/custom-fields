@@ -6,6 +6,7 @@ namespace Relaticle\CustomFields\Filament\Integration\Components\Forms;
 
 use Filament\Forms\Components\Field;
 use Filament\Forms\Components\TextInput;
+use Relaticle\CustomFields\Filament\Integration\Base\AbstractFormComponent;
 use Relaticle\CustomFields\Models\CustomField;
 
 final readonly class TextInputComponent extends AbstractFormComponent
