@@ -21,7 +21,8 @@
       "Bash(./vendor/bin/testbench:*)",
       "Bash(php:*)",
       "Bash(vendor/bin/phpunit:*)",
-      "Bash(vendor/bin/pest:*)"
+      "Bash(vendor/bin/pest:*)",
+      "Bash(true)"
     ],
     "deny": []
   }
