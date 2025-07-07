@@ -6,23 +6,20 @@ namespace Relaticle\CustomFields\Filament\Integration\Components\Infolists;
 
 use Filament\Infolists\Components\Entry;
 use Filament\Infolists\Components\TextEntry;
-use Relaticle\CustomFields\Filament\Integration\Infolists\FieldInfolistsConfigurator;
+use Relaticle\CustomFields\Filament\Integration\Base\AbstractInfolistEntry;
+use Relaticle\CustomFields\Filament\Integration\Concerns\Forms\ConfiguresFieldName;
 use Relaticle\CustomFields\Models\CustomField;
 use Relaticle\CustomFields\Support\FieldTypeUtils;
 
-final readonly class DateTimeEntry implements FieldInfolistsComponentInterface
+final class DateTimeEntry extends AbstractInfolistEntry
 {
-    public function __construct(private FieldInfolistsConfigurator $configurator) {}
+    use ConfiguresFieldName;
 
     public function make(CustomField $customField): Entry
     {
-        $field = TextEntry::make("custom_fields.{$customField->code}")
+        return TextEntry::make($this->getFieldName($customField))
             ->dateTime(FieldTypeUtils::getDateTimeFormat())
-            ->placeholder(FieldTypeUtils::getDateTimeFormat());
-
-        return $this->configurator->configure(
-            $field,
-            $customField
-        );
+            ->placeholder(FieldTypeUtils::getDateTimeFormat())
+            ->label($customField->name);
     }
 }

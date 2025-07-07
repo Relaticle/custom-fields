@@ -6,19 +6,18 @@ namespace Relaticle\CustomFields\Filament\Integration\Components\Infolists;
 
 use Filament\Infolists\Components\Entry;
 use Filament\Infolists\Components\IconEntry as BaseIconEntry;
-use Relaticle\CustomFields\Filament\Integration\Infolists\FieldInfolistsConfigurator;
+use Relaticle\CustomFields\Filament\Integration\Base\AbstractInfolistEntry;
+use Relaticle\CustomFields\Filament\Integration\Concerns\Forms\ConfiguresFieldName;
 use Relaticle\CustomFields\Models\CustomField;
 
-final readonly class BooleanEntry implements FieldInfolistsComponentInterface
+final class BooleanEntry extends AbstractInfolistEntry
 {
-    public function __construct(private FieldInfolistsConfigurator $configurator) {}
+    use ConfiguresFieldName;
 
     public function make(CustomField $customField): Entry
     {
-        return $this->configurator->configure(
-            BaseIconEntry::make("custom_fields.{$customField->code}")
-                ->boolean(),
-            $customField
-        );
+        return BaseIconEntry::make($this->getFieldName($customField))
+            ->boolean()
+            ->label($customField->name);
     }
 }

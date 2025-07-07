@@ -6,19 +6,15 @@ namespace Relaticle\CustomFields\Filament\Integration\Components\Infolists;
 
 use Filament\Infolists\Components\Entry;
 use Filament\Infolists\Components\TextEntry as BaseTextEntry;
-use Relaticle\CustomFields\Filament\Integration\Infolists\FieldInfolistsConfigurator;
+use Relaticle\CustomFields\Filament\Integration\Base\AbstractInfolistEntry;
 use Relaticle\CustomFields\Models\CustomField;
 
-final readonly class HtmlEntry implements FieldInfolistsComponentInterface
+final class HtmlEntry extends AbstractInfolistEntry
 {
-    public function __construct(private FieldInfolistsConfigurator $configurator) {}
-
     public function make(CustomField $customField): Entry
     {
-        return $this->configurator->configure(
-            BaseTextEntry::make("custom_fields.{$customField->code}")
-                ->html(),
-            $customField
-        );
+        return BaseTextEntry::make("custom_fields.{$customField->code}")
+            ->html()
+            ->label($customField->name);
     }
 }

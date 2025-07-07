@@ -6,18 +6,17 @@ namespace Relaticle\CustomFields\Filament\Integration\Components\Infolists;
 
 use Filament\Infolists\Components\ColorEntry as BaseColorEntry;
 use Filament\Infolists\Components\Entry;
-use Relaticle\CustomFields\Filament\Integration\Infolists\FieldInfolistsConfigurator;
+use Relaticle\CustomFields\Filament\Integration\Base\AbstractInfolistEntry;
+use Relaticle\CustomFields\Filament\Integration\Concerns\Forms\ConfiguresFieldName;
 use Relaticle\CustomFields\Models\CustomField;
 
-final readonly class ColorEntry implements FieldInfolistsComponentInterface
+final class ColorEntry extends AbstractInfolistEntry
 {
-    public function __construct(private FieldInfolistsConfigurator $configurator) {}
+    use ConfiguresFieldName;
 
     public function make(CustomField $customField): Entry
     {
-        return $this->configurator->configure(
-            BaseColorEntry::make("custom_fields.{$customField->code}"),
-            $customField
-        );
+        return BaseColorEntry::make($this->getFieldName($customField))
+            ->label($customField->name);
     }
 }
