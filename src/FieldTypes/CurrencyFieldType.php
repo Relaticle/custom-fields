@@ -11,9 +11,9 @@ use Relaticle\CustomFields\Enums\CustomFieldValidationRule;
 use Relaticle\CustomFields\Enums\FieldDataType;
 use Relaticle\CustomFields\FieldTypes\Concerns\HasCommonFieldProperties;
 use Relaticle\CustomFields\FieldTypes\Concerns\HasImportExportDefaults;
-use Relaticle\CustomFields\Filament\Integration\Forms\Components\CurrencyComponent;
-use Relaticle\CustomFields\Filament\Integration\Infolists\Fields\TextEntry;
-use Relaticle\CustomFields\Filament\Integration\Tables\Columns\TextColumn;
+use Relaticle\CustomFields\Filament\Integration\Components\Forms\CurrencyComponent;
+use Relaticle\CustomFields\Filament\Integration\Components\Infolists\TextEntry;
+use Relaticle\CustomFields\Filament\Integration\Components\Tables\TextColumn;
 use Relaticle\CustomFields\Filament\Integration\Tables\Filters\TextFilter;
 
 /**

@@ -8,9 +8,9 @@ use Relaticle\CustomFields\Contracts\FieldTypeDefinitionInterface;
 use Relaticle\CustomFields\Enums\CustomFieldValidationRule;
 use Relaticle\CustomFields\Enums\FieldDataType;
 use Relaticle\CustomFields\FieldTypes\Concerns\HasCommonFieldProperties;
-use Relaticle\CustomFields\Filament\Integration\Forms\Components\RadioComponent;
-use Relaticle\CustomFields\Filament\Integration\Infolists\Fields\SingleValueEntry;
-use Relaticle\CustomFields\Filament\Integration\Tables\Columns\SingleValueColumn;
+use Relaticle\CustomFields\Filament\Integration\Components\Forms\RadioComponent;
+use Relaticle\CustomFields\Filament\Integration\Components\Infolists\SingleValueEntry;
+use Relaticle\CustomFields\Filament\Integration\Components\Tables\SingleValueColumn;
 use Relaticle\CustomFields\Filament\Integration\Tables\Filters\SelectFilter;
 
 /**

@@ -11,6 +11,8 @@ use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Components\Section;
 use Illuminate\Contracts\Container\BindingResolutionException;
 use Relaticle\CustomFields\CustomFields;
+use Relaticle\CustomFields\Filament\Integration\Factories\FieldComponentFactory;
+use Relaticle\CustomFields\Filament\Integration\Factories\SectionComponentFactory;
 use Relaticle\CustomFields\Models\CustomField;
 use Relaticle\CustomFields\Models\CustomFieldSection;
 use Relaticle\CustomFields\Services\Visibility\BackendVisibilityService;

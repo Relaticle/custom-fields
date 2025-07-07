@@ -8,9 +8,9 @@ use Relaticle\CustomFields\Contracts\FieldTypeDefinitionInterface;
 use Relaticle\CustomFields\Enums\CustomFieldValidationRule;
 use Relaticle\CustomFields\Enums\FieldDataType;
 use Relaticle\CustomFields\FieldTypes\Concerns\HasCommonFieldProperties;
-use Relaticle\CustomFields\Filament\Integration\Forms\Components\TextareaFormComponent;
-use Relaticle\CustomFields\Filament\Integration\Infolists\Fields\TextEntry;
-use Relaticle\CustomFields\Filament\Integration\Tables\Columns\TextColumn;
+use Relaticle\CustomFields\Filament\Integration\Components\Forms\TextareaFormComponent;
+use Relaticle\CustomFields\Filament\Integration\Components\Infolists\TextEntry;
+use Relaticle\CustomFields\Filament\Integration\Components\Tables\TextColumn;
 use Relaticle\CustomFields\Filament\Integration\Tables\Filters\TextFilter;
 
 /**

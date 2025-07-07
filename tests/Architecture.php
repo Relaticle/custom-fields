@@ -194,10 +194,10 @@ arch('Field type implementations are consistent')
     ->when(fn ($class): bool => class_exists($class));
 
 // Integration constraints
-arch('Filament components follow proper structure')
-    ->expect('Relaticle\CustomFields\Filament\Forms\Components')
-    ->toExtend('Filament\Forms\Components\Component')
-    ->when(fn ($class): bool => class_exists($class));
+arch('Filament form components implement proper interface')
+    ->expect('Relaticle\CustomFields\Filament\Integration\Components\Forms')
+    ->toImplement('Relaticle\CustomFields\Filament\Integration\Components\Forms\FieldComponentInterface')
+    ->ignoring(['AbstractFormComponent', 'FieldComponentInterface']);
 
 arch('Livewire components follow proper structure')
     ->expect('Relaticle\CustomFields\Livewire')

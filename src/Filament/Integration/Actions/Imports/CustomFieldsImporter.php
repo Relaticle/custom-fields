@@ -10,6 +10,7 @@ use Psr\Log\LoggerInterface;
 use Relaticle\CustomFields\CustomFields;
 use Relaticle\CustomFields\Filament\Integration\Actions\Imports\Exceptions\UnsupportedColumnTypeException;
 use Relaticle\CustomFields\Filament\Integration\Actions\Imports\ValueConverters\ValueConverterInterface;
+use Relaticle\CustomFields\Filament\Integration\Factories\ColumnFactory;
 use Relaticle\CustomFields\Models\Contracts\HasCustomFields;
 use Relaticle\CustomFields\Models\CustomField;
 use Relaticle\CustomFields\Services\EntityTypeService;

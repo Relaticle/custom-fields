@@ -28,7 +28,8 @@
       "Bash(for file in src/Filament/Integration/Forms/Components/{CheckboxListComponent,ColorPickerComponent,CheckboxComponent,LinkComponent,DateTimeComponent}.php)",
       "Bash(do sed -i '' '/use ConfiguresFieldName;/d' \"$file\")",
       "Bash(sed:*)",
-      "Bash(done)"
+      "Bash(done)",
+      "Bash(tree:*)"
     ],
     "deny": []
   }

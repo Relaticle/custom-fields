@@ -8,9 +8,9 @@ use Relaticle\CustomFields\Contracts\FieldTypeDefinitionInterface;
 use Relaticle\CustomFields\Enums\CustomFieldValidationRule;
 use Relaticle\CustomFields\Enums\FieldDataType;
 use Relaticle\CustomFields\FieldTypes\Concerns\HasCommonFieldProperties;
-use Relaticle\CustomFields\Filament\Integration\Forms\Components\DateComponent;
-use Relaticle\CustomFields\Filament\Integration\Infolists\Fields\TextEntry;
-use Relaticle\CustomFields\Filament\Integration\Tables\Columns\DateTimeColumn;
+use Relaticle\CustomFields\Filament\Integration\Components\Forms\DateComponent;
+use Relaticle\CustomFields\Filament\Integration\Components\Infolists\TextEntry;
+use Relaticle\CustomFields\Filament\Integration\Components\Tables\DateTimeColumn;
 
 /**
  * ABOUTME: Field type definition for Date fields

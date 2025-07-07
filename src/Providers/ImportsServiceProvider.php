@@ -10,7 +10,7 @@ use Psr\Log\LoggerInterface;
 use Relaticle\CustomFields\Filament\Integration\Actions\Imports\ColumnConfigurators\BasicColumnConfigurator;
 use Relaticle\CustomFields\Filament\Integration\Actions\Imports\ColumnConfigurators\MultiSelectColumnConfigurator;
 use Relaticle\CustomFields\Filament\Integration\Actions\Imports\ColumnConfigurators\SelectColumnConfigurator;
-use Relaticle\CustomFields\Filament\Integration\Actions\Imports\ColumnFactory;
+use Relaticle\CustomFields\Filament\Integration\Factories\ColumnFactory;
 use Relaticle\CustomFields\Filament\Integration\Actions\Imports\CustomFieldsImporter;
 use Relaticle\CustomFields\Filament\Integration\Actions\Imports\Matchers\LookupMatcher;
 use Relaticle\CustomFields\Filament\Integration\Actions\Imports\Matchers\LookupMatcherInterface;

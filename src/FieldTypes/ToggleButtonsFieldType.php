@@ -8,9 +8,9 @@ use Relaticle\CustomFields\Contracts\FieldTypeDefinitionInterface;
 use Relaticle\CustomFields\Enums\CustomFieldValidationRule;
 use Relaticle\CustomFields\Enums\FieldDataType;
 use Relaticle\CustomFields\FieldTypes\Concerns\HasCommonFieldProperties;
-use Relaticle\CustomFields\Filament\Integration\Forms\Components\ToggleButtonsComponent;
-use Relaticle\CustomFields\Filament\Integration\Infolists\Fields\MultipleValuesEntry;
-use Relaticle\CustomFields\Filament\Integration\Tables\Columns\MultipleValuesColumn;
+use Relaticle\CustomFields\Filament\Integration\Components\Forms\ToggleButtonsComponent;
+use Relaticle\CustomFields\Filament\Integration\Components\Infolists\MultipleValuesEntry;
+use Relaticle\CustomFields\Filament\Integration\Components\Tables\MultipleValuesColumn;
 use Relaticle\CustomFields\Filament\Integration\Tables\Filters\MultiSelectFilter;
 
 /**

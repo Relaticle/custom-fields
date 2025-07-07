@@ -8,9 +8,9 @@ use Relaticle\CustomFields\Contracts\FieldTypeDefinitionInterface;
 use Relaticle\CustomFields\Enums\CustomFieldValidationRule;
 use Relaticle\CustomFields\Enums\FieldDataType;
 use Relaticle\CustomFields\FieldTypes\Concerns\HasCommonFieldProperties;
-use Relaticle\CustomFields\Filament\Integration\Forms\Components\CheckboxComponent;
-use Relaticle\CustomFields\Filament\Integration\Infolists\Fields\BooleanEntry;
-use Relaticle\CustomFields\Filament\Integration\Tables\Columns\BooleanColumn;
+use Relaticle\CustomFields\Filament\Integration\Components\Forms\CheckboxComponent;
+use Relaticle\CustomFields\Filament\Integration\Components\Infolists\BooleanEntry;
+use Relaticle\CustomFields\Filament\Integration\Components\Tables\BooleanColumn;
 use Relaticle\CustomFields\Filament\Integration\Tables\Filters\BooleanFilter;
 
 /**
