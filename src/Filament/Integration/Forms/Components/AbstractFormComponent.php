@@ -8,6 +8,7 @@ use Filament\Forms\Components\Field;
 use Illuminate\Support\Collection;
 use Relaticle\CustomFields\Filament\Integration\Forms\FieldConfigurator;
 use Relaticle\CustomFields\Models\CustomField;
+use Relaticle\CustomFields\Filament\Integration\Concerns\Forms\ConfiguresFieldName;
 
 /**
  * Abstract base class for form field components.
@@ -20,6 +21,8 @@ use Relaticle\CustomFields\Models\CustomField;
  */
 abstract readonly class AbstractFormComponent implements FieldComponentInterface
 {
+    use ConfiguresFieldName;
+
     public function __construct(protected FieldConfigurator $configurator) {}
 
     /**

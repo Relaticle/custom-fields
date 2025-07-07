@@ -7,12 +7,12 @@ namespace Relaticle\CustomFields\Filament\Integration\Forms\Components;
 use Filament\Forms\Components\Field;
 use Filament\Forms\Components\Textarea;
 use Relaticle\CustomFields\Models\CustomField;
-
 final readonly class TextareaFormComponent extends AbstractFormComponent
 {
+
     public function create(CustomField $customField): Field
     {
-        return Textarea::make("custom_fields.{$customField->code}")
+        return Textarea::make($this->getFieldName($customField))
             ->rows(3)
             ->maxLength(50000)
             ->placeholder(null);

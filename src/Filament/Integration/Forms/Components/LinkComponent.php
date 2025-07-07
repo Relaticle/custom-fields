@@ -10,9 +10,10 @@ use Relaticle\CustomFields\Models\CustomField;
 
 final readonly class LinkComponent extends AbstractFormComponent
 {
+
     public function create(CustomField $customField): Field
     {
-        return TextInput::make("custom_fields.{$customField->code}")
+        return TextInput::make($this->getFieldName($customField))
             ->url();
     }
 }

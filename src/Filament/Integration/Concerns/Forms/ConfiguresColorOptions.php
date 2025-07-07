@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Relaticle\CustomFields\Filament\Integration\Forms\Components\Traits;
+namespace Relaticle\CustomFields\Filament\Integration\Concerns\Forms;
 
 use Relaticle\CustomFields\Models\CustomField;
 use Relaticle\CustomFields\Support\Utils;

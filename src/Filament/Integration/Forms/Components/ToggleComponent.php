@@ -12,7 +12,7 @@ final readonly class ToggleComponent extends AbstractFormComponent
 {
     public function create(CustomField $customField): Field
     {
-        return Toggle::make("custom_fields.{$customField->code}")
+        return Toggle::make($this->getFieldName($customField))
             ->onColor('success')
             ->offColor('danger')
             ->inline(false);

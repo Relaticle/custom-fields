@@ -10,8 +10,9 @@ use Relaticle\CustomFields\Models\CustomField;
 
 final readonly class ColorPickerComponent extends AbstractFormComponent
 {
+
     public function create(CustomField $customField): Field
     {
-        return ColorPicker::make("custom_fields.{$customField->code}");
+        return ColorPicker::make($this->getFieldName($customField));
     }
 }

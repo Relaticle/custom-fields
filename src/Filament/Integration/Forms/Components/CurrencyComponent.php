@@ -8,12 +8,12 @@ use Filament\Forms\Components\Field;
 use Filament\Forms\Components\TextInput;
 use Illuminate\Support\Str;
 use Relaticle\CustomFields\Models\CustomField;
-
 final readonly class CurrencyComponent extends AbstractFormComponent
 {
+
     public function create(CustomField $customField): Field
     {
-        return TextInput::make("custom_fields.{$customField->code}")
+        return TextInput::make($this->getFieldName($customField))
             ->prefix('$')
             ->numeric()
             ->inputMode('decimal')

@@ -5,15 +5,13 @@ declare(strict_types=1);
 namespace Relaticle\CustomFields\Filament\Integration\Forms\Components;
 
 use Filament\Forms\Components\Select;
-use Relaticle\CustomFields\Filament\Integration\Concerns\Forms\ConfiguresFieldName;
-use Relaticle\CustomFields\Filament\Integration\Forms\Components\Traits\ConfiguresColorOptions;
-use Relaticle\CustomFields\Filament\Integration\Forms\Components\Traits\ConfiguresLookups;
+use Relaticle\CustomFields\Filament\Integration\Concerns\Forms\ConfiguresColorOptions;
+use Relaticle\CustomFields\Filament\Integration\Concerns\Forms\ConfiguresLookups;
 use Relaticle\CustomFields\Models\CustomField;
 
 final readonly class SelectComponent extends AbstractFormComponent
 {
     use ConfiguresColorOptions;
-    use ConfiguresFieldName;
     use ConfiguresLookups;
 
     public function create(CustomField $customField): Select

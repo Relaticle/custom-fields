@@ -23,7 +23,12 @@
       "Bash(vendor/bin/phpunit:*)",
       "Bash(vendor/bin/pest:*)",
       "Bash(true)",
-      "Bash(composer validate:*)"
+      "Bash(composer validate:*)",
+      "Bash(mv:*)",
+      "Bash(for file in src/Filament/Integration/Forms/Components/{CheckboxListComponent,ColorPickerComponent,CheckboxComponent,LinkComponent,DateTimeComponent}.php)",
+      "Bash(do sed -i '' '/use ConfiguresFieldName;/d' \"$file\")",
+      "Bash(sed:*)",
+      "Bash(done)"
     ],
     "deny": []
   }

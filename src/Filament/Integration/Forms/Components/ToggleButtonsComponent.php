@@ -6,7 +6,7 @@ namespace Relaticle\CustomFields\Filament\Integration\Forms\Components;
 
 use Filament\Forms\Components\Field;
 use Filament\Forms\Components\ToggleButtons;
-use Relaticle\CustomFields\Filament\Integration\Forms\Components\Traits\ConfiguresColorOptions;
+use Relaticle\CustomFields\Filament\Integration\Concerns\Forms\ConfiguresColorOptions;
 use Relaticle\CustomFields\Models\CustomField;
 
 final readonly class ToggleButtonsComponent extends AbstractFormComponent
@@ -15,7 +15,7 @@ final readonly class ToggleButtonsComponent extends AbstractFormComponent
 
     public function create(CustomField $customField): Field
     {
-        $field = ToggleButtons::make("custom_fields.{$customField->code}")->inline(false);
+        $field = ToggleButtons::make($this->getFieldName($customField))->inline(false);
 
         // ToggleButtons only use field options, no lookup support
         $options = $customField->options->pluck('name', 'id')->all();

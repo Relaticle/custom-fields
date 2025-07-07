@@ -6,7 +6,7 @@ namespace Relaticle\CustomFields\Filament\Integration\Forms\Components;
 
 use Filament\Forms\Components\Field;
 use Filament\Forms\Components\TagsInput;
-use Relaticle\CustomFields\Filament\Integration\Forms\Components\Traits\ConfiguresLookups;
+use Relaticle\CustomFields\Filament\Integration\Concerns\Forms\ConfiguresLookups;
 use Relaticle\CustomFields\Models\CustomField;
 
 final readonly class TagsInputComponent extends AbstractFormComponent
@@ -15,7 +15,7 @@ final readonly class TagsInputComponent extends AbstractFormComponent
 
     public function create(CustomField $customField): Field
     {
-        $field = TagsInput::make("custom_fields.{$customField->code}");
+        $field = TagsInput::make($this->getFieldName($customField));
 
         // Get suggestions from lookup or field options
         $suggestions = $this->getFieldOptions($customField);

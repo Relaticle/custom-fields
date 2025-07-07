@@ -6,8 +6,8 @@ namespace Relaticle\CustomFields\Filament\Integration\Forms\Components;
 
 use Filament\Forms\Components\Field;
 use Filament\Forms\Components\Radio;
-use Relaticle\CustomFields\Filament\Integration\Forms\Components\Traits\ConfiguresColorOptions;
-use Relaticle\CustomFields\Filament\Integration\Forms\Components\Traits\ConfiguresLookups;
+use Relaticle\CustomFields\Filament\Integration\Concerns\Forms\ConfiguresColorOptions;
+use Relaticle\CustomFields\Filament\Integration\Concerns\Forms\ConfiguresLookups;
 use Relaticle\CustomFields\Models\CustomField;
 
 final readonly class RadioComponent extends AbstractFormComponent
@@ -17,7 +17,7 @@ final readonly class RadioComponent extends AbstractFormComponent
 
     public function create(CustomField $customField): Field
     {
-        $field = Radio::make("custom_fields.{$customField->code}")->inline(false);
+        $field = Radio::make($this->getFieldName($customField))->inline(false);
 
         // Get options from lookup or field options
         $options = $this->getFieldOptions($customField);

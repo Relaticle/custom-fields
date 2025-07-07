@@ -12,6 +12,6 @@ final readonly class MarkdownEditorComponent extends AbstractFormComponent
 {
     public function create(CustomField $customField): Field
     {
-        return MarkdownEditor::make("custom_fields.{$customField->code}");
+        return MarkdownEditor::make($this->getFieldName($customField));
     }
 }

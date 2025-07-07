@@ -6,8 +6,8 @@ namespace Relaticle\CustomFields\Filament\Integration\Forms\Components;
 
 use Filament\Forms\Components\CheckboxList;
 use Filament\Forms\Components\Field;
-use Relaticle\CustomFields\Filament\Integration\Forms\Components\Traits\ConfiguresColorOptions;
-use Relaticle\CustomFields\Filament\Integration\Forms\Components\Traits\ConfiguresLookups;
+use Relaticle\CustomFields\Filament\Integration\Concerns\Forms\ConfiguresColorOptions;
+use Relaticle\CustomFields\Filament\Integration\Concerns\Forms\ConfiguresLookups;
 use Relaticle\CustomFields\Models\CustomField;
 
 final readonly class CheckboxListComponent extends AbstractFormComponent
@@ -17,7 +17,7 @@ final readonly class CheckboxListComponent extends AbstractFormComponent
 
     public function create(CustomField $customField): Field
     {
-        $field = CheckboxList::make("custom_fields.{$customField->code}");
+        $field = CheckboxList::make($this->getFieldName($customField));
 
         // Get options from lookup or field options
         $options = $this->getFieldOptions($customField);

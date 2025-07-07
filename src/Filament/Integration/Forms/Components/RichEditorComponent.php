@@ -12,6 +12,6 @@ final readonly class RichEditorComponent extends AbstractFormComponent
 {
     public function create(CustomField $customField): Field
     {
-        return RichEditor::make("custom_fields.{$customField->code}");
+        return RichEditor::make($this->getFieldName($customField));
     }
 }
