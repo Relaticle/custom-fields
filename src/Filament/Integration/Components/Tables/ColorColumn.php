@@ -6,21 +6,28 @@ namespace Relaticle\CustomFields\Filament\Integration\Components\Tables;
 
 use Filament\Tables\Columns\ColorColumn as BaseColorColumn;
 use Filament\Tables\Columns\Column as BaseColumn;
-use Illuminate\Database\Eloquent\Builder;
-use Relaticle\CustomFields\Models\Contracts\HasCustomFields;
+use Relaticle\CustomFields\Filament\Integration\Base\AbstractTableColumn;
+use Relaticle\CustomFields\Filament\Integration\Concerns\Forms\ConfiguresFieldName;
+use Relaticle\CustomFields\Filament\Integration\Concerns\Tables\ConfiguresColumnLabel;
+use Relaticle\CustomFields\Filament\Integration\Concerns\Tables\ConfiguresColumnState;
+use Relaticle\CustomFields\Filament\Integration\Concerns\Tables\ConfiguresSearchable;
 use Relaticle\CustomFields\Models\CustomField;
-use Relaticle\CustomFields\QueryBuilders\ColumnSearchableQuery;
 
-final readonly class ColorColumn implements ColumnInterface
+final class ColorColumn extends AbstractTableColumn
 {
+    use ConfiguresColumnLabel;
+    use ConfiguresColumnState;
+    use ConfiguresFieldName;
+    use ConfiguresSearchable;
+
     public function make(CustomField $customField): BaseColumn
     {
-        return BaseColorColumn::make("custom_fields.$customField->code")
-            ->label($customField->name)
-            ->searchable(
-                condition: $customField->settings->searchable,
-                query: fn (Builder $query, string $search): Builder => (new ColumnSearchableQuery)->builder($query, $customField, $search),
-            )
-            ->getStateUsing(fn (HasCustomFields $record): mixed => $record->getCustomFieldValue($customField));
+        $column = BaseColorColumn::make($this->getFieldName($customField));
+
+        $this->configureLabel($column, $customField);
+        $this->configureSearchable($column, $customField);
+        $this->configureState($column, $customField);
+
+        return $column;
     }
 }

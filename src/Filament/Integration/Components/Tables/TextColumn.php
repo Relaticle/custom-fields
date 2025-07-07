@@ -16,16 +16,16 @@ use Relaticle\CustomFields\Models\CustomField;
 
 final class TextColumn extends AbstractTableColumn
 {
-    use ConfiguresFieldName;
     use ConfiguresColumnLabel;
     use ConfiguresColumnState;
+    use ConfiguresFieldName;
     use ConfiguresSearchable;
     use ConfiguresSortable;
 
     public function make(CustomField $customField): BaseColumn
     {
         $column = BaseTextColumn::make($this->getFieldName($customField));
-        
+
         $this->configureLabel($column, $customField);
         $this->configureSortable($column, $customField);
         $this->configureSearchable($column, $customField);

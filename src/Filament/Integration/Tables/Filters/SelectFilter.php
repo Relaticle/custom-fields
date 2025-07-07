@@ -6,18 +6,22 @@ namespace Relaticle\CustomFields\Filament\Integration\Tables\Filters;
 
 use Filament\Tables\Filters\SelectFilter as FilamentSelectFilter;
 use Illuminate\Database\Eloquent\Builder;
+use Relaticle\CustomFields\Filament\Integration\Base\AbstractTableFilter;
+use Relaticle\CustomFields\Filament\Integration\Concerns\Forms\ConfiguresFieldName;
 use Relaticle\CustomFields\Models\CustomField;
 use Relaticle\CustomFields\Services\FilamentResourceService;
 use Throwable;
 
-final readonly class SelectFilter implements FilterInterface
+final readonly class SelectFilter extends AbstractTableFilter
 {
+    use ConfiguresFieldName;
+
     /**
      * @throws Throwable
      */
     public function make(CustomField $customField): FilamentSelectFilter
     {
-        $filter = FilamentSelectFilter::make("custom_fields.{$customField->code}")
+        $filter = FilamentSelectFilter::make($this->getFieldName($customField))
             ->multiple()
             ->label($customField->name)
             ->searchable()

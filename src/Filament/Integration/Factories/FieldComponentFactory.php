@@ -7,7 +7,6 @@ namespace Relaticle\CustomFields\Filament\Integration\Factories;
 use Filament\Forms\Components\Field;
 use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Support\Collection;
-use Relaticle\CustomFields\Filament\Integration\Factories\AbstractComponentFactory;
 use Relaticle\CustomFields\Filament\Integration\Components\Forms\FieldComponentInterface;
 use Relaticle\CustomFields\Models\CustomField;
 

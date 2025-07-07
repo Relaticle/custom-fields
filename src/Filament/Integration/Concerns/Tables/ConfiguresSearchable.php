@@ -22,8 +22,7 @@ trait ConfiguresSearchable
     {
         return $column->searchable(
             condition: $customField->settings->searchable,
-            query: fn (Builder $query, string $search): Builder => 
-                (new ColumnSearchableQuery)->builder($query, $customField, $search)
+            query: fn (Builder $query, string $search): Builder => (new ColumnSearchableQuery)->builder($query, $customField, $search)
         );
     }
 }

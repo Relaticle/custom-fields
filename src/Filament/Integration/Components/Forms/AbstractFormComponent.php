@@ -6,9 +6,9 @@ namespace Relaticle\CustomFields\Filament\Integration\Components\Forms;
 
 use Filament\Forms\Components\Field;
 use Illuminate\Support\Collection;
+use Relaticle\CustomFields\Filament\Integration\Concerns\Forms\ConfiguresFieldName;
 use Relaticle\CustomFields\Filament\Integration\Forms\FieldConfigurator;
 use Relaticle\CustomFields\Models\CustomField;
-use Relaticle\CustomFields\Filament\Integration\Concerns\Forms\ConfiguresFieldName;
 
 /**
  * Abstract base class for form field components.

@@ -17,8 +17,8 @@ use Relaticle\CustomFields\Support\FieldTypeUtils;
 
 class DateTimeColumn extends AbstractTableColumn
 {
-    use ConfiguresFieldName;
     use ConfiguresColumnLabel;
+    use ConfiguresFieldName;
     use ConfiguresSearchable;
     use ConfiguresSortable;
 
@@ -31,7 +31,7 @@ class DateTimeColumn extends AbstractTableColumn
         $this->configureLabel($column, $customField);
         $this->configureSortable($column, $customField);
         $this->configureSearchable($column, $customField);
-        
+
         $column->getStateUsing(function ($record) use ($customField) {
             $value = $record->getCustomFieldValue($customField);
 

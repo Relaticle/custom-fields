@@ -11,7 +11,6 @@ use Relaticle\CustomFields\Support\FieldTypeUtils;
 
 final readonly class DateTimeComponent extends AbstractFormComponent
 {
-
     public function create(CustomField $customField): Field
     {
         return DateTimePicker::make($this->getFieldName($customField))

@@ -6,13 +6,17 @@ namespace Relaticle\CustomFields\Filament\Integration\Tables\Filters;
 
 use Filament\Tables\Filters\TernaryFilter as FilamentTernaryFilter;
 use Illuminate\Database\Eloquent\Builder;
+use Relaticle\CustomFields\Filament\Integration\Base\AbstractTableFilter;
+use Relaticle\CustomFields\Filament\Integration\Concerns\Forms\ConfiguresFieldName;
 use Relaticle\CustomFields\Models\CustomField;
 
-final readonly class TernaryFilter implements FilterInterface
+final readonly class TernaryFilter extends AbstractTableFilter
 {
+    use ConfiguresFieldName;
+
     public function make(CustomField $customField): FilamentTernaryFilter
     {
-        return FilamentTernaryFilter::make("custom_fields.$customField->code")
+        return FilamentTernaryFilter::make($this->getFieldName($customField))
             ->label($customField->name)
             ->options([
                 true => 'Yes',

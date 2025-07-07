@@ -9,7 +9,6 @@ use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Components\Section;
 use InvalidArgumentException;
 use Relaticle\CustomFields\Enums\CustomFieldSectionType;
-use Relaticle\CustomFields\Filament\Integration\Factories\AbstractComponentFactory;
 use Relaticle\CustomFields\Filament\Integration\Infolists\Sections\FieldsetInfolistsComponent;
 use Relaticle\CustomFields\Filament\Integration\Infolists\Sections\HeadlessInfolistsComponent;
 use Relaticle\CustomFields\Filament\Integration\Infolists\Sections\SectionInfolistsComponent;

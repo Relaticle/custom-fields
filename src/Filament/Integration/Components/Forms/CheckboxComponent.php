@@ -10,7 +10,6 @@ use Relaticle\CustomFields\Models\CustomField;
 
 final readonly class CheckboxComponent extends AbstractFormComponent
 {
-
     public function create(CustomField $customField): Field
     {
         return Checkbox::make($this->getFieldName($customField))->inline(false);

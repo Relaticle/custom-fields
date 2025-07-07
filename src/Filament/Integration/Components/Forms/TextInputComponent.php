@@ -10,7 +10,6 @@ use Relaticle\CustomFields\Models\CustomField;
 
 final readonly class TextInputComponent extends AbstractFormComponent
 {
-
     public function create(CustomField $customField): Field
     {
         return TextInput::make($this->getFieldName($customField))

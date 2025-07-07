@@ -29,7 +29,9 @@
       "Bash(do sed -i '' '/use ConfiguresFieldName;/d' \"$file\")",
       "Bash(sed:*)",
       "Bash(done)",
-      "Bash(tree:*)"
+      "Bash(tree:*)",
+      "Bash(composer pint:*)",
+      "Bash(vendor/bin/pint:*)"
     ],
     "deny": []
   }

@@ -6,7 +6,6 @@ namespace Relaticle\CustomFields\Filament\Integration\Factories;
 
 use Filament\Tables\Columns\Column;
 use Illuminate\Contracts\Container\BindingResolutionException;
-use Relaticle\CustomFields\Filament\Integration\Factories\AbstractComponentFactory;
 use Relaticle\CustomFields\Models\CustomField;
 
 /**

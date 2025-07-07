@@ -14,13 +14,15 @@ use Relaticle\CustomFields\Models\CustomField;
  */
 trait ConfiguresSortable
 {
+    use \Relaticle\CustomFields\Filament\Integration\Concerns\Shared\ConfiguresEncryption;
+
     /**
      * Configure sortable behavior for a column.
      */
     protected function configureSortable(Column $column, CustomField $customField): Column
     {
         return $column->sortable(
-            condition: ! $customField->settings->encrypted,
+            condition: $this->isNotEncrypted($customField),
             query: function (Builder $query, string $direction) use ($customField): Builder {
                 $table = $query->getModel()->getTable();
                 $key = $query->getModel()->getKeyName();
