@@ -23,7 +23,7 @@ abstract class BaseBuilder
     {
         $this->model = $model;
         $this->fields = $model->customFields()
-            ->with(['fieldType', 'sectionCustomFields.section'])
+            ->with(['options', 'section'])
             ->get();
 
         return $this;
@@ -55,13 +55,13 @@ abstract class BaseBuilder
         $filteredFields = $this->getFilteredFields();
 
         // Group fields by their sections
-        $sectioned = $filteredFields->filter(fn (CustomField $field) => $field->sectionCustomFields->isNotEmpty())
+        $sectioned = $filteredFields->filter(fn (CustomField $field) => $field->section !== null)
             ->groupBy(function (CustomField $field) {
-                return $field->sectionCustomFields->first()->section->id;
+                return $field->section->id;
             });
 
         // Add unsectioned fields as a separate group
-        $unsectioned = $filteredFields->filter(fn (CustomField $field) => $field->sectionCustomFields->isEmpty());
+        $unsectioned = $filteredFields->filter(fn (CustomField $field) => $field->section === null);
 
         if ($unsectioned->isNotEmpty()) {
             $sectioned->put('unsectioned', $unsectioned);

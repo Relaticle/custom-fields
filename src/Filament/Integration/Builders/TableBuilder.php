@@ -6,19 +6,35 @@
 namespace Relaticle\CustomFields\Filament\Integration\Builders;
 
 use Filament\Tables\Filters\Filter;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;
-use Relaticle\CustomFields\Filament\Integration\Enums\ComponentContext;
-use Relaticle\CustomFields\Filament\Integration\Factories\ComponentFactory;
+use Relaticle\CustomFields\Filament\Integration\Factories\FieldColumnFactory;
 use Relaticle\CustomFields\Models\CustomField;
+use Relaticle\CustomFields\Support\Utils;
 
 class TableBuilder extends BaseBuilder
 {
+    public function forModel(Model $model): static
+    {
+        $this->model = $model;
+        $this->fields = $model->customFields()
+            ->visibleInList()
+            ->with(['options', 'section'])
+            ->get();
+
+        return $this;
+    }
+
     public function columns(): Collection
     {
+        if (! Utils::isTableColumnsEnabled()) {
+            return collect();
+        }
+
+        $fieldColumnFactory = app(FieldColumnFactory::class);
+
         return $this->getFilteredFields()
-            ->map(function (CustomField $field) {
-                return ComponentFactory::make($field, ComponentContext::TABLE);
-            })
+            ->map(fn (CustomField $field) => $fieldColumnFactory->create($field))
             ->filter()
             ->values();
     }
@@ -39,7 +55,7 @@ class TableBuilder extends BaseBuilder
         // Only certain field types support filtering
         $filterableTypes = ['select', 'multi_select', 'ternary', 'checkbox', 'toggle'];
 
-        return in_array($field->fieldType->type, $filterableTypes, true);
+        return in_array($field->type, $filterableTypes, true);
     }
 
     protected function createFilter(CustomField $field): ?Filter

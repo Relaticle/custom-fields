@@ -6,12 +6,12 @@ namespace Relaticle\CustomFields\Filament\Integration\Components\Infolists;
 
 use Filament\Infolists\Components\Entry;
 use Filament\Infolists\Components\TextEntry as BaseTextEntry;
+use Relaticle\CustomFields\Contracts\InfolistComponentInterface;
 use Relaticle\CustomFields\Filament\Integration\Concerns\Shared\ConfiguresBadgeColors;
-use Relaticle\CustomFields\Filament\Integration\Infolists\FieldInfolistsConfigurator;
 use Relaticle\CustomFields\Models\CustomField;
 use Relaticle\CustomFields\Services\ValueResolver\LookupMultiValueResolver;
 
-final readonly class MultiChoiceEntry implements FieldInfolistsComponentInterface
+final readonly class MultiChoiceEntry implements InfolistComponentInterface
 {
     use ConfiguresBadgeColors;
 

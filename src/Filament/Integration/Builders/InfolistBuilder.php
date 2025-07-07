@@ -7,15 +7,16 @@ namespace Relaticle\CustomFields\Filament\Integration\Builders;
 
 use Filament\Infolists\Components\Section;
 use Illuminate\Support\Collection;
-use Relaticle\CustomFields\Filament\Integration\Components\Infolists\Sections\SectionComponent;
-use Relaticle\CustomFields\Filament\Integration\Enums\ComponentContext;
-use Relaticle\CustomFields\Filament\Integration\Factories\ComponentFactory;
+use Relaticle\CustomFields\Filament\Integration\Factories\FieldInfolistsFactory;
+use Relaticle\CustomFields\Filament\Integration\Factories\SectionInfolistsFactory;
 use Relaticle\CustomFields\Models\CustomField;
 
 class InfolistBuilder extends BaseBuilder
 {
     public function build(): array
     {
+        $fieldInfolistsFactory = app(FieldInfolistsFactory::class);
+        $sectionInfolistsFactory = app(SectionInfolistsFactory::class);
         $components = [];
         $groupedFields = $this->groupFieldsBySection();
 
@@ -23,19 +24,19 @@ class InfolistBuilder extends BaseBuilder
             if ($sectionKey === 'unsectioned') {
                 // Add unsectioned fields directly
                 foreach ($fields as $field) {
-                    $component = ComponentFactory::make($field, ComponentContext::INFOLIST);
+                    $component = $fieldInfolistsFactory->create($field);
                     if ($component) {
                         $components[] = $component;
                     }
                 }
             } else {
                 // Create section with fields
-                $section = $fields->first()->sectionCustomFields->first()->section;
-                $sectionComponent = SectionComponent::make($section);
+                $section = $fields->first()->section;
+                $sectionComponent = $sectionInfolistsFactory->create($section);
 
                 $sectionEntries = [];
                 foreach ($fields as $field) {
-                    $component = ComponentFactory::make($field, ComponentContext::INFOLIST);
+                    $component = $fieldInfolistsFactory->create($field);
                     if ($component) {
                         $sectionEntries[] = $component;
                     }
@@ -53,10 +54,10 @@ class InfolistBuilder extends BaseBuilder
 
     public function values(): Collection
     {
+        $fieldInfolistsFactory = app(FieldInfolistsFactory::class);
+
         return $this->getFilteredFields()
-            ->map(function (CustomField $field) {
-                return ComponentFactory::make($field, ComponentContext::INFOLIST);
-            })
+            ->map(fn (CustomField $field) => $fieldInfolistsFactory->create($field))
             ->filter()
             ->values();
     }

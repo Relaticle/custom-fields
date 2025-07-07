@@ -7,35 +7,40 @@ namespace Relaticle\CustomFields\Filament\Integration\Builders;
 
 use Filament\Forms\Components\Section;
 use Illuminate\Support\Collection;
-use Relaticle\CustomFields\Filament\Integration\Components\Forms\SectionComponent;
-use Relaticle\CustomFields\Filament\Integration\Enums\ComponentContext;
-use Relaticle\CustomFields\Filament\Integration\Factories\ComponentFactory;
+use Relaticle\CustomFields\Filament\Integration\Factories\FieldComponentFactory;
+use Relaticle\CustomFields\Filament\Integration\Factories\SectionComponentFactory;
 use Relaticle\CustomFields\Models\CustomField;
 
 class FormBuilder extends BaseBuilder
 {
     public function build(): array
     {
+        $fieldComponentFactory = app(FieldComponentFactory::class);
+        $sectionComponentFactory = app(SectionComponentFactory::class);
         $components = [];
         $groupedFields = $this->groupFieldsBySection();
+        $allFields = $this->getFilteredFields();
+
+        // Get all dependent field codes for live updates
+        $dependentFieldCodes = $this->getDependentFieldCodes($allFields);
 
         foreach ($groupedFields as $sectionKey => $fields) {
             if ($sectionKey === 'unsectioned') {
                 // Add unsectioned fields directly
                 foreach ($fields as $field) {
-                    $component = ComponentFactory::make($field, ComponentContext::FORM);
+                    $component = $fieldComponentFactory->create($field, $dependentFieldCodes, $allFields);
                     if ($component) {
                         $components[] = $component;
                     }
                 }
             } else {
                 // Create section with fields
-                $section = $fields->first()->sectionCustomFields->first()->section;
-                $sectionComponent = SectionComponent::make($section);
+                $section = $fields->first()->section;
+                $sectionComponent = $sectionComponentFactory->create($section);
 
                 $sectionFields = [];
                 foreach ($fields as $field) {
-                    $component = ComponentFactory::make($field, ComponentContext::FORM);
+                    $component = $fieldComponentFactory->create($field, $dependentFieldCodes, $allFields);
                     if ($component) {
                         $sectionFields[] = $component;
                     }
@@ -51,12 +56,31 @@ class FormBuilder extends BaseBuilder
         return $components;
     }
 
+    private function getDependentFieldCodes(Collection $fields): array
+    {
+        $dependentCodes = [];
+
+        foreach ($fields as $field) {
+            if ($field->visibility_conditions && is_array($field->visibility_conditions)) {
+                foreach ($field->visibility_conditions as $condition) {
+                    if (isset($condition['field'])) {
+                        $dependentCodes[] = $condition['field'];
+                    }
+                }
+            }
+        }
+
+        return array_unique($dependentCodes);
+    }
+
     public function values(): Collection
     {
-        return $this->getFilteredFields()
-            ->map(function (CustomField $field) {
-                return ComponentFactory::make($field, ComponentContext::FORM);
-            })
+        $fieldComponentFactory = app(FieldComponentFactory::class);
+        $allFields = $this->getFilteredFields();
+        $dependentFieldCodes = $this->getDependentFieldCodes($allFields);
+
+        return $allFields
+            ->map(fn (CustomField $field) => $fieldComponentFactory->create($field, $dependentFieldCodes, $allFields))
             ->filter()
             ->values();
     }

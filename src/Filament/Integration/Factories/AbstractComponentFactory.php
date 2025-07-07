@@ -49,10 +49,28 @@ abstract class AbstractComponentFactory
     {
         $customFieldType = $customField->typeData;
 
-        $componentClass = $customFieldType->formComponent;
+        if (! $customFieldType) {
+            throw new InvalidArgumentException("Unknown field type: {$customField->type}");
+        }
+
+        // Get the component class dynamically based on the component key
+        $componentClass = match ($componentKey) {
+            'form_component' => $customFieldType->formComponent,
+            'table_column' => $customFieldType->tableColumn,
+            'infolist_component' => $customFieldType->infolistComponent,
+            default => throw new InvalidArgumentException("Invalid component key: {$componentKey}")
+        };
+
+        if (! $componentClass || ! class_exists($componentClass)) {
+            throw new InvalidArgumentException("Component class not found for {$componentKey} of type {$customField->type}");
+        }
 
         if (! isset($this->instanceCache[$componentClass])) {
             $component = $this->container->make($componentClass);
+
+            if (! $component instanceof $expectedInterface) {
+                throw new RuntimeException("Component class {$componentClass} must implement {$expectedInterface}");
+            }
 
             $this->instanceCache[$componentClass] = $component;
         }

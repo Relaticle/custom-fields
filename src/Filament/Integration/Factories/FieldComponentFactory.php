@@ -7,11 +7,11 @@ namespace Relaticle\CustomFields\Filament\Integration\Factories;
 use Filament\Forms\Components\Field;
 use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Support\Collection;
-use Relaticle\CustomFields\Filament\Integration\Components\Forms\FieldComponentInterface;
+use Relaticle\CustomFields\Contracts\FormComponentInterface;
 use Relaticle\CustomFields\Models\CustomField;
 
 /**
- * @extends AbstractComponentFactory<FieldComponentInterface, Field>
+ * @extends AbstractComponentFactory<FormComponentInterface, Field>
  */
 final class FieldComponentFactory extends AbstractComponentFactory
 {
@@ -23,8 +23,8 @@ final class FieldComponentFactory extends AbstractComponentFactory
      */
     public function create(CustomField $customField, array $dependentFieldCodes = [], ?Collection $allFields = null): Field
     {
-        /** @var FieldComponentInterface */
-        $component = $this->createComponent($customField, 'form_component', FieldComponentInterface::class);
+        /** @var FormComponentInterface */
+        $component = $this->createComponent($customField, 'form_component', FormComponentInterface::class);
 
         return $component->make($customField, $dependentFieldCodes, $allFields);
     }
