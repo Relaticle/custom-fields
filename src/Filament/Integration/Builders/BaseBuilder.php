@@ -55,18 +55,8 @@ abstract class BaseBuilder
         $filteredFields = $this->getFilteredFields();
 
         // Group fields by their sections
-        $sectioned = $filteredFields->filter(fn (CustomField $field) => $field->section !== null)
-            ->groupBy(function (CustomField $field) {
-                return $field->section->id;
-            });
-
-        // Add unsectioned fields as a separate group
-        $unsectioned = $filteredFields->filter(fn (CustomField $field) => $field->section === null);
-
-        if ($unsectioned->isNotEmpty()) {
-            $sectioned->put('unsectioned', $unsectioned);
-        }
-
-        return $sectioned;
+        return $filteredFields->groupBy(function (CustomField $field) {
+            return $field->section->id;
+        });
     }
 }

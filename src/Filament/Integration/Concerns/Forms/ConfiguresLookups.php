@@ -15,7 +15,7 @@ use Throwable;
 /**
  * Trait for configuring lookup options in form components.
  *
- * Eliminates duplication across multiple components that need to resolve
+ * Removes duplication across multiple components that need to resolve
  * options from either custom field options or external model lookups.
  *
  * Used by: SelectComponent, RadioComponent, CheckboxListComponent,

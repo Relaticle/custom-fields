@@ -20,32 +20,22 @@ class InfolistBuilder extends BaseBuilder
         $components = [];
         $groupedFields = $this->groupFieldsBySection();
 
-        foreach ($groupedFields as $sectionKey => $fields) {
-            if ($sectionKey === 'unsectioned') {
-                // Add unsectioned fields directly
-                foreach ($fields as $field) {
-                    $component = $fieldInfolistsFactory->create($field);
-                    if ($component) {
-                        $components[] = $component;
-                    }
-                }
-            } else {
-                // Create section with fields
-                $section = $fields->first()->section;
-                $sectionComponent = $sectionInfolistsFactory->create($section);
+        foreach ($groupedFields as $sectionId => $fields) {
+            // Create section with fields
+            $section = $fields->first()->section;
+            $sectionComponent = $sectionInfolistsFactory->create($section);
 
-                $sectionEntries = [];
-                foreach ($fields as $field) {
-                    $component = $fieldInfolistsFactory->create($field);
-                    if ($component) {
-                        $sectionEntries[] = $component;
-                    }
+            $sectionEntries = [];
+            foreach ($fields as $field) {
+                $component = $fieldInfolistsFactory->create($field);
+                if ($component) {
+                    $sectionEntries[] = $component;
                 }
+            }
 
-                if (! empty($sectionEntries)) {
-                    $sectionComponent->schema($sectionEntries);
-                    $components[] = $sectionComponent;
-                }
+            if (! empty($sectionEntries)) {
+                $sectionComponent->schema($sectionEntries);
+                $components[] = $sectionComponent;
             }
         }
 

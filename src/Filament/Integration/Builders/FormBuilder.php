@@ -24,32 +24,22 @@ class FormBuilder extends BaseBuilder
         // Get all dependent field codes for live updates
         $dependentFieldCodes = $this->getDependentFieldCodes($allFields);
 
-        foreach ($groupedFields as $sectionKey => $fields) {
-            if ($sectionKey === 'unsectioned') {
-                // Add unsectioned fields directly
-                foreach ($fields as $field) {
-                    $component = $fieldComponentFactory->create($field, $dependentFieldCodes, $allFields);
-                    if ($component) {
-                        $components[] = $component;
-                    }
-                }
-            } else {
-                // Create section with fields
-                $section = $fields->first()->section;
-                $sectionComponent = $sectionComponentFactory->create($section);
+        foreach ($groupedFields as $sectionId => $fields) {
+            // Create section with fields
+            $section = $fields->first()->section;
+            $sectionComponent = $sectionComponentFactory->create($section);
 
-                $sectionFields = [];
-                foreach ($fields as $field) {
-                    $component = $fieldComponentFactory->create($field, $dependentFieldCodes, $allFields);
-                    if ($component) {
-                        $sectionFields[] = $component;
-                    }
+            $sectionFields = [];
+            foreach ($fields as $field) {
+                $component = $fieldComponentFactory->create($field, $dependentFieldCodes, $allFields);
+                if ($component) {
+                    $sectionFields[] = $component;
                 }
+            }
 
-                if (! empty($sectionFields)) {
-                    $sectionComponent->schema($sectionFields);
-                    $components[] = $sectionComponent;
-                }
+            if (! empty($sectionFields)) {
+                $sectionComponent->schema($sectionFields);
+                $components[] = $sectionComponent;
             }
         }
 
