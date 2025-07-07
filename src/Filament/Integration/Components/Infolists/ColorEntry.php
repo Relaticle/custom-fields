@@ -6,7 +6,6 @@ namespace Relaticle\CustomFields\Filament\Integration\Components\Infolists;
 
 use Filament\Infolists\Components\ColorEntry as BaseColorEntry;
 use Filament\Infolists\Components\Entry;
-use Relaticle\CustomFields\Filament\Integration\Infolists\FieldInfolistsComponentInterface;
 use Relaticle\CustomFields\Filament\Integration\Infolists\FieldInfolistsConfigurator;
 use Relaticle\CustomFields\Models\CustomField;
 

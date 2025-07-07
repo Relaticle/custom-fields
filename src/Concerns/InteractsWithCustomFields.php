@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Relaticle\CustomFields\Filament\Integration\Tables;
+namespace Relaticle\CustomFields\Concerns;
 
 use Exception;
 use Filament\Resources\RelationManagers\RelationManager;
@@ -26,8 +26,10 @@ trait InteractsWithCustomFields
             $table = parent::table($table);
         }
 
-        $columns = CustomFields::tableColumns()->make($model)->all();
-        $filters = CustomFields::tableFilters()->make($model)->all();
+        // Use the new builder API
+        $modelInstance = new $model;
+        $columns = CustomFields::table()->forModel($modelInstance)->columns()->toArray();
+        $filters = CustomFields::table()->forModel($modelInstance)->filters()->toArray();
 
         return $table->modifyQueryUsing(function (Builder $query): void {
             $query->with('customFieldValues.customField');

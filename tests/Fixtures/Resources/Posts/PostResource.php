@@ -17,7 +17,7 @@ use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
-use Relaticle\CustomFields\Filament\Integration\Forms\CustomFieldsForm;
+use Relaticle\CustomFields\Facades\CustomFields;
 use Relaticle\CustomFields\Tests\Fixtures\Models\Post;
 use RuntimeException;
 use UnitEnum;
@@ -48,7 +48,7 @@ class PostResource extends Resource
                     ->numeric()
                     ->required(),
 
-                CustomFieldsForm::make()->columnSpanFull(),
+                ...CustomFields::form()->forModel(new static::$model)->build(),
             ]);
     }
 
