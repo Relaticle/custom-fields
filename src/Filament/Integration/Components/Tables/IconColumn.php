@@ -21,8 +21,7 @@ class IconColumn extends AbstractTableColumn
 
     public function make(CustomField $customField): Column
     {
-        $column = BaseIconColumn::make($this->getFieldName($customField))
-            ->boolean();
+        $column = BaseIconColumn::make($this->getFieldName($customField))->boolean();
 
         $this->configureLabel($column, $customField);
         $this->configureSortable($column, $customField);

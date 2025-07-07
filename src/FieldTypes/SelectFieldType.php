@@ -9,8 +9,8 @@ use Relaticle\CustomFields\Enums\CustomFieldValidationRule;
 use Relaticle\CustomFields\Enums\FieldDataType;
 use Relaticle\CustomFields\FieldTypes\Concerns\HasCommonFieldProperties;
 use Relaticle\CustomFields\Filament\Integration\Components\Forms\SelectComponent;
-use Relaticle\CustomFields\Filament\Integration\Components\Infolists\SingleValueEntry;
-use Relaticle\CustomFields\Filament\Integration\Components\Tables\SingleValueColumn;
+use Relaticle\CustomFields\Filament\Integration\Components\Infolists\SingleChoiceEntry;
+use Relaticle\CustomFields\Filament\Integration\Components\Tables\SingleChoiceColumn;
 use Relaticle\CustomFields\Filament\Integration\Tables\Filters\SelectFilter;
 
 class SelectFieldType implements FieldTypeDefinitionInterface
@@ -44,7 +44,7 @@ class SelectFieldType implements FieldTypeDefinitionInterface
 
     public function getTableColumnClass(): string
     {
-        return SingleValueColumn::class;
+        return SingleChoiceColumn::class;
     }
 
     public function getTableFilterClass(): ?string
@@ -54,7 +54,7 @@ class SelectFieldType implements FieldTypeDefinitionInterface
 
     public function getInfolistEntryClass(): string
     {
-        return SingleValueEntry::class;
+        return SingleChoiceEntry::class;
     }
 
     public function isFilterable(): bool

@@ -12,7 +12,7 @@ use Relaticle\CustomFields\Filament\Integration\Infolists\FieldInfolistsConfigur
 use Relaticle\CustomFields\Models\CustomField;
 use Relaticle\CustomFields\Services\ValueResolver\LookupSingleValueResolver;
 
-final readonly class SingleValueEntry implements FieldInfolistsComponentInterface
+final readonly class SingleChoiceEntry implements FieldInfolistsComponentInterface
 {
     use ConfiguresBadgeColors;
 

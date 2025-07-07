@@ -14,7 +14,6 @@ use Relaticle\CustomFields\FieldTypes\Concerns\HasImportExportDefaults;
 use Relaticle\CustomFields\Filament\Integration\Components\Forms\CurrencyComponent;
 use Relaticle\CustomFields\Filament\Integration\Components\Infolists\TextEntry;
 use Relaticle\CustomFields\Filament\Integration\Components\Tables\TextColumn;
-use Relaticle\CustomFields\Filament\Integration\Tables\Filters\TextFilter;
 
 /**
  * ABOUTME: Field type definition for Currency fields
@@ -53,11 +52,6 @@ class CurrencyFieldType implements FieldImportExportInterface, FieldTypeDefiniti
     public function getTableColumnClass(): string
     {
         return TextColumn::class;
-    }
-
-    public function getTableFilterClass(): ?string
-    {
-        return TextFilter::class;
     }
 
     public function getInfolistEntryClass(): string

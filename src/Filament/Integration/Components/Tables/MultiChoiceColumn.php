@@ -10,30 +10,28 @@ use Relaticle\CustomFields\Filament\Integration\Base\AbstractTableColumn;
 use Relaticle\CustomFields\Filament\Integration\Concerns\Forms\ConfiguresFieldName;
 use Relaticle\CustomFields\Filament\Integration\Concerns\Shared\ConfiguresBadgeColors;
 use Relaticle\CustomFields\Filament\Integration\Concerns\Tables\ConfiguresColumnLabel;
-use Relaticle\CustomFields\Filament\Integration\Concerns\Tables\ConfiguresSortable;
 use Relaticle\CustomFields\Models\Contracts\HasCustomFields;
 use Relaticle\CustomFields\Models\CustomField;
-use Relaticle\CustomFields\Services\ValueResolver\LookupSingleValueResolver;
+use Relaticle\CustomFields\Services\ValueResolver\LookupMultiValueResolver;
 
-final readonly class SingleValueColumn extends AbstractTableColumn
+final class MultiChoiceColumn extends AbstractTableColumn
 {
     use ConfiguresBadgeColors;
     use ConfiguresColumnLabel;
     use ConfiguresFieldName;
-    use ConfiguresSortable;
 
-    public function __construct(public LookupSingleValueResolver $valueResolver) {}
+    public function __construct(public LookupMultiValueResolver $valueResolver) {}
 
     public function make(CustomField $customField): BaseColumn
     {
         $column = BaseTextColumn::make($this->getFieldName($customField));
 
         $this->configureLabel($column, $customField);
-        $this->configureSortable($column, $customField);
 
         $column
-            ->getStateUsing(fn (HasCustomFields $record): string => $this->valueResolver->resolve($record, $customField))
-            ->searchable(false);
+            ->sortable(false)
+            ->searchable(false)
+            ->getStateUsing(fn (HasCustomFields $record): array => $this->valueResolver->resolve($record, $customField));
 
         return $this->applyBadgeColorsIfEnabled($column, $customField);
     }

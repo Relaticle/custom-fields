@@ -11,7 +11,7 @@ use Relaticle\CustomFields\Filament\Integration\Concerns\Forms\ConfiguresFieldNa
 use Relaticle\CustomFields\Filament\Integration\Infolists\FieldInfolistsConfigurator;
 use Relaticle\CustomFields\Models\CustomField;
 
-final readonly class TextEntry extends AbstractInfolistEntry
+final class TextEntry extends AbstractInfolistEntry
 {
     use ConfiguresFieldName;
 

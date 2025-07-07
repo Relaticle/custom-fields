@@ -10,8 +10,7 @@ use Relaticle\CustomFields\Enums\FieldDataType;
 use Relaticle\CustomFields\FieldTypes\Concerns\HasCommonFieldProperties;
 use Relaticle\CustomFields\Filament\Integration\Components\Forms\ToggleComponent;
 use Relaticle\CustomFields\Filament\Integration\Components\Infolists\BooleanEntry;
-use Relaticle\CustomFields\Filament\Integration\Components\Tables\BooleanColumn;
-use Relaticle\CustomFields\Filament\Integration\Tables\Filters\BooleanFilter;
+use Relaticle\CustomFields\Filament\Integration\Components\Tables\IconColumn;
 
 /**
  * ABOUTME: Field type definition for Toggle fields
@@ -48,12 +47,7 @@ class ToggleFieldType implements FieldTypeDefinitionInterface
 
     public function getTableColumnClass(): string
     {
-        return BooleanColumn::class;
-    }
-
-    public function getTableFilterClass(): ?string
-    {
-        return BooleanFilter::class;
+        return IconColumn::class;
     }
 
     public function getInfolistEntryClass(): string

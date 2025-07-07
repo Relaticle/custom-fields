@@ -9,9 +9,8 @@ use Relaticle\CustomFields\Enums\CustomFieldValidationRule;
 use Relaticle\CustomFields\Enums\FieldDataType;
 use Relaticle\CustomFields\FieldTypes\Concerns\HasCommonFieldProperties;
 use Relaticle\CustomFields\Filament\Integration\Components\Forms\TagsInputComponent;
-use Relaticle\CustomFields\Filament\Integration\Components\Infolists\MultipleValuesEntry;
-use Relaticle\CustomFields\Filament\Integration\Components\Tables\MultipleValuesColumn;
-use Relaticle\CustomFields\Filament\Integration\Tables\Filters\MultiSelectFilter;
+use Relaticle\CustomFields\Filament\Integration\Components\Infolists\MultiChoiceEntry;
+use Relaticle\CustomFields\Filament\Integration\Components\Tables\MultiChoiceColumn;
 
 /**
  * ABOUTME: Field type definition for Tags Input fields
@@ -48,17 +47,12 @@ class TagsInputFieldType implements FieldTypeDefinitionInterface
 
     public function getTableColumnClass(): string
     {
-        return MultipleValuesColumn::class;
-    }
-
-    public function getTableFilterClass(): ?string
-    {
-        return MultiSelectFilter::class;
+        return MultiChoiceColumn::class;
     }
 
     public function getInfolistEntryClass(): string
     {
-        return MultipleValuesEntry::class;
+        return MultiChoiceEntry::class;
     }
 
     public function getPriority(): int
