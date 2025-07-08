@@ -1,3 +1,4 @@
+@php use Illuminate\Support\HtmlString; @endphp
 <div
         id="{{ $field->id }}"
         class="fi-section !px-2 fi-compact !py-2 shadow-none fi-grid-col flex justify-between"
@@ -5,7 +6,7 @@
         x-sortable-item="{{ $field->id }}"
         compact
 >
-    <div class="flex items-center gap-x-2 w-full" x-sortable-handle>
+    <div class="flex items-center gap-x-2 w-full truncate" x-sortable-handle>
         <x-filament::icon-button
                 icon="heroicon-m-bars-3"
                 color="gray"
@@ -17,7 +18,12 @@
                 :aria-label="$field->name"
         />
 
-        {{ $this->editAction()->icon(false)->label($field->name)->link() }}
+        {{
+            $this->editAction()->icon(false)
+                            ->label(new HtmlString('<span class="truncate flex">'.$field->name.'</span>'))
+                            ->extraAttributes(['class' => 'truncate', 'x-tooltip.raw' => $field->name])
+                            ->link()
+        }}
 
         @if(!$field->isActive())
             <x-filament::badge color="warning" size="sm">
