@@ -16,6 +16,6 @@ final class FieldFilterFactory
     {
         $component = app($customField->typeData->tableFilter);
 
-        return $component->make($customField)->columnSpan($customField->width->getSpanValue());
+        return $component->make($customField);
     }
 }
