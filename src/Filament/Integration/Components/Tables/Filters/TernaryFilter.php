@@ -1,0 +1,36 @@
+<?php
+
+namespace Relaticle\CustomFields\Filament\Integration\Components\Tables\Filters;
+
+use Relaticle\CustomFields\Filament\Integration\Base\AbstractTableFilter;
+use Relaticle\CustomFields\Models\CustomField;
+use Filament\Tables\Filters\TernaryFilter as FilamentTernaryFilter;
+use Illuminate\Database\Eloquent\Builder;
+
+final class TernaryFilter extends AbstractTableFilter
+{
+    public function make(CustomField $customField): FilamentTernaryFilter
+    {
+        return FilamentTernaryFilter::make("custom_fields.$customField->code")
+            ->label($customField->name)
+            ->options([
+                true => 'Yes',
+                false => 'No',
+            ])
+            ->nullable()
+            ->queries(
+                true: fn (Builder $query) => $query
+                    ->whereHas('customFieldValues', function (Builder $query) use ($customField) {
+                        $query->where('custom_field_id', $customField->getKey())->where($customField->getValueColumn(), true);
+                    }),
+                false: fn (Builder $query) => $query
+                    ->where(fn (Builder $query) => $query
+                        ->whereHas('customFieldValues', function (Builder $query) use ($customField) {
+                            $query->where('custom_field_id', $customField->getKey())->where($customField->getValueColumn(), false);
+                        })->orWhereDoesntHave('customFieldValues', function (Builder $query) use ($customField) {
+                            $query->where('custom_field_id', $customField->getKey())->where($customField->getValueColumn(), true);
+                        })
+                    )
+            );
+    }
+}
