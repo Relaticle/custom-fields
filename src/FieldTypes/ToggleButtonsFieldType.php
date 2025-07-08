@@ -9,8 +9,8 @@ use Relaticle\CustomFields\Enums\CustomFieldValidationRule;
 use Relaticle\CustomFields\Enums\FieldDataType;
 use Relaticle\CustomFields\FieldTypes\Concerns\HasCommonFieldProperties;
 use Relaticle\CustomFields\Filament\Integration\Components\Forms\ToggleButtonsComponent;
-use Relaticle\CustomFields\Filament\Integration\Components\Infolists\MultiChoiceEntry;
-use Relaticle\CustomFields\Filament\Integration\Components\Tables\Columns\MultiChoiceColumn;
+use Relaticle\CustomFields\Filament\Integration\Components\Infolists\SingleChoiceEntry;
+use Relaticle\CustomFields\Filament\Integration\Components\Tables\Columns\SingleChoiceColumn;
 
 /**
  * ABOUTME: Field type definition for Toggle Buttons fields
@@ -37,7 +37,7 @@ class ToggleButtonsFieldType implements FieldTypeDefinitionInterface
 
     public function getDataType(): FieldDataType
     {
-        return FieldDataType::MULTI_CHOICE;
+        return FieldDataType::SINGLE_CHOICE;
     }
 
     public function getFormComponentClass(): string
@@ -47,12 +47,12 @@ class ToggleButtonsFieldType implements FieldTypeDefinitionInterface
 
     public function getTableColumnClass(): string
     {
-        return MultiChoiceColumn::class;
+        return SingleChoiceColumn::class;
     }
 
     public function getInfolistEntryClass(): string
     {
-        return MultiChoiceEntry::class;
+        return SingleChoiceEntry::class;
     }
 
     public function getPriority(): int
@@ -64,8 +64,8 @@ class ToggleButtonsFieldType implements FieldTypeDefinitionInterface
     {
         return [
             CustomFieldValidationRule::REQUIRED,
-            CustomFieldValidationRule::MIN,
-            CustomFieldValidationRule::MAX,
+            CustomFieldValidationRule::IN,
+            CustomFieldValidationRule::NOT_IN,
         ];
     }
 }

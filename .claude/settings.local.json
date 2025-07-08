@@ -31,7 +31,9 @@
       "Bash(done)",
       "Bash(tree:*)",
       "Bash(composer pint:*)",
-      "Bash(vendor/bin/pint:*)"
+      "Bash(vendor/bin/pint:*)",
+      "Bash(diff:*)",
+      "Bash(vendor/bin/phpstan analyse:*)"
     ],
     "deny": []
   }

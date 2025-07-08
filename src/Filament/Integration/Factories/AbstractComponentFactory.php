@@ -57,7 +57,7 @@ abstract class AbstractComponentFactory
         $componentClass = match ($componentKey) {
             'form_component' => $customFieldType->formComponent,
             'table_column' => $customFieldType->tableColumn,
-            'infolist_component' => $customFieldType->infolistComponent,
+            'infolist_entry' => $customFieldType->infolistEntry,
             default => throw new InvalidArgumentException("Invalid component key: {$componentKey}")
         };
 

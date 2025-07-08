@@ -59,22 +59,17 @@ class FieldForm implements FormInterface
             ])
             ->columns(12)
             ->columnSpanFull()
-            ->requiredUnless('type', 'tags_input')
+            ->requiredUnless('type', 'tags_input') // TODO: Check via CustomFieldsType
             ->hiddenLabel()
             ->defaultItems(1)
-            ->minItems(1)
             ->addActionLabel(
                 __('custom-fields::custom-fields.field.form.options.add')
             )
             ->columnSpanFull()
             ->label(__('custom-fields::custom-fields.field.form.options.label'))
             ->visible(
-                fn (Get $get): bool => $get('options_lookup_type') ===
-                    'options' &&
-                    in_array(
-                        (string) $get('type'),
-                        ['select', 'radio', 'multi_select', 'checkbox_list', 'tags_input', 'toggle_buttons']
-                    )
+                fn (Get $get): bool => $get('options_lookup_type') === 'options'
+                    && CustomFieldsType::getFieldType($get('type'))->dataType->isChoiceField()
             )
             ->mutateRelationshipDataBeforeCreateUsing(function (
                 array $data

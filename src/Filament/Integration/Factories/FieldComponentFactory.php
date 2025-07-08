@@ -23,7 +23,7 @@ final class FieldComponentFactory extends AbstractComponentFactory
      */
     public function create(CustomField $customField, array $dependentFieldCodes = [], ?Collection $allFields = null): Field
     {
-        /** @var FormComponentInterface */
+        /** @var FormComponentInterface $component */
         $component = $this->createComponent($customField, 'form_component', FormComponentInterface::class);
 
         return $component->make($customField, $dependentFieldCodes, $allFields);
