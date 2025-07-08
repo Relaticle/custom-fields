@@ -19,12 +19,17 @@ abstract class BaseBuilder
 
     protected array $only = [];
 
-    public function forModel(Model $model): static
+    public function forModel(Model|string $model): static
     {
-//        $model->load('customFieldValues.customField');
+        if (is_string($model)) {
+            $model = app($model);
+        }
+
+        $model->load('customFieldValues.customField');
 
         $this->model = $model;
         $this->fields = $model->customFields()
+            ->visibleInList()
             ->with(['options', 'section'])
             ->get();
 

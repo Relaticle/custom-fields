@@ -14,17 +14,6 @@ use Relaticle\CustomFields\Support\Utils;
 
 class TableBuilder extends BaseBuilder
 {
-    public function forModel(Model $model): static
-    {
-        $this->model = $model;
-        $this->fields = $model->customFields()
-            ->visibleInList()
-            ->with(['options', 'section'])
-            ->get();
-
-        return $this;
-    }
-
     public function columns(): Collection
     {
         if (! Utils::isTableColumnsEnabled()) {
