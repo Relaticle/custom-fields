@@ -9,7 +9,7 @@ use Relaticle\CustomFields\Enums\FieldDataType;
 use Relaticle\CustomFields\FieldTypes\Concerns\HasCommonFieldProperties;
 use Relaticle\CustomFields\Filament\Integration\Components\Forms\DateTimeComponent;
 use Relaticle\CustomFields\Filament\Integration\Components\Infolists\DateTimeEntry;
-use Relaticle\CustomFields\Filament\Integration\Components\Tables\DateTimeColumn;
+use Relaticle\CustomFields\Filament\Integration\Components\Tables\Columns\DateTimeColumn;
 
 class DateTimeFieldType implements FieldTypeDefinitionInterface
 {

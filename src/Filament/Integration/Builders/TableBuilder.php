@@ -9,6 +9,7 @@ use Filament\Tables\Filters\Filter;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;
 use Relaticle\CustomFields\Filament\Integration\Factories\FieldColumnFactory;
+use Relaticle\CustomFields\Filament\Integration\Factories\FieldFilterFactory;
 use Relaticle\CustomFields\Models\CustomField;
 use Relaticle\CustomFields\Support\Utils;
 
@@ -30,27 +31,12 @@ class TableBuilder extends BaseBuilder
 
     public function filters(): Collection
     {
+        $fieldFilterFactory = app(FieldFilterFactory::class);
+
         return $this->getFilteredFields()
-            ->filter(fn (CustomField $field) => $this->isFilterable($field))
-            ->map(function (CustomField $field) {
-                return $this->createFilter($field);
-            })
+            ->filter(fn (CustomField $field) => $field->isFilterable())
+            ->map(fn (CustomField $field) => $fieldFilterFactory->create($field))
             ->filter()
             ->values();
-    }
-
-    protected function isFilterable(CustomField $field): bool
-    {
-        // Only certain field types support filtering
-        $filterableTypes = ['select', 'multi_select', 'ternary', 'checkbox', 'toggle'];
-
-        return in_array($field->type, $filterableTypes, true);
-    }
-
-    protected function createFilter(CustomField $field): ?Filter
-    {
-        // This will be implemented based on the existing filter logic
-        // For now, returning null to be replaced with actual filter creation
-        return null;
     }
 }

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Relaticle\CustomFields\Filament\Integration\Components\Tables;
+namespace Relaticle\CustomFields\Filament\Integration\Components\Tables\Columns;
 
 use Closure;
 use Filament\Tables\Columns\Column as BaseColumn;

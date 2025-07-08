@@ -10,7 +10,7 @@ use Relaticle\CustomFields\Enums\FieldDataType;
 use Relaticle\CustomFields\FieldTypes\Concerns\HasCommonFieldProperties;
 use Relaticle\CustomFields\Filament\Integration\Components\Forms\ToggleComponent;
 use Relaticle\CustomFields\Filament\Integration\Components\Infolists\BooleanEntry;
-use Relaticle\CustomFields\Filament\Integration\Components\Tables\IconColumn;
+use Relaticle\CustomFields\Filament\Integration\Components\Tables\Columns\IconColumn;
 
 /**
  * ABOUTME: Field type definition for Toggle fields

@@ -10,7 +10,7 @@ use Relaticle\CustomFields\Enums\FieldDataType;
 use Relaticle\CustomFields\FieldTypes\Concerns\HasCommonFieldProperties;
 use Relaticle\CustomFields\Filament\Integration\Components\Forms\TextareaFormComponent;
 use Relaticle\CustomFields\Filament\Integration\Components\Infolists\TextEntry;
-use Relaticle\CustomFields\Filament\Integration\Components\Tables\TextColumn;
+use Relaticle\CustomFields\Filament\Integration\Components\Tables\Columns\TextColumn;
 
 /**
  * ABOUTME: Field type definition for Textarea fields

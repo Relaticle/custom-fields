@@ -13,7 +13,7 @@ use Relaticle\CustomFields\FieldTypes\Concerns\HasCommonFieldProperties;
 use Relaticle\CustomFields\FieldTypes\Concerns\HasImportExportDefaults;
 use Relaticle\CustomFields\Filament\Integration\Components\Forms\CurrencyComponent;
 use Relaticle\CustomFields\Filament\Integration\Components\Infolists\TextEntry;
-use Relaticle\CustomFields\Filament\Integration\Components\Tables\TextColumn;
+use Relaticle\CustomFields\Filament\Integration\Components\Tables\Columns\TextColumn;
 
 /**
  * ABOUTME: Field type definition for Currency fields

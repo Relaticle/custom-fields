@@ -39,6 +39,7 @@ use Spatie\LaravelData\DataCollection;
  * @property int $sort_order
  * @property bool $active
  * @property bool $system_defined
+ * @property FieldTypeData $typeData
  * @property CustomFieldWidth $width
  *
  * @method static CustomFieldQueryBuilder<CustomField> query()

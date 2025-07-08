@@ -20,4 +20,9 @@ trait HasFieldType
     {
         return $this->typeData->dataType === FieldDataType::DATE;
     }
+
+    public function isFilterable(): bool
+    {
+        return $this->typeData->filterable === true;
+    }
 }

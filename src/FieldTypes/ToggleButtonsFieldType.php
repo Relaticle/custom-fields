@@ -10,7 +10,7 @@ use Relaticle\CustomFields\Enums\FieldDataType;
 use Relaticle\CustomFields\FieldTypes\Concerns\HasCommonFieldProperties;
 use Relaticle\CustomFields\Filament\Integration\Components\Forms\ToggleButtonsComponent;
 use Relaticle\CustomFields\Filament\Integration\Components\Infolists\MultiChoiceEntry;
-use Relaticle\CustomFields\Filament\Integration\Components\Tables\MultiChoiceColumn;
+use Relaticle\CustomFields\Filament\Integration\Components\Tables\Columns\MultiChoiceColumn;
 
 /**
  * ABOUTME: Field type definition for Toggle Buttons fields

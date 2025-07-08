@@ -10,8 +10,8 @@ use Relaticle\CustomFields\Enums\FieldDataType;
 use Relaticle\CustomFields\FieldTypes\Concerns\HasCommonFieldProperties;
 use Relaticle\CustomFields\Filament\Integration\Components\Forms\SelectComponent;
 use Relaticle\CustomFields\Filament\Integration\Components\Infolists\SingleChoiceEntry;
-use Relaticle\CustomFields\Filament\Integration\Components\Tables\SingleChoiceColumn;
-use Relaticle\CustomFields\Filament\Integration\Tables\Filters\SelectFilter;
+use Relaticle\CustomFields\Filament\Integration\Components\Tables\Columns\SingleChoiceColumn;
+use Relaticle\CustomFields\Filament\Integration\Components\Tables\Filters\SelectFilter;
 
 class SelectFieldType implements FieldTypeDefinitionInterface
 {

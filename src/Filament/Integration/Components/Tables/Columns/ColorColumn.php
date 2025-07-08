@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Relaticle\CustomFields\Filament\Integration\Components\Tables;
+namespace Relaticle\CustomFields\Filament\Integration\Components\Tables\Columns;
 
 use Filament\Tables\Columns\ColorColumn as BaseColorColumn;
 use Filament\Tables\Columns\Column as BaseColumn;
