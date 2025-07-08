@@ -124,6 +124,7 @@ final class FieldTypeManager
                 key: $fieldType->getKey(),
                 label: $fieldType->getLabel(),
                 icon: $fieldType->getIcon(),
+                priority: $fieldType->getPriority(),
                 dataType: $fieldType->getDataType(),
                 tableColumn: $fieldType->getTableColumnClass(),
                 tableFilter: $fieldType->getTableFilterClass(),
@@ -139,6 +140,6 @@ final class FieldTypeManager
             $this->cachedInstances[$fieldType->getKey()] = $fieldType;
         }
 
-        return FieldTypeCollection::make($fieldTypes)->sortBy('label');
+        return FieldTypeCollection::make($fieldTypes)->sortBy('priority', SORT_NATURAL)->values();
     }
 }

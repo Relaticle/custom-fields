@@ -14,6 +14,7 @@ final class FieldTypeData extends Data implements Stringable
         public string $key,
         public string $label,
         public string $icon,
+        public int $priority,
         public FieldDataType $dataType,
         public string $tableColumn,
         public ?string $tableFilter,
