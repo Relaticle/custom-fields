@@ -10,40 +10,13 @@ use Illuminate\Support\Collection;
 use Relaticle\CustomFields\Filament\Integration\Factories\FieldComponentFactory;
 use Relaticle\CustomFields\Filament\Integration\Factories\SectionComponentFactory;
 use Relaticle\CustomFields\Models\CustomField;
+use Relaticle\CustomFields\Models\CustomFieldSection;
 
 class FormBuilder extends BaseBuilder
 {
     public function build(): Grid
     {
-        $fieldComponentFactory = app(FieldComponentFactory::class);
-        $sectionComponentFactory = app(SectionComponentFactory::class);
-        $components = [];
-        $groupedFields = $this->groupFieldsBySection();
-        $allFields = $this->getFilteredFields()->get();
-
-        // Get all dependent field codes for live updates
-        $dependentFieldCodes = $this->getDependentFieldCodes($allFields);
-
-        foreach ($groupedFields as $sectionId => $fields) {
-            // Create section with fields
-            $section = $fields->first()->section;
-            $sectionComponent = $sectionComponentFactory->create($section);
-
-            $sectionFields = [];
-            foreach ($fields as $field) {
-                $component = $fieldComponentFactory->create($field, $dependentFieldCodes, $allFields);
-                if ($component) {
-                    $sectionFields[] = $component;
-                }
-            }
-
-            if (! empty($sectionFields)) {
-                $sectionComponent->schema($sectionFields);
-                $components[] = $sectionComponent;
-            }
-        }
-
-        return Grid::make(1)->schema($components);
+        return Grid::make(1)->schema($this->values()->toArray());
     }
 
     private function getDependentFieldCodes(Collection $fields): array
@@ -66,12 +39,20 @@ class FormBuilder extends BaseBuilder
     public function values(): Collection
     {
         $fieldComponentFactory = app(FieldComponentFactory::class);
-        $allFields = $this->getFilteredFields()->get();
+        $sectionComponentFactory = app(SectionComponentFactory::class);
+
+        $allFields = $this->getFilteredSections()->flatMap(fn($section) => $section->fields);
         $dependentFieldCodes = $this->getDependentFieldCodes($allFields);
 
-        return $allFields
-            ->map(fn (CustomField $field) => $fieldComponentFactory->create($field, $dependentFieldCodes, $allFields))
-            ->filter()
-            ->values();
+        return $this->getFilteredSections()
+            ->map(function (CustomFieldSection $section) use ($sectionComponentFactory, $fieldComponentFactory, $dependentFieldCodes, $allFields) {
+                return $sectionComponentFactory->create($section)->schema(
+                    function () use ($section, $fieldComponentFactory, $dependentFieldCodes, $allFields) {
+                        return $section->fields->map(function (CustomField $customField) use ($fieldComponentFactory, $dependentFieldCodes, $allFields) {
+                            return $fieldComponentFactory->create($customField, $dependentFieldCodes, $allFields);
+                        })->toArray();
+                    }
+                );
+            });
     }
 }

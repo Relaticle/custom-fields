@@ -13,7 +13,7 @@ use Relaticle\CustomFields\Models\CustomFieldSection;
 
 final class SectionInfolistsFactory
 {
-    public function create(CustomFieldSection $customFieldSection): Section | Fieldset | Grid
+    public function create(CustomFieldSection $customFieldSection): Section|Fieldset|Grid
     {
         return match ($customFieldSection->type) {
             CustomFieldSectionType::SECTION => Section::make($customFieldSection->label)

@@ -14,8 +14,8 @@ use Relaticle\CustomFields\Services\ValueResolver\LookupSingleValueResolver;
 
 final class SingleChoiceEntry extends AbstractInfolistEntry
 {
-    use ConfiguresFieldName;
     use ConfiguresBadgeColors;
+    use ConfiguresFieldName;
 
     public function __construct(
         private readonly LookupSingleValueResolver $valueResolver

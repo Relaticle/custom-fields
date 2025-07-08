@@ -2,10 +2,10 @@
 
 namespace Relaticle\CustomFields\Filament\Integration\Components\Tables\Filters;
 
-use Relaticle\CustomFields\Filament\Integration\Base\AbstractTableFilter;
-use Relaticle\CustomFields\Models\CustomField;
 use Filament\Tables\Filters\TernaryFilter as FilamentTernaryFilter;
 use Illuminate\Database\Eloquent\Builder;
+use Relaticle\CustomFields\Filament\Integration\Base\AbstractTableFilter;
+use Relaticle\CustomFields\Models\CustomField;
 
 final class TernaryFilter extends AbstractTableFilter
 {

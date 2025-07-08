@@ -17,28 +17,7 @@ class InfolistBuilder extends BaseBuilder
 {
     public function build(): Component
     {
-        $fieldInfolistsFactory = app(FieldInfolistsFactory::class);
-        $sectionInfolistsFactory = app(SectionInfolistsFactory::class);
-        $components = [];
-        $groupedFields = $this->groupFieldsBySection();
-
-        foreach ($groupedFields as $fields) {
-            // Create section with fields
-            $section = $fields->first()->section;
-            $sectionComponent = $sectionInfolistsFactory->create($section);
-
-            $sectionEntries = [];
-            foreach ($fields as $field) {
-                $sectionEntries[] = $fieldInfolistsFactory->create($field);
-            }
-
-            if (! empty($sectionEntries)) {
-                $sectionComponent->schema($sectionEntries);
-                $components[] = $sectionComponent;
-            }
-        }
-
-        return Grid::make(1)->schema($components);
+        return Grid::make(1)->schema($this->values()->toArray());
     }
 
     /**
@@ -47,23 +26,17 @@ class InfolistBuilder extends BaseBuilder
     public function values(): Collection
     {
         $fieldInfolistsFactory = app(FieldInfolistsFactory::class);
-        $groupedFields = $this->groupFieldsBySection();
-        $sections = collect();
+        $sectionInfolistsFactory = app(SectionInfolistsFactory::class);
 
-        foreach ($groupedFields as $fields) {
-            $section = $fields->first()->section;
-            $sectionData = [
-                'section' => $section,
-                'fields' => $fields->map(fn (CustomField $field) => $fieldInfolistsFactory->create($field))
-                    ->filter()
-                    ->values(),
-            ];
-
-            if ($sectionData['fields']->isNotEmpty()) {
-                $sections->push($sectionData);
-            }
-        }
-
-        return $sections;
+        return $this->getFilteredSections()
+            ->map(function (CustomFieldSection $section) use ($sectionInfolistsFactory, $fieldInfolistsFactory) {
+                return $sectionInfolistsFactory->create($section)->schema(
+                    function () use ($section, $fieldInfolistsFactory) {
+                        return $section->fields->map(function (CustomField $customField) use ($fieldInfolistsFactory) {
+                            return $fieldInfolistsFactory->create($customField);
+                        })->toArray();
+                    }
+                );
+            });
     }
 }

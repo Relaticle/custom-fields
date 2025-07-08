@@ -14,8 +14,8 @@ use Relaticle\CustomFields\Services\ValueResolver\LookupMultiValueResolver;
 
 final class MultiChoiceEntry extends AbstractInfolistEntry
 {
-    use ConfiguresFieldName;
     use ConfiguresBadgeColors;
+    use ConfiguresFieldName;
 
     public function __construct(
         private readonly LookupMultiValueResolver $valueResolver

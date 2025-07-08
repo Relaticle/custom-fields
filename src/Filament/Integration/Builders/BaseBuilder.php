@@ -7,16 +7,19 @@ namespace Relaticle\CustomFields\Filament\Integration\Builders;
 
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Collection;
 use InvalidArgumentException;
+use Relaticle\CustomFields\CustomFields;
 use Relaticle\CustomFields\Models\Contracts\HasCustomFields;
-use Relaticle\CustomFields\Models\CustomField;
+use Relaticle\CustomFields\Models\CustomFieldSection;
+use Relaticle\CustomFields\QueryBuilders\CustomFieldQueryBuilder;
 
 abstract class BaseBuilder
 {
     protected Model $model;
 
-    protected Builder $fields;
+    protected Builder $sections;
 
     protected array $except = [];
 
@@ -35,7 +38,9 @@ abstract class BaseBuilder
         $model->load('customFieldValues.customField');
 
         $this->model = $model;
-        $this->fields = $model->customFields()->with(['options', 'section']);
+        $this->sections = CustomFields::newSectionModel()->query()
+            ->forEntityType($model::class)
+            ->orderBy('sort_order');
 
         return $this;
     }
@@ -54,23 +59,18 @@ abstract class BaseBuilder
         return $this;
     }
 
-    /**
-     * @return Builder<CustomField>
-     */
-    protected function getFilteredFields(): Builder
+    protected function getFilteredSections(): Collection
     {
-        return $this->fields
-            ->when(! empty($this->only), fn (Builder $collection) => $collection->whereIn('code', $this->only))
-            ->when(! empty($this->except), fn (Builder $collection) => $collection->whereNotIn('code', $this->except));
-    }
-
-    protected function groupFieldsBySection(): Collection
-    {
-        $filteredFields = $this->getFilteredFields();
-
-        // Group fields by their sections
-        return $filteredFields->groupBy(function (CustomField $field) {
-            return $field->section->id;
-        });
+        return $this->sections
+            ->with(['fields' => function (HasMany $query) {
+                $query
+                    ->when($this instanceof TableBuilder, fn (CustomFieldQueryBuilder $q) => $q->visibleInList())
+                    ->when($this instanceof InfolistBuilder, fn (CustomFieldQueryBuilder $q) => $q->visibleInView())
+                    ->when(! empty($this->only), fn (CustomFieldQueryBuilder $q) => $q->whereIn('code', $this->only))
+                    ->when(! empty($this->except), fn (CustomFieldQueryBuilder $q) => $q->whereNotIn('code', $this->except))
+                    ->orderBy('sort_order');
+            }])
+            ->get()
+            ->filter(fn (CustomFieldSection $section) => $section->fields->isNotEmpty());
     }
 }

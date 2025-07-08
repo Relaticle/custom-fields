@@ -5,8 +5,6 @@
 
 namespace Relaticle\CustomFields\Filament\Integration\Builders;
 
-use Filament\Tables\Filters\Filter;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;
 use Relaticle\CustomFields\Filament\Integration\Factories\FieldColumnFactory;
 use Relaticle\CustomFields\Filament\Integration\Factories\FieldFilterFactory;
@@ -17,28 +15,30 @@ class TableBuilder extends BaseBuilder
 {
     public function columns(): Collection
     {
-        if (! Utils::isTableColumnsEnabled()) {
+        if (!Utils::isTableColumnsEnabled()) {
             return collect();
         }
 
         $fieldColumnFactory = app(FieldColumnFactory::class);
 
-        return $this->getFilteredFields()
-            ->visibleInList()
-            ->get()
-            ->map(fn (CustomField $field) => $fieldColumnFactory->create($field))
+        return $this->getFilteredSections()
+            ->flatMap(fn($section) => $section->fields)
+            ->map(fn(CustomField $field) => $fieldColumnFactory->create($field))
             ->values();
     }
 
     public function filters(): Collection
     {
+        if (!Utils::isTableFiltersEnabled()) {
+            return collect();
+        }
+
         $fieldFilterFactory = app(FieldFilterFactory::class);
 
-        return $this->getFilteredFields()
-            ->visibleInList()
-            ->get()
-            ->filter(fn (CustomField $field) => $field->isFilterable())
-            ->map(fn (CustomField $field) => $fieldFilterFactory->create($field))
+        return $this->getFilteredSections()
+            ->flatMap(fn($section) => $section->fields)
+            ->filter(fn(CustomField $field) => $field->isFilterable())
+            ->map(fn(CustomField $field) => $fieldFilterFactory->create($field))
             ->filter()
             ->values();
     }
