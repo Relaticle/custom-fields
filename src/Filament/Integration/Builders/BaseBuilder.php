@@ -21,6 +21,8 @@ abstract class BaseBuilder
 
     public function forModel(Model $model): static
     {
+//        $model->load('customFieldValues.customField');
+
         $this->model = $model;
         $this->fields = $model->customFields()
             ->with(['options', 'section'])
