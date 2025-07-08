@@ -5,7 +5,7 @@
 
 namespace Relaticle\CustomFields\Filament\Integration\Builders;
 
-use Filament\Forms\Components\Section;
+use Filament\Schemas\Components\Grid;
 use Illuminate\Support\Collection;
 use Relaticle\CustomFields\Filament\Integration\Factories\FieldComponentFactory;
 use Relaticle\CustomFields\Filament\Integration\Factories\SectionComponentFactory;
@@ -13,7 +13,7 @@ use Relaticle\CustomFields\Models\CustomField;
 
 class FormBuilder extends BaseBuilder
 {
-    public function build(): array
+    public function build(): Grid
     {
         $fieldComponentFactory = app(FieldComponentFactory::class);
         $sectionComponentFactory = app(SectionComponentFactory::class);
@@ -43,7 +43,7 @@ class FormBuilder extends BaseBuilder
             }
         }
 
-        return $components;
+        return Grid::make(1)->schema($components);
     }
 
     private function getDependentFieldCodes(Collection $fields): array

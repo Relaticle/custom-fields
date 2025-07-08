@@ -7,6 +7,8 @@ namespace Relaticle\CustomFields\Filament\Integration\Builders;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;
+use InvalidArgumentException;
+use Relaticle\CustomFields\Models\Contracts\HasCustomFields;
 use Relaticle\CustomFields\Models\CustomField;
 
 abstract class BaseBuilder
@@ -19,19 +21,20 @@ abstract class BaseBuilder
 
     protected array $only = [];
 
-    public function forModel(Model|string $model): static
+    public function forModel(Model | string $model): static
     {
         if (is_string($model)) {
             $model = app($model);
         }
 
+        if (! $model instanceof HasCustomFields) {
+            throw new InvalidArgumentException('Model must implement HasCustomFields interface.');
+        }
+
         $model->load('customFieldValues.customField');
 
         $this->model = $model;
-        $this->fields = $model->customFields()
-            ->visibleInList()
-            ->with(['options', 'section'])
-            ->get();
+        $this->fields = $model->customFields()->with(['options', 'section'])->get();
 
         return $this;
     }

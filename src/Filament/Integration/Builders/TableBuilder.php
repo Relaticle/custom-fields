@@ -23,6 +23,8 @@ class TableBuilder extends BaseBuilder
 
         $fieldColumnFactory = app(FieldColumnFactory::class);
 
+        // TODO: apply visibleInList filter to get only fields that are visible in the table
+
         return $this->getFilteredFields()
             ->map(fn (CustomField $field) => $fieldColumnFactory->create($field))
             ->filter()
@@ -32,6 +34,8 @@ class TableBuilder extends BaseBuilder
     public function filters(): Collection
     {
         $fieldFilterFactory = app(FieldFilterFactory::class);
+
+        // TODO: apply visibleInList filter to get only fields that are visible in the table
 
         return $this->getFilteredFields()
             ->filter(fn (CustomField $field) => $field->isFilterable())
