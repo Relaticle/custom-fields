@@ -5,6 +5,7 @@
 
 namespace Relaticle\CustomFields\Filament\Integration\Builders;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;
 use InvalidArgumentException;
@@ -15,7 +16,7 @@ abstract class BaseBuilder
 {
     protected Model $model;
 
-    protected Collection $fields;
+    protected Builder $fields;
 
     protected array $except = [];
 
@@ -34,7 +35,7 @@ abstract class BaseBuilder
         $model->load('customFieldValues.customField');
 
         $this->model = $model;
-        $this->fields = $model->customFields()->with(['options', 'section'])->get();
+        $this->fields = $model->customFields()->with(['options', 'section']);
 
         return $this;
     }
@@ -53,11 +54,14 @@ abstract class BaseBuilder
         return $this;
     }
 
-    protected function getFilteredFields(): Collection
+    /**
+     * @return Builder<CustomField>
+     */
+    protected function getFilteredFields(): Builder
     {
         return $this->fields
-            ->when(! empty($this->only), fn (Collection $collection) => $collection->whereIn('code', $this->only))
-            ->when(! empty($this->except), fn (Collection $collection) => $collection->whereNotIn('code', $this->except));
+            ->when(! empty($this->only), fn (Builder $collection) => $collection->whereIn('code', $this->only))
+            ->when(! empty($this->except), fn (Builder $collection) => $collection->whereNotIn('code', $this->except));
     }
 
     protected function groupFieldsBySection(): Collection

@@ -19,7 +19,7 @@ class FormBuilder extends BaseBuilder
         $sectionComponentFactory = app(SectionComponentFactory::class);
         $components = [];
         $groupedFields = $this->groupFieldsBySection();
-        $allFields = $this->getFilteredFields();
+        $allFields = $this->getFilteredFields()->get();
 
         // Get all dependent field codes for live updates
         $dependentFieldCodes = $this->getDependentFieldCodes($allFields);
@@ -66,7 +66,7 @@ class FormBuilder extends BaseBuilder
     public function values(): Collection
     {
         $fieldComponentFactory = app(FieldComponentFactory::class);
-        $allFields = $this->getFilteredFields();
+        $allFields = $this->getFilteredFields()->get();
         $dependentFieldCodes = $this->getDependentFieldCodes($allFields);
 
         return $allFields
