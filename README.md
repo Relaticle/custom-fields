@@ -64,13 +64,15 @@ class Post extends Model implements HasCustomFields
 Add to your Filament form:
 
 ```php
-use Relaticle\CustomFields\Filament\Forms\Components\CustomFieldsComponent;
+use Filament\Schemas\Schema;
+use Relaticle\CustomFields\Facades\CustomFields;
 
-public function form(Form $form): Form
+public function form(Schema $schema): Form
 {
-    return $form->schema([
+    return $schema->components([
         // Your existing form fields...
-        CustomFieldsComponent::make()->columns(1),
+        
+        CustomFields::form()->forModel($schema->getRecord())->build()
     ]);
 }
 ```
