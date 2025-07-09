@@ -12,7 +12,6 @@ use Illuminate\Support\ServiceProvider;
 use Relaticle\CustomFields\Contracts\EntityManagerInterface;
 use Relaticle\CustomFields\Data\EntityConfigurationData;
 use Relaticle\CustomFields\Entities\EntityManager;
-use Relaticle\CustomFields\Enums\EntityFeature;
 
 class EntityServiceProvider extends ServiceProvider
 {
@@ -71,24 +70,13 @@ class EntityServiceProvider extends ServiceProvider
 
                 foreach ($entities as $alias => $config) {
                     if (is_array($config)) {
-                        // Ensure alias is set
                         if (! isset($config['alias']) && is_string($alias)) {
                             $config['alias'] = $alias;
                         }
 
-                        // Convert string features to enums in collection
-                        if (isset($config['features']) && is_array($config['features'])) {
-                            $config['features'] = collect($config['features'])->map(
-                                fn ($feature) => is_string($feature) ? EntityFeature::from($feature) : $feature
-                            );
-                        }
-
                         $configurations[] = EntityConfigurationData::from($config);
-                    } elseif (is_string($config) && class_exists($config)) {
-                        // Resource class
-                        if (is_subclass_of($config, Resource::class)) {
-                            $configurations[] = EntityConfigurationData::fromResource($config);
-                        }
+                    } elseif (is_string($config) && class_exists($config) && is_subclass_of($config, Resource::class)) {
+                        $configurations[] = EntityConfigurationData::fromResource($config);
                     }
                 }
 
