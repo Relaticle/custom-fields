@@ -92,3 +92,7 @@ Validation uses Laravel's validation rules with additional custom rules:
 - Rules are stored as `ValidationRuleData` DTOs
 - Applied dynamically based on field configuration
 - Support for conditional validation based on visibility
+
+### Best Practices 
+
+./.claude/docs/pestphp-testing-best-practices.md
