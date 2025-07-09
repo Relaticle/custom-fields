@@ -17,6 +17,7 @@ final class ColorEntry extends AbstractInfolistEntry
     public function make(CustomField $customField): Entry
     {
         return BaseColorEntry::make($this->getFieldName($customField))
-            ->label($customField->name);
+            ->label($customField->name)
+            ->state(fn ($record) => $record->getCustomFieldValue($customField));
     }
 }

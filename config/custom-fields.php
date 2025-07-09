@@ -140,19 +140,19 @@ return [
         | auto-discovered configuration.
         */
         'entities' => [
-                        'countries' => [
-                            'modelClass' => \App\Models\Country::class,
-                            'labelSingular' => 'Country',
-                            'labelPlural' => 'Countries',
-                            'icon' => 'heroicon-o-document-text',
-                            'primaryAttribute' => 'name',
-                            'searchAttributes' => ['name', 'code'],
-                            'features' => [
-                                \Relaticle\CustomFields\Enums\EntityFeature::CUSTOM_FIELDS,
-                                \Relaticle\CustomFields\Enums\EntityFeature::LOOKUP_SOURCE,
-                            ],
-                            'priority' => 10,
-                        ],
+            //            'countries' => [
+            //                'modelClass' => \App\Models\Country::class,
+            //                'labelSingular' => 'Country',
+            //                'labelPlural' => 'Countries',
+            //                'icon' => 'heroicon-o-document-text',
+            //                'primaryAttribute' => 'name',
+            //                'searchAttributes' => ['name', 'code'],
+            //                'features' => [
+            //                    \Relaticle\CustomFields\Enums\EntityFeature::CUSTOM_FIELDS,
+            //                    \Relaticle\CustomFields\Enums\EntityFeature::LOOKUP_SOURCE,
+            //                ],
+            //                'priority' => 10,
+            //            ],
 
             // Example configuration (uncomment to use):
             // 'authors' => [

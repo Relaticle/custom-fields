@@ -15,7 +15,6 @@ final class FieldInfolistsFactory
 
         return $component->make($customField)
             ->columnSpan($customField->width->getSpanValue())
-            ->state(fn ($record) => $record->getCustomFieldValue($customField))
             ->inlineLabel(false);
     }
 }

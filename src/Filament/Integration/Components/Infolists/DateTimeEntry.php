@@ -20,6 +20,7 @@ final class DateTimeEntry extends AbstractInfolistEntry
         return TextEntry::make($this->getFieldName($customField))
             ->dateTime(FieldTypeUtils::getDateTimeFormat())
             ->placeholder(FieldTypeUtils::getDateTimeFormat())
-            ->label($customField->name);
+            ->label($customField->name)
+            ->state(fn ($record) => $record->getCustomFieldValue($customField));
     }
 }

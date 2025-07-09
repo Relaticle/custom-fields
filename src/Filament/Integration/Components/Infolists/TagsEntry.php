@@ -19,6 +19,7 @@ final class TagsEntry extends AbstractInfolistEntry
         return BaseTextEntry::make($this->getFieldName($customField))
             ->badge()
             ->separator(',')
-            ->label($customField->name);
+            ->label($customField->name)
+            ->state(fn ($record) => $record->getCustomFieldValue($customField));
     }
 }
