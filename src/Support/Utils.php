@@ -64,31 +64,6 @@ class Utils
         return config('custom-fields.tenant_aware', false);
     }
 
-    /**
-     * Invoke a method on an object using reflection.
-     * Used to call protected methods on Filament Resources.
-     *
-     * @param  object  $object  The object instance
-     * @param  string  $methodName  The name of the method to call
-     * @param  array<string, mixed>  $args  The arguments to pass to the method
-     * @return mixed The return value from the method
-     *
-     * @throws ReflectionException
-     */
-    public static function invokeMethodByReflection(object $object, string $methodName, array $args = []): mixed
-    {
-        $reflectionClass = new ReflectionClass($object);
-
-        if ($reflectionClass->hasMethod($methodName)) {
-            $method = $reflectionClass->getMethod($methodName);
-            $method->setAccessible(true);
-
-            return $method->invoke($object, ...$args);
-        }
-
-        return null;
-    }
-
     public static function isConditionalVisibilityFeatureEnabled(): bool
     {
         return config('custom-fields.features.conditional_visibility.enabled', false);
@@ -128,5 +103,30 @@ class Utils
 
         // Return black for light colors, white for dark colors
         return $luminance > 0.5 ? '#000000' : '#ffffff';
+    }
+
+    /**
+     * Invoke a method on an object using reflection.
+     * Used to call protected methods on Filament Resources.
+     *
+     * @param  object  $object  The object instance
+     * @param  string  $methodName  The name of the method to call
+     * @param  array<int, mixed>  $args  The arguments to pass to the method
+     * @return mixed The return value from the method
+     *
+     * @throws ReflectionException
+     */
+    public static function invokeMethodByReflection(object $object, string $methodName, array $args = []): mixed
+    {
+        $reflectionClass = new ReflectionClass($object);
+
+        if ($reflectionClass->hasMethod($methodName)) {
+            $method = $reflectionClass->getMethod($methodName);
+            $method->setAccessible(true);
+
+            return $method->invoke($object, ...$args);
+        }
+
+        return null;
     }
 }

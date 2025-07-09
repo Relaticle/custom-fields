@@ -159,9 +159,9 @@ trait ConfiguresLookups
             ->getSearchResultsUsing(function (string $search) use ($entityInstanceQuery, $entityInstanceKeyName, $recordTitleAttribute, $globalSearchableAttributes, $resource): array {
                 if ($resource instanceof Resource) {
                     Utils::invokeMethodByReflection($resource, 'applyGlobalSearchAttributeConstraints', [
-                        'query' => $entityInstanceQuery,
-                        'search' => $search,
-                        'searchableAttributes' => $globalSearchableAttributes,
+                        $entityInstanceQuery,
+                        $search,
+                        $globalSearchableAttributes,
                     ]);
                 } else {
                     // Apply search constraints manually if no resource
