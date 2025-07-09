@@ -216,7 +216,7 @@ final class EntityDiscovery
             'icon' => $this->getModelIcon($modelClass),
             'primaryAttribute' => $this->getModelPrimaryAttribute($modelClass),
             'searchAttributes' => $this->getModelSearchAttributes($modelClass),
-            'features' => [EntityConfiguration::FEATURE_CUSTOM_FIELDS],
+            'features' => [EntityConfiguration::FEATURE_CUSTOM_FIELDS, EntityConfiguration::FEATURE_LOOKUP_SOURCE],
             'priority' => 999,
         ]);
     }

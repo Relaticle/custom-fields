@@ -131,28 +131,25 @@ return [
         | implement HasCustomFields.
         */
         'excluded_models' => [
-            // App\Models\SystemModel::class,
+            // App\Models\User::class,
         ],
 
         /*
         | Manually registered entities.
         | Use this to register entities without Resources or to override
         | auto-discovered configuration.
-        |
-        | Example:
-        | 'posts' => [
-        |     'modelClass' => \App\Models\Post::class,
-        |     'labelSingular' => 'Post',
-        |     'labelPlural' => 'Posts',
-        |     'icon' => 'heroicon-o-document-text',
-        |     'primaryAttribute' => 'title',
-        |     'searchAttributes' => ['title', 'content'],
-        |     'features' => ['custom_fields', 'lookup_source'],
-        |     'priority' => 10,
-        | ],
         */
         'entities' => [
-            //
+            //            'countries' => [
+            //                'modelClass' => \App\Models\Country::class,
+            //                'labelSingular' => 'Country',
+            //                'labelPlural' => 'Countries',
+            //                'icon' => 'heroicon-o-document-text',
+            //                'primaryAttribute' => 'name',
+            //                'searchAttributes' => ['name', 'code'],
+            //                'features' => ['custom_fields', 'lookup_source'],
+            //                'priority' => 10,
+            //            ],
         ],
     ],
 
@@ -209,83 +206,5 @@ return [
     */
     'column_names' => [
         'tenant_foreign_key' => 'tenant_id',
-    ],
-
-    /*
-    |--------------------------------------------------------------------------
-    | Custom Field Type Discovery
-    |--------------------------------------------------------------------------
-    |
-    | Configure how custom field types are discovered and registered.
-    | This allows extending the package with custom field types without
-    | modifying core files.
-    |
-    */
-    'field_type_discovery' => [
-        /*
-        | Directories to scan for custom field type definitions.
-        | All PHP files in these directories will be scanned for classes
-        | implementing FieldTypeDefinitionInterface.
-        */
-        'directories' => [
-            // app_path('CustomFields/Types'),
-        ],
-
-        /*
-        | Namespaces to scan for custom field type definitions.
-        | Uses composer's PSR-4 autoloader to locate directories.
-        */
-        'namespaces' => [
-            // 'App\\CustomFields\\Types',
-        ],
-
-        /*
-        | Explicitly registered field type classes.
-        | These classes will be loaded directly without scanning.
-        */
-        'classes' => [
-            //            App\CustomFields\Types\RatingFieldType::class,
-        ],
-
-        /*
-        | Enable/disable automatic discovery.
-        | When disabled, only explicitly registered classes are loaded.
-        */
-        'enabled' => true,
-
-        /*
-        | Cache discovery results for better performance.
-        | Set to false during development for immediate updates.
-        */
-        'cache' => false,
-
-        /*
-        | Cache duration in minutes.
-        */
-        'cache_duration' => 60,
-    ],
-
-    /*
-    |--------------------------------------------------------------------------
-    | Custom Field Type Settings
-    |--------------------------------------------------------------------------
-    |
-    | Global settings that affect custom field type behavior.
-    |
-    */
-    'custom_field_types' => [
-        /*
-        | Default priority for custom field types.
-        | Lower numbers appear first in the admin panel.
-        */
-        'default_priority' => 200,
-
-        /*
-        | Validation settings for custom field types.
-        */
-        'validation' => [
-            'strict_mode' => true,
-            'validate_component_interfaces' => true,
-        ],
     ],
 ];

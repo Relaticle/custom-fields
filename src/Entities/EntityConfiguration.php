@@ -33,21 +33,20 @@ final readonly class EntityConfiguration implements EntityConfigurationInterface
     public const string FEATURE_AUDITABLE = 'auditable';
 
     public function __construct(
-        private string  $modelClass,
-        private string  $alias,
-        private string  $labelSingular,
-        private string  $labelPlural,
-        private mixed   $icon,
-        private string  $primaryAttribute,
-        private array   $searchAttributes,
+        private string $modelClass,
+        private string $alias,
+        private string $labelSingular,
+        private string $labelPlural,
+        private mixed $icon,
+        private string $primaryAttribute,
+        private array $searchAttributes,
         private ?string $resourceClass = null,
-        private array   $scopes = [],
-        private array   $relationships = [],
-        private array   $features = [],
-        private int     $priority = 0,
-        private array   $metadata = [],
-    )
-    {
+        private array $scopes = [],
+        private array $relationships = [],
+        private array $features = [],
+        private int $priority = 0,
+        private array $metadata = [],
+    ) {
         $this->validateConfiguration();
     }
 
@@ -56,7 +55,7 @@ final readonly class EntityConfiguration implements EntityConfigurationInterface
      */
     public static function fromResource(string $resourceClass): self
     {
-        if (!class_exists($resourceClass) || !is_subclass_of($resourceClass, Resource::class)) {
+        if (! class_exists($resourceClass) || ! is_subclass_of($resourceClass, Resource::class)) {
             throw new InvalidArgumentException("Class {$resourceClass} must be a valid Filament Resource");
         }
 
@@ -64,7 +63,7 @@ final readonly class EntityConfiguration implements EntityConfigurationInterface
         $resource = app($resourceClass);
         $modelClass = $resource::getModel();
 
-        if (!class_exists($modelClass)) {
+        if (! class_exists($modelClass)) {
             throw new InvalidArgumentException("Model class {$modelClass} does not exist");
         }
 
@@ -120,7 +119,7 @@ final readonly class EntityConfiguration implements EntityConfigurationInterface
             resourceClass: $config['resourceClass'] ?? null,
             scopes: $config['scopes'] ?? [],
             relationships: $config['relationships'] ?? [],
-            features: $config['features'] ?? [self::FEATURE_CUSTOM_FIELDS],
+            features: $config['features'] ?? [self::FEATURE_CUSTOM_FIELDS, self::FEATURE_LOOKUP_SOURCE],
             priority: $config['priority'] ?? 999,
             metadata: $config['metadata'] ?? [],
         );
@@ -271,7 +270,7 @@ final readonly class EntityConfiguration implements EntityConfigurationInterface
             'primaryAttribute' => $this->primaryAttribute,
             'searchAttributes' => $this->searchAttributes,
             'resourceClass' => $this->resourceClass,
-            'scopes' => array_map(fn($scope): string => is_string($scope) ? $scope : 'closure', $this->scopes),
+            'scopes' => array_map(fn ($scope): string => is_string($scope) ? $scope : 'closure', $this->scopes),
             'relationships' => $this->relationships,
             'features' => $this->features,
             'priority' => $this->priority,
@@ -284,15 +283,15 @@ final readonly class EntityConfiguration implements EntityConfigurationInterface
      */
     private function validateConfiguration(): void
     {
-        if (!class_exists($this->modelClass)) {
+        if (! class_exists($this->modelClass)) {
             throw new InvalidArgumentException("Model class {$this->modelClass} does not exist");
         }
 
-        if (!is_subclass_of($this->modelClass, Model::class)) {
+        if (! is_subclass_of($this->modelClass, Model::class)) {
             throw new InvalidArgumentException("Model class {$this->modelClass} must extend " . Model::class);
         }
 
-        if ($this->resourceClass && !class_exists($this->resourceClass)) {
+        if ($this->resourceClass && ! class_exists($this->resourceClass)) {
             throw new InvalidArgumentException("Resource class {$this->resourceClass} does not exist");
         }
 

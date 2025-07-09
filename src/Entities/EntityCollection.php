@@ -26,7 +26,8 @@ final class EntityCollection extends Collection
      */
     public function findByModelClass(string $modelClass): ?EntityConfigurationInterface
     {
-        return $this->first(fn (EntityConfigurationInterface $entity): bool => $entity->getModelClass() === $modelClass
+        return $this->first(
+            fn (EntityConfigurationInterface $entity): bool => $entity->getModelClass() === $modelClass
         );
     }
 
@@ -35,7 +36,8 @@ final class EntityCollection extends Collection
      */
     public function findByAlias(string $alias): ?EntityConfigurationInterface
     {
-        return $this->first(fn (EntityConfigurationInterface $entity): bool => $entity->getAlias() === $alias
+        return $this->first(
+            fn (EntityConfigurationInterface $entity): bool => $entity->getAlias() === $alias
         );
     }
 
@@ -44,7 +46,8 @@ final class EntityCollection extends Collection
      */
     public function withCustomFields(): static
     {
-        return $this->filter(fn (EntityConfigurationInterface $entity): bool => $entity->hasFeature(EntityConfiguration::FEATURE_CUSTOM_FIELDS)
+        return $this->filter(
+            fn (EntityConfigurationInterface $entity): bool => $entity->hasFeature(EntityConfiguration::FEATURE_CUSTOM_FIELDS)
         );
     }
 
@@ -53,7 +56,8 @@ final class EntityCollection extends Collection
      */
     public function asLookupSources(): static
     {
-        return $this->filter(fn (EntityConfigurationInterface $entity): bool => $entity->hasFeature(EntityConfiguration::FEATURE_LOOKUP_SOURCE)
+        return $this->filter(
+            fn (EntityConfigurationInterface $entity): bool => $entity->hasFeature(EntityConfiguration::FEATURE_LOOKUP_SOURCE)
         );
     }
 
@@ -62,7 +66,8 @@ final class EntityCollection extends Collection
      */
     public function withFeature(string $feature): static
     {
-        return $this->filter(fn (EntityConfigurationInterface $entity): bool => $entity->hasFeature($feature)
+        return $this->filter(
+            fn (EntityConfigurationInterface $entity): bool => $entity->hasFeature($feature)
         );
     }
 
@@ -71,7 +76,8 @@ final class EntityCollection extends Collection
      */
     public function withoutFeature(string $feature): static
     {
-        return $this->reject(fn (EntityConfigurationInterface $entity): bool => $entity->hasFeature($feature)
+        return $this->reject(
+            fn (EntityConfigurationInterface $entity): bool => $entity->hasFeature($feature)
         );
     }
 
@@ -112,7 +118,8 @@ final class EntityCollection extends Collection
      */
     public function withResource(): static
     {
-        return $this->filter(fn (EntityConfigurationInterface $entity): bool => $entity->getResourceClass() !== null
+        return $this->filter(
+            fn (EntityConfigurationInterface $entity): bool => $entity->getResourceClass() !== null
         );
     }
 
@@ -121,7 +128,8 @@ final class EntityCollection extends Collection
      */
     public function withoutResource(): static
     {
-        return $this->filter(fn (EntityConfigurationInterface $entity): bool => $entity->getResourceClass() === null
+        return $this->filter(
+            fn (EntityConfigurationInterface $entity): bool => $entity->getResourceClass() === null
         );
     }
 
@@ -130,7 +138,8 @@ final class EntityCollection extends Collection
      */
     public function sortedByPriority(): static
     {
-        return $this->sortBy(fn (EntityConfigurationInterface $entity): int => $entity->getPriority()
+        return $this->sortBy(
+            fn (EntityConfigurationInterface $entity): int => $entity->getPriority()
         )->values();
     }
 
@@ -139,7 +148,8 @@ final class EntityCollection extends Collection
      */
     public function sortedByLabel(): static
     {
-        return $this->sortBy(fn (EntityConfigurationInterface $entity): string => $entity->getLabelSingular()
+        return $this->sortBy(
+            fn (EntityConfigurationInterface $entity): string => $entity->getLabelSingular()
         )->values();
     }
 
@@ -174,7 +184,8 @@ final class EntityCollection extends Collection
      */
     public function groupByFeature(string $feature): static
     {
-        return $this->groupBy(fn (EntityConfigurationInterface $entity): string => $entity->hasFeature($feature) ? 'with_'.$feature : 'without_'.$feature
+        return $this->groupBy(
+            fn (EntityConfigurationInterface $entity): string => $entity->hasFeature($feature) ? 'with_' . $feature : 'without_' . $feature
         );
     }
 
@@ -183,7 +194,8 @@ final class EntityCollection extends Collection
      */
     public function whereMetadata(string $key, mixed $value): static
     {
-        return $this->filter(fn (EntityConfigurationInterface $entity): bool => $entity->getMetadataValue($key) === $value
+        return $this->filter(
+            fn (EntityConfigurationInterface $entity): bool => $entity->getMetadataValue($key) === $value
         );
     }
 
@@ -192,7 +204,8 @@ final class EntityCollection extends Collection
      */
     public function getModelClasses(): array
     {
-        return $this->map(fn (EntityConfigurationInterface $entity): string => $entity->getModelClass()
+        return $this->map(
+            fn (EntityConfigurationInterface $entity): string => $entity->getModelClass()
         )->unique()->values()->toArray();
     }
 
@@ -201,7 +214,8 @@ final class EntityCollection extends Collection
      */
     public function getAliases(): array
     {
-        return $this->map(fn (EntityConfigurationInterface $entity): string => $entity->getAlias()
+        return $this->map(
+            fn (EntityConfigurationInterface $entity): string => $entity->getAlias()
         )->unique()->values()->toArray();
     }
 }
