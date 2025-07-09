@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 use Rector\Config\RectorConfig;
 use Rector\DeadCode\Rector\Assign\RemoveUnusedVariableAssignRector;
-use Rector\Php83\Rector\ClassMethod\AddOverrideAttributeToOverriddenMethodsRector;
 
 // Specific rules are handled by the sets
 
@@ -17,7 +16,6 @@ return RectorConfig::configure()
         __DIR__.'/tests/Fixtures',
         __DIR__.'/tests/database',
         __DIR__.'/vendor',
-        AddOverrideAttributeToOverriddenMethodsRector::class,
         RemoveUnusedVariableAssignRector::class => [
             __DIR__.'/tests', // we like unused variables in tests for clear naming
         ],
