@@ -74,6 +74,8 @@ class EntityServiceProvider extends ServiceProvider
                             $config['alias'] = $alias;
                         }
 
+                        $config['features'] = collect($config['features'] ?? []);
+
                         $configurations[] = EntityConfigurationData::from($config);
                     } elseif (is_string($config) && class_exists($config) && is_subclass_of($config, Resource::class)) {
                         $configurations[] = EntityConfigurationData::fromResource($config);
