@@ -6,9 +6,12 @@ namespace Relaticle\CustomFields\Filament\Integration\Components\Tables\Filters;
 
 use Filament\Tables\Filters\SelectFilter as FilamentSelectFilter;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\App;
+use InvalidArgumentException;
+use Relaticle\CustomFields\Facades\Entities;
 use Relaticle\CustomFields\Filament\Integration\Base\AbstractTableFilter;
 use Relaticle\CustomFields\Models\CustomField;
-use Relaticle\CustomFields\Services\FilamentResourceService;
+use Relaticle\CustomFields\Support\Utils;
 use Throwable;
 
 final class SelectFilter extends AbstractTableFilter
@@ -33,7 +36,7 @@ final class SelectFilter extends AbstractTableFilter
         $filter->query(
             fn (array $data, Builder $query): Builder => $query->when(
                 ! empty($data['values']),
-                fn (Builder $query): Builder => $query->whereHas('customFieldValues', function (Builder $query) use ($customField, $data) {
+                fn (Builder $query): Builder => $query->whereHas('customFieldValues', function (Builder $query) use ($customField, $data): void {
                     $query->where('custom_field_id', $customField->id)
                         ->when($customField->getValueColumn() === 'json_value', fn (Builder $query) => $query->whereJsonContains($customField->getValueColumn(), $data['values']))
                         ->when($customField->getValueColumn() !== 'json_value', fn (Builder $query) => $query->whereIn($customField->getValueColumn(), $data['values']));
@@ -47,22 +50,46 @@ final class SelectFilter extends AbstractTableFilter
     /**
      * @throws Throwable
      */
-    protected function configureLookup(FilamentSelectFilter $select, $lookupType): FilamentSelectFilter
+    private function configureLookup(FilamentSelectFilter $select, string $lookupType): FilamentSelectFilter
     {
-        $resource = FilamentResourceService::getResourceInstance($lookupType);
-        $entityInstance = FilamentResourceService::getModelInstance($lookupType);
-        $recordTitleAttribute = FilamentResourceService::getRecordTitleAttribute($lookupType);
-        $globalSearchableAttributes = FilamentResourceService::getGlobalSearchableAttributes($lookupType);
+        $entity = Entities::getEntity($lookupType);
+
+        if (! $entity) {
+            throw new InvalidArgumentException("No entity found for lookup type: {$lookupType}");
+        }
+
+        $entityInstance = $entity->createModelInstance();
+        $recordTitleAttribute = $entity->getPrimaryAttribute();
+        $globalSearchableAttributes = $entity->getSearchAttributes();
+        $resource = null;
+
+        if ($entity->getResourceClass()) {
+            try {
+                $resource = App::make($entity->getResourceClass());
+            } catch (Throwable) {
+                // Resource not available
+            }
+        }
 
         return $select
             ->getSearchResultsUsing(function (string $search) use ($entityInstance, $recordTitleAttribute, $globalSearchableAttributes, $resource): array {
                 $query = $entityInstance->query();
 
-                FilamentResourceService::invokeMethodByReflection($resource, 'applyGlobalSearchAttributeConstraints', [
-                    $query,
-                    $search,
-                    $globalSearchableAttributes,
-                ]);
+                if ($resource) {
+                    Utils::invokeMethodByReflection($resource, 'applyGlobalSearchAttributeConstraints', [
+                        $query,
+                        $search,
+                        $globalSearchableAttributes,
+                    ]);
+                } else {
+                    // Apply search constraints manually if no resource
+                    $query->where(function ($q) use ($search, $globalSearchableAttributes, $recordTitleAttribute): void {
+                        $searchAttributes = empty($globalSearchableAttributes) ? [$recordTitleAttribute] : $globalSearchableAttributes;
+                        foreach ($searchAttributes as $attribute) {
+                            $q->orWhere($attribute, 'like', "%{$search}%");
+                        }
+                    });
+                }
 
                 return $query->limit(50)
                     ->pluck($recordTitleAttribute, 'id')

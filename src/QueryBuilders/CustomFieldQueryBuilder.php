@@ -3,8 +3,8 @@
 namespace Relaticle\CustomFields\QueryBuilders;
 
 use Illuminate\Database\Eloquent\Builder;
+use Relaticle\CustomFields\Facades\Entities;
 use Relaticle\CustomFields\Models\CustomField;
-use Relaticle\CustomFields\Services\EntityTypeService;
 
 /**
  * @template TModelClass of CustomField
@@ -24,7 +24,7 @@ class CustomFieldQueryBuilder extends Builder
     {
         return $this->where(
             'entity_type',
-            EntityTypeService::getEntityFromModel($model)
+            (Entities::getEntity($model)?->getAlias()) ?? $model
         );
     }
 

@@ -5,11 +5,15 @@ declare(strict_types=1);
 namespace Relaticle\CustomFields\Filament\Integration\Concerns\Forms;
 
 use Filament\Forms\Components\Select;
+use Filament\Resources\Resource;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\App;
+use InvalidArgumentException;
 use ReflectionException;
+use Relaticle\CustomFields\Facades\Entities;
 use Relaticle\CustomFields\Models\CustomField;
-use Relaticle\CustomFields\Services\FilamentResourceService;
+use Relaticle\CustomFields\Support\Utils;
 use Throwable;
 
 /**
@@ -27,7 +31,7 @@ trait ConfiguresLookups
      * Get options array for a custom field, resolving from lookup or field options.
      *
      * This method handles the two main option sources:
-     * 1. Lookup types: Query external models using FilamentResourceService
+     * 1. Lookup types: Query external models using Entity Management System
      * 2. Field options: Use the custom field's configured options
      *
      * @return array<int|string, string> Options as key => label pairs
@@ -42,20 +46,22 @@ trait ConfiguresLookups
     }
 
     /**
-     * Get options from lookup type using FilamentResourceService.
+     * Get options from lookup type using Entity Management System.
      *
      * @return array<int|string, string>
      */
     protected function getLookupOptions(string $lookupType, int $limit = 50): array
     {
-        /** @var Model $entityInstance */
-        $entityInstance = FilamentResourceService::getModelInstance($lookupType);
-        $recordTitleAttribute = FilamentResourceService::getRecordTitleAttribute($lookupType);
+        $entity = Entities::getEntity($lookupType);
 
-        /** @var Builder<Model> $query */
-        $query = $entityInstance->newQuery();
+        if (! $entity) {
+            throw new InvalidArgumentException("No entity found for lookup type: {$lookupType}");
+        }
 
-        return $query->limit($limit)->pluck($recordTitleAttribute, 'id')->toArray();
+        $query = $entity->newQuery();
+        $primaryAttribute = $entity->getPrimaryAttribute();
+
+        return $query->limit($limit)->pluck($primaryAttribute, 'id')->toArray();
     }
 
     /**
@@ -82,10 +88,16 @@ trait ConfiguresLookups
      */
     protected function getAdvancedLookupData(string $lookupType): array
     {
-        $entityInstanceQuery = FilamentResourceService::getModelInstanceQuery($lookupType);
-        $entityInstanceKeyName = $entityInstanceQuery->getModel()->getKeyName();
-        $recordTitleAttribute = FilamentResourceService::getRecordTitleAttribute($lookupType);
-        $entityInstance = FilamentResourceService::getModelInstance($lookupType);
+        $entity = Entities::getEntity($lookupType);
+
+        if (! $entity) {
+            throw new InvalidArgumentException("No entity found for lookup type: {$lookupType}");
+        }
+
+        $entityInstanceQuery = $entity->newQuery();
+        $entityInstance = $entity->createModelInstance();
+        $entityInstanceKeyName = $entityInstance->getKeyName();
+        $recordTitleAttribute = $entity->getPrimaryAttribute();
 
         return [
             'entityInstanceQuery' => $entityInstanceQuery,
@@ -111,11 +123,28 @@ trait ConfiguresLookups
      */
     protected function configureAdvancedLookup(Select $select, string $lookupType): Select
     {
-        $resource = FilamentResourceService::getResourceInstance($lookupType);
-        $entityInstanceQuery = FilamentResourceService::getModelInstanceQuery($lookupType);
-        $entityInstanceKeyName = $entityInstanceQuery->getModel()->getKeyName();
-        $recordTitleAttribute = FilamentResourceService::getRecordTitleAttribute($lookupType);
-        $globalSearchableAttributes = FilamentResourceService::getGlobalSearchableAttributes($lookupType);
+        $entity = Entities::getEntity($lookupType);
+
+        if (! $entity) {
+            throw new InvalidArgumentException("No entity found for lookup type: {$lookupType}");
+        }
+
+        $entityInstanceQuery = $entity->newQuery();
+        $entityInstanceKeyName = $entity->createModelInstance()->getKeyName();
+        $recordTitleAttribute = $entity->getPrimaryAttribute();
+        $globalSearchableAttributes = $entity->getSearchAttributes();
+        $resource = null;
+
+        if ($entity->getResourceClass()) {
+            try {
+                $resource = App::make($entity->getResourceClass());
+            } catch (Throwable) {
+                $resource = null;
+                // No resource available
+            }
+        } else {
+            $resource = null;
+        }
 
         return $select
             ->options(function () use ($select, $entityInstanceQuery, $recordTitleAttribute, $entityInstanceKeyName): array {
@@ -128,11 +157,21 @@ trait ConfiguresLookups
                     ->toArray();
             })
             ->getSearchResultsUsing(function (string $search) use ($entityInstanceQuery, $entityInstanceKeyName, $recordTitleAttribute, $globalSearchableAttributes, $resource): array {
-                FilamentResourceService::invokeMethodByReflection($resource, 'applyGlobalSearchAttributeConstraints', [
-                    'query' => $entityInstanceQuery,
-                    'search' => $search,
-                    'searchableAttributes' => $globalSearchableAttributes,
-                ]);
+                if ($resource instanceof Resource) {
+                    Utils::invokeMethodByReflection($resource, 'applyGlobalSearchAttributeConstraints', [
+                        'query' => $entityInstanceQuery,
+                        'search' => $search,
+                        'searchableAttributes' => $globalSearchableAttributes,
+                    ]);
+                } else {
+                    // Apply search constraints manually if no resource
+                    $entityInstanceQuery->where(function ($query) use ($search, $globalSearchableAttributes, $recordTitleAttribute): void {
+                        $searchAttributes = empty($globalSearchableAttributes) ? [$recordTitleAttribute] : $globalSearchableAttributes;
+                        foreach ($searchAttributes as $attribute) {
+                            $query->orWhere($attribute, 'like', "%{$search}%");
+                        }
+                    });
+                }
 
                 return $entityInstanceQuery
                     ->limit(50)

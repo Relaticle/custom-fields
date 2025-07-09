@@ -8,12 +8,12 @@ use Filament\Actions\Imports\ImportColumn;
 use Illuminate\Database\Eloquent\Model;
 use Psr\Log\LoggerInterface;
 use Relaticle\CustomFields\CustomFields;
+use Relaticle\CustomFields\Facades\Entities;
 use Relaticle\CustomFields\Filament\Integration\Actions\Imports\Exceptions\UnsupportedColumnTypeException;
 use Relaticle\CustomFields\Filament\Integration\Actions\Imports\ValueConverters\ValueConverterInterface;
-use Relaticle\CustomFields\Filament\Integration\Factories\ColumnFactory;
+use Relaticle\CustomFields\Filament\Integration\Factories\ImportColumnFactory;
 use Relaticle\CustomFields\Models\Contracts\HasCustomFields;
 use Relaticle\CustomFields\Models\CustomField;
-use Relaticle\CustomFields\Services\EntityTypeService;
 
 final readonly class CustomFieldsImporter
 {
@@ -21,7 +21,7 @@ final readonly class CustomFieldsImporter
      * Constructor with property promotion for dependency injection.
      */
     public function __construct(
-        private ColumnFactory $columnFactory,
+        private ImportColumnFactory $columnFactory,
         private ValueConverterInterface $valueConverter,
         private LoggerInterface $logger
     ) {}
@@ -58,7 +58,7 @@ final readonly class CustomFieldsImporter
      */
     public function getColumnsByFieldCodes(string $modelClass, array $fieldCodes): array
     {
-        $entityType = EntityTypeService::getEntityFromModel($modelClass);
+        $entityType = (Entities::getEntity($modelClass)?->getAlias()) ?? $modelClass;
 
         return CustomFields::newCustomFieldModel()->query()
             ->forMorphEntity($entityType)

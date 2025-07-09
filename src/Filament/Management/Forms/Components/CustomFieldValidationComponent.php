@@ -229,6 +229,10 @@ final class CustomFieldValidationComponent extends Component
     {
         $fieldType = $this->getFieldType($get);
 
+        if (! $fieldType instanceof FieldTypeData) {
+            return [];
+        }
+
         return collect($fieldType->validationRules)
             ->pluck('value')
             ->toArray();
@@ -444,9 +448,15 @@ final class CustomFieldValidationComponent extends Component
         return $fieldType->validationRules;
     }
 
-    private function getFieldType(Get $get): FieldTypeData
+    private function getFieldType(Get $get): ?FieldTypeData
     {
-        return CustomFieldsType::getFieldType($get('../../type'));
+        $type = $get('../../type');
+
+        if ($type === null) {
+            return null;
+        }
+
+        return CustomFieldsType::getFieldType($type);
     }
 
     /**

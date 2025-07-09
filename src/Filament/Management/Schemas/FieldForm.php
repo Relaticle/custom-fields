@@ -23,12 +23,11 @@ use Illuminate\Support\Str;
 use Illuminate\Validation\Rules\Unique;
 use Relaticle\CustomFields\CustomFields;
 use Relaticle\CustomFields\Facades\CustomFieldsType;
+use Relaticle\CustomFields\Facades\Entities;
 use Relaticle\CustomFields\Filament\Management\Forms\Components\CustomFieldValidationComponent;
 use Relaticle\CustomFields\Filament\Management\Forms\Components\TypeField;
 use Relaticle\CustomFields\Filament\Management\Forms\Components\VisibilityComponent;
 use Relaticle\CustomFields\Models\CustomField;
-use Relaticle\CustomFields\Services\EntityTypeService;
-use Relaticle\CustomFields\Services\LookupTypeService;
 use Relaticle\CustomFields\Support\Utils;
 
 class FieldForm implements FormInterface
@@ -69,6 +68,7 @@ class FieldForm implements FormInterface
             ->label(__('custom-fields::custom-fields.field.form.options.label'))
             ->visible(
                 fn (Get $get): bool => $get('options_lookup_type') === 'options'
+                    && $get('type') !== null
                     && CustomFieldsType::getFieldType($get('type'))->dataType->isChoiceField()
             )
             ->mutateRelationshipDataBeforeCreateUsing(function (
@@ -99,12 +99,12 @@ class FieldForm implements FormInterface
                                     'custom-fields::custom-fields.field.form.entity_type'
                                 )
                             )
-                            ->options(EntityTypeService::getOptions())
+                            ->options(Entities::getOptions(onlyCustomFields: true))
                             ->disabled()
                             ->default(
                                 fn () => request(
                                     'entityType',
-                                    EntityTypeService::getDefaultOption()
+                                    (Entities::withCustomFields()->first()?->getAlias()) ?? ''
                                 )
                             )
                             ->required(),
@@ -392,10 +392,8 @@ class FieldForm implements FormInterface
                                 )
                             )
                             ->visible(
-                                fn (Get $get): bool => in_array(
-                                    $get('type'),
-                                    CustomFieldsType::toCollection()->onlyChoiceables()->keys()->toArray()
-                                )
+                                fn (Get $get): bool => $get('type') !== null
+                                    && CustomFieldsType::getFieldType($get('type'))->dataType->isChoiceField()
                             )
                             ->disabled(
                                 fn (
@@ -435,7 +433,7 @@ class FieldForm implements FormInterface
                                     $set(
                                         'lookup_type',
                                         $record->lookup_type ??
-                                        LookupTypeService::getDefaultOption()
+                                        (Entities::asLookupSources()->first()?->getAlias()) ?? ''
                                     );
                                 }
                             })
@@ -453,8 +451,8 @@ class FieldForm implements FormInterface
                                 ) === 'lookup'
                             )
                             ->live()
-                            ->options(LookupTypeService::getOptions())
-                            ->default(LookupTypeService::getDefaultOption())
+                            ->options(Entities::getLookupOptions())
+                            ->default((Entities::asLookupSources()->first()?->getAlias()) ?? '')
                             ->required(),
                         Hidden::make('lookup_type'),
                         $optionsRepeater,

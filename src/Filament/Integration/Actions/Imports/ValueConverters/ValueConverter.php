@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace Relaticle\CustomFields\Filament\Integration\Actions\Imports\ValueConverters;
 
 use Illuminate\Database\Eloquent\Model;
+use Relaticle\CustomFields\Facades\Entities;
 use Relaticle\CustomFields\Models\Contracts\HasCustomFields;
 use Relaticle\CustomFields\Models\CustomField;
-use Relaticle\CustomFields\Services\EntityTypeService;
 
 /**
  * Default implementation of the value converter interface.
@@ -25,7 +25,7 @@ final class ValueConverter implements ValueConverterInterface
     public function convertValues(HasCustomFields $record, array $customFieldsData, ?Model $tenant = null): array
     {
         // Get the entity type for the model
-        $entityType = EntityTypeService::getEntityFromModel($record::class);
+        $entityType = (Entities::getEntity($record::class)?->getAlias()) ?? $record::class;
 
         // Get all relevant custom fields
         $customFields = CustomField::forMorphEntity($entityType)

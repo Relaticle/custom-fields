@@ -16,7 +16,7 @@ use Relaticle\CustomFields\Models\CustomField;
 /**
  * Factory for creating import columns based on custom field types.
  */
-final class ColumnFactory
+final class ImportColumnFactory
 {
     /**
      * @var array<string, ColumnConfiguratorInterface> Column configurators by field type

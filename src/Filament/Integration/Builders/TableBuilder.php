@@ -15,30 +15,30 @@ class TableBuilder extends BaseBuilder
 {
     public function columns(): Collection
     {
-        if (!Utils::isTableColumnsEnabled()) {
+        if (! Utils::isTableColumnsEnabled()) {
             return collect();
         }
 
         $fieldColumnFactory = app(FieldColumnFactory::class);
 
         return $this->getFilteredSections()
-            ->flatMap(fn($section) => $section->fields)
-            ->map(fn(CustomField $field) => $fieldColumnFactory->create($field))
+            ->flatMap(fn ($section) => $section->fields)
+            ->map(fn (CustomField $field) => $fieldColumnFactory->create($field))
             ->values();
     }
 
     public function filters(): Collection
     {
-        if (!Utils::isTableFiltersEnabled()) {
+        if (! Utils::isTableFiltersEnabled()) {
             return collect();
         }
 
         $fieldFilterFactory = app(FieldFilterFactory::class);
 
         return $this->getFilteredSections()
-            ->flatMap(fn($section) => $section->fields)
-            ->filter(fn(CustomField $field) => $field->isFilterable())
-            ->map(fn(CustomField $field) => $fieldFilterFactory->create($field))
+            ->flatMap(fn ($section) => $section->fields)
+            ->filter(fn (CustomField $field): bool => $field->isFilterable())
+            ->map(fn (CustomField $field) => $fieldFilterFactory->create($field))
             ->filter()
             ->values();
     }

@@ -48,7 +48,7 @@ class PostResource extends Resource
                     ->numeric()
                     ->required(),
 
-                ...CustomFields::form()->forModel(new static::$model)->build(),
+                CustomFields::form()->forModel($schema->getModel())->build(),
             ]);
     }
 

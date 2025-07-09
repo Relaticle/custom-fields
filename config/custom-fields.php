@@ -88,38 +88,72 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | Entity Resources Configuration
+    | Entity Management Configuration
     |--------------------------------------------------------------------------
     |
-    | This section controls which Filament resources are allowed or disallowed
-    | to have custom fields. You can specify allowed resources, disallowed
-    | resources, or leave them empty to use default behavior.
+    | Configure how entities (models that can have custom fields) are
+    | discovered, registered, and managed throughout the system.
     |
     */
-    'allowed_entity_resources' => [
-        // App\Filament\Resources\UserResource::class,
-    ],
+    'entity_management' => [
+        /*
+        | Enable automatic discovery of entities from configured paths
+        | and Filament Resources. When disabled, only manually registered
+        | entities will be available.
+        */
+        'auto_discover_entities' => env('CUSTOM_FIELDS_AUTO_DISCOVER_ENTITIES', true),
 
-    'disallowed_entity_resources' => [
-        //
-    ],
+        /*
+        | Directories to scan for models implementing HasCustomFields.
+        | All models in these directories will be automatically discovered.
+        */
+        'entity_discovery_paths' => [
+            app_path('Models'),
+        ],
 
-    /*
-    |--------------------------------------------------------------------------
-    | Lookup Resources Configuration
-    |--------------------------------------------------------------------------
-    |
-    | Define which Filament resources can be used as lookups. You can specify
-    | allowed resources, disallowed resources, or leave them empty to use
-    | default behavior.
-    |
-    */
-    'allowed_lookup_resources' => [
-        //
-    ],
+        /*
+        | Namespaces to scan for entity models.
+        | Used when discovery paths are not sufficient.
+        */
+        'entity_discovery_namespaces' => [
+            'App\\Models',
+        ],
 
-    'disallowed_lookup_resources' => [
-        //
+        /*
+        | Enable caching of discovered entities for better performance.
+        | Disable during development for immediate updates.
+        */
+        'cache_entities' => env('CUSTOM_FIELDS_CACHE_ENTITIES', true),
+
+        /*
+        | Models to exclude from automatic discovery.
+        | These models will not be available as entities even if they
+        | implement HasCustomFields.
+        */
+        'excluded_models' => [
+            // App\Models\SystemModel::class,
+        ],
+
+        /*
+        | Manually registered entities.
+        | Use this to register entities without Resources or to override
+        | auto-discovered configuration.
+        |
+        | Example:
+        | 'posts' => [
+        |     'modelClass' => \App\Models\Post::class,
+        |     'labelSingular' => 'Post',
+        |     'labelPlural' => 'Posts',
+        |     'icon' => 'heroicon-o-document-text',
+        |     'primaryAttribute' => 'title',
+        |     'searchAttributes' => ['title', 'content'],
+        |     'features' => ['custom_fields', 'lookup_source'],
+        |     'priority' => 10,
+        | ],
+        */
+        'entities' => [
+            //
+        ],
     ],
 
     /*

@@ -41,18 +41,12 @@ class FormBuilder extends BaseBuilder
         $fieldComponentFactory = app(FieldComponentFactory::class);
         $sectionComponentFactory = app(SectionComponentFactory::class);
 
-        $allFields = $this->getFilteredSections()->flatMap(fn($section) => $section->fields);
+        $allFields = $this->getFilteredSections()->flatMap(fn ($section) => $section->fields);
         $dependentFieldCodes = $this->getDependentFieldCodes($allFields);
 
         return $this->getFilteredSections()
-            ->map(function (CustomFieldSection $section) use ($sectionComponentFactory, $fieldComponentFactory, $dependentFieldCodes, $allFields) {
-                return $sectionComponentFactory->create($section)->schema(
-                    function () use ($section, $fieldComponentFactory, $dependentFieldCodes, $allFields) {
-                        return $section->fields->map(function (CustomField $customField) use ($fieldComponentFactory, $dependentFieldCodes, $allFields) {
-                            return $fieldComponentFactory->create($customField, $dependentFieldCodes, $allFields);
-                        })->toArray();
-                    }
-                );
-            });
+            ->map(fn (CustomFieldSection $section) => $sectionComponentFactory->create($section)->schema(
+                fn () => $section->fields->map(fn (CustomField $customField) => $fieldComponentFactory->create($customField, $dependentFieldCodes, $allFields))->toArray()
+            ));
     }
 }

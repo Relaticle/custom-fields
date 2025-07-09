@@ -22,8 +22,8 @@ class FieldTypeServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
-        Table::configureUsing(function (Table $table) {
-            $table->modifyQueryUsing(function (Builder $query) {
+        Table::configureUsing(function (Table $table): void {
+            $table->modifyQueryUsing(function (Builder $query): void {
                 $query->when($query->getModel() instanceof HasCustomFields, fn (Builder $q) => $q->with('customFieldValues.customField'));
             });
         });

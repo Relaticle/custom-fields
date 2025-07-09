@@ -12,9 +12,8 @@ use Relaticle\CustomFields\Data\CustomFieldData;
 use Relaticle\CustomFields\Exceptions\CustomFieldAlreadyExistsException;
 use Relaticle\CustomFields\Exceptions\CustomFieldDoesNotExistException;
 use Relaticle\CustomFields\Exceptions\FieldTypeNotOptionableException;
+use Relaticle\CustomFields\Facades\Entities;
 use Relaticle\CustomFields\Models\CustomField;
-use Relaticle\CustomFields\Services\EntityTypeService;
-use Relaticle\CustomFields\Services\LookupTypeService;
 use Relaticle\CustomFields\Support\Utils;
 use Throwable;
 
@@ -35,7 +34,7 @@ class CustomFieldsMigrator implements CustomsFieldsMigrators
     {
         $this->customField = CustomFields::newCustomFieldModel()
             ->query()
-            ->forMorphEntity(EntityTypeService::getEntityFromModel($model))
+            ->forMorphEntity((Entities::getEntity($model)?->getAlias()) ?? $model)
             ->where('code', $code)
             ->firstOrFail();
 
@@ -51,7 +50,7 @@ class CustomFieldsMigrator implements CustomsFieldsMigrators
         string $model,
         CustomFieldData $fieldData
     ): CustomFieldsMigrator {
-        $entityType = EntityTypeService::getEntityFromModel($model);
+        $entityType = (Entities::getEntity($model)?->getAlias()) ?? $model;
 
         $fieldData->entityType = $fieldData->section->entityType = $entityType;
 
@@ -83,9 +82,7 @@ class CustomFieldsMigrator implements CustomsFieldsMigrators
             throw new FieldTypeNotOptionableException;
         }
 
-        $this->customFieldData->lookupType = LookupTypeService::getEntityFromModel(
-            $model
-        );
+        $this->customFieldData->lookupType = (Entities::getEntity($model)?->getAlias()) ?? $model;
 
         return $this;
     }

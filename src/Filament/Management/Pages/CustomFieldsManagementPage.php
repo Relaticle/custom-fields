@@ -19,9 +19,9 @@ use Override;
 use Relaticle\CustomFields\CustomFields as CustomFieldsModel;
 use Relaticle\CustomFields\CustomFieldsPlugin;
 use Relaticle\CustomFields\Enums\CustomFieldSectionType;
+use Relaticle\CustomFields\Facades\Entities;
 use Relaticle\CustomFields\Filament\Management\Schemas\SectionForm;
 use Relaticle\CustomFields\Models\CustomFieldSection;
-use Relaticle\CustomFields\Services\EntityTypeService;
 use Relaticle\CustomFields\Support\Utils;
 
 class CustomFieldsManagementPage extends Page
@@ -40,7 +40,8 @@ class CustomFieldsManagementPage extends Page
     public function mount(): void
     {
         if (blank($this->currentEntityType)) {
-            $this->setCurrentEntityType(EntityTypeService::getDefaultOption());
+            $firstEntity = Entities::withCustomFields()->first();
+            $this->setCurrentEntityType($firstEntity?->getAlias() ?? '');
         }
     }
 
@@ -61,9 +62,33 @@ class CustomFieldsManagementPage extends Page
     }
 
     #[Computed]
+    public function currentEntityLabel(): string
+    {
+        if ($this->currentEntityType === null || $this->currentEntityType === '' || $this->currentEntityType === '0') {
+            return '';
+        }
+
+        $entity = Entities::getEntity($this->currentEntityType);
+
+        return $entity?->getLabelPlural() ?? $this->currentEntityType;
+    }
+
+    #[Computed]
+    public function currentEntityIcon(): string
+    {
+        if ($this->currentEntityType === null || $this->currentEntityType === '' || $this->currentEntityType === '0') {
+            return 'heroicon-o-document';
+        }
+
+        $entity = Entities::getEntity($this->currentEntityType);
+
+        return $entity?->getIcon() ?? 'heroicon-o-document';
+    }
+
+    #[Computed]
     public function entityTypes(): Collection
     {
-        return EntityTypeService::getOptions();
+        return collect(Entities::getOptions(onlyCustomFields: true));
     }
 
     public function setCurrentEntityType(?string $entityType): void

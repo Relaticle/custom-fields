@@ -29,14 +29,8 @@ class InfolistBuilder extends BaseBuilder
         $sectionInfolistsFactory = app(SectionInfolistsFactory::class);
 
         return $this->getFilteredSections()
-            ->map(function (CustomFieldSection $section) use ($sectionInfolistsFactory, $fieldInfolistsFactory) {
-                return $sectionInfolistsFactory->create($section)->schema(
-                    function () use ($section, $fieldInfolistsFactory) {
-                        return $section->fields->map(function (CustomField $customField) use ($fieldInfolistsFactory) {
-                            return $fieldInfolistsFactory->create($customField);
-                        })->toArray();
-                    }
-                );
-            });
+            ->map(fn (CustomFieldSection $section) => $sectionInfolistsFactory->create($section)->schema(
+                fn () => $section->fields->map(fn (CustomField $customField) => $fieldInfolistsFactory->create($customField))->toArray()
+            ));
     }
 }

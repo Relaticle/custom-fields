@@ -10,7 +10,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Relaticle\CustomFields\Filament\Integration\Actions\Imports\Matchers\LookupMatcherInterface;
 use Relaticle\CustomFields\Models\CustomField;
-use Relaticle\CustomFields\Services\FilamentResourceService;
+use Relaticle\CustomFields\Support\Facades\Entities;
 use Throwable;
 
 /**
@@ -55,7 +55,7 @@ final readonly class SelectColumnConfigurator implements ColumnConfiguratorInter
             }
 
             try {
-                $entityInstance = FilamentResourceService::getModelInstance($customField->lookup_type);
+                $entityInstance = Entities::getEntity($customField->lookup_type)->createModelInstance();
 
                 $record = $this->lookupMatcher
                     ->find(
@@ -134,8 +134,8 @@ final readonly class SelectColumnConfigurator implements ColumnConfiguratorInter
     {
         try {
             /** @var Model $entityInstance */
-            $entityInstance = FilamentResourceService::getModelInstance($customField->lookup_type);
-            $recordTitleAttribute = FilamentResourceService::getRecordTitleAttribute($customField->lookup_type);
+            $entityInstance = Entities::getEntity($customField->lookup_type)->createModelInstance();
+            $recordTitleAttribute = Entities::getEntity($customField->lookup_type)->getPrimaryAttribute();
 
             // Get sample values from the lookup model
             /** @var Builder<Model> $query */

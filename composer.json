@@ -56,20 +56,19 @@
     },
     "scripts": {
         "post-autoload-dump": "@php ./vendor/bin/testbench package:discover --ansi",
-        "lint": "pint",
-        "refactor": "rector",
+        "lint": "rector && pint",
         "test:lint": "pint --test",
         "test:refactor": "rector --dry-run",
         "test:types": "phpstan analyse",
         "test:arch": "pest --filter=arch",
         "test:type-coverage": "pest --type-coverage --min=98.0",
-        "test:unit": "pest --parallel",
+        "test:pest": "pest --parallel",
         "test": [
             "@test:lint",
             "@test:refactor",
             "@test:types",
             "@test:type-coverage",
-            "@test:unit"
+            "@test:pest"
         ],
         "test-coverage": "vendor/bin/pest --coverage"
     },

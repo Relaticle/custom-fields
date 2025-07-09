@@ -25,7 +25,7 @@ abstract class BaseBuilder
 
     protected array $only = [];
 
-    public function forModel(Model | string $model): static
+    public function forModel(Model|string $model): static
     {
         if (is_string($model)) {
             $model = app($model);
@@ -62,12 +62,12 @@ abstract class BaseBuilder
     protected function getFilteredSections(): Collection
     {
         return $this->sections
-            ->with(['fields' => function (HasMany $query) {
+            ->with(['fields' => function (HasMany $query): void {
                 $query
-                    ->when($this instanceof TableBuilder, fn (CustomFieldQueryBuilder $q) => $q->visibleInList())
-                    ->when($this instanceof InfolistBuilder, fn (CustomFieldQueryBuilder $q) => $q->visibleInView())
-                    ->when(! empty($this->only), fn (CustomFieldQueryBuilder $q) => $q->whereIn('code', $this->only))
-                    ->when(! empty($this->except), fn (CustomFieldQueryBuilder $q) => $q->whereNotIn('code', $this->except))
+                    ->when($this instanceof TableBuilder, fn (CustomFieldQueryBuilder $q): CustomFieldQueryBuilder => $q->visibleInList())
+                    ->when($this instanceof InfolistBuilder, fn (CustomFieldQueryBuilder $q): CustomFieldQueryBuilder => $q->visibleInView())
+                    ->when($this->only !== [], fn (CustomFieldQueryBuilder $q) => $q->whereIn('code', $this->only))
+                    ->when($this->except !== [], fn (CustomFieldQueryBuilder $q) => $q->whereNotIn('code', $this->except))
                     ->orderBy('sort_order');
             }])
             ->get()

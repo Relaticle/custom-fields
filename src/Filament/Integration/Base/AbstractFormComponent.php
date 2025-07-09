@@ -44,7 +44,7 @@ abstract readonly class AbstractFormComponent implements FormComponentInterface
     public function make(CustomField $customField, array $dependentFieldCodes = [], ?Collection $allFields = null): Field
     {
         $field = $this->create($customField);
-        $allFields = $allFields ?? collect();
+        $allFields ??= collect();
 
         return $this->configure($field, $customField, $allFields, $dependentFieldCodes);
     }

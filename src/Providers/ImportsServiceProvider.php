@@ -15,7 +15,7 @@ use Relaticle\CustomFields\Filament\Integration\Actions\Imports\Matchers\LookupM
 use Relaticle\CustomFields\Filament\Integration\Actions\Imports\Matchers\LookupMatcherInterface;
 use Relaticle\CustomFields\Filament\Integration\Actions\Imports\ValueConverters\ValueConverter;
 use Relaticle\CustomFields\Filament\Integration\Actions\Imports\ValueConverters\ValueConverterInterface;
-use Relaticle\CustomFields\Filament\Integration\Factories\ColumnFactory;
+use Relaticle\CustomFields\Filament\Integration\Factories\ImportColumnFactory;
 
 /**
  * Service provider for custom fields import functionality.
@@ -38,11 +38,11 @@ class ImportsServiceProvider extends ServiceProvider
         $this->app->singleton(MultiSelectColumnConfigurator::class);
 
         // Register column factory
-        $this->app->singleton(ColumnFactory::class);
+        $this->app->singleton(ImportColumnFactory::class);
 
         // Register the importer
         $this->app->singleton(CustomFieldsImporter::class, fn ($app): CustomFieldsImporter => new CustomFieldsImporter(
-            $app->make(ColumnFactory::class),
+            $app->make(ImportColumnFactory::class),
             $app->make(ValueConverterInterface::class),
             $app->make(LoggerInterface::class)
         ));

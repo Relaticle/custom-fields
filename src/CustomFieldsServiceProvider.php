@@ -20,6 +20,7 @@ use Relaticle\CustomFields\Livewire\ManageCustomFieldSection;
 use Relaticle\CustomFields\Livewire\ManageCustomFieldWidth;
 use Relaticle\CustomFields\Models\CustomField;
 use Relaticle\CustomFields\Models\CustomFieldSection;
+use Relaticle\CustomFields\Providers\EntityServiceProvider;
 use Relaticle\CustomFields\Providers\FieldTypeServiceProvider;
 use Relaticle\CustomFields\Providers\ImportsServiceProvider;
 use Relaticle\CustomFields\Providers\ValidationServiceProvider;
@@ -41,6 +42,7 @@ class CustomFieldsServiceProvider extends PackageServiceProvider
         $this->app->register(FieldTypeServiceProvider::class);
         $this->app->register(ImportsServiceProvider::class);
         $this->app->register(ValidationServiceProvider::class);
+        $this->app->register(EntityServiceProvider::class);
 
         $this->app->singleton(CustomsFieldsMigrators::class, CustomFieldsMigrator::class);
         $this->app->singleton(ValueResolvers::class, ValueResolver::class);

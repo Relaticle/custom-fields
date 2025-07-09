@@ -14,11 +14,11 @@ use Relaticle\CustomFields\CustomFields;
 use Relaticle\CustomFields\Data\CustomFieldSectionSettingsData;
 use Relaticle\CustomFields\Database\Factories\CustomFieldSectionFactory;
 use Relaticle\CustomFields\Enums\CustomFieldSectionType;
+use Relaticle\CustomFields\Facades\Entities;
 use Relaticle\CustomFields\Models\Concerns\Activable;
 use Relaticle\CustomFields\Models\Scopes\SortOrderScope;
 use Relaticle\CustomFields\Models\Scopes\TenantScope;
 use Relaticle\CustomFields\Observers\CustomFieldSectionObserver;
-use Relaticle\CustomFields\Services\EntityTypeService;
 
 /**
  * @property string $name
@@ -87,7 +87,7 @@ class CustomFieldSection extends Model
      */
     public function scopeForEntityType(Builder $query, string $model): Builder
     {
-        return $query->where('entity_type', EntityTypeService::getEntityFromModel($model));
+        return $query->where('entity_type', (Entities::getEntity($model)?->getAlias()) ?? $model);
     }
 
     /**
