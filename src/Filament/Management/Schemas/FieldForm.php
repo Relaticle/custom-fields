@@ -19,6 +19,7 @@ use Filament\Schemas\Components\Tabs;
 use Filament\Schemas\Components\Tabs\Tab;
 use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Components\Utilities\Set;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rules\Unique;
 use Relaticle\CustomFields\CustomFields;
@@ -258,9 +259,9 @@ class FieldForm implements FormInterface
                                     )
                                     ->afterStateHydrated(function (
                                         Toggle $component,
-                                        $state
+                                        ?Model $record
                                     ): void {
-                                        if (is_null($state)) {
+                                        if (is_null($record)) {
                                             $component->state(true);
                                         }
                                     }),
@@ -273,9 +274,9 @@ class FieldForm implements FormInterface
                                     )
                                     ->afterStateHydrated(function (
                                         Toggle $component,
-                                        $state
+                                        ?Model $record
                                     ): void {
-                                        if (is_null($state)) {
+                                        if (is_null($record)) {
                                             $component->state(true);
                                         }
                                     }),
@@ -300,9 +301,9 @@ class FieldForm implements FormInterface
                                     )
                                     ->afterStateHydrated(function (
                                         Toggle $component,
-                                        $state
+                                        ?Model $record
                                     ): void {
-                                        if (is_null($state)) {
+                                        if (is_null($record)) {
                                             $component->state(
                                                 Utils::isTableColumnsToggleableHiddenByDefault()
                                             );
