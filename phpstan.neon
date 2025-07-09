@@ -13,3 +13,5 @@ parameters:
     ignoreErrors:
         # Ignore unused trait warnings for library traits meant to be consumed by package users
         - identifier: trait.unused
+    parallel:
+    		maximumNumberOfProcesses: 3
