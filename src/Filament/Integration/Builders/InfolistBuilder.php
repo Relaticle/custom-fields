@@ -12,6 +12,7 @@ use Relaticle\CustomFields\Filament\Integration\Factories\FieldInfolistsFactory;
 use Relaticle\CustomFields\Filament\Integration\Factories\SectionInfolistsFactory;
 use Relaticle\CustomFields\Models\CustomField;
 use Relaticle\CustomFields\Models\CustomFieldSection;
+use Relaticle\CustomFields\Services\Visibility\BackendVisibilityService;
 
 class InfolistBuilder extends BaseBuilder
 {
@@ -28,9 +29,22 @@ class InfolistBuilder extends BaseBuilder
         $fieldInfolistsFactory = app(FieldInfolistsFactory::class);
         $sectionInfolistsFactory = app(SectionInfolistsFactory::class);
 
+        $backendVisibilityService = app(BackendVisibilityService::class);
+
         return $this->getFilteredSections()
-            ->map(fn (CustomFieldSection $section) => $sectionInfolistsFactory->create($section)->schema(
-                fn () => $section->fields->map(fn (CustomField $customField) => $fieldInfolistsFactory->create($customField))->toArray()
-            ));
+            ->map(function (CustomFieldSection $section) use ($fieldInfolistsFactory, $sectionInfolistsFactory, $backendVisibilityService) {
+                // Filter fields to only those that should be visible based on conditional visibility
+                $visibleFields = $backendVisibilityService->getVisibleFields($this->model, $section->fields);
+
+                // Only create a section if it has visible fields
+                if ($visibleFields->isEmpty()) {
+                    return null;
+                }
+
+                return $sectionInfolistsFactory->create($section)->schema(
+                    fn () => $visibleFields->map(fn (CustomField $customField) => $fieldInfolistsFactory->create($customField))->toArray()
+                );
+            })
+            ->filter();
     }
 }
