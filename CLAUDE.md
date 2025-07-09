@@ -4,36 +4,96 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-This is a Laravel/Filament plugin package called "Custom Fields" that allows adding dynamic custom fields to any
-Eloquent model without database migrations. It provides 32+ field types with conditional visibility, multi-tenancy
-support, and full Filament integration.
+**Custom Fields** is a powerful Laravel/Filament plugin package that enables adding dynamic custom fields to any Eloquent model without database migrations.
+
+### Key Features
+- **32+ Field Types** - Text, number, date, select, rich editor, and more
+- **Conditional Visibility** - Show/hide fields based on other field values
+- **Multi-tenancy** - Complete tenant isolation and context management
+- **Filament Integration** - Forms, tables, infolists, and admin interface
+- **Import/Export** - Built-in CSV capabilities
+- **Security** - Optional field encryption and type-safe validation
+- **Extensible** - Custom field types and automatic discovery (coming soon)
+
+### Requirements
+- PHP 8.3+
+- Laravel 11.0+
+- Filament 4.0+
+
+### Package Details
+- **Package Name**: `relaticle/custom-fields`
+- **License**: AGPL-3.0
+- **Documentation**: https://custom-fields.relaticle.com/
 
 ## Development Commands
 
 ### Testing
 
+**Complete Test Suite**
 - `composer test` - Run complete test suite (includes linting, static analysis, and tests)
-- `composer test:unit` - Run unit tests only
-- `composer test:arch` - Run architecture tests
-- `composer test:types` - Run PHPStan static analysis (Level 6)
+  - Runs in sequence: lint check → refactor check → PHPStan → type coverage → tests
+
+**Individual Test Commands**
+- `composer test:pest` - Run all tests in parallel
+- `composer test:arch` - Run architecture tests only
+- `composer test:types` - Run PHPStan static analysis (Level 5)
 - `composer test:type-coverage` - Check type coverage (must be ≥98%)
+- `composer test:lint` - Check code style (dry run)
+- `composer test:refactor` - Check Rector rules (dry run)
+- `composer test-coverage` - Run tests with code coverage report
 
-To run a specific test:
-
+**Running Specific Tests**
 ```bash
-vendor/bin/pest tests/path/to/test.php --filter="test name"
+# Run a specific test file
+vendor/bin/pest tests/path/to/test.php
+
+# Run tests matching a pattern
+vendor/bin/pest --filter="test name"
+
+# Run tests in parallel (faster)
+vendor/bin/pest --parallel
+
+# Run only changed tests
+vendor/bin/pest --dirty
+
+# Re-run failed tests
+vendor/bin/pest --retry
+
+# Profile slow tests
+vendor/bin/pest --profile
 ```
 
 ### Code Quality
 
-- `composer lint` - Format code with Laravel Pint
-- `composer refactor` - Apply Rector refactoring rules
-- `composer refactor:dry` - Preview Rector changes without applying
+**Linting & Formatting**
+- `composer lint` - Auto-fix code style with Laravel Pint and apply Rector rules
+  - Runs both Rector and Pint in parallel for better performance
+- `rector` - Apply automated refactoring rules
+- `rector --dry-run` - Preview Rector changes without applying
+- `pint` - Format code according to Laravel standards
+- `pint --test` - Check code style without making changes
+
+**Static Analysis**
+- `phpstan analyse` - Run PHPStan analysis (configured at Level 5)
+- PHPStan is configured for parallel processing for improved performance
 
 ### Frontend Build
 
+**Development**
 - `npm run dev` - Watch and build CSS/JS for development
+  - Runs CSS and JS builds concurrently with live reload
+  - `npm run dev:styles` - Watch CSS only
+  - `npm run dev:scripts` - Watch JS only
+
+**Production**
 - `npm run build` - Build CSS/JS for production
+  - `npm run build:styles` - Build CSS with PostCSS optimizations
+  - `npm run build:scripts` - Build JS with esbuild minification
+
+**Frontend Stack**
+- CSS: Tailwind CSS 4.x with PostCSS
+- JS: esbuild for fast bundling
+- Uses PostCSS nesting and prefix selectors for component isolation
 
 ## Architecture Overview
 
@@ -47,16 +107,39 @@ vendor/bin/pest tests/path/to/test.php --filter="test name"
 5. **Repository/Service Pattern**: Business logic in services (`TenantContextService`, `ValidationService`,
    `VisibilityService`)
 
-### Key Directories
+### Directory Structure
 
-- `src/Models/` - Eloquent models and traits (`CustomField`, `CustomFieldValue`, `UsesCustomFields`)
-- `src/Forms/` - Form components and builders for Filament forms
-- `src/Tables/` - Table columns and filters for Filament tables
-- `src/Infolists/` - Infolist components for read-only displays
-- `src/Services/` - Business logic services
-- `src/FieldTypes/` - Field type definitions and registration
-- `src/Data/` - DTO classes for type safety
-- `src/Filament/` - Filament admin panel resources and pages
+**Source Code (`src/`)**
+- `Models/` - Eloquent models and traits
+  - `CustomField` - Main field definition model
+  - `CustomFieldValue` - Stores field values
+  - `CustomFieldSection` - Groups fields into sections
+  - `CustomFieldOption` - Options for select/radio fields
+  - `Concerns/UsesCustomFields` - Trait for models using custom fields
+  - `Contracts/HasCustomFields` - Interface for custom field models
+- `Forms/` - Form components and builders for Filament forms
+- `Tables/` - Table columns and filters for Filament tables
+- `Infolists/` - Infolist components for read-only displays
+- `Services/` - Business logic services
+  - `TenantContextService` - Multi-tenancy handling
+  - `ValidationService` - Dynamic validation rules
+  - `VisibilityService` - Conditional field visibility
+- `FieldTypes/` - Field type definitions and registration
+- `Data/` - DTO classes for type safety using Spatie Laravel Data
+- `Filament/` - Filament admin panel resources and pages
+- `Facades/` - Laravel facades for simplified API access
+- `Enums/` - Type-safe enumerations
+
+**Database (`database/`)**
+- `factories/` - Model factories for testing
+- `migrations/` - Database migration files
+
+**Resources (`resources/`)**
+- `css/` - Tailwind CSS styles
+- `js/` - JavaScript components
+- `dist/` - Compiled assets (git ignored)
+- `lang/` - Translation files
+- `views/` - Blade templates for custom components
 
 ### Testing Approach
 
@@ -93,6 +176,111 @@ Validation uses Laravel's validation rules with additional custom rules:
 - Applied dynamically based on field configuration
 - Support for conditional validation based on visibility
 
-### Best Practices 
+## Installation
 
-./.claude/docs/pestphp-testing-best-practices.md
+```bash
+# Install the package
+composer require relaticle/custom-fields
+
+# Publish and run migrations
+php artisan vendor:publish --tag="custom-fields-migrations"
+php artisan migrate
+```
+
+## Quick Start
+
+### 1. Add Plugin to Filament Panel
+
+```php
+use Relaticle\CustomFields\CustomFieldsPlugin;
+use Filament\Panel;
+
+public function panel(Panel $panel): Panel
+{
+    return $panel
+        ->plugins([
+            CustomFieldsPlugin::make(),
+        ]);
+}
+```
+
+### 2. Configure Your Model
+
+```php
+use Relaticle\CustomFields\Models\Contracts\HasCustomFields;
+use Relaticle\CustomFields\Models\Concerns\UsesCustomFields;
+
+class Post extends Model implements HasCustomFields
+{
+    use UsesCustomFields;
+}
+```
+
+### 3. Add to Filament Resource
+
+```php
+use Filament\Schemas\Schema;
+use Relaticle\CustomFields\Facades\CustomFields;
+
+public function form(Schema $schema): Form
+{
+    return $schema->components([
+        // Your existing form fields...
+        
+        CustomFields::form()->forModel($schema->getRecord())->build()
+    ]);
+}
+```
+
+## Testing Best Practices
+
+The project follows comprehensive testing practices documented in `.claude/docs/pestphp-testing-best-practices.md`. Key principles:
+
+### Test Philosophy
+- **Feature Tests First** (80-90% of tests) - Test behavior, not implementation
+- **Avoid Over-Mocking** - Use real implementations when possible
+- **Follow AAA Pattern** - Arrange, Act, Assert
+- **Use Descriptive Names** - Tests should read like specifications
+
+### Test Structure
+```php
+it('creates a custom field with validation', function () {
+    // Arrange
+    $user = User::factory()->create();
+    
+    // Act
+    $response = $this->actingAs($user)
+        ->post('/custom-fields', [
+            'name' => 'Company Size',
+            'type' => 'number',
+            'validation_rules' => ['required', 'min:1']
+        ]);
+    
+    // Assert
+    $response->assertCreated();
+    $this->assertDatabaseHas('custom_fields', [
+        'name' => 'Company Size',
+        'type' => 'number'
+    ]);
+});
+```
+
+### Architecture Tests
+The project includes architecture tests to enforce coding standards:
+- Controllers don't use Models directly
+- Services have proper suffixes
+- No debugging functions in production code
+- DTOs are immutable
+
+## Contributing
+
+See the full contributing guide at https://custom-fields.relaticle.com/contributing
+
+## Resources
+
+- **Documentation**: https://custom-fields.relaticle.com/
+- **Installation Guide**: https://custom-fields.relaticle.com/installation
+- **Quickstart**: https://custom-fields.relaticle.com/quickstart
+- **Configuration**: https://custom-fields.relaticle.com/essentials/configuration
+- **Authorization**: https://custom-fields.relaticle.com/essentials/authorization
+- **Testing Guide**: `.claude/docs/pestphp-testing-best-practices.md`
