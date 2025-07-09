@@ -28,7 +28,7 @@ class CustomFieldsManagementPage extends Page
 {
     protected static string|BackedEnum|null $navigationIcon = 'heroicon-m-document-text';
 
-    protected string $view = 'custom-fields::filament.pages.custom-fields-next';
+    protected string $view = 'custom-fields::filament.pages.custom-fields-management';
 
     protected static ?int $navigationSort = 10;
 
