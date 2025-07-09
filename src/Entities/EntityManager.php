@@ -11,8 +11,9 @@ use Closure;
 use Filament\Resources\Resource;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Traits\Macroable;
-use Relaticle\CustomFields\Contracts\EntityConfigurationInterface;
 use Relaticle\CustomFields\Contracts\EntityManagerInterface;
+use Relaticle\CustomFields\Data\EntityConfigurationData;
+use Relaticle\CustomFields\Enums\EntityFeature;
 
 final class EntityManager implements EntityManagerInterface
 {
@@ -26,33 +27,22 @@ final class EntityManager implements EntityManagerInterface
 
     private ?array $cachedEntities = null;
 
-    private array $cachedInstances = [];
-
     private ?EntityDiscovery $discovery = null;
 
     private bool $discoveryEnabled = false;
 
     private array $resolvingCallbacks = [];
 
-    private bool $useCache = true;
-
     public function __construct(
         private readonly bool $cacheEnabled = true
-    ) {
-        $this->useCache = $cacheEnabled && config('custom-fields.entity_management.cache_entities', true);
-    }
+    ) {}
 
     /**
      * Register entities
      */
-    public function register(array|Closure|string $entities): static
+    public function register(array|Closure $entities): static
     {
-        if ($entities === 'discover') {
-            $this->discoveryEnabled = true;
-        } else {
-            $this->entities[] = $entities;
-        }
-
+        $this->entities[] = $entities;
         $this->clearCache();
 
         return $this;
@@ -64,7 +54,7 @@ final class EntityManager implements EntityManagerInterface
     public function getEntities(): EntityCollection
     {
         if ($this->cachedEntities === null) {
-            $this->cachedEntities = $this->useCache
+            $this->cachedEntities = $this->cacheEnabled
                 ? Cache::remember(self::CACHE_KEY, self::CACHE_TTL, fn (): array => $this->buildEntityCache())
                 : $this->buildEntityCache();
         }
@@ -75,7 +65,7 @@ final class EntityManager implements EntityManagerInterface
     /**
      * Get a specific entity by class or alias
      */
-    public function getEntity(string $classOrAlias): ?EntityConfigurationInterface
+    public function getEntity(string $classOrAlias): ?EntityConfigurationData
     {
         return $this->getEntities()->findByClassOrAlias($classOrAlias);
     }
@@ -85,7 +75,7 @@ final class EntityManager implements EntityManagerInterface
      */
     public function hasEntity(string $classOrAlias): bool
     {
-        return $this->getEntity($classOrAlias) instanceof EntityConfigurationInterface;
+        return $this->getEntity($classOrAlias) instanceof EntityConfigurationData;
     }
 
     /**
@@ -118,9 +108,8 @@ final class EntityManager implements EntityManagerInterface
     public function clearCache(): static
     {
         $this->cachedEntities = null;
-        $this->cachedInstances = [];
 
-        if ($this->useCache) {
+        if ($this->cacheEnabled) {
             Cache::forget(self::CACHE_KEY);
         }
 
@@ -143,21 +132,6 @@ final class EntityManager implements EntityManagerInterface
         $this->resolvingCallbacks[] = $callback;
 
         return $this;
-    }
-
-    /**
-     * Disable caching temporarily
-     */
-    public function withoutCache(Closure $callback): mixed
-    {
-        $originalCacheState = $this->useCache;
-        $this->useCache = false;
-
-        try {
-            return $callback($this);
-        } finally {
-            $this->useCache = $originalCacheState;
-        }
     }
 
     /**
@@ -206,13 +180,18 @@ final class EntityManager implements EntityManagerInterface
         $resolved = [];
 
         foreach ($entities as $value) {
-            if ($value instanceof EntityConfigurationInterface) {
+            if ($value instanceof EntityConfigurationData) {
                 $resolved[] = $value;
             } elseif (is_array($value)) {
                 // Array configuration
                 if (isset($value['modelClass'])) {
-                    // Single entity configuration
-                    $resolved[] = EntityConfiguration::fromArray($value);
+                    // Single entity configuration - convert string features to enums
+                    if (isset($value['features']) && is_array($value['features'])) {
+                        $value['features'] = collect($value['features'])->map(
+                            fn ($feature) => is_string($feature) ? EntityFeature::from($feature) : $feature
+                        );
+                    }
+                    $resolved[] = EntityConfigurationData::from($value);
                 } else {
                     // Nested array of entities
                     $resolved = array_merge($resolved, $this->resolveEntities($value));
@@ -220,23 +199,11 @@ final class EntityManager implements EntityManagerInterface
             } elseif (is_string($value) && class_exists($value)) {
                 // Resource class
                 if (is_subclass_of($value, Resource::class)) {
-                    $resolved[] = EntityConfiguration::fromResource($value);
+                    $resolved[] = EntityConfigurationData::fromResource($value);
                 }
             }
         }
 
         return $resolved;
-    }
-
-    /**
-     * Get or create an entity instance
-     */
-    private function getOrCreateInstance(string $class, Closure $factory): EntityConfigurationInterface
-    {
-        if (! isset($this->cachedInstances[$class])) {
-            $this->cachedInstances[$class] = $factory();
-        }
-
-        return $this->cachedInstances[$class];
     }
 }

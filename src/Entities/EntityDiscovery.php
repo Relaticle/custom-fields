@@ -14,6 +14,8 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Str;
 use ReflectionClass;
+use Relaticle\CustomFields\Data\EntityConfigurationData;
+use Relaticle\CustomFields\Enums\EntityFeature;
 use Relaticle\CustomFields\Models\Contracts\HasCustomFields;
 use Symfony\Component\Finder\Finder;
 
@@ -100,7 +102,7 @@ final class EntityDiscovery
                 $modelClass = $resource::getModel();
 
                 if ($this->shouldDiscoverModel($modelClass)) {
-                    $entities[] = EntityConfiguration::fromResource($resourceClass);
+                    $entities[] = EntityConfigurationData::fromResource($resourceClass);
                 }
             } catch (Exception) {
                 // Skip invalid resources
@@ -203,12 +205,12 @@ final class EntityDiscovery
     /**
      * Create entity configuration from a model class
      */
-    private function createEntityFromModel(string $modelClass): EntityConfiguration
+    private function createEntityFromModel(string $modelClass): EntityConfigurationData
     {
         /** @var Model $model */
         $model = new $modelClass;
 
-        return EntityConfiguration::fromArray([
+        return EntityConfigurationData::from([
             'modelClass' => $modelClass,
             'alias' => $model->getMorphClass(),
             'labelSingular' => $this->getModelLabel($modelClass),
@@ -216,7 +218,7 @@ final class EntityDiscovery
             'icon' => $this->getModelIcon($modelClass),
             'primaryAttribute' => $this->getModelPrimaryAttribute($modelClass),
             'searchAttributes' => $this->getModelSearchAttributes($modelClass),
-            'features' => [EntityConfiguration::FEATURE_CUSTOM_FIELDS, EntityConfiguration::FEATURE_LOOKUP_SOURCE],
+            'features' => collect([EntityFeature::CUSTOM_FIELDS, EntityFeature::LOOKUP_SOURCE]),
             'priority' => 999,
         ]);
     }

@@ -8,6 +8,7 @@ declare(strict_types=1);
 namespace Relaticle\CustomFields\Contracts;
 
 use Closure;
+use Relaticle\CustomFields\Data\EntityConfigurationData;
 use Relaticle\CustomFields\Entities\EntityCollection;
 
 interface EntityManagerInterface
@@ -15,9 +16,9 @@ interface EntityManagerInterface
     /**
      * Register entities
      *
-     * @param  array|Closure|string  $entities  Array of configs, closure returning configs, or 'discover'
+     * @param  array|Closure  $entities  Array of configs or closure returning configs
      */
-    public function register(array|Closure|string $entities): static;
+    public function register(array|Closure $entities): static;
 
     /**
      * Get all registered entities
@@ -27,7 +28,7 @@ interface EntityManagerInterface
     /**
      * Get a specific entity by class or alias
      */
-    public function getEntity(string $classOrAlias): ?EntityConfigurationInterface;
+    public function getEntity(string $classOrAlias): ?EntityConfigurationData;
 
     /**
      * Check if an entity exists

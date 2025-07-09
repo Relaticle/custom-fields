@@ -150,6 +150,18 @@ return [
             //                'features' => ['custom_fields', 'lookup_source'],
             //                'priority' => 10,
             //            ],
+
+            // Example configuration (uncomment to use):
+            // 'authors' => [
+            //     'modelClass' => \App\Models\Blog\Author::class,
+            //     'labelSingular' => 'Author',
+            //     'labelPlural' => 'Authors',
+            //     'icon' => 'heroicon-o-document-text',
+            //     'primaryAttribute' => 'name',
+            //     'searchAttributes' => ['name', 'code'],
+            //     'features' => ['custom_fields', 'lookup_source'],
+            //     'priority' => 10,
+            // ],
         ],
     ],
 

@@ -8,36 +8,37 @@ declare(strict_types=1);
 namespace Relaticle\CustomFields\Entities;
 
 use Illuminate\Support\Collection;
-use Relaticle\CustomFields\Contracts\EntityConfigurationInterface;
+use Relaticle\CustomFields\Data\EntityConfigurationData;
+use Relaticle\CustomFields\Enums\EntityFeature;
 
 final class EntityCollection extends Collection
 {
     /**
      * Find entity by model class or alias
      */
-    public function findByClassOrAlias(string $classOrAlias): ?EntityConfigurationInterface
+    public function findByClassOrAlias(string $classOrAlias): ?EntityConfigurationData
     {
-        return $this->first(fn (EntityConfigurationInterface $entity): bool => $entity->getModelClass() === $classOrAlias
+        return $this->first(fn (EntityConfigurationData $entity): bool => $entity->getModelClass() === $classOrAlias
             || $entity->getAlias() === $classOrAlias);
     }
 
     /**
      * Find entity by model class
      */
-    public function findByModelClass(string $modelClass): ?EntityConfigurationInterface
+    public function findByModelClass(string $modelClass): ?EntityConfigurationData
     {
         return $this->first(
-            fn (EntityConfigurationInterface $entity): bool => $entity->getModelClass() === $modelClass
+            fn (EntityConfigurationData $entity): bool => $entity->getModelClass() === $modelClass
         );
     }
 
     /**
      * Find entity by alias
      */
-    public function findByAlias(string $alias): ?EntityConfigurationInterface
+    public function findByAlias(string $alias): ?EntityConfigurationData
     {
         return $this->first(
-            fn (EntityConfigurationInterface $entity): bool => $entity->getAlias() === $alias
+            fn (EntityConfigurationData $entity): bool => $entity->getAlias() === $alias
         );
     }
 
@@ -47,7 +48,7 @@ final class EntityCollection extends Collection
     public function withCustomFields(): static
     {
         return $this->filter(
-            fn (EntityConfigurationInterface $entity): bool => $entity->hasFeature(EntityConfiguration::FEATURE_CUSTOM_FIELDS)
+            fn (EntityConfigurationData $entity): bool => $entity->hasFeature(EntityFeature::CUSTOM_FIELDS->value)
         );
     }
 
@@ -57,7 +58,7 @@ final class EntityCollection extends Collection
     public function asLookupSources(): static
     {
         return $this->filter(
-            fn (EntityConfigurationInterface $entity): bool => $entity->hasFeature(EntityConfiguration::FEATURE_LOOKUP_SOURCE)
+            fn (EntityConfigurationData $entity): bool => $entity->hasFeature(EntityFeature::LOOKUP_SOURCE->value)
         );
     }
 
@@ -67,7 +68,7 @@ final class EntityCollection extends Collection
     public function withFeature(string $feature): static
     {
         return $this->filter(
-            fn (EntityConfigurationInterface $entity): bool => $entity->hasFeature($feature)
+            fn (EntityConfigurationData $entity): bool => $entity->hasFeature($feature)
         );
     }
 
@@ -77,7 +78,7 @@ final class EntityCollection extends Collection
     public function withoutFeature(string $feature): static
     {
         return $this->reject(
-            fn (EntityConfigurationInterface $entity): bool => $entity->hasFeature($feature)
+            fn (EntityConfigurationData $entity): bool => $entity->hasFeature($feature)
         );
     }
 
@@ -86,7 +87,7 @@ final class EntityCollection extends Collection
      */
     public function withAnyFeature(array $features): static
     {
-        return $this->filter(function (EntityConfigurationInterface $entity) use ($features): bool {
+        return $this->filter(function (EntityConfigurationData $entity) use ($features): bool {
             foreach ($features as $feature) {
                 if ($entity->hasFeature($feature)) {
                     return true;
@@ -102,7 +103,7 @@ final class EntityCollection extends Collection
      */
     public function withAllFeatures(array $features): static
     {
-        return $this->filter(function (EntityConfigurationInterface $entity) use ($features): bool {
+        return $this->filter(function (EntityConfigurationData $entity) use ($features): bool {
             foreach ($features as $feature) {
                 if (! $entity->hasFeature($feature)) {
                     return false;
@@ -119,7 +120,7 @@ final class EntityCollection extends Collection
     public function withResource(): static
     {
         return $this->filter(
-            fn (EntityConfigurationInterface $entity): bool => $entity->getResourceClass() !== null
+            fn (EntityConfigurationData $entity): bool => $entity->getResourceClass() !== null
         );
     }
 
@@ -129,7 +130,7 @@ final class EntityCollection extends Collection
     public function withoutResource(): static
     {
         return $this->filter(
-            fn (EntityConfigurationInterface $entity): bool => $entity->getResourceClass() === null
+            fn (EntityConfigurationData $entity): bool => $entity->getResourceClass() === null
         );
     }
 
@@ -139,7 +140,7 @@ final class EntityCollection extends Collection
     public function sortedByPriority(): static
     {
         return $this->sortBy(
-            fn (EntityConfigurationInterface $entity): int => $entity->getPriority()
+            fn (EntityConfigurationData $entity): int => $entity->getPriority()
         )->values();
     }
 
@@ -149,7 +150,7 @@ final class EntityCollection extends Collection
     public function sortedByLabel(): static
     {
         return $this->sortBy(
-            fn (EntityConfigurationInterface $entity): string => $entity->getLabelSingular()
+            fn (EntityConfigurationData $entity): string => $entity->getLabelSingular()
         )->values();
     }
 
@@ -158,7 +159,7 @@ final class EntityCollection extends Collection
      */
     public function toOptions(bool $usePlural = true): array
     {
-        return $this->mapWithKeys(fn (EntityConfigurationInterface $entity) => [
+        return $this->mapWithKeys(fn (EntityConfigurationData $entity) => [
             $entity->getAlias() => $usePlural
                 ? $entity->getLabelPlural()
                 : $entity->getLabelSingular(),
@@ -170,7 +171,7 @@ final class EntityCollection extends Collection
      */
     public function toDetailedOptions(): array
     {
-        return $this->mapWithKeys(fn (EntityConfigurationInterface $entity) => [
+        return $this->mapWithKeys(fn (EntityConfigurationData $entity) => [
             $entity->getAlias() => [
                 'label' => $entity->getLabelPlural(),
                 'icon' => $entity->getIcon(),
@@ -185,7 +186,7 @@ final class EntityCollection extends Collection
     public function groupByFeature(string $feature): static
     {
         return $this->groupBy(
-            fn (EntityConfigurationInterface $entity): string => $entity->hasFeature($feature) ? 'with_' . $feature : 'without_' . $feature
+            fn (EntityConfigurationData $entity): string => $entity->hasFeature($feature) ? 'with_'.$feature : 'without_'.$feature
         );
     }
 
@@ -195,7 +196,7 @@ final class EntityCollection extends Collection
     public function whereMetadata(string $key, mixed $value): static
     {
         return $this->filter(
-            fn (EntityConfigurationInterface $entity): bool => $entity->getMetadataValue($key) === $value
+            fn (EntityConfigurationData $entity): bool => $entity->getMetadataValue($key) === $value
         );
     }
 
@@ -205,7 +206,7 @@ final class EntityCollection extends Collection
     public function getModelClasses(): array
     {
         return $this->map(
-            fn (EntityConfigurationInterface $entity): string => $entity->getModelClass()
+            fn (EntityConfigurationData $entity): string => $entity->getModelClass()
         )->unique()->values()->toArray();
     }
 
@@ -215,7 +216,7 @@ final class EntityCollection extends Collection
     public function getAliases(): array
     {
         return $this->map(
-            fn (EntityConfigurationInterface $entity): string => $entity->getAlias()
+            fn (EntityConfigurationData $entity): string => $entity->getAlias()
         )->unique()->values()->toArray();
     }
 }

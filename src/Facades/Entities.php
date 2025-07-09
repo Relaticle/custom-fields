@@ -9,15 +9,15 @@ namespace Relaticle\CustomFields\Facades;
 
 use Closure;
 use Illuminate\Support\Facades\Facade;
+use Relaticle\CustomFields\Data\EntityConfigurationData;
 use Relaticle\CustomFields\Entities\EntityCollection;
-use Relaticle\CustomFields\Entities\EntityConfiguration;
 use Relaticle\CustomFields\Entities\EntityManager;
 
 /**
  * @method static EntityCollection getEntities()
- * @method static EntityConfiguration|null getEntity(string $classOrAlias)
+ * @method static EntityConfigurationData|null getEntity(string $classOrAlias)
  * @method static bool hasEntity(string $classOrAlias)
- * @method static EntityManager register(array|Closure|string $entities)
+ * @method static EntityManager register(array|Closure $entities)
  * @method static EntityManager enableDiscovery(array $paths = [])
  * @method static EntityManager disableDiscovery()
  * @method static EntityManager clearCache()
@@ -37,7 +37,7 @@ class Entities extends Facade
     /**
      * Register entities with deferred execution
      */
-    public static function register(array|Closure|string $entities): void
+    public static function register(array|Closure $entities): void
     {
         static::resolved(function (EntityManager $manager) use ($entities): void {
             $manager->register($entities);
@@ -57,7 +57,7 @@ class Entities extends Facade
     /**
      * Register a single entity configuration
      */
-    public static function registerEntity(EntityConfiguration $entity): void
+    public static function registerEntity(EntityConfigurationData $entity): void
     {
         static::register([$entity]);
     }
@@ -67,7 +67,7 @@ class Entities extends Facade
      */
     public static function registerFromArray(array $config): void
     {
-        static::register([EntityConfiguration::fromArray($config)]);
+        static::register([$config]);
     }
 
     /**
@@ -75,7 +75,7 @@ class Entities extends Facade
      */
     public static function registerFromResource(string $resourceClass): void
     {
-        static::register([EntityConfiguration::fromResource($resourceClass)]);
+        static::register([$resourceClass]);
     }
 
     /**

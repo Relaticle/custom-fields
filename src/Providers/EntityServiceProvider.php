@@ -10,8 +10,9 @@ namespace Relaticle\CustomFields\Providers;
 use Filament\Resources\Resource;
 use Illuminate\Support\ServiceProvider;
 use Relaticle\CustomFields\Contracts\EntityManagerInterface;
-use Relaticle\CustomFields\Entities\EntityConfiguration;
+use Relaticle\CustomFields\Data\EntityConfigurationData;
 use Relaticle\CustomFields\Entities\EntityManager;
+use Relaticle\CustomFields\Enums\EntityFeature;
 
 class EntityServiceProvider extends ServiceProvider
 {
@@ -75,11 +76,17 @@ class EntityServiceProvider extends ServiceProvider
                             $config['alias'] = $alias;
                         }
 
-                        $configurations[] = EntityConfiguration::fromArray($config);
+                        // Convert string features to enums in collection
+                        if (isset($config['features']) && is_array($config['features'])) {
+                            $config['features'] = collect($config['features'])->map(
+                                fn ($feature) => is_string($feature) ? EntityFeature::from($feature) : $feature
+                            );
+                        }
+                        $configurations[] = EntityConfigurationData::from($config);
                     } elseif (is_string($config) && class_exists($config)) {
                         // Resource class
                         if (is_subclass_of($config, Resource::class)) {
-                            $configurations[] = EntityConfiguration::fromResource($config);
+                            $configurations[] = EntityConfigurationData::fromResource($config);
                         }
                     }
                 }
@@ -111,7 +118,7 @@ class EntityServiceProvider extends ServiceProvider
     /**
      * Check if an entity should be included based on configuration
      */
-    private function shouldIncludeEntity(EntityConfiguration $entity): bool
+    private function shouldIncludeEntity(EntityConfigurationData $entity): bool
     {
         // Check excluded models
         $excludedModels = config('custom-fields.entity_management.excluded_models', []);
