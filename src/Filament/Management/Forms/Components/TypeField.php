@@ -20,6 +20,12 @@ class TypeField extends Select
 
         $this->native(false)
             ->allowHtml()
+            ->searchable()
+            ->searchDebounce(300)
+            ->searchPrompt(__('Search field types...'))
+            ->noSearchResultsMessage(__('No field types found'))
+            ->searchingMessage(__('Searching...'))
+            ->getSearchResultsUsing(fn (string $search): array => $this->getSearchResults($search))
             ->gridContainer()
             ->options(fn (): array => $this->getAllFormattedOptions());
     }
@@ -32,6 +38,29 @@ class TypeField extends Select
     protected function getAllFormattedOptions(): array
     {
         return CustomFieldsType::toCollection()
+            ->mapWithKeys(fn (FieldTypeData $data): array => [$data->key => $this->getHtmlOption($data)])
+            ->toArray();
+    }
+
+    /**
+     * Get search results for the field types.
+     *
+     * @param  string  $search  The search query
+     * @return array<string, string> The filtered and formatted options
+     */
+    public function getSearchResults(string $search): array
+    {
+        if (blank($search)) {
+            return $this->getAllFormattedOptions();
+        }
+
+        $searchLower = mb_strtolower(trim($search));
+
+        return CustomFieldsType::toCollection()
+            ->filter(function (FieldTypeData $data) use ($searchLower): bool {
+                return str_contains(mb_strtolower($data->label), $searchLower) ||
+                       str_contains(mb_strtolower($data->key), $searchLower);
+            })
             ->mapWithKeys(fn (FieldTypeData $data): array => [$data->key => $this->getHtmlOption($data)])
             ->toArray();
     }
