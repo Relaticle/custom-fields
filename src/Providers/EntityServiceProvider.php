@@ -82,6 +82,7 @@ class EntityServiceProvider extends ServiceProvider
                                 fn ($feature) => is_string($feature) ? EntityFeature::from($feature) : $feature
                             );
                         }
+
                         $configurations[] = EntityConfigurationData::from($config);
                     } elseif (is_string($config) && class_exists($config)) {
                         // Resource class

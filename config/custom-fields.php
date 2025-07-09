@@ -78,7 +78,7 @@ return [
     | This allows you to customize the behavior of the resource.
     |
     */
-    'custom_fields_resource' => [
+    'custom_fields_management' => [
         'should_register_navigation' => true,
         'slug' => 'custom-fields',
         'navigation_sort' => -1,

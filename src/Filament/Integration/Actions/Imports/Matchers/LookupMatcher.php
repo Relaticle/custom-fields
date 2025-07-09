@@ -20,12 +20,12 @@ final readonly class LookupMatcher implements LookupMatcherInterface
             return $entityInstance::query()
                 ->where($entityInstance->getKeyName(), $value)
                 ->first();
-        } catch (Throwable $e) {
+        } catch (Throwable $throwable) {
             // Log the error but don't throw - we'll handle this gracefully by returning null
             $this->logger->warning('Error matching lookup value', [
                 'entity' => $entityInstance::class,
                 'value' => $value,
-                'error' => $e->getMessage(),
+                'error' => $throwable->getMessage(),
             ]);
 
             return null;

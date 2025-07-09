@@ -62,6 +62,7 @@ enum Operator: string
         if ($fieldValue === null && $expectedValue === null) {
             return true;
         }
+
         if ($fieldValue === null || $expectedValue === null) {
             return false;
         }

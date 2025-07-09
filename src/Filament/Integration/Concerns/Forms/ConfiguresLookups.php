@@ -55,7 +55,7 @@ trait ConfiguresLookups
         $entity = Entities::getEntity($lookupType);
 
         if (! $entity) {
-            throw new InvalidArgumentException("No entity found for lookup type: {$lookupType}");
+            throw new InvalidArgumentException('No entity found for lookup type: '.$lookupType);
         }
 
         $query = $entity->newQuery();
@@ -91,7 +91,7 @@ trait ConfiguresLookups
         $entity = Entities::getEntity($lookupType);
 
         if (! $entity) {
-            throw new InvalidArgumentException("No entity found for lookup type: {$lookupType}");
+            throw new InvalidArgumentException('No entity found for lookup type: '.$lookupType);
         }
 
         $entityInstanceQuery = $entity->newQuery();
@@ -126,7 +126,7 @@ trait ConfiguresLookups
         $entity = Entities::getEntity($lookupType);
 
         if (! $entity) {
-            throw new InvalidArgumentException("No entity found for lookup type: {$lookupType}");
+            throw new InvalidArgumentException('No entity found for lookup type: '.$lookupType);
         }
 
         $entityInstanceQuery = $entity->newQuery();
@@ -168,7 +168,7 @@ trait ConfiguresLookups
                     $entityInstanceQuery->where(function ($query) use ($search, $globalSearchableAttributes, $recordTitleAttribute): void {
                         $searchAttributes = empty($globalSearchableAttributes) ? [$recordTitleAttribute] : $globalSearchableAttributes;
                         foreach ($searchAttributes as $attribute) {
-                            $query->orWhere($attribute, 'like', "%{$search}%");
+                            $query->orWhere($attribute, 'like', sprintf('%%%s%%', $search));
                         }
                     });
                 }
@@ -178,7 +178,7 @@ trait ConfiguresLookups
                     ->pluck($recordTitleAttribute, $entityInstanceKeyName)
                     ->toArray();
             })
-            ->getOptionLabelUsing(fn (mixed $value): ?string => $entityInstanceQuery->find($value)?->getAttribute($recordTitleAttribute))
+            ->getOptionLabelUsing(fn (mixed $value): string|int|null => $entityInstanceQuery->find($value)?->getAttribute($recordTitleAttribute))
             ->getOptionLabelsUsing(fn (array $values): array => $entityInstanceQuery
                 ->whereIn($entityInstanceKeyName, $values)
                 ->pluck($recordTitleAttribute, $entityInstanceKeyName)

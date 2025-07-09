@@ -38,6 +38,7 @@ abstract class BaseBuilder
         $model->load('customFieldValues.customField');
 
         $this->model = $model;
+
         $this->sections = CustomFields::newSectionModel()->query()
             ->forEntityType($model::class)
             ->orderBy('sort_order');

@@ -43,7 +43,7 @@ class TypeField extends Select
      */
     public function getHtmlOption(FieldTypeData $data): string
     {
-        $cacheKey = "custom-fields-type-field-view-{$data->key}";
+        $cacheKey = 'custom-fields-type-field-view-'.$data->key;
 
         return Cache::remember(
             key: $cacheKey,

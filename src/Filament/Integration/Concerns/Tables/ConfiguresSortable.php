@@ -31,7 +31,7 @@ trait ConfiguresSortable
                 return $query->orderBy(
                     $customField->values()
                         ->select($customField->getValueColumn())
-                        ->whereColumn('custom_field_values.entity_id', "$table.$key")
+                        ->whereColumn('custom_field_values.entity_id', sprintf('%s.%s', $table, $key))
                         ->limit(1)
                         ->getQuery(),
                     $direction

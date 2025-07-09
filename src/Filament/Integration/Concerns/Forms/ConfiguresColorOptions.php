@@ -81,7 +81,7 @@ trait ConfiguresColorOptions
             return '';
         }
 
-        return "<span style='display: inline-block; width: 12px; height: 12px; background-color: {$option->settings->color}; border-radius: 2px; margin-right: 4px;'></span>";
+        return sprintf("<span style='display: inline-block; width: 12px; height: 12px; background-color: %s; border-radius: 2px; margin-right: 4px;'></span>", $option->settings->color);
     }
 
     /**

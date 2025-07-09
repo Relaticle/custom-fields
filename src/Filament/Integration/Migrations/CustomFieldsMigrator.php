@@ -51,8 +51,8 @@ class CustomFieldsMigrator implements CustomsFieldsMigrators
         CustomFieldData $fieldData
     ): CustomFieldsMigrator {
         $entityType = (Entities::getEntity($model)?->getAlias()) ?? $model;
-
-        $fieldData->entityType = $fieldData->section->entityType = $entityType;
+        $fieldData->entityType = $entityType;
+        $fieldData->section->entityType = $entityType;
 
         $this->customFieldData = $fieldData;
 

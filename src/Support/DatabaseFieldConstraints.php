@@ -240,6 +240,7 @@ final class DatabaseFieldConstraints
                 if (str_contains($rule, ':')) {
                     $existingRuleValue = substr($rule, strpos($rule, ':') + 1);
                 }
+
                 $hasExistingRule = true;
                 break;
             }
@@ -276,18 +277,21 @@ final class DatabaseFieldConstraints
                 if (isset($dbConstraints['max'])) {
                     $rules[] = $ruleType.':'.$dbConstraints['max'];
                 }
+
                 break;
 
             case 'min':
                 if (isset($dbConstraints['min'])) {
                     $rules[] = $ruleType.':'.$dbConstraints['min'];
                 }
+
                 break;
 
             case 'between':
                 if (isset($dbConstraints['min'], $dbConstraints['max'])) {
                     $rules[] = $ruleType.':'.$dbConstraints['min'].','.$dbConstraints['max'];
                 }
+
                 break;
 
             default:
@@ -297,6 +301,7 @@ final class DatabaseFieldConstraints
                 } elseif (! in_array($ruleType, $rules)) {
                     $rules[] = $ruleType;
                 }
+
                 break;
         }
 
@@ -339,6 +344,7 @@ final class DatabaseFieldConstraints
                         $rules[$existingRuleIndex] = 'max:'.$dbConstraints['max'];
                     }
                 }
+
                 break;
 
             case 'min':
@@ -353,6 +359,7 @@ final class DatabaseFieldConstraints
                         $rules[$existingRuleIndex] = 'min:'.$dbConstraints['min'];
                     }
                 }
+
                 break;
 
             case 'between':
@@ -373,6 +380,7 @@ final class DatabaseFieldConstraints
                         $rules[$existingRuleIndex] = 'between:'.$newMin.','.$newMax;
                     }
                 }
+
                 break;
 
                 // Add cases for other rule types that need special handling
@@ -417,7 +425,8 @@ final class DatabaseFieldConstraints
                         // Encrypted values use more space, reduce max by defined safety margin
                         $maxValue = (int) ($maxValue * self::ENCRYPTION_SAFETY_MARGIN);
                     }
-                    $rules[] = "max:{$maxValue}";
+
+                    $rules[] = 'max:'.$maxValue;
                     break;
                 case 'between':
                     // Use string representation for min/max values to avoid floating point issues
@@ -431,8 +440,8 @@ final class DatabaseFieldConstraints
                     }
 
                     // Use separate min/max rules instead of a between rule to allow better merging
-                    $rules[] = "min:{$minValue}";
-                    $rules[] = "max:{$maxValue}";
+                    $rules[] = 'min:'.$minValue;
+                    $rules[] = 'max:'.$maxValue;
                     break;
                 default:
                     // For other validators, just add them as is
@@ -488,7 +497,8 @@ final class DatabaseFieldConstraints
                             // Encrypted values use more space, reduce max by defined safety margin
                             $maxValue = (int) ($maxValue * self::ENCRYPTION_SAFETY_MARGIN);
                         }
-                        $rules[] = "max:{$maxValue}";
+
+                        $rules[] = 'max:'.$maxValue;
                         break;
                     case 'between':
                         // Use string representation for min/max values to avoid floating point issues
@@ -507,8 +517,8 @@ final class DatabaseFieldConstraints
 
                         // Use separate min/max rules instead of a between rule to allow better merging
                         // with user-defined validation rules
-                        $rules[] = "min:{$minValue}";
-                        $rules[] = "max:{$maxValue}";
+                        $rules[] = 'min:'.$minValue;
+                        $rules[] = 'max:'.$maxValue;
                         break;
                     default:
                         // For other validators, just add them as is
@@ -593,7 +603,7 @@ final class DatabaseFieldConstraints
         $constraints = self::$constraints[$driver]['json_value'] ?? null;
 
         if (! $constraints) {
-            Log::warning("No JSON constraints defined for database driver: {$driver}");
+            Log::warning('No JSON constraints defined for database driver: '.$driver);
 
             return ['array'];
         }

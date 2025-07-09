@@ -52,7 +52,7 @@ final readonly class LookupResolver
 
         throw_if(
             $recordTitleAttribute === null,
-            new MissingRecordTitleAttributeException("The `{$resourcePath}` does not have a record title custom attribute.")
+            new MissingRecordTitleAttributeException(sprintf('The `%s` does not have a record title custom attribute.', $resourcePath))
         );
 
         return [$lookupInstance, $recordTitleAttribute];

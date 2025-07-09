@@ -191,6 +191,7 @@ final class EntityManager implements EntityManagerInterface
                             fn ($feature) => is_string($feature) ? EntityFeature::from($feature) : $feature
                         );
                     }
+
                     $resolved[] = EntityConfigurationData::from($value);
                 } else {
                     // Nested array of entities

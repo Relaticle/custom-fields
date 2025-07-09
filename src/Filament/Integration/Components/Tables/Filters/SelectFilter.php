@@ -21,7 +21,7 @@ final class SelectFilter extends AbstractTableFilter
      */
     public function make(CustomField $customField): FilamentSelectFilter
     {
-        $filter = FilamentSelectFilter::make("custom_fields.{$customField->code}")
+        $filter = FilamentSelectFilter::make('custom_fields.'.$customField->code)
             ->multiple()
             ->label($customField->name)
             ->searchable()
@@ -55,7 +55,7 @@ final class SelectFilter extends AbstractTableFilter
         $entity = Entities::getEntity($lookupType);
 
         if (! $entity) {
-            throw new InvalidArgumentException("No entity found for lookup type: {$lookupType}");
+            throw new InvalidArgumentException('No entity found for lookup type: '.$lookupType);
         }
 
         $entityInstance = $entity->createModelInstance();
@@ -86,7 +86,7 @@ final class SelectFilter extends AbstractTableFilter
                     $query->where(function ($q) use ($search, $globalSearchableAttributes, $recordTitleAttribute): void {
                         $searchAttributes = empty($globalSearchableAttributes) ? [$recordTitleAttribute] : $globalSearchableAttributes;
                         foreach ($searchAttributes as $attribute) {
-                            $q->orWhere($attribute, 'like', "%{$search}%");
+                            $q->orWhere($attribute, 'like', sprintf('%%%s%%', $search));
                         }
                     });
                 }

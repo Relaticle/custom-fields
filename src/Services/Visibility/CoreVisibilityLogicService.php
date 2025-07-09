@@ -181,6 +181,7 @@ final readonly class CoreVisibilityLogicService
                     if (! isset($dependencies[$dependentCode])) {
                         $dependencies[$dependentCode] = [];
                     }
+
                     $dependencies[$dependentCode][] = $field->code;
                 }
             }
@@ -283,11 +284,11 @@ final readonly class CoreVisibilityLogicService
     public function getOperatorValidationError(Operator $operator, CustomField $field): ?string
     {
         if (! $this->isOperatorCompatible($operator, $field)) {
-            return "Operator '{$operator->value}' is not compatible with field type '{$field->type}'";
+            return sprintf("Operator '%s' is not compatible with field type '%s'", $operator->value, $field->type);
         }
 
         if ($this->conditionRequiresOptionableField($operator) && ! $field->isChoiceField()) {
-            return "Operator '{$operator->value}' can only be used with optionable fields (select, radio, etc.)";
+            return sprintf("Operator '%s' can only be used with optionable fields (select, radio, etc.)", $operator->value);
         }
 
         return null;

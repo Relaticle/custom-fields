@@ -87,7 +87,7 @@ class CustomFieldsServiceProvider extends PackageServiceProvider
 
         $configFileName = $package->shortName();
 
-        if (file_exists($package->basePath("/../config/{$configFileName}.php"))) {
+        if (file_exists($package->basePath(sprintf('/../config/%s.php', $configFileName)))) {
             $package->hasConfigFile();
         }
 
@@ -126,7 +126,7 @@ class CustomFieldsServiceProvider extends PackageServiceProvider
         if (app()->runningInConsole()) {
             foreach (app(Filesystem::class)->files(__DIR__.'/../stubs/') as $file) {
                 $this->publishes([
-                    $file->getRealPath() => base_path("stubs/custom-fields/{$file->getFilename()}"),
+                    $file->getRealPath() => base_path('stubs/custom-fields/'.$file->getFilename()),
                 ], 'custom-fields-stubs');
             }
         }

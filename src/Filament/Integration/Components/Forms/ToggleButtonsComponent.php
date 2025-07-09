@@ -26,7 +26,7 @@ final readonly class ToggleButtonsComponent extends AbstractFormComponent
         if ($this->hasColorOptionsEnabled($customField)) {
             $colorMapping = $this->getColorMapping($customField);
 
-            if (count($colorMapping) > 0) {
+            if ($colorMapping !== []) {
                 $field->colors($colorMapping);
             }
         }

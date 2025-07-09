@@ -59,14 +59,14 @@ class SafeValueConverter
             $floatVal = (float) $value;
             // Check bounds
             if ($floatVal > self::MAX_BIGINT) {
-                Log::warning("Integer value too large for database: {$value}, clamping to max BIGINT");
+                Log::warning(sprintf('Integer value too large for database: %s, clamping to max BIGINT', $value));
 
                 return (int) self::MAX_BIGINT;
             }
 
             // Check bounds
             if ($floatVal < self::MIN_BIGINT) {
-                Log::warning("Integer value too small for database: {$value}, clamping to min BIGINT");
+                Log::warning(sprintf('Integer value too small for database: %s, clamping to min BIGINT', $value));
 
                 return (int) self::MIN_BIGINT;
             }
@@ -81,6 +81,7 @@ class SafeValueConverter
             if ($numericVal > self::MAX_BIGINT) {
                 return (int) self::MAX_BIGINT;
             }
+
             if ($numericVal < self::MIN_BIGINT) {
                 return (int) self::MIN_BIGINT;
             }
@@ -135,7 +136,7 @@ class SafeValueConverter
                     return $decoded;
                 }
             } catch (Exception $e) {
-                Log::warning("Failed to decode JSON value: {$e->getMessage()}");
+                Log::warning('Failed to decode JSON value: '.$e->getMessage());
             }
 
             // Fallback for string - try to split by comma

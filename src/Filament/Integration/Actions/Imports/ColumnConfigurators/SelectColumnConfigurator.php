@@ -68,15 +68,15 @@ final readonly class SelectColumnConfigurator implements ColumnConfiguratorInter
                 }
 
                 throw new RowImportFailedException(
-                    "No {$customField->lookup_type} record found matching '{$state}'"
+                    sprintf("No %s record found matching '%s'", $customField->lookup_type, $state)
                 );
-            } catch (Throwable $e) {
-                if ($e instanceof RowImportFailedException) {
-                    throw $e;
+            } catch (Throwable $throwable) {
+                if ($throwable instanceof RowImportFailedException) {
+                    throw $throwable;
                 }
 
                 throw new RowImportFailedException(
-                    "Error resolving lookup value for {$customField->name}: {$e->getMessage()}"
+                    sprintf('Error resolving lookup value for %s: %s', $customField->name, $throwable->getMessage())
                 );
             }
         });
@@ -112,7 +112,7 @@ final readonly class SelectColumnConfigurator implements ColumnConfiguratorInter
 
             if (! $option) {
                 throw new RowImportFailedException(
-                    "Invalid option value '{$state}' for {$customField->name}. Valid options are: ".
+                    sprintf("Invalid option value '%s' for %s. Valid options are: ", $state, $customField->name).
                     $customField->options->pluck('name')->implode(', ')
                 );
             }

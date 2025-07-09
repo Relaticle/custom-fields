@@ -18,6 +18,6 @@ final class UnsupportedColumnTypeException extends Exception
      */
     public function __construct(string $columnType)
     {
-        parent::__construct("Unsupported custom field column type: {$columnType}");
+        parent::__construct('Unsupported custom field column type: '.$columnType);
     }
 }

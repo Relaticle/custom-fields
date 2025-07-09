@@ -494,11 +494,11 @@ dataset('edge_case_scenarios', fn (): array => [
                 ['name' => 'array', 'parameters' => []],
                 ['name' => 'max', 'parameters' => [1000]],
             ],
-            'options' => array_map(fn ($i): array => ['label' => "Option {$i}", 'value' => "opt{$i}"], range(1, 1000)),
+            'options' => array_map(fn ($i): array => ['label' => 'Option '.$i, 'value' => 'opt'.$i], range(1, 1000)),
         ],
         'testValues' => [
-            'valid' => [array_map(fn ($i): string => "opt{$i}", range(1, 100))],
-            'invalid' => [array_map(fn ($i): string => "opt{$i}", range(1, 1001))],
+            'valid' => [array_map(fn ($i): string => 'opt'.$i, range(1, 100))],
+            'invalid' => [array_map(fn ($i): string => 'opt'.$i, range(1, 1001))],
         ],
         'expectedBehavior' => 'handles_large_datasets',
     ],
@@ -526,7 +526,7 @@ dataset('edge_case_scenarios', fn (): array => [
                 ['label' => 'Option with "quotes"', 'value' => 'quotes'],
                 ['label' => 'Option with <script>', 'value' => 'script'],
                 ['label' => 'Option with & ampersand', 'value' => 'ampersand'],
-                ['label' => 'Option with \' apostrophe', 'value' => 'apostrophe'],
+                ['label' => "Option with ' apostrophe", 'value' => 'apostrophe'],
             ],
         ],
         'testValues' => [

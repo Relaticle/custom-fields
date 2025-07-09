@@ -23,7 +23,7 @@ final class SectionInfolistsFactory
 
             CustomFieldSectionType::HEADLESS => Grid::make($customFieldSection->column_span ?? 1),
 
-            default => throw new InvalidArgumentException("No section infolists component registered for custom field type: {$customFieldSection->type->value}")
+            default => throw new InvalidArgumentException('No section infolists component registered for custom field type: '.$customFieldSection->type->value)
         };
     }
 }

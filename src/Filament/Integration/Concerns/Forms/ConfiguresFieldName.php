@@ -10,6 +10,6 @@ trait ConfiguresFieldName
 {
     protected function getFieldName(CustomField $customField): string
     {
-        return "custom_fields.{$customField->code}";
+        return 'custom_fields.'.$customField->code;
     }
 }

@@ -50,7 +50,7 @@ abstract class AbstractComponentFactory
         $customFieldType = $customField->typeData;
 
         if (! $customFieldType) {
-            throw new InvalidArgumentException("Unknown field type: {$customField->type}");
+            throw new InvalidArgumentException('Unknown field type: '.$customField->type);
         }
 
         // Get the component class dynamically based on the component key
@@ -58,18 +58,18 @@ abstract class AbstractComponentFactory
             'form_component' => $customFieldType->formComponent,
             'table_column' => $customFieldType->tableColumn,
             'infolist_entry' => $customFieldType->infolistEntry,
-            default => throw new InvalidArgumentException("Invalid component key: {$componentKey}")
+            default => throw new InvalidArgumentException('Invalid component key: '.$componentKey)
         };
 
         if (! $componentClass || ! class_exists($componentClass)) {
-            throw new InvalidArgumentException("Component class not found for {$componentKey} of type {$customField->type}");
+            throw new InvalidArgumentException(sprintf('Component class not found for %s of type %s', $componentKey, $customField->type));
         }
 
         if (! isset($this->instanceCache[$componentClass])) {
             $component = $this->container->make($componentClass);
 
             if (! $component instanceof $expectedInterface) {
-                throw new RuntimeException("Component class {$componentClass} must implement {$expectedInterface}");
+                throw new RuntimeException(sprintf('Component class %s must implement %s', $componentClass, $expectedInterface));
             }
 
             $this->instanceCache[$componentClass] = $component;

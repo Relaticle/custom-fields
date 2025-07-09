@@ -11,7 +11,7 @@ final class TernaryFilter extends AbstractTableFilter
 {
     public function make(CustomField $customField): FilamentTernaryFilter
     {
-        return FilamentTernaryFilter::make("custom_fields.$customField->code")
+        return FilamentTernaryFilter::make('custom_fields.'.$customField->code)
             ->label($customField->name)
             ->options([
                 true => 'Yes',

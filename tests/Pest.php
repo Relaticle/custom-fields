@@ -22,7 +22,7 @@ expect()->extend('toHaveCustomFieldValue', function (string $fieldCode, mixed $e
 });
 
 expect()->extend('toHaveValidationError', function (string $fieldCode, string $rule) {
-    $this->assertHasFormErrors(["custom_fields.{$fieldCode}" => $rule]);
+    $this->assertHasFormErrors(['custom_fields.'.$fieldCode => $rule]);
 
     return $this;
 });
@@ -38,7 +38,7 @@ expect()->extend('toHaveValidationRule', function (string $rule, array $paramete
     $hasRule = collect($validationRules)->contains(fn ($validationRule): bool => $validationRule['name'] === $rule &&
            ($parameters === [] || $validationRule['parameters'] === $parameters));
 
-    return expect($hasRule)->toBeTrue("Expected field to have validation rule '{$rule}' with parameters: ".json_encode($parameters));
+    return expect($hasRule)->toBeTrue(sprintf("Expected field to have validation rule '%s' with parameters: ", $rule).json_encode($parameters));
 });
 
 expect()->extend('toHaveVisibilityCondition', function (string $fieldCode, string $operator, mixed $value): Expectation {
@@ -52,7 +52,7 @@ expect()->extend('toHaveVisibilityCondition', function (string $fieldCode, strin
            $condition->operator->value === $operator &&
            $condition->value === $value);
 
-    return expect($hasCondition)->toBeTrue("Expected field to have visibility condition for '{$fieldCode}' {$operator} ".json_encode($value));
+    return expect($hasCondition)->toBeTrue(sprintf("Expected field to have visibility condition for '%s' %s ", $fieldCode, $operator).json_encode($value));
 });
 
 expect()->extend('toHaveCorrectComponent', function (string $expectedComponent): Expectation {

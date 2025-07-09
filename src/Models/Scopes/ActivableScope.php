@@ -37,7 +37,7 @@ class ActivableScope implements Scope
     public function extend(Builder $builder): void
     {
         foreach ($this->extensions as $extension) {
-            $methodName = "add{$extension}";
+            $methodName = 'add'.$extension;
             if (method_exists($this, $methodName)) {
                 $this->$methodName($builder);
             }

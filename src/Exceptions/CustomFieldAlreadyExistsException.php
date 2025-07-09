@@ -8,6 +8,6 @@ class CustomFieldAlreadyExistsException extends Exception
 {
     public static function whenAdding(string $code): self
     {
-        throw new self("Could not create custom field `{$code}` because it already exists");
+        throw new self(sprintf('Could not create custom field `%s` because it already exists', $code));
     }
 }

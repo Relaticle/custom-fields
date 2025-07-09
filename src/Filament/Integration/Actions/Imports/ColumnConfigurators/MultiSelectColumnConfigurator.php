@@ -55,6 +55,7 @@ final readonly class MultiSelectColumnConfigurator implements ColumnConfigurator
             if (blank($state)) {
                 return [];
             }
+
             if (! is_array($state)) {
                 $state = [$state];
             }
@@ -81,19 +82,19 @@ final readonly class MultiSelectColumnConfigurator implements ColumnConfigurator
                 // Check if all values were found
                 if ($missingValues !== []) {
                     throw new RowImportFailedException(
-                        "Could not find {$customField->lookup_type} records with values: ".
+                        sprintf('Could not find %s records with values: ', $customField->lookup_type).
                         implode(', ', $missingValues)
                     );
                 }
 
                 return $foundIds;
-            } catch (Throwable $e) {
-                if ($e instanceof RowImportFailedException) {
-                    throw $e;
+            } catch (Throwable $throwable) {
+                if ($throwable instanceof RowImportFailedException) {
+                    throw $throwable;
                 }
 
                 throw new RowImportFailedException(
-                    "Error resolving lookup values for {$customField->name}: {$e->getMessage()}"
+                    sprintf('Error resolving lookup values for %s: %s', $customField->name, $throwable->getMessage())
                 );
             }
         });
@@ -115,6 +116,7 @@ final readonly class MultiSelectColumnConfigurator implements ColumnConfigurator
             if (blank($state)) {
                 return [];
             }
+
             if (! is_array($state)) {
                 $state = [$state];
             }
@@ -149,7 +151,7 @@ final readonly class MultiSelectColumnConfigurator implements ColumnConfigurator
             // Check if all values were found
             if ($missingValues !== []) {
                 throw new RowImportFailedException(
-                    "Invalid option values for {$customField->name}: ".
+                    sprintf('Invalid option values for %s: ', $customField->name).
                     implode(', ', $missingValues).'. Valid options are: '.
                     $customField->options->pluck('name')->implode(', ')
                 );

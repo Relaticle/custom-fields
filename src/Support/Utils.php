@@ -4,34 +4,31 @@ declare(strict_types=1);
 
 namespace Relaticle\CustomFields\Support;
 
-use ReflectionClass;
-use ReflectionException;
-
 class Utils
 {
     public static function getResourceCluster(): ?string
     {
-        return config('custom-fields.custom_fields_resource.cluster', null);
+        return config('custom-fields.custom_fields_management.cluster', null);
     }
 
     public static function getResourceSlug(): string
     {
-        return (string) config('custom-fields.custom_fields_resource.slug');
+        return (string) config('custom-fields.custom_fields_management.slug');
     }
 
     public static function isResourceNavigationRegistered(): bool
     {
-        return config('custom-fields.custom_fields_resource.should_register_navigation', true);
+        return config('custom-fields.custom_fields_management.should_register_navigation', true);
     }
 
     public static function getResourceNavigationSort(): ?int
     {
-        return config('custom-fields.custom_fields_resource.navigation_sort');
+        return config('custom-fields.custom_fields_management.navigation_sort');
     }
 
     public static function isResourceNavigationGroupEnabled(): bool
     {
-        return config('custom-fields.custom_fields_resource.navigation_group', true);
+        return config('custom-fields.custom_fields_management.navigation_group', true);
     }
 
     public static function isTableColumnsEnabled(): bool
@@ -103,30 +100,5 @@ class Utils
 
         // Return black for light colors, white for dark colors
         return $luminance > 0.5 ? '#000000' : '#ffffff';
-    }
-
-    /**
-     * Invoke a method on an object using reflection.
-     * Used to call protected methods on Filament Resources.
-     *
-     * @param  object  $object  The object instance
-     * @param  string  $methodName  The name of the method to call
-     * @param  array<int, mixed>  $args  The arguments to pass to the method
-     * @return mixed The return value from the method
-     *
-     * @throws ReflectionException
-     */
-    public static function invokeMethodByReflection(object $object, string $methodName, array $args = []): mixed
-    {
-        $reflectionClass = new ReflectionClass($object);
-
-        if ($reflectionClass->hasMethod($methodName)) {
-            $method = $reflectionClass->getMethod($methodName);
-            $method->setAccessible(true);
-
-            return $method->invoke($object, ...$args);
-        }
-
-        return null;
     }
 }

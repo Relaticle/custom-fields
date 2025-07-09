@@ -543,8 +543,8 @@ describe('Custom Fields Management Workflow - Phase 2.1', function (): void {
         $sections->each(function ($section, $index): void {
             CustomField::factory(2)
                 ->sequence(
-                    ['code' => "field_{$index}_1", 'sort_order' => 1],
-                    ['code' => "field_{$index}_2", 'sort_order' => 2]
+                    ['code' => sprintf('field_%d_1', $index), 'sort_order' => 1],
+                    ['code' => sprintf('field_%d_2', $index), 'sort_order' => 2]
                 )
                 ->create([
                     'custom_field_section_id' => $section->getKey(),

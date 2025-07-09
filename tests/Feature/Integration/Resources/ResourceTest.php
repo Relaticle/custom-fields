@@ -35,7 +35,7 @@ it('can generate a plural label based on the model name and locale', function ()
     app()->setLocale($originalLocale);
 });
 
-it('can retrieve a record\'s title', function (): void {
+it("can retrieve a record's title", function (): void {
     $post = Post::factory()->create();
 
     expect(PostResource::getRecordTitle($post))
@@ -49,7 +49,7 @@ it('can resolve record route binding', function (): void {
         ->toBeSameModel($post);
 });
 
-it('can retrieve a page\'s URL', function (): void {
+it("can retrieve a page's URL", function (): void {
     $post = Post::factory()->create();
     $resourceSlug = PostResource::getSlug();
 
@@ -65,15 +65,15 @@ it('can retrieve a page\'s URL', function (): void {
         ->toContain(strval($post->getRouteKey()));
 });
 
-it('can retrieve a page\'s URL from its model', function (): void {
+it("can retrieve a page's URL from its model", function (): void {
     $post = Post::factory()->create();
 
     expect(Filament::getResourceUrl($post, 'edit'))
-        ->toEndWith("/posts/{$post->getKey()}/edit")
+        ->toEndWith(sprintf('/posts/%s/edit', $post->getKey()))
         ->and(Filament::getResourceUrl($post, 'view'))
-        ->toEndWith("/posts/{$post->getKey()}")
+        ->toEndWith('/posts/'.$post->getKey())
         ->and(Filament::getResourceUrl(Post::class, 'view', ['record' => $post]))
-        ->toEndWith("/posts/{$post->getKey()}")
+        ->toEndWith('/posts/'.$post->getKey())
         ->and(Filament::getResourceUrl(Post::class))
         ->toEndWith('/posts')
         ->and(Filament::getResourceUrl($post))

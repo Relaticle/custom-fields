@@ -82,7 +82,7 @@ class TestCase extends BaseTestCase
         return $providers;
     }
 
-    public function defineEnvironment($app): void
+    protected function defineEnvironment($app): void
     {
         $app['config']->set('auth.providers.users.model', User::class);
         $app['config']->set('view.paths', [

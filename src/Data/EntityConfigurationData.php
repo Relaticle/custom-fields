@@ -55,15 +55,15 @@ final class EntityConfigurationData extends Data
     private function validateConfiguration(): void
     {
         if (! class_exists($this->modelClass)) {
-            throw new InvalidArgumentException("Model class {$this->modelClass} does not exist");
+            throw new InvalidArgumentException(sprintf('Model class %s does not exist', $this->modelClass));
         }
 
         if (! is_subclass_of($this->modelClass, Model::class)) {
-            throw new InvalidArgumentException("Model class {$this->modelClass} must extend ".Model::class);
+            throw new InvalidArgumentException(sprintf('Model class %s must extend ', $this->modelClass).Model::class);
         }
 
         if ($this->resourceClass && ! class_exists($this->resourceClass)) {
-            throw new InvalidArgumentException("Resource class {$this->resourceClass} does not exist");
+            throw new InvalidArgumentException(sprintf('Resource class %s does not exist', $this->resourceClass));
         }
 
         if ($this->alias === '' || $this->alias === '0') {
@@ -202,14 +202,14 @@ final class EntityConfigurationData extends Data
     public static function fromResource(string $resourceClass): self
     {
         if (! class_exists($resourceClass)) {
-            throw new InvalidArgumentException("Resource class {$resourceClass} does not exist");
+            throw new InvalidArgumentException(sprintf('Resource class %s does not exist', $resourceClass));
         }
 
         $resource = app($resourceClass);
         $modelClass = $resource::getModel();
 
         if (! class_exists($modelClass)) {
-            throw new InvalidArgumentException("Model class {$modelClass} does not exist");
+            throw new InvalidArgumentException(sprintf('Model class %s does not exist', $modelClass));
         }
 
         $model = new $modelClass;

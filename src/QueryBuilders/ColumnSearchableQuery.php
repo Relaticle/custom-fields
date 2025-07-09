@@ -21,8 +21,8 @@ final readonly class ColumnSearchableQuery
 
         return $builder->whereHas('customFieldValues', function (Builder $builder) use ($customField, $search, $table, $key): void {
             $builder->where('custom_field_values.custom_field_id', $customField->id)
-                ->where($customField->getValueColumn(), 'like', "%$search%")
-                ->whereColumn('custom_field_values.entity_id', "$table.$key");
+                ->where($customField->getValueColumn(), 'like', sprintf('%%%s%%', $search))
+                ->whereColumn('custom_field_values.entity_id', sprintf('%s.%s', $table, $key));
         });
     }
 }

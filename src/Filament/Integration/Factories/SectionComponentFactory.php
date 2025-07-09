@@ -18,7 +18,7 @@ final class SectionComponentFactory
             CustomFieldSectionType::SECTION => Section::make($customFieldSection->name)
                 ->description($customFieldSection->description)
                 ->columns(12),
-            CustomFieldSectionType::FIELDSET => Fieldset::make("custom_fields.{$customFieldSection->code}")
+            CustomFieldSectionType::FIELDSET => Fieldset::make('custom_fields.'.$customFieldSection->code)
                 ->label($customFieldSection->name)
                 ->columns(12),
             CustomFieldSectionType::HEADLESS => Grid::make(12),

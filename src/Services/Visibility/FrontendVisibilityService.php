@@ -50,7 +50,7 @@ final readonly class FrontendVisibilityService
             $this->buildFieldConditions($field, $allFields),
         ])
             ->filter()
-            ->map(fn ($condition): string => "({$condition})");
+            ->map(fn ($condition): string => sprintf('(%s)', $condition));
 
         return $conditions->isNotEmpty() ? $conditions->implode(' && ') : null;
     }
@@ -149,7 +149,7 @@ final readonly class FrontendVisibilityService
     ): ?string {
 
         $targetField = $allFields->firstWhere('code', $condition->field_code);
-        $fieldValue = "\$get('custom_fields.{$condition->field_code}')";
+        $fieldValue = sprintf("\$get('custom_fields.%s')", $condition->field_code);
 
         $expression = $this->buildOperatorExpression(
             $condition->operator,
@@ -163,7 +163,7 @@ final readonly class FrontendVisibilityService
         }
 
         // Apply mode logic using core service
-        return $mode === Mode::SHOW_WHEN ? $expression : "!({$expression})";
+        return $mode === Mode::SHOW_WHEN ? $expression : sprintf('!(%s)', $expression);
     }
 
     /**
@@ -205,7 +205,7 @@ final readonly class FrontendVisibilityService
                     $value,
                     $targetField
                 ),
-                fn ($expr): string => "!({$expr})"
+                fn ($expr): string => sprintf('!(%s)', $expr)
             ),
             Operator::GREATER_THAN => $this->buildNumericComparison(
                 $fieldValue,
@@ -328,7 +328,7 @@ final readonly class FrontendVisibilityService
             $value
         );
 
-        return "!({$equalsExpression})";
+        return sprintf('!(%s)', $equalsExpression);
     }
 
     /**
@@ -353,7 +353,7 @@ final readonly class FrontendVisibilityService
             : $this->buildSingleValueOptionCondition($fieldValue, $jsValue);
 
         return Str::is('not_equals', $operator)
-            ? "!({$condition})"
+            ? sprintf('!(%s)', $condition)
             : $condition;
     }
 
@@ -524,7 +524,7 @@ final readonly class FrontendVisibilityService
             return val === null || val === undefined || val === '' || (Array.isArray(val) && val.length === 0);
         })()";
 
-        return $isEmpty ? $condition : "!({$condition})";
+        return $isEmpty ? $condition : sprintf('!(%s)', $condition);
     }
 
     /**

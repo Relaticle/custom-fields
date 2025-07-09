@@ -28,7 +28,7 @@ final readonly class RadioComponent extends AbstractFormComponent
         if (! $this->usesLookupType($customField) && $this->hasColorOptionsEnabled($customField)) {
             $coloredOptions = $this->getColoredOptions($customField);
 
-            if (count($coloredOptions) > 0) {
+            if ($coloredOptions !== []) {
                 $field->descriptions(
                     $this->getColorDescriptions(array_keys($coloredOptions), $customField)
                 );
