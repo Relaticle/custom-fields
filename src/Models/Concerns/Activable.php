@@ -5,11 +5,21 @@ declare(strict_types=1);
 namespace Relaticle\CustomFields\Models\Concerns;
 
 use Exception;
+use Illuminate\Database\Eloquent\Builder;
 use Relaticle\CustomFields\Models\Scopes\ActivableScope;
 
+/**
+ * Activable trait for models that can be activated/deactivated.
+ *
+ * This trait adds the following query methods via ActivableScope:
+ *
+ * @method static Builder<static> active() Scope to only active records
+ * @method static Builder<static> withDeactivated(bool $withDeactivated = true) Include deactivated records
+ * @method static Builder<static> withoutDeactivated() Exclude deactivated records
+ */
 trait Activable
 {
-    const ACTIVE_COLUMN = 'active';
+    const string ACTIVE_COLUMN = 'active';
 
     /**
      * Boot the soft deleting trait for a model.
@@ -22,7 +32,6 @@ trait Activable
     /**
      * Archive the model.
      *
-     *
      * @throws Exception
      */
     public function activate(): bool
@@ -32,6 +41,7 @@ trait Activable
             return false;
         }
 
+        /** @phpstan-ignore-next-line */
         $this->{$this->getActiveColumn()} = true;
 
         $result = $this->save();
@@ -50,6 +60,7 @@ trait Activable
             return false;
         }
 
+        /** @phpstan-ignore-next-line */
         $this->{$this->getActiveColumn()} = false;
 
         $result = $this->save();
@@ -65,7 +76,8 @@ trait Activable
      */
     public function isActive(): bool
     {
-        return (bool) $this->{$this->getActiveColumn()} === true;
+        /** @phpstan-ignore-next-line */
+        return (bool) $this->{$this->getActiveColumn()};
     }
 
     /**

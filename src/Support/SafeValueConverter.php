@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Relaticle\CustomFields\Support;
 
+use Exception;
 use Illuminate\Support\Facades\Log;
-use Relaticle\CustomFields\Enums\CustomFieldType;
 
 /**
  * Handles safe conversion of values to database-compatible formats
@@ -27,15 +27,16 @@ class SafeValueConverter
      * Safely convert a value to the appropriate type for database storage.
      *
      * @param  mixed  $value  The value to convert
-     * @param  CustomFieldType  $fieldType  The field type
+     * @param  string  $fieldType  The field type
      * @return mixed The converted value
      */
-    public static function toDbSafe(mixed $value, CustomFieldType $fieldType): mixed
+    public static function toDbSafe(mixed $value, string $fieldType): mixed
     {
+        // Handle field types by string value
         return match ($fieldType) {
-            CustomFieldType::NUMBER, CustomFieldType::RADIO, CustomFieldType::SELECT => self::toSafeInteger($value),
-            CustomFieldType::CURRENCY => self::toSafeFloat($value),
-            CustomFieldType::CHECKBOX_LIST, CustomFieldType::TOGGLE_BUTTONS, CustomFieldType::TAGS_INPUT, CustomFieldType::MULTI_SELECT => self::toSafeArray($value),
+            'number', 'radio', 'select' => self::toSafeInteger($value),
+            'currency' => self::toSafeFloat($value),
+            'checkbox_list', 'toggle_buttons', 'tags_input', 'multi_select' => self::toSafeArray($value),
             default => $value,
         };
     }
@@ -56,14 +57,16 @@ class SafeValueConverter
         if (is_string($value) && preg_match('/^-?[0-9.]+(?:e[+-]?[0-9]+)?$/i', $value)) {
             // Convert to float first to handle scientific notation
             $floatVal = (float) $value;
-
             // Check bounds
             if ($floatVal > self::MAX_BIGINT) {
-                Log::warning("Integer value too large for database: {$value}, clamping to max BIGINT");
+                Log::warning(sprintf('Integer value too large for database: %s, clamping to max BIGINT', $value));
 
                 return (int) self::MAX_BIGINT;
-            } elseif ($floatVal < self::MIN_BIGINT) {
-                Log::warning("Integer value too small for database: {$value}, clamping to min BIGINT");
+            }
+
+            // Check bounds
+            if ($floatVal < self::MIN_BIGINT) {
+                Log::warning(sprintf('Integer value too small for database: %s, clamping to min BIGINT', $value));
 
                 return (int) self::MIN_BIGINT;
             }
@@ -77,7 +80,9 @@ class SafeValueConverter
             $numericVal = (float) $value;
             if ($numericVal > self::MAX_BIGINT) {
                 return (int) self::MAX_BIGINT;
-            } elseif ($numericVal < self::MIN_BIGINT) {
+            }
+
+            if ($numericVal < self::MIN_BIGINT) {
                 return (int) self::MIN_BIGINT;
             }
 
@@ -116,7 +121,7 @@ class SafeValueConverter
      * Convert a value to a safe array for JSON storage.
      *
      * @param  mixed  $value  The value to convert
-     * @return array|null The safe array value or null if invalid
+     * @return array<int, mixed>|null The safe array value or null if invalid
      */
     public static function toSafeArray(mixed $value): ?array
     {
@@ -130,8 +135,8 @@ class SafeValueConverter
                 if (is_array($decoded)) {
                     return $decoded;
                 }
-            } catch (\Exception $e) {
-                Log::warning("Failed to decode JSON value: {$e->getMessage()}");
+            } catch (Exception $e) {
+                Log::warning('Failed to decode JSON value: '.$e->getMessage());
             }
 
             // Fallback for string - try to split by comma

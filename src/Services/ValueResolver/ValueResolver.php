@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Relaticle\CustomFields\Services\ValueResolver;
 
-use Illuminate\Database\Eloquent\Model;
 use Relaticle\CustomFields\Contracts\ValueResolvers;
+use Relaticle\CustomFields\Models\Contracts\HasCustomFields;
 use Relaticle\CustomFields\Models\CustomField;
 
 readonly class ValueResolver implements ValueResolvers
@@ -15,19 +15,19 @@ readonly class ValueResolver implements ValueResolvers
         private LookupSingleValueResolver $singleValueResolver
     ) {}
 
-    public function resolve(Model $record, CustomField $customField, bool $exportable = false): mixed
+    public function resolve(HasCustomFields $record, CustomField $customField, bool $exportable = false): mixed
     {
-        if (! $customField->type->isOptionable()) {
+        if (! $customField->isChoiceField()) {
             $value = $record->getCustomFieldValue($customField);
 
-            if ($exportable && $customField->type->isBoolean()) {
+            if ($exportable && in_array($customField->type, ['checkbox', 'toggle'])) {
                 return $value ? 'Yes' : 'No';
             }
 
             return $value;
         }
 
-        if ($customField->type->hasMultipleValues()) {
+        if ($customField->isMultiChoiceField()) {
             return $this->multiValueResolver->resolve($record, $customField);
         }
 

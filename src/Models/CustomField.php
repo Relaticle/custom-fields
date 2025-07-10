@@ -6,17 +6,21 @@ namespace Relaticle\CustomFields\Models;
 
 use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 use Illuminate\Database\Eloquent\Attributes\ScopedBy;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Override;
 use Relaticle\CustomFields\CustomFields;
 use Relaticle\CustomFields\Data\CustomFieldSettingsData;
+use Relaticle\CustomFields\Data\FieldTypeData;
 use Relaticle\CustomFields\Data\ValidationRuleData;
 use Relaticle\CustomFields\Database\Factories\CustomFieldFactory;
-use Relaticle\CustomFields\Enums\CustomFieldType;
 use Relaticle\CustomFields\Enums\CustomFieldWidth;
+use Relaticle\CustomFields\Facades\CustomFieldsType;
 use Relaticle\CustomFields\Models\Concerns\Activable;
+use Relaticle\CustomFields\Models\Concerns\HasFieldType;
 use Relaticle\CustomFields\Models\Scopes\CustomFieldsActivableScope;
 use Relaticle\CustomFields\Models\Scopes\SortOrderScope;
 use Relaticle\CustomFields\Models\Scopes\TenantScope;
@@ -27,7 +31,7 @@ use Spatie\LaravelData\DataCollection;
 /**
  * @property string $name
  * @property string $code
- * @property CustomFieldType $type
+ * @property string $type
  * @property string $entity_type
  * @property string $lookup_type
  * @property DataCollection<int, ValidationRuleData> $validation_rules
@@ -35,6 +39,18 @@ use Spatie\LaravelData\DataCollection;
  * @property int $sort_order
  * @property bool $active
  * @property bool $system_defined
+ * @property FieldTypeData $typeData
+ * @property CustomFieldWidth $width
+ *
+ * @method static CustomFieldQueryBuilder<CustomField> query()
+ * @method static CustomFieldQueryBuilder<CustomField> where($column, $operator = null, $value = null, $boolean = 'and')
+ * @method static CustomFieldQueryBuilder<CustomField> whereIn($column, $values, $boolean = 'and', $not = false)
+ * @method static CustomFieldQueryBuilder<CustomField> active()
+ * @method static CustomFieldQueryBuilder<CustomField> visibleInList()
+ * @method static CustomFieldQueryBuilder<CustomField> nonEncrypted()
+ * @method static CustomFieldQueryBuilder<CustomField> forEntity(string $model)
+ * @method static CustomFieldQueryBuilder<CustomField> forMorphEntity(string $entity)
+ * @method static CustomFieldQueryBuilder<CustomField> forType(string $type)
  */
 #[ScopedBy([TenantScope::class, SortOrderScope::class])]
 #[ObservedBy(CustomFieldObserver::class)]
@@ -45,8 +61,10 @@ class CustomField extends Model
     /** @use HasFactory<CustomFieldFactory> */
     use HasFactory;
 
+    use HasFieldType;
+
     /**
-     * @var array<int, string>
+     * @var array<string>|bool
      */
     protected $guarded = [];
 
@@ -54,9 +72,12 @@ class CustomField extends Model
         'width' => CustomFieldWidth::_100,
     ];
 
+    /**
+     * @param  array<string, mixed>  $attributes
+     */
     public function __construct(array $attributes = [])
     {
-        if (! isset($this->table)) {
+        if ($this->table === null) {
             $this->setTable(config('custom-fields.table_names.custom_fields'));
         }
 
@@ -71,6 +92,10 @@ class CustomField extends Model
         static::addGlobalScope(new CustomFieldsActivableScope);
     }
 
+    /**
+     * @return CustomFieldQueryBuilder<self>
+     */
+    #[Override]
     public function newEloquentBuilder($query): CustomFieldQueryBuilder
     {
         return new CustomFieldQueryBuilder($query);
@@ -84,7 +109,7 @@ class CustomField extends Model
     protected function casts(): array
     {
         return [
-            'type' => CustomFieldType::class,
+            'type' => 'string',
             'width' => CustomFieldWidth::class,
             'validation_rules' => DataCollection::class.':'.ValidationRuleData::class.',default',
             'active' => 'boolean',
@@ -93,25 +118,41 @@ class CustomField extends Model
         ];
     }
 
+    /**
+     * @return BelongsTo<CustomFieldSection, self>
+     */
     public function section(): BelongsTo
     {
+        /** @var BelongsTo<CustomFieldSection, self> */
         return $this->belongsTo(CustomFields::sectionModel(), 'custom_field_section_id');
     }
 
     /**
-     * @return HasMany<CustomFieldValue>
+     * @return HasMany<CustomFieldValue, self>
      */
     public function values(): HasMany
     {
+        /** @var HasMany<CustomFieldValue, self> */
         return $this->hasMany(CustomFields::valueModel());
     }
 
     /**
-     * @return HasMany<CustomFieldOption>
+     * @return HasMany<CustomFieldOption, self>
      */
     public function options(): HasMany
     {
+        /** @var HasMany<CustomFieldOption, self> */
         return $this->hasMany(CustomFields::optionModel());
+    }
+
+    /**
+     * @noinspection PhpUnused
+     */
+    public function typeData(): Attribute
+    {
+        return Attribute::make(
+            get: fn (mixed $value, array $attributes): ?FieldTypeData => CustomFieldsType::getFieldType($attributes['type'])
+        );
     }
 
     /**

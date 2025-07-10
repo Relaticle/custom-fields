@@ -4,11 +4,12 @@ declare(strict_types=1);
 
 namespace Relaticle\CustomFields;
 
+use Closure;
 use Filament\Actions\Action;
 use Filament\Contracts\Plugin;
 use Filament\Panel;
 use Filament\Support\Concerns\EvaluatesClosures;
-use Relaticle\CustomFields\Filament\Pages\CustomFields;
+use Relaticle\CustomFields\Filament\Management\Pages\CustomFieldsManagementPage;
 use Relaticle\CustomFields\Http\Middleware\SetTenantContextMiddleware;
 use Relaticle\CustomFields\Services\TenantContextService;
 use Relaticle\CustomFields\Support\Utils;
@@ -17,7 +18,7 @@ class CustomFieldsPlugin implements Plugin
 {
     use EvaluatesClosures;
 
-    protected bool|\Closure $authorizeUsing = true;
+    protected bool|Closure $authorizeUsing = true;
 
     public function getId(): string
     {
@@ -28,25 +29,22 @@ class CustomFieldsPlugin implements Plugin
     {
         $panel
             ->pages([
-                CustomFields::class,
+                CustomFieldsManagementPage::class,
             ])
-            ->tenantMiddleware([SetTenantContextMiddleware::class], true)
-            ->discoverPages(in: __DIR__.'/Filament/Pages', for: 'ManukMinasyan\\FilamentCustomField\\Filament\\Pages');
+            ->tenantMiddleware([SetTenantContextMiddleware::class], true);
     }
 
     public function boot(Panel $panel): void
     {
         if (Utils::isTenantEnabled()) {
             Action::configureUsing(
-                function (Action $action): Action {
-                    return $action->before(
-                        function (Action $action): Action {
-                            TenantContextService::setFromFilamentTenant();
+                fn (Action $action): Action => $action->before(
+                    function (Action $action): Action {
+                        TenantContextService::setFromFilamentTenant();
 
-                            return $action;
-                        }
-                    );
-                }
+                        return $action;
+                    }
+                )
             );
         }
     }
@@ -64,7 +62,7 @@ class CustomFieldsPlugin implements Plugin
         return $plugin;
     }
 
-    public function authorize(bool|\Closure $callback = true): static
+    public function authorize(bool|Closure $callback = true): static
     {
         $this->authorizeUsing = $callback;
 

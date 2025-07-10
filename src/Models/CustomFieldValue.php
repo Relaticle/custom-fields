@@ -13,19 +13,26 @@ use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
 use Relaticle\CustomFields\CustomFields;
 use Relaticle\CustomFields\Database\Factories\CustomFieldValueFactory;
-use Relaticle\CustomFields\Enums\CustomFieldType;
+use Relaticle\CustomFields\Enums\FieldDataType;
+use Relaticle\CustomFields\Facades\CustomFieldsType;
 use Relaticle\CustomFields\Models\Scopes\TenantScope;
 use Relaticle\CustomFields\Support\SafeValueConverter;
 
 /**
- * @property CustomField $customField
+ * @property int $id
+ * @property string $entity_type
+ * @property int $entity_id
+ * @property int $custom_field_id
+ * @property ?string $string_value
  * @property ?string $text_value
  * @property ?int $integer_value
  * @property ?float $float_value
- * @property ?Collection $json_value
+ * @property ?Collection<int, mixed> $json_value
  * @property ?bool $boolean_value
  * @property ?Carbon $date_value
  * @property ?Carbon $datetime_value
+ * @property CustomField $customField
+ * @property Model $entity
  */
 #[ScopedBy([TenantScope::class])]
 class CustomFieldValue extends Model
@@ -37,10 +44,15 @@ class CustomFieldValue extends Model
 
     protected $guarded = [];
 
+    /**
+     * @param  array<string, mixed>  $attributes
+     */
     public function __construct(array $attributes = [])
     {
-        if (! isset($this->table)) {
-            $this->setTable(config('custom-fields.table_names.custom_field_values'));
+        if ($this->table === null) {
+            $this->setTable(
+                config('custom-fields.table_names.custom_field_values')
+            );
         }
 
         parent::__construct($attributes);
@@ -65,30 +77,34 @@ class CustomFieldValue extends Model
         ];
     }
 
-    public static function getValueColumn(CustomFieldType $type): string
+    public static function getValueColumn(string $fieldType): string
     {
-        return match ($type) {
-            CustomFieldType::TEXT, CustomFieldType::TEXTAREA, CustomFieldType::RICH_EDITOR, CustomFieldType::MARKDOWN_EDITOR => 'text_value',
-            CustomFieldType::LINK, CustomFieldType::COLOR_PICKER => 'string_value',
-            CustomFieldType::NUMBER, CustomFieldType::RADIO, CustomFieldType::SELECT => 'integer_value',
-            CustomFieldType::CHECKBOX, CustomFieldType::TOGGLE => 'boolean_value',
-            CustomFieldType::CHECKBOX_LIST, CustomFieldType::TOGGLE_BUTTONS, CustomFieldType::TAGS_INPUT, CustomFieldType::MULTI_SELECT => 'json_value',
-            CustomFieldType::CURRENCY => 'float_value',
-            CustomFieldType::DATE => 'date_value',
-            CustomFieldType::DATE_TIME => 'datetime_value',
+        $fieldType = CustomFieldsType::getFieldType($fieldType);
+        $dataType = $fieldType->dataType;
+
+        return match ($dataType) {
+            FieldDataType::STRING => 'string_value',
+            FieldDataType::TEXT => 'text_value',
+            FieldDataType::NUMERIC, FieldDataType::SINGLE_CHOICE => 'integer_value',
+            FieldDataType::FLOAT => 'float_value',
+            FieldDataType::DATE => 'date_value',
+            FieldDataType::DATE_TIME => 'datetime_value',
+            FieldDataType::BOOLEAN => 'boolean_value',
+            FieldDataType::MULTI_CHOICE => 'json_value',
         };
     }
 
     /**
-     * @return BelongsTo<CustomField, CustomFieldValue>
+     * @return BelongsTo<CustomField, self>
      */
     public function customField(): BelongsTo
     {
+        /** @var BelongsTo<CustomField, self> */
         return $this->belongsTo(CustomFields::customFieldModel());
     }
 
     /**
-     * @return MorphTo<Model, CustomFieldValue>
+     * @return MorphTo<Model, $this>
      */
     public function entity(): MorphTo
     {
@@ -97,14 +113,14 @@ class CustomFieldValue extends Model
 
     public function getValue(): mixed
     {
-        $column = $this->getValueColumn($this->customField->type);
+        $column = static::getValueColumn($this->customField->type);
 
         return $this->$column;
     }
 
     public function setValue(mixed $value): void
     {
-        $column = $this->getValueColumn($this->customField->type);
+        $column = static::getValueColumn($this->customField->type);
 
         // Convert the value to a database-safe format based on the field type
         $safeValue = SafeValueConverter::toDbSafe(

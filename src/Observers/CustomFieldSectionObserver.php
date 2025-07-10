@@ -8,6 +8,7 @@ class CustomFieldSectionObserver
 {
     public function deleted(CustomFieldSection $customFieldSection): void
     {
+        /** @phpstan-ignore-next-line */
         $customFieldSection->fields()->withDeactivated()->delete();
     }
 }

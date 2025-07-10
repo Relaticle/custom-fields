@@ -11,10 +11,11 @@ use Filament\Actions\Concerns\InteractsWithRecord;
 use Filament\Actions\Contracts\HasActions;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
+use Filament\Support\Enums\Width;
 use Illuminate\View\View;
 use Livewire\Component;
 use Relaticle\CustomFields\CustomFields;
-use Relaticle\CustomFields\Filament\FormSchemas\FieldForm;
+use Relaticle\CustomFields\Filament\Management\Schemas\FieldForm;
 use Relaticle\CustomFields\Models\CustomField;
 
 class ManageCustomField extends Component implements HasActions, HasForms
@@ -41,9 +42,10 @@ class ManageCustomField extends Component implements HasActions, HasForms
             ->icon('heroicon-o-pencil')
             ->model(CustomFields::customFieldModel())
             ->record($this->field)
-            ->form(FieldForm::schema())
+            ->schema(FieldForm::schema())
             ->fillForm($this->field->toArray())
             ->action(fn (array $data) => $this->field->update($data))
+            ->modalWidth(Width::ScreenLarge)
             ->slideOver();
     }
 
@@ -54,7 +56,7 @@ class ManageCustomField extends Component implements HasActions, HasForms
             ->model(CustomFields::customFieldModel())
             ->record($this->field)
             ->visible(fn (CustomField $record): bool => ! $record->isActive())
-            ->action(fn () => $this->field->activate());
+            ->action(fn (): bool => $this->field->activate());
     }
 
     public function deactivateAction(): Action
@@ -64,7 +66,7 @@ class ManageCustomField extends Component implements HasActions, HasForms
             ->model(CustomFields::customFieldModel())
             ->record($this->field)
             ->visible(fn (CustomField $record): bool => $record->isActive())
-            ->action(fn () => $this->field->deactivate());
+            ->action(fn (): bool => $this->field->deactivate());
     }
 
     public function deleteAction(): Action
@@ -75,7 +77,7 @@ class ManageCustomField extends Component implements HasActions, HasForms
             ->model(CustomFields::customFieldModel())
             ->record($this->field)
             ->visible(fn (CustomField $record): bool => ! $record->isActive() && ! $record->isSystemDefined())
-            ->action(fn () => $this->field->delete() && $this->dispatch('field-deleted'));
+            ->action(fn (): bool => $this->field->delete() && $this->dispatch('field-deleted'));
     }
 
     public function setWidth(int|string $fieldId, int $width): void

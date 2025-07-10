@@ -7,20 +7,23 @@ namespace Relaticle\CustomFields\Models;
 use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 use Illuminate\Database\Eloquent\Attributes\ScopedBy;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Relaticle\CustomFields\CustomFields;
 use Relaticle\CustomFields\Data\CustomFieldSectionSettingsData;
+use Relaticle\CustomFields\Database\Factories\CustomFieldSectionFactory;
 use Relaticle\CustomFields\Enums\CustomFieldSectionType;
+use Relaticle\CustomFields\Facades\Entities;
 use Relaticle\CustomFields\Models\Concerns\Activable;
 use Relaticle\CustomFields\Models\Scopes\SortOrderScope;
 use Relaticle\CustomFields\Models\Scopes\TenantScope;
 use Relaticle\CustomFields\Observers\CustomFieldSectionObserver;
-use Relaticle\CustomFields\Services\EntityTypeService;
 
 /**
  * @property string $name
  * @property string $code
+ * @property string $description
  * @property CustomFieldSectionType $type
  * @property string $entity_type
  * @property string $lookup_type
@@ -28,6 +31,11 @@ use Relaticle\CustomFields\Services\EntityTypeService;
  * @property int $sort_order
  * @property bool $active
  * @property bool $system_defined
+ *
+ * @method static Builder<static> active()
+ * @method static Builder<static> withDeactivated(bool $withDeactivated = true)
+ * @method static Builder<static> withoutDeactivated()
+ * @method static Builder<static> forEntityType(string $model)
  */
 #[ScopedBy([TenantScope::class, SortOrderScope::class])]
 #[ObservedBy(CustomFieldSectionObserver::class)]
@@ -35,14 +43,20 @@ class CustomFieldSection extends Model
 {
     use Activable;
 
+    /** @use HasFactory<CustomFieldSectionFactory> */
+    use HasFactory;
+
     /**
-     * @var array<int, string>
+     * @var array<string>|bool
      */
     protected $guarded = [];
 
+    /**
+     * @param  array<string, mixed>  $attributes
+     */
     public function __construct(array $attributes = [])
     {
-        if (! isset($this->table)) {
+        if ($this->table === null) {
             $this->setTable(config('custom-fields.table_names.custom_field_sections'));
         }
 
@@ -58,14 +72,22 @@ class CustomFieldSection extends Model
         ];
     }
 
+    /**
+     * @return HasMany<CustomField, self>
+     */
     public function fields(): HasMany
     {
+        /** @var HasMany<CustomField, self> */
         return $this->hasMany(CustomFields::customFieldModel());
     }
 
-    public function scopeForEntityType(Builder $query, string $model)
+    /**
+     * @param  Builder<self>  $query
+     * @return Builder<self>
+     */
+    public function scopeForEntityType(Builder $query, string $model): Builder
     {
-        return $query->where('entity_type', EntityTypeService::getEntityFromModel($model));
+        return $query->where('entity_type', (Entities::getEntity($model)?->getAlias()) ?? $model);
     }
 
     /**

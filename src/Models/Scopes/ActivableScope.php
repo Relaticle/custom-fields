@@ -11,7 +11,7 @@ use Illuminate\Database\Eloquent\Scope;
 class ActivableScope implements Scope
 {
     /**
-     * All of the extensions to be added to the builder.
+     * All the extensions to be added to the builder.
      *
      * @var string[]
      */
@@ -19,62 +19,84 @@ class ActivableScope implements Scope
 
     /**
      * Apply the scope to a given Eloquent query builder.
+     *
+     * @param  Builder<Model>  $builder
      */
     public function apply(Builder $builder, Model $model): void
     {
-        $builder->where($model->getQualifiedActiveColumn(), true);
+        if (method_exists($model, 'getQualifiedActiveColumn')) {
+            $builder->where($model->getQualifiedActiveColumn(), true);
+        }
     }
 
     /**
      * Extend the query builder with the needed functions.
      *
-     * @param  \Illuminate\Database\Eloquent\Builder<*>  $builder
+     * @param Builder<*> $builder
      */
     public function extend(Builder $builder): void
     {
         foreach ($this->extensions as $extension) {
-            $this->{"add{$extension}"}($builder);
+            $methodName = 'add'.$extension;
+            if (method_exists($this, $methodName)) {
+                $this->$methodName($builder);
+            }
         }
     }
 
+    /**
+     * @param  Builder<Model>  $builder
+     */
     protected function addActive(Builder $builder): void
     {
-        $builder->macro('active', function (Builder $builder) {
-            return $builder->where($builder->getModel()->getQualifiedActiveColumn(), true);
+        $builder->macro('active', function (Builder $builder): Builder {
+            $model = $builder->getModel();
+            if (method_exists($model, 'getQualifiedActiveColumn')) {
+                return $builder->where($model->getQualifiedActiveColumn(), true);
+            }
+
+            return $builder;
         });
     }
 
     /**
      * Add the with-trashed extension to the builder.
      *
-     * @param  \Illuminate\Database\Eloquent\Builder<*>  $builder
-     * @return void
+     * @param Builder<*> $builder
      */
-    protected function addWithDeactivated(Builder $builder)
+    protected function addWithDeactivated(Builder $builder): void
     {
-        $builder->macro('withDeactivated', function (Builder $builder, $withDeactivated = true) {
+        $scope = $this;
+        $builder->macro('withDeactivated', function (Builder $builder, bool $withDeactivated = true) use ($scope): Builder {
             if (! $withDeactivated) {
-                return $builder->withoutActivated();
+                $model = $builder->getModel();
+                if (method_exists($model, 'getQualifiedActiveColumn')) {
+                    return $builder->where($model->getQualifiedActiveColumn(), true);
+                }
+
+                return $builder;
             }
 
-            return $builder->withoutGlobalScope($this);
+            return $builder->withoutGlobalScope($scope);
         });
     }
 
     /**
      * Add the without-trashed extension to the builder.
      *
-     * @param  \Illuminate\Database\Eloquent\Builder<*>  $builder
-     * @return void
+     * @param Builder<*> $builder
      */
-    protected function addWithoutDeactivated(Builder $builder)
+    protected function addWithoutDeactivated(Builder $builder): void
     {
-        $builder->macro('withoutDeactivated', function (Builder $builder) {
+        $scope = $this;
+        $builder->macro('withoutDeactivated', function (Builder $builder) use ($scope): Builder {
             $model = $builder->getModel();
 
-            $builder->withoutGlobalScope($this)->whereNull(
-                $model->getQualifiedActiveColumn()
-            );
+            if (method_exists($model, 'getQualifiedActiveColumn')) {
+                $builder->withoutGlobalScope($scope)->whereNull(
+                    $model->getQualifiedActiveColumn()
+                );
+            }
 
             return $builder;
         });

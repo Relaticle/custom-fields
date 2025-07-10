@@ -4,34 +4,41 @@ declare(strict_types=1);
 
 namespace Relaticle\CustomFields;
 
-class CustomFields
+use Relaticle\CustomFields\Models\CustomField;
+use Relaticle\CustomFields\Models\CustomFieldOption;
+use Relaticle\CustomFields\Models\CustomFieldSection;
+use Relaticle\CustomFields\Models\CustomFieldValue;
+
+final class CustomFields
 {
     /**
      * The custom field model that should be used by Custom Fields.
      */
-    public static string $customFieldModel = 'Relaticle\\CustomFields\\Models\\CustomField';
+    public static string $customFieldModel = CustomField::class;
 
     /**
      * The custom field value model that should be used by Custom Fields.
      */
-    public static string $valueModel = 'Relaticle\\CustomFields\\Models\\CustomFieldValue';
+    public static string $valueModel = CustomFieldValue::class;
 
     /**
      * The custom field option model that should be used by Custom Fields.
      */
-    public static string $optionModel = 'Relaticle\\CustomFields\\Models\\CustomFieldOption';
+    public static string $optionModel = CustomFieldOption::class;
 
     /**
      * The custom field section model that should be used by Custom Fields.
      */
-    public static string $sectionModel = 'Relaticle\\CustomFields\\Models\\CustomFieldSection';
+    public static string $sectionModel = CustomFieldSection::class;
 
     /**
      * Get the name of the custom field model used by the application.
+     *
+     * @return class-string<CustomField>
      */
     public static function customFieldModel(): string
     {
-        return static::$customFieldModel;
+        return self::$customFieldModel;
     }
 
     /**
@@ -39,7 +46,7 @@ class CustomFields
      */
     public static function newCustomFieldModel(): mixed
     {
-        $model = static::customFieldModel();
+        $model = self::customFieldModel();
 
         return new $model;
     }
@@ -49,13 +56,15 @@ class CustomFields
      */
     public static function useCustomFieldModel(string $model): static
     {
-        static::$customFieldModel = $model;
+        self::$customFieldModel = $model;
 
-        return new static;
+        return new self;
     }
 
     /**
      * Get the name of the custom field value model used by the application.
+     *
+     * @return class-string<CustomFieldValue>
      */
     public static function valueModel(): string
     {
@@ -67,7 +76,7 @@ class CustomFields
      */
     public static function newValueModel(): mixed
     {
-        $model = static::valueModel();
+        $model = self::valueModel();
 
         return new $model;
     }
@@ -79,11 +88,13 @@ class CustomFields
     {
         static::$valueModel = $model;
 
-        return new static;
+        return new self;
     }
 
     /**
      * Get the name of the custom field option model used by the application.
+     *
+     * @return class-string<CustomFieldOption>
      */
     public static function optionModel(): string
     {
@@ -95,7 +106,7 @@ class CustomFields
      */
     public static function newOptionModel(): mixed
     {
-        $model = static::optionModel();
+        $model = self::optionModel();
 
         return new $model;
     }
@@ -107,11 +118,13 @@ class CustomFields
     {
         static::$optionModel = $model;
 
-        return new static;
+        return new self;
     }
 
     /**
      * Get the name of the custom field section model used by the application.
+     *
+     * @return class-string<CustomFieldSection>
      */
     public static function sectionModel(): string
     {
@@ -123,7 +136,7 @@ class CustomFields
      */
     public static function newSectionModel(): mixed
     {
-        $model = static::sectionModel();
+        $model = self::sectionModel();
 
         return new $model;
     }
@@ -135,6 +148,6 @@ class CustomFields
     {
         static::$sectionModel = $model;
 
-        return new static;
+        return new self;
     }
 }

@@ -10,7 +10,10 @@ use Illuminate\Database\Eloquent\Scope;
 
 class SortOrderScope implements Scope
 {
-    public function apply(Builder $builder, Model $model)
+    /**
+     * @param  Builder<Model>  $builder
+     */
+    public function apply(Builder $builder, Model $model): void
     {
         $builder->orderBy('sort_order');
     }

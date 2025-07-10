@@ -1,0 +1,17 @@
+includes:
+    - vendor/larastan/larastan/extension.neon
+
+parameters:
+    level: 5
+    paths:
+        - src
+        - tests
+    excludePaths:
+        - src/Filament/Management/Pages/CustomFieldsManagementPage.php
+        - src/Livewire
+        - tests
+    ignoreErrors:
+        # Ignore unused trait warnings for library traits meant to be consumed by package users
+        - identifier: trait.unused
+    parallel:
+    		maximumNumberOfProcesses: 3

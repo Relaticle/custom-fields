@@ -5,8 +5,12 @@ declare(strict_types=1);
 namespace Relaticle\CustomFields\Enums;
 
 use Carbon\Carbon;
+use Closure;
+use Exception;
 use Filament\Support\Contracts\HasLabel;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\Rules\Numeric;
+use InvalidArgumentException;
 
 enum CustomFieldValidationRule: string implements HasLabel
 {
@@ -153,9 +157,19 @@ enum CustomFieldValidationRule: string implements HasLabel
         return __('custom-fields::custom-fields.validation.descriptions.'.$this->name);
     }
 
+    /**
+     * Check if a rule value is considered empty.
+     *
+     * Utility method to eliminate repeated null/empty checks throughout the enum.
+     */
+    private static function isEmptyRule(mixed $rule): bool
+    {
+        return $rule === null || $rule === '' || $rule === '0';
+    }
+
     public static function hasParameterForRule(?string $rule): bool
     {
-        if (empty($rule)) {
+        if (self::isEmptyRule($rule)) {
             return false;
         }
 
@@ -164,7 +178,7 @@ enum CustomFieldValidationRule: string implements HasLabel
 
     public static function getAllowedParametersCountForRule(?string $rule): int
     {
-        if (empty($rule)) {
+        if (self::isEmptyRule($rule)) {
             return 0;
         }
 
@@ -177,7 +191,7 @@ enum CustomFieldValidationRule: string implements HasLabel
 
     public static function getDescriptionForRule(?string $rule): string
     {
-        if (empty($rule)) {
+        if (self::isEmptyRule($rule)) {
             return __('custom-fields::custom-fields.validation.select_rule_description');
         }
 
@@ -188,7 +202,7 @@ enum CustomFieldValidationRule: string implements HasLabel
      * Get the validation rules for a parameter of this validation rule.
      *
      * @param  int  $parameterIndex  The index of the parameter (0-based)
-     * @return array<string, mixed> The validation rules for the parameter
+     * @return list<Closure|Numeric|string> The validation rules for the parameter
      */
     public function getParameterValidationRule(int $parameterIndex = 0): array
     {
@@ -217,9 +231,9 @@ enum CustomFieldValidationRule: string implements HasLabel
             self::DATE_FORMAT, self::REQUIRED_IF, self::REQUIRED_UNLESS, self::PROHIBITED_IF, self::PROHIBITED_UNLESS, self::ACCEPTED_IF, self::DECLINED_IF, self::MIMES, self::MIMETYPES, self::GT, self::GTE, self::LT, self::LTE => ['required', 'string'],
             self::AFTER, self::AFTER_OR_EQUAL, self::BEFORE, self::BEFORE_OR_EQUAL, self::DATE_EQUALS => [
                 'required',
-                function ($attribute, $value, $fail) {
+                function ($attribute, $value, $fail): void {
                     // Accept valid date string or special values like 'today', 'tomorrow', etc.
-                    if (! in_array($value, ['today', 'tomorrow', 'yesterday']) && Carbon::hasFormat($value, 'Y-m-d') === false) {
+                    if (! in_array($value, ['today', 'tomorrow', 'yesterday'], true) && Carbon::hasFormat($value, 'Y-m-d') === false) {
                         $fail(__('custom-fields::custom-fields.validation.invalid_date_format'));
                     }
                 },
@@ -233,10 +247,10 @@ enum CustomFieldValidationRule: string implements HasLabel
             // Regex rules
             self::REGEX, self::NOT_REGEX => [
                 'required', 'string',
-                function ($attribute, $value, $fail) {
+                function ($attribute, string $value, $fail): void {
                     try {
                         preg_match('/'.$value.'/', 'test');
-                    } catch (\Exception $e) {
+                    } catch (Exception) {
                         $fail(__('custom-fields::custom-fields.validation.invalid_regex_pattern'));
                     }
                 },
@@ -245,8 +259,8 @@ enum CustomFieldValidationRule: string implements HasLabel
             // Database rules
             self::EXISTS, self::UNIQUE => [
                 'required', 'string',
-                function ($attribute, $value, $fail) {
-                    if (! preg_match('/^[a-zA-Z0-9_]+(\.[a-zA-Z0-9_]+)?$/', $value)) {
+                function ($attribute, $value, $fail): void {
+                    if (in_array(preg_match('/^\w+(\.\w+)?$/', $value), [0, false], true)) {
                         $fail(__('custom-fields::custom-fields.validation.invalid_table_format'));
                     }
                 },
@@ -268,7 +282,7 @@ enum CustomFieldValidationRule: string implements HasLabel
     {
         // For rules requiring exactly 2 parameters, strictly enforce that
         if ($this->allowedParameterCount() === 2 && $parameterIndex > 1) {
-            throw new \InvalidArgumentException(
+            throw new InvalidArgumentException(
                 __('custom-fields::custom-fields.validation.multi_parameter_missing')
             );
         }
@@ -280,18 +294,18 @@ enum CustomFieldValidationRule: string implements HasLabel
             self::BETWEEN => match ($parameterIndex) {
                 0 => __('custom-fields::custom-fields.validation.parameter_help.between.min'),
                 1 => __('custom-fields::custom-fields.validation.parameter_help.between.max'),
-                default => throw new \InvalidArgumentException(__('custom-fields::custom-fields.validation.between_validation_error')),
+                default => throw new InvalidArgumentException(__('custom-fields::custom-fields.validation.between_validation_error')),
             },
             self::DIGITS => __('custom-fields::custom-fields.validation.parameter_help.digits'),
             self::DIGITS_BETWEEN => match ($parameterIndex) {
                 0 => __('custom-fields::custom-fields.validation.parameter_help.digits_between.min'),
                 1 => __('custom-fields::custom-fields.validation.parameter_help.digits_between.max'),
-                default => throw new \InvalidArgumentException(__('custom-fields::custom-fields.validation.digits_between_validation_error')),
+                default => throw new InvalidArgumentException(__('custom-fields::custom-fields.validation.digits_between_validation_error')),
             },
             self::DECIMAL => match ($parameterIndex) {
                 0 => __('custom-fields::custom-fields.validation.parameter_help.decimal.min'),
                 1 => __('custom-fields::custom-fields.validation.parameter_help.decimal.max'),
-                default => throw new \InvalidArgumentException(__('custom-fields::custom-fields.validation.decimal_validation_error')),
+                default => throw new InvalidArgumentException(__('custom-fields::custom-fields.validation.decimal_validation_error')),
             },
             self::DATE_FORMAT => __('custom-fields::custom-fields.validation.parameter_help.date_format'),
             self::AFTER => __('custom-fields::custom-fields.validation.parameter_help.after'),
@@ -309,11 +323,11 @@ enum CustomFieldValidationRule: string implements HasLabel
      *
      * @param  string|null  $rule  The validation rule
      * @param  int  $parameterIndex  The index of the parameter (0-based)
-     * @return array<string, mixed> The validation rules for the parameter
+     * @return array<int, string> The validation rules for the parameter
      */
     public static function getParameterValidationRuleFor(?string $rule, int $parameterIndex = 0): array
     {
-        if (empty($rule)) {
+        if (self::isEmptyRule($rule)) {
             return ['required', 'string', 'max:255'];
         }
 
@@ -323,7 +337,7 @@ enum CustomFieldValidationRule: string implements HasLabel
         if ($ruleEnum && $ruleEnum->allowedParameterCount() === 2) {
             // Ensure we don't allow more than 2 parameters
             if ($parameterIndex > 1) {
-                throw new \InvalidArgumentException(__('custom-fields::custom-fields.validation.multi_parameter_missing'));
+                throw new InvalidArgumentException(__('custom-fields::custom-fields.validation.multi_parameter_missing'));
             }
 
             return $ruleEnum->getParameterValidationRule($parameterIndex);
@@ -341,7 +355,7 @@ enum CustomFieldValidationRule: string implements HasLabel
      */
     public static function getParameterHelpTextFor(?string $rule, int $parameterIndex = 0): string
     {
-        if ($rule === null || empty($rule)) {
+        if (self::isEmptyRule($rule)) {
             return __('custom-fields::custom-fields.validation.parameter_help.default');
         }
 
@@ -358,7 +372,7 @@ enum CustomFieldValidationRule: string implements HasLabel
      */
     public static function normalizeParameterValue(?string $rule, string $value, int $parameterIndex = 0): string
     {
-        if (empty($rule)) {
+        if (self::isEmptyRule($rule)) {
             return $value;
         }
 
@@ -370,7 +384,7 @@ enum CustomFieldValidationRule: string implements HasLabel
 
         // For multi-parameter rules, ensure both parameters exist
         if ($enum->allowedParameterCount() === 2 && $parameterIndex > 1) {
-            throw new \InvalidArgumentException(
+            throw new InvalidArgumentException(
                 __('custom-fields::custom-fields.validation.multi_parameter_missing')
             );
         }
@@ -385,7 +399,7 @@ enum CustomFieldValidationRule: string implements HasLabel
 
             // Decimal rule - ensure proper integer formatting
             // Date rules - ensure they're properly formatted dates if possible
-            self::AFTER, self::AFTER_OR_EQUAL, self::BEFORE, self::BEFORE_OR_EQUAL, self::DATE_EQUALS => in_array($value, ['today', 'tomorrow', 'yesterday']) ? $value :
+            self::AFTER, self::AFTER_OR_EQUAL, self::BEFORE, self::BEFORE_OR_EQUAL, self::DATE_EQUALS => in_array($value, ['today', 'tomorrow', 'yesterday'], true) ? $value :
                     (Carbon::hasFormat($value, 'Y-m-d') ? Carbon::parse($value)->format('Y-m-d') : $value),
 
             // List-based rules - trim values
@@ -406,7 +420,7 @@ enum CustomFieldValidationRule: string implements HasLabel
      */
     public static function getLabelForRule(string $rule, array $parameters = []): string
     {
-        if (empty($rule)) {
+        if (self::isEmptyRule($rule)) {
             return '';
         }
 

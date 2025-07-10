@@ -11,7 +11,13 @@ return [
     |
     */
     'features' => [
+        'conditional_visibility' => [
+            'enabled' => true,
+        ],
         'encryption' => [
+            'enabled' => true,
+        ],
+        'select_option_colors' => [
             'enabled' => true,
         ],
     ],
@@ -72,7 +78,7 @@ return [
     | This allows you to customize the behavior of the resource.
     |
     */
-    'custom_fields_resource' => [
+    'custom_fields_management' => [
         'should_register_navigation' => true,
         'slug' => 'custom-fields',
         'navigation_sort' => -1,
@@ -82,38 +88,84 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | Entity Resources Configuration
+    | Entity Management Configuration
     |--------------------------------------------------------------------------
     |
-    | This section controls which Filament resources are allowed or disallowed
-    | to have custom fields. You can specify allowed resources, disallowed
-    | resources, or leave them empty to use default behavior.
+    | Configure how entities (models that can have custom fields) are
+    | discovered, registered, and managed throughout the system.
     |
     */
-    'allowed_entity_resources' => [
-        // App\Filament\Resources\UserResource::class,
-    ],
+    'entity_management' => [
+        /*
+        | Enable automatic discovery of entities from configured paths
+        | and Filament Resources. When disabled, only manually registered
+        | entities will be available.
+        */
+        'auto_discover_entities' => env('CUSTOM_FIELDS_AUTO_DISCOVER_ENTITIES', true),
 
-    'disallowed_entity_resources' => [
-        //
-    ],
+        /*
+        | Directories to scan for models implementing HasCustomFields.
+        | All models in these directories will be automatically discovered.
+        */
+        'entity_discovery_paths' => [
+            app_path('Models'),
+        ],
 
-    /*
-    |--------------------------------------------------------------------------
-    | Lookup Resources Configuration
-    |--------------------------------------------------------------------------
-    |
-    | Define which Filament resources can be used as lookups. You can specify
-    | allowed resources, disallowed resources, or leave them empty to use
-    | default behavior.
-    |
-    */
-    'allowed_lookup_resources' => [
-        //
-    ],
+        /*
+        | Namespaces to scan for entity models.
+        | Used when discovery paths are not sufficient.
+        */
+        'entity_discovery_namespaces' => [
+            'App\\Models',
+        ],
 
-    'disallowed_lookup_resources' => [
-        //
+        /*
+        | Enable caching of discovered entities for better performance.
+        | Disable during development for immediate updates.
+        */
+        'cache_entities' => env('CUSTOM_FIELDS_CACHE_ENTITIES', true),
+
+        /*
+        | Models to exclude from automatic discovery.
+        | These models will not be available as entities even if they
+        | implement HasCustomFields.
+        */
+        'excluded_models' => [
+            // App\Models\User::class,
+        ],
+
+        /*
+        | Manually registered entities.
+        | Use this to register entities without Resources or to override
+        | auto-discovered configuration.
+        */
+        'entities' => [
+            //            'countries' => [
+            //                'modelClass' => \App\Models\Country::class,
+            //                'labelSingular' => 'Country',
+            //                'labelPlural' => 'Countries',
+            //                'icon' => 'heroicon-o-document-text',
+            //                'primaryAttribute' => 'name',
+            //                'searchAttributes' => ['name', 'code'],
+            //                'features' => [
+            //                    \Relaticle\CustomFields\Enums\EntityFeature::CUSTOM_FIELDS,
+            //                    \Relaticle\CustomFields\Enums\EntityFeature::LOOKUP_SOURCE,
+            //                ],
+            //                'priority' => 10,
+            //            ],
+
+            // Example configuration (uncomment to use):
+            // 'authors' => [
+            //     'modelClass' => \App\Models\Blog\Author::class,
+            //     'labelSingular' => 'Author',
+            //     'labelPlural' => 'Authors',
+            //     'icon' => 'heroicon-o-document-text',
+            //     'primaryAttribute' => 'name',
+            //     'searchAttributes' => ['name', 'code'],
+            //     'features' => ['custom_fields', 'lookup_source'],
+            //     'priority' => 10,
+            // ],
+        ],
     ],
 
     /*

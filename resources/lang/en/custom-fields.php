@@ -1,6 +1,10 @@
 <?php
 
 return [
+    'heading' => [
+        'title' => 'Custom Fields',
+    ],
+
     'nav' => [
         'label' => 'Custom Fields',
         'group' => 'Custom Fields',
@@ -31,11 +35,20 @@ return [
             'code_helper_text' => 'Unique code to identify this field throughout the resource.',
             'settings' => 'Settings',
             'encrypted' => 'Encrypted',
+            'encrypted_help' => 'When enabled, this field\'s values will be stored securely using encryption.',
             'searchable' => 'Searchable',
+            'searchable_help' => 'When enabled, this field can be used in search queries.',
             'visible_in_list' => 'Visible in List',
+            'visible_in_list_help' => 'Show this field in table list views.',
             'list_toggleable_hidden' => 'Toggleable Hidden',
             'list_toggleable_hidden_hint' => 'When enabled, this field will be hidden by default in the list view but can be toggled visible by the user.',
             'visible_in_view' => 'Visible in View',
+            'visible_in_view_help' => 'Show this field in detail view pages.',
+            'enable_option_colors' => 'Enable Color Options',
+            'enable_option_colors_help' => 'When enabled, you can assign colors to each option for better visual representation.',
+            'visibility_settings' => 'Visibility',
+            'data_settings' => 'Data Handling',
+            'appearance_settings' => 'Appearance',
             'options_lookup_type' => [
                 'label' => 'Options Lookup Type',
                 'options' => 'Options',
@@ -59,6 +72,26 @@ return [
                 'parameters' => 'Parameters',
                 'parameters_value' => 'Parameter Value',
                 'add_parameter' => 'Add Parameter',
+                'select_rule_placeholder' => 'Select a validation rule',
+            ],
+            'conditional_visibility' => [
+                'label' => 'Conditional Visibility',
+                'enable' => 'Enable conditional visibility',
+                'enable_help' => 'Show/hide this field based on other field values using Statamic-style expressions',
+                'condition_type' => 'Condition Type',
+                'condition_type_help' => 'Choose how the condition should behave',
+                'if' => 'Show if (expression is true)',
+                'unless' => 'Show unless (expression is true)',
+                'show_when' => 'Show when (expression is true)',
+                'hide_when' => 'Hide when (expression is true)',
+                'if_expression' => 'If Expression',
+                'if_expression_help' => 'Show field when this expression evaluates to true',
+                'unless_expression' => 'Unless Expression',
+                'unless_expression_help' => 'Show field unless this expression evaluates to true',
+                'show_when_expression' => 'Show When Expression',
+                'show_when_expression_help' => 'Show field when this expression evaluates to true',
+                'hide_when_expression' => 'Hide When Expression',
+                'hide_when_expression_help' => 'Hide field when this expression evaluates to true',
             ],
         ],
     ],
@@ -278,6 +311,20 @@ return [
         'decimal_validation_error' => 'The decimal rule requires exactly 2 parameters.',
         'multi_parameter_missing' => 'This validation rule requires multiple parameters. Please add all required parameters.',
         'parameter_missing' => 'This validation rule requires exactly :count parameter(s). Please add all required parameters.',
+        'invalid_rule_for_field_type' => 'The selected rule is not valid for this field type.',
+    ],
+
+    'empty_states' => [
+        'sections' => [
+            'heading' => 'Ready to get started?',
+            'description' => 'Create your first section to organize and group your custom fields together.',
+            'icon' => 'heroicon-o-rectangle-group',
+        ],
+        'fields' => [
+            'heading' => 'This section is empty',
+            'description' => 'Drag and drop fields here or click the button below to add your first field.',
+            'icon' => 'heroicon-o-squares-plus',
+        ],
     ],
 
     'common' => [

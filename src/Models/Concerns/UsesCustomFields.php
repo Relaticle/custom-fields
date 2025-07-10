@@ -14,6 +14,7 @@ use Relaticle\CustomFields\CustomFields;
 use Relaticle\CustomFields\Models\Contracts\HasCustomFields;
 use Relaticle\CustomFields\Models\CustomField;
 use Relaticle\CustomFields\Models\CustomFieldValue;
+use Relaticle\CustomFields\QueryBuilders\CustomFieldQueryBuilder;
 use Relaticle\CustomFields\Support\Utils;
 
 /**
@@ -23,8 +24,10 @@ trait UsesCustomFields
 {
     public function __construct($attributes = [])
     {
-        // Ensure custom fields are included in a fillable array
-        $this->fillable = array_merge(['custom_fields'], $this->fillable);
+        if (count($this->getFillable()) !== 0) {
+            $this->mergeFillable(['custom_fields']);
+        }
+
         parent::__construct($attributes);
     }
 
@@ -69,9 +72,9 @@ trait UsesCustomFields
     }
 
     /**
-     * @return Builder<CustomField>
+     * @return CustomFieldQueryBuilder<CustomField>
      */
-    public function customFields(): Builder
+    public function customFields(): CustomFieldQueryBuilder
     {
         return CustomFields::newCustomFieldModel()->query()->forEntity($this::class);
     }
@@ -133,7 +136,7 @@ trait UsesCustomFields
     protected function resolveTenantId(?Model $tenant, CustomField $customField): mixed
     {
         // First priority: Explicitly provided tenant
-        if ($tenant !== null) {
+        if ($tenant instanceof Model) {
             return $tenant->getKey();
         }
 

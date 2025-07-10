@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace Relaticle\CustomFields\Services;
 
 use Relaticle\CustomFields\Data\ValidationRuleData;
-use Relaticle\CustomFields\Enums\CustomFieldType;
 use Relaticle\CustomFields\Enums\CustomFieldValidationRule;
 use Relaticle\CustomFields\Models\CustomField;
+use Relaticle\CustomFields\Models\CustomFieldValue;
 use Relaticle\CustomFields\Support\DatabaseFieldConstraints;
 use Spatie\LaravelData\DataCollection;
 
@@ -32,8 +32,8 @@ final class ValidationService
         // Convert user rules to Laravel validator format
         $userRules = $this->convertUserRulesToValidatorFormat($customField->validation_rules);
 
-        // Get database constraint rules
-        $isEncrypted = $customField->settings?->encrypted ?? false;
+        // Get database constraint rules based on storage column
+        $isEncrypted = $customField->settings->encrypted ?? false;
         $databaseRules = $this->getDatabaseValidationRules($customField->type, $isEncrypted);
 
         // Determine which rules take precedence
@@ -66,7 +66,7 @@ final class ValidationService
 
         return $rules->toCollection()
             ->map(function (ValidationRuleData $ruleData): string {
-                if (empty($ruleData->parameters)) {
+                if ($ruleData->parameters === []) {
                     return $ruleData->name;
                 }
 
@@ -77,19 +77,23 @@ final class ValidationService
 
     /**
      * Get all database validation rules for a specific field type.
+     * Now uses database column-based validation for better extensibility.
      *
-     * @param  CustomFieldType  $fieldType  The field type
+     * @param  string  $fieldType  The field type
      * @param  bool  $isEncrypted  Whether the field is encrypted
      * @return array<int, string> Array of validation rules
      */
-    public function getDatabaseValidationRules(CustomFieldType $fieldType, bool $isEncrypted = false): array
+    public function getDatabaseValidationRules(string $fieldType, bool $isEncrypted = false): array
     {
-        // Get base database rules for this field type
-        $dbRules = DatabaseFieldConstraints::getValidationRulesForFieldType($fieldType, $isEncrypted);
+        // Determine the database column for this field type
+        $columnName = CustomFieldValue::getValueColumn($fieldType);
+
+        // Get base database rules for this column
+        $dbRules = DatabaseFieldConstraints::getValidationRulesForColumn($columnName, $isEncrypted);
 
         // For JSON fields, add array validation rules
-        if ($fieldType->hasMultipleValues()) {
-            $jsonRules = DatabaseFieldConstraints::getJsonValidationRules($fieldType, $isEncrypted);
+        if ($columnName === 'json_value') {
+            $jsonRules = DatabaseFieldConstraints::getJsonValidationRules($isEncrypted);
 
             return array_merge($dbRules, $jsonRules);
         }
@@ -103,16 +107,17 @@ final class ValidationService
      *
      * @param  array<int, string>  $userRules  User-defined validation rules
      * @param  array<int, string>  $databaseRules  Database constraint validation rules
-     * @param  CustomFieldType  $fieldType  The field type
+     * @param  string  $fieldType  The field type
      * @return array<int, string> Merged validation rules
      */
-    private function mergeValidationRules(array $userRules, array $databaseRules, CustomFieldType $fieldType): array
+    private function mergeValidationRules(array $userRules, array $databaseRules, string $fieldType): array
     {
-        // Get constraints for this field type
-        $dbConstraints = DatabaseFieldConstraints::getConstraintsForFieldType($fieldType);
+        // Get constraints for the database column used by this field type
+        $columnName = CustomFieldValue::getValueColumn($fieldType);
+        $dbConstraints = DatabaseFieldConstraints::getConstraintsForColumn($columnName);
 
         // If we have constraints, use the constraint-aware merge function
-        if (! empty($dbConstraints)) {
+        if ($dbConstraints !== null && $dbConstraints !== []) {
             // Important: we pass userRules first to ensure they take precedence
             // when they're stricter than system constraints
             return DatabaseFieldConstraints::mergeConstraintsWithRules($dbConstraints, $userRules);
@@ -132,12 +137,10 @@ final class ValidationService
     private function combineRules(array $primaryRules, array $secondaryRules): array
     {
         // Extract rule names (without parameters) from primary rules
-        $primaryRuleNames = array_map(function (string $rule) {
-            return explode(':', $rule, 2)[0];
-        }, $primaryRules);
+        $primaryRuleNames = array_map(fn (string $rule): string => explode(':', $rule, 2)[0], $primaryRules);
 
         // Filter secondary rules to only include those that don't conflict with primary rules
-        $filteredSecondaryRules = array_filter($secondaryRules, function (string $rule) use ($primaryRuleNames) {
+        $filteredSecondaryRules = array_filter($secondaryRules, function (string $rule) use ($primaryRuleNames): bool {
             $ruleName = explode(':', $rule, 2)[0];
 
             return ! in_array($ruleName, $primaryRuleNames);

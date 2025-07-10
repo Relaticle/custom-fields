@@ -11,13 +11,16 @@ use Filament\Actions\Contracts\HasActions;
 use Filament\Facades\Filament;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
-use Filament\Support\Enums\ActionSize;
+use Filament\Support\Enums\Size;
+use Filament\Support\Enums\Width;
+use Illuminate\Contracts\View\View;
+use Illuminate\Database\Eloquent\Collection;
 use Livewire\Attributes\Computed;
 use Livewire\Attributes\On;
 use Livewire\Component;
 use Relaticle\CustomFields\CustomFields;
-use Relaticle\CustomFields\Filament\FormSchemas\FieldForm;
-use Relaticle\CustomFields\Filament\FormSchemas\SectionForm;
+use Relaticle\CustomFields\Filament\Management\Schemas\FieldForm;
+use Relaticle\CustomFields\Filament\Management\Schemas\SectionForm;
 use Relaticle\CustomFields\Models\CustomFieldSection;
 use Relaticle\CustomFields\Support\Utils;
 
@@ -31,13 +34,13 @@ class ManageCustomFieldSection extends Component implements HasActions, HasForms
     public CustomFieldSection $section;
 
     #[Computed]
-    public function fields()
+    public function fields(): Collection
     {
         return $this->section->fields()->withDeactivated()->orderBy('sort_order')->get();
     }
 
     #[On('field-width-updated')]
-    public function fieldWidthUpdated(int|string $fieldId, int $width): void
+    public function fieldWidthUpdated(int|string $fieldId, $width): void
     {
         // Update the width
         $model = CustomFields::newCustomFieldModel();
@@ -82,10 +85,10 @@ class ManageCustomFieldSection extends Component implements HasActions, HasForms
             ->icon('heroicon-o-pencil')
             ->model(CustomFields::sectionModel())
             ->record($this->section)
-            ->form(SectionForm::entityType($this->entityType)->schema())
+            ->schema(SectionForm::entityType($this->entityType)->schema())
             ->fillForm($this->section->toArray())
             ->action(fn (array $data) => $this->section->update($data))
-            ->modalWidth('max-w-2xl');
+            ->modalWidth(Width::TwoExtraLarge);
     }
 
     public function activateAction(): Action
@@ -95,7 +98,7 @@ class ManageCustomFieldSection extends Component implements HasActions, HasForms
             ->model(CustomFields::sectionModel())
             ->record($this->section)
             ->visible(fn (CustomFieldSection $record): bool => ! $record->isActive())
-            ->action(fn () => $this->section->activate());
+            ->action(fn (): bool => $this->section->activate());
     }
 
     public function deactivateAction(): Action
@@ -105,7 +108,7 @@ class ManageCustomFieldSection extends Component implements HasActions, HasForms
             ->model(CustomFields::sectionModel())
             ->record($this->section)
             ->visible(fn (CustomFieldSection $record): bool => $record->isActive())
-            ->action(fn () => $this->section->deactivate());
+            ->action(fn (): bool => $this->section->deactivate());
     }
 
     public function deleteAction(): Action
@@ -116,20 +119,20 @@ class ManageCustomFieldSection extends Component implements HasActions, HasForms
             ->model(CustomFields::sectionModel())
             ->record($this->section)
             ->visible(fn (CustomFieldSection $record): bool => ! $record->isActive() && ! $record->isSystemDefined())
-            ->action(fn () => $this->section->delete() && $this->dispatch('section-deleted'));
+            ->action(fn (): bool => $this->section->delete() && $this->dispatch('section-deleted'));
     }
 
     public function createFieldAction(): Action
     {
         return Action::make('createField')
-            ->size(ActionSize::ExtraSmall)
+            ->size(Size::ExtraSmall)
             ->label(__('custom-fields::custom-fields.field.form.add_field'))
             ->model(CustomFields::customFieldModel())
-            ->form(FieldForm::schema(withOptionsRelationship: false))
+            ->schema(FieldForm::schema(withOptionsRelationship: false))
             ->fillForm([
                 'entity_type' => $this->entityType,
             ])
-            ->mutateFormDataUsing(function (array $data): array {
+            ->mutateDataUsing(function (array $data): array {
                 if (Utils::isTenantEnabled()) {
                     $data[config('custom-fields.column_names.tenant_foreign_key')] = Filament::getTenant()?->getKey();
                 }
@@ -140,18 +143,15 @@ class ManageCustomFieldSection extends Component implements HasActions, HasForms
                     'custom_field_section_id' => $this->section->getKey(),
                 ];
             })
-            ->action(function (array $data) {
-                $options = collect($data['options'] ?? [])->filter()
-                    ->map(function ($option) {
-                        $data = [
-                            'name' => $option,
-                        ];
-
+            ->action(function (array $data): void {
+                $options = collect($data['options'] ?? [])
+                    ->filter()
+                    ->map(function (array $option): array {
                         if (Utils::isTenantEnabled()) {
-                            $data[config('custom-fields.column_names.tenant_foreign_key')] = Filament::getTenant()?->getKey();
+                            $option[config('custom-fields.column_names.tenant_foreign_key')] = Filament::getTenant()?->getKey();
                         }
 
-                        return $data;
+                        return $option;
                     })
                     ->values();
 
@@ -161,10 +161,11 @@ class ManageCustomFieldSection extends Component implements HasActions, HasForms
 
                 $customField->options()->createMany($options);
             })
+            ->modalWidth(Width::ScreenLarge)
             ->slideOver();
     }
 
-    public function render()
+    public function render(): View
     {
         return view('custom-fields::livewire.manage-custom-field-section');
     }

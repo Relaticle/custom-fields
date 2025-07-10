@@ -1,2 +1,4 @@
-@tailwind components;
-@tailwind utilities;
+@import '../../vendor/filament/filament/resources/css/theme.css';
+
+@source '../../src';
+@source '../views';

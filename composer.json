@@ -5,6 +5,7 @@
         "manukminasyan",
         "relaticle",
         "laravel",
+        "filament",
         "custom-fields"
     ],
     "homepage": "https://github.com/relaticle/custom-fields",
@@ -21,23 +22,25 @@
         }
     ],
     "require": {
-        "php": "^8.2",
-        "filament/filament": "^3.0",
+        "php": "^8.3",
+        "filament/filament": "^4.0",
         "spatie/laravel-package-tools": "^1.15.0",
-        "spatie/laravel-data": "^4.0.0",
+        "spatie/laravel-data": "^4.12.0",
         "postare/blade-mdi": "^1.0"
     },
     "require-dev": {
-        "laravel/pint": "^1.21",
-        "nunomaduro/collision": "^7.9",
-        "nunomaduro/larastan": "^2.0.1",
-        "orchestra/testbench": "^8.35",
-        "pestphp/pest": "^2.36",
-        "pestphp/pest-plugin-arch": "^2.0",
-        "pestphp/pest-plugin-laravel": "^2.0",
-        "phpstan/extension-installer": "^1.1",
-        "phpstan/phpstan-deprecation-rules": "^1.0",
-        "phpstan/phpstan-phpunit": "^1.0",
+        "larastan/larastan": "^3.0",
+        "laravel/pint": "^1.0",
+        "nunomaduro/collision": "^8.1",
+        "orchestra/testbench": "^9.0",
+        "pestphp/pest": "^3.0",
+        "pestphp/pest-plugin-arch": "^3.0",
+        "pestphp/pest-plugin-laravel": "^3.0",
+        "pestphp/pest-plugin-livewire": "^3.0",
+        "pestphp/pest-plugin-type-coverage": "^3.5",
+        "phpstan/phpstan-deprecation-rules": "*",
+        "phpstan/phpstan-phpunit": "^2.0",
+        "rector/rector": "*",
         "spatie/laravel-ray": "^1.26"
     },
     "autoload": {
@@ -53,16 +56,28 @@
     },
     "scripts": {
         "post-autoload-dump": "@php ./vendor/bin/testbench package:discover --ansi",
-        "analyse": "vendor/bin/phpstan analyse",
-        "test": "vendor/bin/pest",
-        "test-coverage": "vendor/bin/pest --coverage",
-        "format": "vendor/bin/pint"
+        "lint": "rector && pint --parallel",
+        "test:lint": "pint --test",
+        "test:refactor": "rector --dry-run",
+        "test:types": "phpstan analyse",
+        "test:arch": "pest --filter=arch",
+        "test:type-coverage": "pest --type-coverage --min=98.0",
+        "test:pest": "pest --parallel",
+        "test": [
+            "@test:lint",
+            "@test:refactor",
+            "@test:types",
+            "@test:type-coverage",
+            "@test:pest"
+        ],
+        "test-coverage": "vendor/bin/pest --coverage"
     },
     "config": {
         "sort-packages": true,
         "allow-plugins": {
             "pestphp/pest-plugin": true,
-            "phpstan/extension-installer": true
+            "phpstan/extension-installer": true,
+            "dealerdirect/phpcodesniffer-composer-installer": true
         }
     },
     "extra": {
@@ -75,6 +90,6 @@
             }
         }
     },
-    "minimum-stability": "dev",
+    "minimum-stability": "beta",
     "prefer-stable": true
 }

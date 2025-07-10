@@ -1,0 +1,40 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(php artisan:*)",
+      "Bash(composer test)",
+      "Bash(composer lint:*)",
+      "Bash(composer test:*)",
+      "Bash(find:*)",
+      "Bash(mkdir:*)",
+      "Bash(./vendor/bin/phpstan analyse)",
+      "Bash(./vendor/bin/pest --coverage --min=99.6)",
+      "Bash(./vendor/bin/pest --type-coverage --min=99.6)",
+      "Bash(rg:*)",
+      "Bash(rm:*)",
+      "Bash(./vendor/bin/pint:*)",
+      "Bash(./vendor/bin/rector process tests/Pest.php)",
+      "Bash(php vendor/bin/pest:*)",
+      "Bash(./vendor/bin/pest:*)",
+      "Bash(grep:*)",
+      "Bash(php vendor/bin/phpunit:*)",
+      "Bash(./vendor/bin/testbench:*)",
+      "Bash(php:*)",
+      "Bash(vendor/bin/phpunit:*)",
+      "Bash(vendor/bin/pest:*)",
+      "Bash(true)",
+      "Bash(composer validate:*)",
+      "Bash(mv:*)",
+      "Bash(for file in src/Filament/Integration/Forms/Components/{CheckboxListComponent,ColorPickerComponent,CheckboxComponent,LinkComponent,DateTimeComponent}.php)",
+      "Bash(do sed -i '' '/use ConfiguresFieldName;/d' \"$file\")",
+      "Bash(sed:*)",
+      "Bash(done)",
+      "Bash(tree:*)",
+      "Bash(composer pint:*)",
+      "Bash(vendor/bin/pint:*)",
+      "Bash(diff:*)",
+      "Bash(vendor/bin/phpstan analyse:*)"
+    ],
+    "deny": []
+  }
+}

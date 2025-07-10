@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Relaticle\CustomFields\Data;
 
 use Relaticle\CustomFields\Support\Utils;
@@ -16,6 +18,8 @@ class CustomFieldSettingsData extends Data
         public bool $visible_in_view = true,
         public bool $searchable = false,
         public bool $encrypted = false,
+        public bool $enable_option_colors = false,
+        public VisibilityData $visibility = new VisibilityData,
     ) {
         if ($this->list_toggleable_hidden === null) {
             $this->list_toggleable_hidden = Utils::isTableColumnsToggleableHiddenByDefault();

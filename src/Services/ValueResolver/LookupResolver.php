@@ -7,7 +7,6 @@ namespace Relaticle\CustomFields\Services\ValueResolver;
 use Filament\Facades\Filament;
 use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Support\Collection;
-use Relaticle\CustomFields\Enums\CustomFieldType;
 use Relaticle\CustomFields\Exceptions\MissingRecordTitleAttributeException;
 use Relaticle\CustomFields\Models\CustomField;
 use Throwable;
@@ -17,15 +16,18 @@ final readonly class LookupResolver
     /**
      * Resolve lookup values based on the custom field configuration.
      *
+     * @param  array<int, mixed>  $values
+     * @return Collection<int, mixed>
+     *
      * @throws Throwable
      */
     public function resolveLookupValues(array $values, CustomField $customField): Collection
     {
-        if ($customField->type === CustomFieldType::TAGS_INPUT) {
+        if ($customField->type === 'tags_input') {
             return collect($values);
         }
 
-        if (! isset($customField->lookup_type)) {
+        if ($customField->lookup_type === null) {
             return $customField->options->whereIn('id', $values)->pluck('name');
         }
 
@@ -35,11 +37,13 @@ final readonly class LookupResolver
     }
 
     /**
+     * @return array{0: mixed, 1: string}
+     *
      * @throws Throwable
      */
     private function getLookupAttributes(string $lookupType): array
     {
-        $lookupModelPath = Relation::getMorphedModel($lookupType) ?: $lookupType;
+        $lookupModelPath = Relation::getMorphedModel($lookupType) ?? $lookupType;
         $lookupInstance = app($lookupModelPath);
 
         $resourcePath = Filament::getModelResource($lookupModelPath);
@@ -48,7 +52,7 @@ final readonly class LookupResolver
 
         throw_if(
             $recordTitleAttribute === null,
-            new MissingRecordTitleAttributeException("The `{$resourcePath}` does not have a record title custom attribute.")
+            new MissingRecordTitleAttributeException(sprintf('The `%s` does not have a record title custom attribute.', $resourcePath))
         );
 
         return [$lookupInstance, $recordTitleAttribute];

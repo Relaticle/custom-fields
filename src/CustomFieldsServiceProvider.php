@@ -11,24 +11,22 @@ use Filament\Support\Facades\FilamentAsset;
 use Filament\Support\Facades\FilamentIcon;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Filesystem\Filesystem;
-use Livewire\Features\SupportTesting\Testable;
 use Livewire\Livewire;
-use Relaticle\CustomFields\Commands\FilamentCustomFieldCommand;
-use Relaticle\CustomFields\Commands\OptimizeDatabaseCommand;
-use Relaticle\CustomFields\Commands\UpgradeCommand;
 use Relaticle\CustomFields\Contracts\CustomsFieldsMigrators;
 use Relaticle\CustomFields\Contracts\ValueResolvers;
+use Relaticle\CustomFields\Filament\Integration\Migrations\CustomFieldsMigrator;
 use Relaticle\CustomFields\Livewire\ManageCustomField;
 use Relaticle\CustomFields\Livewire\ManageCustomFieldSection;
 use Relaticle\CustomFields\Livewire\ManageCustomFieldWidth;
-use Relaticle\CustomFields\Migrations\CustomFieldsMigrator;
 use Relaticle\CustomFields\Models\CustomField;
 use Relaticle\CustomFields\Models\CustomFieldSection;
+use Relaticle\CustomFields\Providers\EntityServiceProvider;
+use Relaticle\CustomFields\Providers\FieldTypeServiceProvider;
 use Relaticle\CustomFields\Providers\ImportsServiceProvider;
+use Relaticle\CustomFields\Providers\ValidationServiceProvider;
 use Relaticle\CustomFields\Services\TenantContextService;
 use Relaticle\CustomFields\Services\ValueResolver\ValueResolver;
 use Relaticle\CustomFields\Support\Utils;
-use Relaticle\CustomFields\Testing\TestsFilamentCustomField;
 use Spatie\LaravelPackageTools\Commands\InstallCommand;
 use Spatie\LaravelPackageTools\Package;
 use Spatie\LaravelPackageTools\PackageServiceProvider;
@@ -41,8 +39,10 @@ class CustomFieldsServiceProvider extends PackageServiceProvider
 
     public function bootingPackage(): void
     {
+        $this->app->register(FieldTypeServiceProvider::class);
         $this->app->register(ImportsServiceProvider::class);
-        $this->app->register(Providers\ValidationServiceProvider::class);
+        $this->app->register(ValidationServiceProvider::class);
+        $this->app->register(EntityServiceProvider::class);
 
         $this->app->singleton(CustomsFieldsMigrators::class, CustomFieldsMigrator::class);
         $this->app->singleton(ValueResolvers::class, ValueResolver::class);
@@ -51,20 +51,15 @@ class CustomFieldsServiceProvider extends PackageServiceProvider
 
         if (Utils::isTenantEnabled()) {
             foreach (Filament::getPanels() as $panel) {
-                if ($tenantModel = $panel->getTenantModel()) {
+                $tenantModel = $panel->getTenantModel();
+                if ($tenantModel !== null) {
                     $tenantModelInstance = app($tenantModel);
 
-                    CustomFieldSection::resolveRelationUsing('team', function (CustomField $customField) use ($tenantModel) {
-                        return $customField->belongsTo($tenantModel, config('custom-fields.column_names.tenant_foreign_key'));
-                    });
+                    CustomFieldSection::resolveRelationUsing('team', fn (CustomField $customField) => $customField->belongsTo($tenantModel, config('custom-fields.column_names.tenant_foreign_key')));
 
-                    CustomField::resolveRelationUsing('team', function (CustomField $customField) use ($tenantModel) {
-                        return $customField->belongsTo($tenantModel, config('custom-fields.column_names.tenant_foreign_key'));
-                    });
+                    CustomField::resolveRelationUsing('team', fn (CustomField $customField) => $customField->belongsTo($tenantModel, config('custom-fields.column_names.tenant_foreign_key')));
 
-                    $tenantModelInstance->resolveRelationUsing('customFields', function (Model $tenantModel) {
-                        return $tenantModel->hasMany(CustomField::class, config('custom-fields.column_names.tenant_foreign_key'));
-                    });
+                    $tenantModelInstance->resolveRelationUsing('customFields', fn (Model $tenantModel) => $tenantModel->hasMany(CustomField::class, config('custom-fields.column_names.tenant_foreign_key')));
                 }
             }
         }
@@ -83,7 +78,7 @@ class CustomFieldsServiceProvider extends PackageServiceProvider
          */
         $package->name(static::$name)
             ->hasCommands($this->getCommands())
-            ->hasInstallCommand(function (InstallCommand $command) {
+            ->hasInstallCommand(function (InstallCommand $command): void {
                 $command
                     ->publishConfigFile()
                     ->publishMigrations()
@@ -92,7 +87,7 @@ class CustomFieldsServiceProvider extends PackageServiceProvider
 
         $configFileName = $package->shortName();
 
-        if (file_exists($package->basePath("/../config/{$configFileName}.php"))) {
+        if (file_exists($package->basePath(sprintf('/../config/%s.php', $configFileName)))) {
             $package->hasConfigFile();
         }
 
@@ -131,13 +126,10 @@ class CustomFieldsServiceProvider extends PackageServiceProvider
         if (app()->runningInConsole()) {
             foreach (app(Filesystem::class)->files(__DIR__.'/../stubs/') as $file) {
                 $this->publishes([
-                    $file->getRealPath() => base_path("stubs/custom-fields/{$file->getFilename()}"),
+                    $file->getRealPath() => base_path('stubs/custom-fields/'.$file->getFilename()),
                 ], 'custom-fields-stubs');
             }
         }
-
-        // Testing
-        Testable::mixin(new TestsFilamentCustomField);
     }
 
     protected function getAssetPackageName(): ?string
@@ -162,11 +154,7 @@ class CustomFieldsServiceProvider extends PackageServiceProvider
      */
     protected function getCommands(): array
     {
-        return [
-            FilamentCustomFieldCommand::class,
-            UpgradeCommand::class,
-            OptimizeDatabaseCommand::class,
-        ];
+        return [];
     }
 
     /**

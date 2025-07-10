@@ -32,7 +32,7 @@ class CustomFieldOptionFactory extends Factory
             'created_at' => Carbon::now(),
             'updated_at' => Carbon::now(),
             'name' => $this->faker->name(),
-            'sort_order' => $this->faker->word(),
+            'sort_order' => $this->faker->numberBetween(0, 100),
 
             'custom_field_id' => CustomField::factory(),
         ];

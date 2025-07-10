@@ -8,11 +8,22 @@ use Illuminate\Database\Eloquent\Attributes\ScopedBy;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Carbon;
 use Relaticle\CustomFields\CustomFields;
+use Relaticle\CustomFields\Data\CustomFieldOptionSettingsData;
 use Relaticle\CustomFields\Database\Factories\CustomFieldOptionFactory;
 use Relaticle\CustomFields\Models\Scopes\SortOrderScope;
 use Relaticle\CustomFields\Models\Scopes\TenantScope;
 
+/**
+ * @property int $id
+ * @property ?string $name
+ * @property ?int $sort_order
+ * @property CustomFieldOptionSettingsData $settings
+ * @property int $custom_field_id
+ * @property Carbon $created_at
+ * @property Carbon $updated_at
+ */
 #[ScopedBy([TenantScope::class, SortOrderScope::class])]
 class CustomFieldOption extends Model
 {
@@ -21,20 +32,43 @@ class CustomFieldOption extends Model
 
     protected $guarded = [];
 
+    protected $casts = [
+        'settings' => CustomFieldOptionSettingsData::class.':default',
+    ];
+
+    /**
+     * The attributes that should be visible in arrays.
+     *
+     * @var list<string>
+     */
+    protected $visible = [
+        'id',
+        'name',
+        'settings',
+        'sort_order',
+        'custom_field_id',
+    ];
+
+    /**
+     * @param  array<string, mixed>  $attributes
+     */
     public function __construct(array $attributes = [])
     {
-        if (! isset($this->table)) {
-            $this->setTable(config('custom-fields.table_names.custom_field_options'));
+        if ($this->table === null) {
+            $this->setTable(
+                config('custom-fields.table_names.custom_field_options')
+            );
         }
 
         parent::__construct($attributes);
     }
 
     /**
-     * @return BelongsTo<CustomField, CustomFieldOption>
+     * @return BelongsTo<CustomField, self>
      */
     public function customField(): BelongsTo
     {
+        /** @var BelongsTo<CustomField, self> */
         return $this->belongsTo(CustomFields::customFieldModel());
     }
 }
