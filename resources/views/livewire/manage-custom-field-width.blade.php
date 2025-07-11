@@ -23,7 +23,7 @@
                     <div
                         class="h-full w-full border-gray-300 transition-colors duration-200"
                         :class="{
-                        'bg-primary-600': isSelected(width),
+                        'bg-primary-600 hover:bg-primary-600/80': isSelected(width),
                         'rounded-l-md': index === 0 && isSelected(width),
                         'rounded-r-md': index === widths.length - 1 && isSelected(width),
                         'border-r': index !== widths.length - 1
@@ -32,6 +32,6 @@
                 </div>
             </template>
         </div>
-        <div class="absolute w-full h-full font-semibold text-sm flex items-center justify-center">{{ $selectedWidth }}%</div>
+        <div class="absolute w-full h-full font-semibold text-sm flex items-center justify-center text-black">{{ $selectedWidth }}%</div>
     </div>
 </div>
