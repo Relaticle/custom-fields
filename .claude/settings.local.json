@@ -33,7 +33,8 @@
       "Bash(composer pint:*)",
       "Bash(vendor/bin/pint:*)",
       "Bash(diff:*)",
-      "Bash(vendor/bin/phpstan analyse:*)"
+      "Bash(vendor/bin/phpstan analyse:*)",
+      "Bash(npm run build:*)"
     ],
     "deny": []
   }
