@@ -22,7 +22,7 @@ class CheckboxListFieldType implements FieldTypeDefinitionInterface
 
     public function getKey(): string
     {
-        return 'checkbox_list';
+        return 'checkbox-list';
     }
 
     public function getLabel(): string

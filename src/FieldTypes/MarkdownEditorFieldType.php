@@ -22,7 +22,7 @@ class MarkdownEditorFieldType implements FieldTypeDefinitionInterface
 
     public function getKey(): string
     {
-        return 'markdown_editor';
+        return 'markdown-editor';
     }
 
     public function getLabel(): string

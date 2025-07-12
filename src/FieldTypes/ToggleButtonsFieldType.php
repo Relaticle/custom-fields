@@ -22,7 +22,7 @@ class ToggleButtonsFieldType implements FieldTypeDefinitionInterface
 
     public function getKey(): string
     {
-        return 'toggle_buttons';
+        return 'toggle-buttons';
     }
 
     public function getLabel(): string

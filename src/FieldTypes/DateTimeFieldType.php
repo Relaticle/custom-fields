@@ -17,7 +17,7 @@ class DateTimeFieldType implements FieldTypeDefinitionInterface
 
     public function getKey(): string
     {
-        return 'datetime';
+        return 'date-time';
     }
 
     public function getLabel(): string
