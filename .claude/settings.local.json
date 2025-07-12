@@ -1,6 +1,9 @@
 {
   "permissions": {
     "allow": [
+      "WebFetch",
+      "Bash(ls:*)",
+      "Edit",
       "Bash(php artisan:*)",
       "Bash(composer test)",
       "Bash(composer lint:*)",
