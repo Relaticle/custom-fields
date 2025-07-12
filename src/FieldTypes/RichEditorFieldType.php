@@ -22,7 +22,7 @@ class RichEditorFieldType implements FieldTypeDefinitionInterface
 
     public function getKey(): string
     {
-        return 'rich_editor';
+        return 'rich-editor';
     }
 
     public function getLabel(): string

@@ -22,7 +22,7 @@ class ColorPickerFieldType implements FieldTypeDefinitionInterface
 
     public function getKey(): string
     {
-        return 'color_picker';
+        return 'color-picker';
     }
 
     public function getLabel(): string
