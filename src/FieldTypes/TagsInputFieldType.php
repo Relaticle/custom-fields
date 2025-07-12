@@ -22,7 +22,7 @@ class TagsInputFieldType implements FieldTypeDefinitionInterface
 
     public function getKey(): string
     {
-        return 'tags_input';
+        return 'tags-input';
     }
 
     public function getLabel(): string

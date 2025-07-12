@@ -22,7 +22,7 @@ class MultiSelectFieldType implements FieldTypeDefinitionInterface
 
     public function getKey(): string
     {
-        return 'multi_select';
+        return 'multi-select';
     }
 
     public function getLabel(): string
