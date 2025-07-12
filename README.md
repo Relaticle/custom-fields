@@ -9,7 +9,7 @@
 
 A powerful Laravel/Filament plugin for adding dynamic custom fields to any Eloquent model without database migrations.
 
-## ✨ Features
+##  Features
 
 - **32+ Field Types** - Text, number, date, select, rich editor, and more
 - **Conditional Visibility** - Show/hide fields based on other field values
