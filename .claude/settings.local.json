@@ -37,7 +37,8 @@
       "Bash(vendor/bin/pint:*)",
       "Bash(diff:*)",
       "Bash(vendor/bin/phpstan analyse:*)",
-      "Bash(npm run build:*)"
+      "Bash(npm run build:*)",
+      "mcp__ide__getDiagnostics"
     ],
     "deny": []
   }
