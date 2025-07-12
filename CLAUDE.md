@@ -152,6 +152,11 @@ Tests use Pest PHP with custom expectations:
 
 Test fixtures include `Post` and `User` models with pre-configured resources.
 
+**Environment Setup**
+- Tests run with SQLite in-memory database
+- Automatic migration of test database
+- Parallel execution enabled by default
+
 ### Multi-tenancy
 
 The package supports complete tenant isolation via `TenantContextService`. Custom fields are automatically scoped to the
@@ -275,6 +280,20 @@ The project includes architecture tests to enforce coding standards:
 ## Contributing
 
 See the full contributing guide at https://custom-fields.relaticle.com/contributing
+
+## Common Development Tasks
+
+### Debugging Custom Fields
+- Use `dd()` or `ray()` to inspect field values and configurations
+- Check `storage/logs/laravel.log` for validation and visibility condition errors
+- Enable query logging to debug performance issues with field loading
+- Test field behavior in isolation using Pest tests
+
+### Creating New Field Types
+1. Create a new class in `src/FieldTypes/` implementing `FieldTypeDefinitionInterface`
+2. Register the field type in a service provider
+3. Add corresponding form component, table column, and infolist entry methods
+4. Create tests for the new field type behavior
 
 ## Resources
 
