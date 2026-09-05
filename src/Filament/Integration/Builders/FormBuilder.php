@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 // ABOUTME: Builder for creating Filament form schemas from custom fields
 // ABOUTME: Handles form generation with sections, validation, and field dependencies
 

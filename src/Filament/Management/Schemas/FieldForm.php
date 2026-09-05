@@ -24,7 +24,7 @@ use Filament\Support\Icons\Heroicon;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rules\Unique;
-use Relaticle\CustomFields\Contracts\ValidationCapability;
+use Relaticle\CustomFields\Contracts\ValidationCapabilityInterface;
 use Relaticle\CustomFields\CustomFields;
 use Relaticle\CustomFields\Enums\CustomFieldsFeature;
 use Relaticle\CustomFields\Enums\DescriptionPosition;
@@ -144,7 +144,7 @@ class FieldForm implements FormInterface
             }
 
             foreach ($fieldTypeData->validationCapabilities as $capabilityClass) {
-                /** @var ValidationCapability $capability */
+                /** @var ValidationCapabilityInterface $capability */
                 $capability = app($capabilityClass);
                 $capabilityComponents = $capability->formSchema('validation_rules');
 
@@ -186,7 +186,7 @@ class FieldForm implements FormInterface
                     ->required()
                     ->columnSpan(9)
                     ->rules([
-                        fn (Get $get): Closure => function (string $attribute, $value, Closure $fail) use ($get): void {
+                        fn (Get $get): Closure => function (string $attribute, mixed $value, Closure $fail) use ($get): void {
                             if (blank($value)) {
                                 return;
                             }
@@ -194,7 +194,7 @@ class FieldForm implements FormInterface
                             $hasDuplicate = collect($get('../../options') ?? [])
                                 ->pluck('name')
                                 ->filter()
-                                ->map(fn ($name): string => mb_strtolower($name))
+                                ->map(fn (string $name): string => mb_strtolower($name))
                                 ->duplicates()
                                 ->contains(mb_strtolower($value));
 

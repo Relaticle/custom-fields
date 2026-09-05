@@ -43,3 +43,21 @@ it('fails with a clear error when --skip names an unknown step', function (): vo
         ->expectsOutput('Valid steps: validate-schema, clear-caches.')
         ->assertFailed();
 });
+
+it('ignores an empty element from a trailing comma in --skip', function (): void {
+    $this->artisan('custom-fields:upgrade', [
+        '--force' => true,
+        '--skip' => 'clear-caches,',
+    ])
+        ->expectsOutputToContain('Skipping: clear-caches')
+        ->assertSuccessful();
+});
+
+it('does not undercount total steps when --skip repeats the same value', function (): void {
+    $this->artisan('custom-fields:upgrade', [
+        '--force' => true,
+        '--skip' => 'clear-caches,clear-caches',
+    ])
+        ->expectsOutputToContain('Step 1/1: Validate Schema')
+        ->assertSuccessful();
+});

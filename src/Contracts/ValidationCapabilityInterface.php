@@ -7,7 +7,7 @@ namespace Relaticle\CustomFields\Contracts;
 use Filament\Forms\Components\Field;
 use Filament\Schemas\Components\Component;
 
-interface ValidationCapability
+interface ValidationCapabilityInterface
 {
     public function key(): string;
 

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Relaticle\CustomFields\Models\Concerns;
 
 use Relaticle\CustomFields\Enums\FieldDataType;

@@ -80,7 +80,7 @@ final class UpgradeCommand extends Command
             return [];
         }
 
-        return array_map('trim', explode(',', $skipOption));
+        return array_values(array_unique(array_filter(array_map('trim', explode(',', $skipOption)))));
     }
 
     /**
@@ -169,7 +169,6 @@ final class UpgradeCommand extends Command
 
         $this->line(str_repeat('═', 50));
 
-        // Summary stats
         $totalProcessed = 0;
         $totalFailed = 0;
         foreach ($results as $result) {

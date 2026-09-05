@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Relaticle\CustomFields\Filament\Integration\Components\Tables\Filters;
 
 use Filament\Tables\Filters\TernaryFilter as FilamentTernaryFilter;

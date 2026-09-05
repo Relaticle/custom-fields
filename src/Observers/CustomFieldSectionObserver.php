@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Relaticle\CustomFields\Observers;
 
 use Relaticle\CustomFields\Models\CustomFieldSection;

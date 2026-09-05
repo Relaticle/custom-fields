@@ -6,7 +6,7 @@ namespace Relaticle\CustomFields\FieldTypeSystem;
 
 use Closure;
 use InvalidArgumentException;
-use Relaticle\CustomFields\Contracts\ValidationCapability;
+use Relaticle\CustomFields\Contracts\ValidationCapabilityInterface;
 use Relaticle\CustomFields\Data\FieldTypeData;
 use Relaticle\CustomFields\Enums\FieldDataType;
 use Relaticle\CustomFields\Enums\VisibilityOperator;
@@ -44,7 +44,7 @@ class FieldSchema
     private array $defaultItemValidationRules = [];
 
     // Validation capabilities
-    /** @var array<int, class-string<ValidationCapability>> */
+    /** @var array<int, class-string<ValidationCapabilityInterface>> */
     private array $validationCapabilities = [];
 
     // Capabilities
@@ -431,7 +431,7 @@ class FieldSchema
 
     // ========== Validation Capability Methods ==========
 
-    /** @param class-string<ValidationCapability> ...$capabilityClasses */
+    /** @param class-string<ValidationCapabilityInterface> ...$capabilityClasses */
     public function withValidationCapabilities(string ...$capabilityClasses): self
     {
         $this->validationCapabilities = [
@@ -442,7 +442,7 @@ class FieldSchema
         return $this;
     }
 
-    /** @return array<int, class-string<ValidationCapability>> */
+    /** @return array<int, class-string<ValidationCapabilityInterface>> */
     public function getValidationCapabilities(): array
     {
         return $this->validationCapabilities;

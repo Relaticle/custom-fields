@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Relaticle\CustomFields\Services;
 
-use Relaticle\CustomFields\Contracts\ValidationCapability;
+use Relaticle\CustomFields\Contracts\ValidationCapabilityInterface;
 use Relaticle\CustomFields\Enums\FieldDataType;
 use Relaticle\CustomFields\Facades\CustomFieldsType;
 use Relaticle\CustomFields\FieldTypeSystem\FieldManager;
@@ -115,7 +115,7 @@ final class ValidationService
         $rules = [];
 
         foreach ($capabilities as $capabilityClass) {
-            /** @var ValidationCapability $capability */
+            /** @var ValidationCapabilityInterface $capability */
             $capability = app($capabilityClass);
             /** @phpstan-ignore nullsafe.neverNull */
             $value = $validationRules?->get($capability->key());

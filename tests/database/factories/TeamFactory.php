@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Relaticle\CustomFields\Tests\Database\Factories;
 
 use Filament\Tests\Fixtures\Models\Team;

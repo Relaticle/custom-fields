@@ -497,6 +497,15 @@ return [
                 'scoped_management' => 'Entity custom fields are managed per-parent record, not on the global management page',
             ],
         ],
+        'import_date_format' => [
+            'iso' => 'ISO standard',
+            'european' => 'European (day first)',
+            'american' => 'American (month first)',
+        ],
+        'import_number_format' => [
+            'point' => 'Point',
+            'comma' => 'Comma',
+        ],
         'visibility_logic' => [
             'all' => 'All conditions must be met (AND)',
             'any' => 'Any condition must be met (OR)',
