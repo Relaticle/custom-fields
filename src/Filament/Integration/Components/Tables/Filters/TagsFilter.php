@@ -8,13 +8,14 @@ use Filament\Support\Colors\Color;
 use Filament\Tables\Filters\Indicator;
 use Filament\Tables\Filters\SelectFilter as FilamentSelectFilter;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
 use Relaticle\CustomFields\CustomFields;
 use Relaticle\CustomFields\Filament\Integration\Base\AbstractTableFilter;
 use Relaticle\CustomFields\Models\CustomField;
 
 final class TagsFilter extends AbstractTableFilter
 {
-    public function make(CustomField $customField): FilamentSelectFilter
+    public function make(CustomField $customField, ?Model $record = null, ?string $through = null): FilamentSelectFilter
     {
         $filter = FilamentSelectFilter::make($customField->getFieldName())
             ->multiple()

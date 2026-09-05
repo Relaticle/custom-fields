@@ -22,7 +22,7 @@ final class RecordFilter extends AbstractTableFilter
     /**
      * @throws Throwable
      */
-    public function make(CustomField $customField): FilamentSelectFilter
+    public function make(CustomField $customField, ?Model $record = null, ?string $through = null): FilamentSelectFilter
     {
         $filter = FilamentSelectFilter::make($customField->getFieldName())
             ->multiple()

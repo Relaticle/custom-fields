@@ -18,7 +18,7 @@ final class RecordColumn extends AbstractTableColumn
 {
     use ConfiguresColumnLabel;
 
-    public function make(CustomField $customField): RecordColumnView
+    public function make(CustomField $customField, ?Model $record = null): RecordColumnView
     {
         $column = RecordColumnView::make($customField->getFieldName())
             ->customField($customField)

@@ -4,12 +4,13 @@ namespace Relaticle\CustomFields\Filament\Integration\Components\Tables\Filters;
 
 use Filament\Tables\Filters\TernaryFilter as FilamentTernaryFilter;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
 use Relaticle\CustomFields\Filament\Integration\Base\AbstractTableFilter;
 use Relaticle\CustomFields\Models\CustomField;
 
 final class TernaryFilter extends AbstractTableFilter
 {
-    public function make(CustomField $customField): FilamentTernaryFilter
+    public function make(CustomField $customField, ?Model $record = null, ?string $through = null): FilamentTernaryFilter
     {
         return FilamentTernaryFilter::make($customField->getFieldName())
             ->label($customField->name)

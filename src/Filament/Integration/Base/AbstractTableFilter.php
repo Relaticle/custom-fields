@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Relaticle\CustomFields\Filament\Integration\Base;
 
 use Filament\Tables\Filters\BaseFilter;
+use Illuminate\Database\Eloquent\Model;
 use Relaticle\CustomFields\Contracts\TableFilterInterface;
 use Relaticle\CustomFields\Enums\CustomFieldsFeature;
 use Relaticle\CustomFields\FeatureSystem\FeatureManager;
@@ -19,7 +20,7 @@ abstract class AbstractTableFilter implements TableFilterInterface
     /**
      * Create and configure a table filter.
      */
-    abstract public function make(CustomField $customField): BaseFilter;
+    abstract public function make(CustomField $customField, ?Model $record = null, ?string $through = null): BaseFilter;
 
     protected function hasColorOptionsEnabled(CustomField $customField): bool
     {

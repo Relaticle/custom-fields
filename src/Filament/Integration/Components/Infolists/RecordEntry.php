@@ -15,7 +15,7 @@ use Relaticle\CustomFields\Models\CustomField;
 
 final class RecordEntry extends AbstractInfolistEntry
 {
-    public function make(CustomField $customField): ViewEntry
+    public function make(CustomField $customField, ?Model $record = null): ViewEntry
     {
         if ($customField->lookup_type === null) {
             return ViewEntry::make($customField->getFieldName())
