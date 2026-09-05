@@ -23,7 +23,6 @@ use Orchestra\Testbench\TestCase as BaseTestCase;
 use Override;
 use Postare\BladeMdi\BladeMdiServiceProvider;
 use Propaganistas\LaravelPhone\PhoneServiceProvider;
-use Relaticle\CustomFields\Contracts\EntityManagerInterface;
 use Relaticle\CustomFields\CustomFieldsServiceProvider;
 use Relaticle\CustomFields\EntitySystem\EntityConfigurator;
 use Relaticle\CustomFields\EntitySystem\EntityManager;
@@ -221,6 +220,5 @@ class TestCase extends BaseTestCase
     protected function refreshEntityManager(): void
     {
         $this->app->forgetInstance(EntityManager::class);
-        $this->app->forgetInstance(EntityManagerInterface::class);
     }
 }

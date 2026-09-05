@@ -11,11 +11,10 @@ use Closure;
 use Filament\Resources\Resource;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Traits\Macroable;
-use Relaticle\CustomFields\Contracts\EntityManagerInterface;
 use Relaticle\CustomFields\Data\EntityConfigurationData;
 use Relaticle\CustomFields\Enums\EntityFeature;
 
-final class EntityManager implements EntityManagerInterface
+final class EntityManager
 {
     use Macroable;
 

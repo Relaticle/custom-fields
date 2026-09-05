@@ -5,9 +5,8 @@ declare(strict_types=1);
 namespace Relaticle\CustomFields\Providers;
 
 use Illuminate\Support\ServiceProvider;
-use Relaticle\CustomFields\Contracts\EntityConfigurationInterface;
-use Relaticle\CustomFields\Contracts\EntityManagerInterface;
 use Relaticle\CustomFields\Data\EntityConfigurationData;
+use Relaticle\CustomFields\EntitySystem\EntityConfigurator;
 use Relaticle\CustomFields\EntitySystem\EntityManager;
 use Relaticle\CustomFields\Enums\EntityFeature;
 
@@ -19,7 +18,6 @@ class EntityServiceProvider extends ServiceProvider
     public function register(): void
     {
         // Register EntityManager as singleton
-        $this->app->singleton(EntityManagerInterface::class, EntityManager::class);
         $this->app->singleton(EntityManager::class, function (mixed $app): EntityManager {
             $config = $this->getEntityConfig();
 
@@ -131,7 +129,7 @@ class EntityServiceProvider extends ServiceProvider
     {
         $entityConfiguration = config('custom-fields.entity_configuration');
 
-        if ($entityConfiguration instanceof EntityConfigurationInterface) {
+        if ($entityConfiguration instanceof EntityConfigurator) {
             return [
                 'auto_discover_entities' => $entityConfiguration->getAutoDiscover(),
                 'entity_discovery_paths' => $entityConfiguration->getDiscoveryPaths(),

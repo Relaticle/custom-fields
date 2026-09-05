@@ -6,7 +6,6 @@ namespace Relaticle\CustomFields\Filament\Integration\Migrations;
 
 use Exception;
 use Illuminate\Support\Facades\DB;
-use Relaticle\CustomFields\Contracts\CustomsFieldsMigrators;
 use Relaticle\CustomFields\CustomFields;
 use Relaticle\CustomFields\Data\CustomFieldData;
 use Relaticle\CustomFields\Data\CustomFieldSectionData;
@@ -20,7 +19,7 @@ use Relaticle\CustomFields\FeatureSystem\FeatureManager;
 use Relaticle\CustomFields\Models\CustomField;
 use Throwable;
 
-class CustomFieldsMigrator implements CustomsFieldsMigrators
+final class CustomFieldsMigrator
 {
     private int|string|null $tenantId = null;
 
@@ -33,6 +32,9 @@ class CustomFieldsMigrator implements CustomsFieldsMigrators
         $this->tenantId = $tenantId;
     }
 
+    /**
+     * @param  class-string  $model
+     */
     public function find(string $model, string $code): CustomFieldsMigrator
     {
         $this->customField = CustomFields::newCustomFieldModel()
@@ -67,6 +69,8 @@ class CustomFieldsMigrator implements CustomsFieldsMigrators
     }
 
     /**
+     * @param  array<int|string, mixed>  $options
+     *
      * @throws FieldTypeNotOptionableException
      */
     public function options(array $options): CustomFieldsMigrator
@@ -81,6 +85,8 @@ class CustomFieldsMigrator implements CustomsFieldsMigrators
     }
 
     /**
+     * @param  class-string  $model
+     *
      * @throws FieldTypeNotOptionableException
      */
     public function lookupType(string $model): CustomFieldsMigrator
@@ -170,6 +176,8 @@ class CustomFieldsMigrator implements CustomsFieldsMigrators
     }
 
     /**
+     * @param  array<string, mixed>  $data
+     *
      * @throws CustomFieldDoesNotExistException|Throwable
      */
     public function update(array $data): void
@@ -268,7 +276,7 @@ class CustomFieldsMigrator implements CustomsFieldsMigrators
     /**
      * @param  array<string, mixed>  $options
      */
-    protected function createOptions(
+    private function createOptions(
         CustomField $customField,
         array $options
     ): void {
@@ -292,7 +300,7 @@ class CustomFieldsMigrator implements CustomsFieldsMigrators
         );
     }
 
-    protected function isCustomFieldExists(
+    private function isCustomFieldExists(
         string $model,
         string $code,
         int|string|null $tenantId = null
@@ -311,7 +319,7 @@ class CustomFieldsMigrator implements CustomsFieldsMigrators
             ->exists();
     }
 
-    protected function isCustomFieldTypeOptionable(): bool
+    private function isCustomFieldTypeOptionable(): bool
     {
         return CustomFieldsType::getFieldType($this->customFieldData->type)->dataType->isChoiceField();
     }

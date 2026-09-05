@@ -6,13 +6,12 @@ namespace Relaticle\CustomFields\EntitySystem;
 
 use Illuminate\Database\Eloquent\Model;
 use InvalidArgumentException;
-use Relaticle\CustomFields\Contracts\EntityConfigurationInterface;
 
 /**
  * Fluent builder for configuring the entire entity management system
  * Provides clean, discoverable API for global entity configuration
  */
-final class EntityConfigurator implements EntityConfigurationInterface
+final class EntityConfigurator
 {
     private bool $autoDiscover = true;
 

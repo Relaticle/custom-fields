@@ -7,7 +7,7 @@ namespace Relaticle\CustomFields\Contracts;
 use Relaticle\CustomFields\Models\Contracts\HasCustomFields;
 use Relaticle\CustomFields\Models\CustomField;
 
-interface ValueResolvers
+interface ValueResolverInterface
 {
     public function resolve(HasCustomFields $record, CustomField $customField, bool $exportable = false): mixed;
 }

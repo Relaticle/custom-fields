@@ -3,7 +3,6 @@
 declare(strict_types=1);
 
 use Illuminate\Support\Carbon;
-use Relaticle\CustomFields\Contracts\EntityManagerInterface;
 use Relaticle\CustomFields\EntitySystem\EntityConfigurator;
 use Relaticle\CustomFields\EntitySystem\EntityManager;
 use Relaticle\CustomFields\EntitySystem\EntityModel;
@@ -33,7 +32,6 @@ function registerLookupEntity(string $modelClass, string $primaryAttribute, arra
     );
 
     app()->forgetInstance(EntityManager::class);
-    app()->forgetInstance(EntityManagerInterface::class);
 }
 
 /**

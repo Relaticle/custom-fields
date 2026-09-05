@@ -2,7 +2,6 @@
 
 declare(strict_types=1);
 
-use Relaticle\CustomFields\Contracts\CustomsFieldsMigrators;
 use Relaticle\CustomFields\Data\CustomFieldData;
 use Relaticle\CustomFields\Data\CustomFieldSectionData;
 use Relaticle\CustomFields\Enums\CustomFieldSectionType;
@@ -12,6 +11,7 @@ use Relaticle\CustomFields\FeatureSystem\FeatureConfigurator;
 use Relaticle\CustomFields\FeatureSystem\FeatureManager;
 use Relaticle\CustomFields\Filament\Integration\Factories\SectionComponentFactory;
 use Relaticle\CustomFields\Filament\Integration\Factories\SectionInfolistsFactory;
+use Relaticle\CustomFields\Filament\Integration\Migrations\CustomFieldsMigrator;
 use Relaticle\CustomFields\Filament\Management\Pages\CustomFieldsManagementPage;
 use Relaticle\CustomFields\Livewire\ManageCustomFieldSection;
 use Relaticle\CustomFields\Models\CustomFieldSection;
@@ -265,7 +265,7 @@ it('persists a preset section width end-to-end through the migrator', function (
     config(['custom-fields.features' => FeatureConfigurator::configure()
         ->enable(CustomFieldsFeature::SYSTEM_SECTIONS)]);
 
-    app(CustomsFieldsMigrators::class)->new(
+    app(CustomFieldsMigrator::class)->new(
         model: Post::class,
         fieldData: new CustomFieldData(
             name: 'Function Info',

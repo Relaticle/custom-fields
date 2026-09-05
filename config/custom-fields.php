@@ -75,7 +75,10 @@ return [
     'management' => [
         'slug' => 'custom-fields',
         'navigation_sort' => -1,
-        'navigation_group' => true,
+
+        // Nest the management page under its own navigation group instead of top-level.
+        'navigation_group_enabled' => true,
+
         'cluster' => null,
 
         // Width of the add/edit section modal. Accepts a Filament\Support\Enums\Width case or its

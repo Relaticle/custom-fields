@@ -17,8 +17,7 @@ use Relaticle\CustomFields\Console\Commands\CleanupOrphanedValuesCommand;
 use Relaticle\CustomFields\Console\Commands\MakeCustomFieldsMigrationCommand;
 use Relaticle\CustomFields\Console\Commands\MakeFieldTypeCommand;
 use Relaticle\CustomFields\Console\Commands\UpgradeCommand;
-use Relaticle\CustomFields\Contracts\CustomsFieldsMigrators;
-use Relaticle\CustomFields\Contracts\ValueResolvers;
+use Relaticle\CustomFields\Contracts\ValueResolverInterface;
 use Relaticle\CustomFields\Enums\CustomFieldsFeature;
 use Relaticle\CustomFields\FeatureSystem\FeatureManager;
 use Relaticle\CustomFields\Filament\Integration\Migrations\CustomFieldsMigrator;
@@ -54,8 +53,8 @@ final class CustomFieldsServiceProvider extends PackageServiceProvider
         $this->app->register(ValidationServiceProvider::class);
         $this->app->register(EntityServiceProvider::class);
 
-        $this->app->singleton(CustomsFieldsMigrators::class, CustomFieldsMigrator::class);
-        $this->app->singleton(ValueResolvers::class, ValueResolver::class);
+        $this->app->singleton(CustomFieldsMigrator::class);
+        $this->app->singleton(ValueResolverInterface::class, ValueResolver::class);
         $this->app->scoped(LookupCache::class);
 
         $this->app->singleton(TenantContextService::class);
