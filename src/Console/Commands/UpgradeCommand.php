@@ -35,6 +35,15 @@ final class UpgradeCommand extends Command
         $isForced = (bool) $this->option('force');
         $stepsToSkip = $this->getSkippedSteps();
 
+        $unknownSteps = array_diff($stepsToSkip, array_keys(self::STEPS));
+
+        if ($unknownSteps !== []) {
+            $this->line(sprintf('<error>Unknown --skip value(s): %s.</error>', implode(', ', $unknownSteps)));
+            $this->line(sprintf('Valid steps: %s.', implode(', ', array_keys(self::STEPS))));
+
+            return self::FAILURE;
+        }
+
         if ($isDryRun) {
             $this->warn('Running in DRY RUN mode - no changes will be made');
             $this->newLine();
@@ -174,10 +183,7 @@ final class UpgradeCommand extends Command
             $this->line(sprintf('  <error>Total items failed: %d</error>', $totalFailed));
         }
 
-        // Manual action reminder
         $this->newLine();
-        $this->warn('Manual Action Required:');
-        $this->line('  Update config/custom-fields.php to use the new format if needed.');
         $this->line('  See: https://relaticle.github.io/custom-fields/getting-started/upgrade-guide');
     }
 

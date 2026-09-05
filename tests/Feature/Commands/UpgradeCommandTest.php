@@ -11,13 +11,17 @@ beforeEach(function (): void {
 
 it('runs validate-schema and clear-caches in dry-run mode without errors', function (): void {
     $this->artisan('custom-fields:upgrade', ['--dry-run' => true])
-        ->expectsOutputToContain('DRY RUN COMPLETE')
+        ->expectsOutputToContain('Step 1/2: Validate Schema')
+        ->expectsOutputToContain('Step 2/2: Clear Caches')
+        ->expectsOutput('DRY RUN COMPLETE - No changes were made')
         ->assertSuccessful();
 });
 
 it('runs validate-schema and clear-caches when forced', function (): void {
     $this->artisan('custom-fields:upgrade', ['--force' => true])
-        ->expectsOutputToContain('UPGRADE COMPLETE')
+        ->expectsOutputToContain('Step 1/2: Validate Schema')
+        ->expectsOutputToContain('Step 2/2: Clear Caches')
+        ->expectsOutput('UPGRADE COMPLETE')
         ->assertSuccessful();
 });
 
@@ -28,4 +32,14 @@ it('skips clear-caches when requested', function (): void {
     ])
         ->expectsOutputToContain('Skipping: clear-caches')
         ->assertSuccessful();
+});
+
+it('fails with a clear error when --skip names an unknown step', function (): void {
+    $this->artisan('custom-fields:upgrade', [
+        '--force' => true,
+        '--skip' => 'not-a-real-step',
+    ])
+        ->expectsOutputToContain('Unknown --skip value(s): not-a-real-step.')
+        ->expectsOutput('Valid steps: validate-schema, clear-caches.')
+        ->assertFailed();
 });

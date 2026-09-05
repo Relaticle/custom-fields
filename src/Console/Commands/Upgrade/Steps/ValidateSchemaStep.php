@@ -9,9 +9,6 @@ use Illuminate\Support\Facades\Schema;
 use Relaticle\CustomFields\Console\Commands\Upgrade\UpgradeStep;
 use Relaticle\CustomFields\Console\Commands\Upgrade\UpgradeStepResult;
 
-/**
- * Validates database schema compatibility for v3.
- */
 final class ValidateSchemaStep implements UpgradeStep
 {
     /** @var array<string, list<string>> */
@@ -37,7 +34,7 @@ final class ValidateSchemaStep implements UpgradeStep
 
     public function description(): string
     {
-        return 'Verify database schema compatibility for v3';
+        return 'Verify the database schema before running upgrade steps';
     }
 
     public function execute(bool $dryRun, Command $command): UpgradeStepResult
