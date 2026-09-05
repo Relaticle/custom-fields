@@ -5,37 +5,24 @@ declare(strict_types=1);
 namespace Relaticle\CustomFields\Console\Commands;
 
 use Illuminate\Console\Command;
-use Relaticle\CustomFields\Console\Commands\Upgrade\Steps\CleanMultiValueValidationRulesStep;
 use Relaticle\CustomFields\Console\Commands\Upgrade\Steps\ClearCachesStep;
-use Relaticle\CustomFields\Console\Commands\Upgrade\Steps\MigrateEmailFormatStep;
-use Relaticle\CustomFields\Console\Commands\Upgrade\Steps\MigrateLookupFieldsStep;
-use Relaticle\CustomFields\Console\Commands\Upgrade\Steps\MigratePhoneFormatStep;
-use Relaticle\CustomFields\Console\Commands\Upgrade\Steps\MigrateValidationRulesFormatStep;
 use Relaticle\CustomFields\Console\Commands\Upgrade\Steps\ValidateSchemaStep;
 use Relaticle\CustomFields\Console\Commands\Upgrade\UpgradeStep;
 use Relaticle\CustomFields\Console\Commands\Upgrade\UpgradeStepResult;
 
-/**
- * Main upgrade command for custom-fields 2.x → 3.x migration.
- */
 final class UpgradeCommand extends Command
 {
     /** @var string */
     protected $signature = 'custom-fields:upgrade
                             {--dry-run : Show what would be migrated without making changes}
                             {--force : Run without confirmation prompts}
-                            {--skip= : Skip specific steps (comma-separated: lookup-fields,email-format,phone-format,validate-schema,clear-caches)}';
+                            {--skip= : Skip specific steps (comma-separated: validate-schema,clear-caches)}';
 
     /** @var string */
-    protected $description = 'Upgrade custom-fields data from 2.x to 3.x';
+    protected $description = 'Run the registered custom-fields upgrade steps';
 
     /** @var array<string, class-string<UpgradeStep>> */
     private const STEPS = [
-        'lookup-fields' => MigrateLookupFieldsStep::class,
-        'email-format' => MigrateEmailFormatStep::class,
-        'phone-format' => MigratePhoneFormatStep::class,
-        'migrate-validation-format' => MigrateValidationRulesFormatStep::class,
-        'clean-multivalue-rules' => CleanMultiValueValidationRulesStep::class,
         'validate-schema' => ValidateSchemaStep::class,
         'clear-caches' => ClearCachesStep::class,
     ];
@@ -68,7 +55,7 @@ final class UpgradeCommand extends Command
     private function displayHeader(): void
     {
         $this->newLine();
-        $this->line('<fg=cyan>Custom Fields Upgrade: 2.x → 3.x</>');
+        $this->line('<fg=cyan>Custom Fields Upgrade</>');
         $this->line(str_repeat('=', 40));
         $this->newLine();
     }
