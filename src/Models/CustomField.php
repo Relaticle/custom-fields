@@ -50,16 +50,16 @@ use Relaticle\CustomFields\QueryBuilders\CustomFieldQueryBuilder;
  * @property CustomFieldWidth $width
  * @property-read ?CustomFieldSection $section
  *
- * @method static CustomFieldQueryBuilder<CustomField> query()
- * @method static CustomFieldQueryBuilder<CustomField> where($column, $operator = null, $value = null, $boolean = 'and')
- * @method static CustomFieldQueryBuilder<CustomField> whereIn($column, $values, $boolean = 'and', $not = false)
- * @method static CustomFieldQueryBuilder<CustomField> active()
- * @method static CustomFieldQueryBuilder<CustomField> visibleInList()
- * @method static CustomFieldQueryBuilder<CustomField> nonEncrypted()
- * @method static CustomFieldQueryBuilder<CustomField> forEntity(string $model)
- * @method static CustomFieldQueryBuilder<CustomField> forMorphEntity(string $entity)
- * @method static CustomFieldQueryBuilder<CustomField> forType(string $type)
- * @method static CustomFieldQueryBuilder<CustomField> withDeactivated(bool $withDeactivated = true)
+ * @method static CustomFieldQueryBuilder<static> query()
+ * @method static CustomFieldQueryBuilder<static> where($column, $operator = null, $value = null, $boolean = 'and')
+ * @method static CustomFieldQueryBuilder<static> whereIn($column, $values, $boolean = 'and', $not = false)
+ * @method static CustomFieldQueryBuilder<static> active()
+ * @method static CustomFieldQueryBuilder<static> visibleInList()
+ * @method static CustomFieldQueryBuilder<static> nonEncrypted()
+ * @method static CustomFieldQueryBuilder<static> forEntity(string $model)
+ * @method static CustomFieldQueryBuilder<static> forMorphEntity(string $entity)
+ * @method static CustomFieldQueryBuilder<static> forType(string $type)
+ * @method static CustomFieldQueryBuilder<static> withDeactivated(bool $withDeactivated = true)
  */
 #[ScopedBy([TenantScope::class, SortOrderScope::class])]
 #[ObservedBy(CustomFieldObserver::class)]
