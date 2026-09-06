@@ -10,6 +10,7 @@ use Relaticle\CustomFields\Enums\CustomFieldsFeature;
 use Relaticle\CustomFields\FeatureSystem\FeatureManager;
 use Relaticle\CustomFields\Models\CustomField;
 use Relaticle\CustomFields\Models\CustomFieldRelationship;
+use Relaticle\CustomFields\Models\Scopes\TenantScope;
 
 final readonly class DeleteRelationshipDefinition
 {
@@ -19,9 +20,11 @@ final readonly class DeleteRelationshipDefinition
             $slots = $this->slots($definition);
 
             // Hosts run without foreign keys often enough (sqlite defaults them off) that the
-            // cascade cannot be the only thing removing the edges.
+            // cascade cannot be the only thing removing the edges. The definition delete is not
+            // tenant-scoped either, so neither is this one: no context may strand an edge.
             CustomFields::newLinkModel()
                 ->newQuery()
+                ->withoutGlobalScope(TenantScope::class)
                 ->where('relationship_id', $definition->getKey())
                 ->delete();
 

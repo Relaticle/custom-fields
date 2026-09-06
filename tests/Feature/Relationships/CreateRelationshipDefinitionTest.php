@@ -11,6 +11,7 @@ use Relaticle\CustomFields\Models\CustomFieldLink;
 use Relaticle\CustomFields\Models\CustomFieldRelationship;
 use Relaticle\CustomFields\Services\Relationships\CreateRelationshipDefinition;
 use Relaticle\CustomFields\Services\Relationships\DeleteRelationshipDefinition;
+use Relaticle\CustomFields\Services\TenantContextService;
 use Relaticle\CustomFields\Tests\Fixtures\Models\Post;
 use Relaticle\CustomFields\Tests\Fixtures\Models\User;
 
@@ -183,6 +184,63 @@ it('keeps the definition and its edges when one slot field is deleted', function
         ->and($definition->from_field_id)->not->toBeNull()
         ->and(CustomFieldLink::query()->count())->toBe(1);
 });
+
+it('removes a one-way definition and its edges when its only field is deleted', function (): void {
+    $definition = app(CreateRelationshipDefinition::class)->execute(new RelationshipDefinitionData(
+        code: 'referrer',
+        fromEntityType: (new User)->getMorphClass(),
+        toEntityType: (new User)->getMorphClass(),
+        cardinality: RelationshipCardinality::ManyToOne,
+        fromField: new FieldSlotData(name: 'Referred by', sectionId: sectionForEntity((new User)->getMorphClass())->getKey()),
+    ));
+    CustomFieldLink::factory()->create(['relationship_id' => $definition->getKey()]);
+
+    $definition->fromField->delete();
+
+    expect(CustomFieldRelationship::query()->count())->toBe(0)
+        ->and(CustomFieldLink::query()->count())->toBe(0);
+});
+
+it('removes a symmetric definition when its single field is deleted', function (): void {
+    $definition = app(CreateRelationshipDefinition::class)->execute(new RelationshipDefinitionData(
+        code: 'spouse',
+        fromEntityType: (new User)->getMorphClass(),
+        toEntityType: (new User)->getMorphClass(),
+        cardinality: RelationshipCardinality::OneToOne,
+        isSymmetric: true,
+        fromField: new FieldSlotData(name: 'Spouse', sectionId: sectionForEntity((new User)->getMorphClass())->getKey()),
+    ));
+    CustomFieldLink::factory()->create(['relationship_id' => $definition->getKey()]);
+
+    $definition->fromField->delete();
+
+    expect(CustomFieldRelationship::query()->count())->toBe(0)
+        ->and(CustomFieldLink::query()->count())->toBe(0);
+});
+
+it('unpairs a slot from a foreign tenant context', function (): void {
+    useTenantSchema(7);
+
+    $definition = authorship();
+    CustomFieldLink::factory()->create([
+        'relationship_id' => $definition->getKey(),
+        'tenant_id' => 7,
+    ]);
+    $toField = $definition->toField;
+
+    TenantContextService::setTenantId(8);
+
+    $toField->delete();
+
+    TenantContextService::setTenantId(7);
+
+    expect($definition->refresh()->to_field_id)->toBeNull()
+        ->and($definition->from_field_id)->not->toBeNull()
+        ->and(CustomFieldLink::query()->count())->toBe(1);
+})->skip(
+    fn (): bool => DB::connection()->getDriverName() === 'mysql',
+    'MySQL commits DDL implicitly, so the added tenant columns would outlive the test transaction.',
+);
 
 it('refuses to move the ends of an existing definition', function (): void {
     $definition = authorship();
