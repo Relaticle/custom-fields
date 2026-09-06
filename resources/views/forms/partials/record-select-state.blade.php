@@ -218,14 +218,15 @@
         }
     },
 
-    confirmSteal() {
+    async confirmSteal() {
         const pending = this.pendingSteal;
 
         if (!pending) return;
 
         this.replaceConfirmed = true;
         this.pendingSteal = null;
-        this.selectRecord(pending.record);
+
+        await this.selectRecord(pending.record);
     },
 
     cancelSteal() {
@@ -399,16 +400,21 @@
         }
     },
 
-    toggleRecord(record) {
-        const wasSelected = this.isSelected(record.id);
-        if (wasSelected) {
+    // A selection can wait on the server's answer about the record's current holder, so the
+    // announcement is made once the selection has landed, never before it.
+    async toggleRecord(record) {
+        if (this.isSelected(record.id)) {
             this.removeRecord(record.id);
-            this.announceSelection(record, wasSelected);
+            this.announceSelection(record, true);
+
             return;
         }
 
-        this.selectRecord(record);
-        this.announceSelection(record, wasSelected);
+        await this.selectRecord(record);
+
+        if (this.isSelected(record.id)) {
+            this.announceSelection(record, false);
+        }
     },
 
     async selectRecord(record) {
