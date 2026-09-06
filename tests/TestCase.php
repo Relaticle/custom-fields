@@ -139,7 +139,6 @@ class TestCase extends BaseTestCase
             ->disable(
                 CustomFieldsFeature::FIELD_ENCRYPTION,
                 CustomFieldsFeature::FIELD_OPTION_COLORS,
-                CustomFieldsFeature::FIELD_OPTION_CATEGORIES,
                 CustomFieldsFeature::FIELD_CODE_AUTO_GENERATE,
                 CustomFieldsFeature::FIELD_MULTI_VALUE,
                 CustomFieldsFeature::FIELD_UNIQUE_VALUE,

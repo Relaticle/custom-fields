@@ -499,6 +499,25 @@ describe('ManageCustomField - Field Actions', function (): void {
         ])->assertActionHidden('duplicate');
     });
 
+    it('creates a tags input field without asking for an option nobody typed', function (): void {
+        livewire(ManageCustomFieldSection::class, [
+            'section' => $this->section,
+            'entityType' => $this->userEntityType,
+        ])
+            ->callAction('createField', [
+                'name' => 'Labels',
+                'code' => 'labels',
+                'type' => 'tags-input',
+                'entity_type' => $this->userEntityType,
+            ])
+            ->assertHasNoActionErrors();
+
+        $field = CustomField::query()->withoutGlobalScopes()->where('code', 'labels')->firstOrFail();
+
+        expect($field->type)->toBe('tags-input')
+            ->and($field->options)->toBeEmpty();
+    });
+
     it('sets sort_order on options when creating a select field via storeField', function (): void {
         livewire(ManageCustomFieldSection::class, [
             'section' => $this->section,
@@ -982,6 +1001,24 @@ describe('ManageCustomField - Code Stability On Rename', function (): void {
 });
 
 describe('ManageFieldsTable - Field Management', function (): void {
+    it('creates a tags input field without asking for an option nobody typed', function (): void {
+        CustomFieldSection::factory()->forEntityType(Post::class)->create();
+
+        livewire(ManageFieldsTable::class, ['entityType' => Post::class])
+            ->callAction('createField', [
+                'name' => 'Labels',
+                'code' => 'labels',
+                'type' => 'tags-input',
+                'entity_type' => Post::class,
+            ])
+            ->assertHasNoActionErrors();
+
+        $field = CustomField::query()->withoutGlobalScopes()->where('code', 'labels')->firstOrFail();
+
+        expect($field->type)->toBe('tags-input')
+            ->and($field->options)->toBeEmpty();
+    });
+
     it('edits a select field without duplicating its stored options', function (): void {
         $section = CustomFieldSection::factory()->forEntityType(Post::class)->create();
 

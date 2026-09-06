@@ -5,11 +5,16 @@ declare(strict_types=1);
 use Filament\Actions\Testing\TestAction;
 use Filament\Forms\Components\Repeater;
 use Filament\Notifications\Notification;
+use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Illuminate\Support\ViewErrorBag;
 use Relaticle\CustomFields\Livewire\ManageCustomField;
+use Relaticle\CustomFields\Livewire\ManageCustomFieldSection;
 use Relaticle\CustomFields\Models\CustomField;
+use Relaticle\CustomFields\Models\CustomFieldOption;
 use Relaticle\CustomFields\Support\OptionNameParser;
+use Relaticle\CustomFields\Tests\Fixtures\Models\User;
 
 describe('the parser', function (): void {
     it('reads one name per line and drops the blank ones', function (): void {
@@ -171,3 +176,56 @@ describe('the options editor', function (): void {
             ->toContain('Add Option');
     })->with(['polished', 'native']);
 });
+
+describe('the create form', function (): void {
+    it('stores the pasted rows on a field that does not exist yet, in the order they landed', function (): void {
+        pasteIntoNewStageField("Discovery\nNegotiation\nClosed Won");
+
+        $options = stageOptions();
+
+        expect($options->pluck('name')->all())->toBe(['Discovery', 'Negotiation', 'Closed Won'])
+            ->and($options->pluck('sort_order')->all())->toBe([0, 1, 2]);
+    });
+
+    it('stamps the tenant on every pasted row', function (): void {
+        useTenantSchema(7);
+
+        pasteIntoNewStageField("Discovery\nClosed Won");
+
+        expect(stageOptions()->pluck('tenant_id')->all())->toBe([7, 7]);
+    })->skip(
+        fn (): bool => DB::connection()->getDriverName() === 'mysql',
+        'MySQL commits DDL implicitly, so the added tenant columns would outlive the test transaction.',
+    );
+});
+
+function pasteIntoNewStageField(string $names): void
+{
+    livewire(ManageCustomFieldSection::class, [
+        'section' => sectionForEntity(User::class),
+        'entityType' => User::class,
+    ])
+        ->mountAction('createField')
+        ->set('mountedActions.0.data.type', 'select')
+        ->callAction(TestAction::make('pasteOptions')->schemaComponent('options'), ['names' => $names])
+        ->assertHasNoActionErrors()
+        ->set('mountedActions.0.data.name', 'Stage')
+        ->set('mountedActions.0.data.code', 'stage')
+        ->callMountedAction()
+        ->assertHasNoActionErrors();
+}
+
+/**
+ * @return Collection<int, CustomFieldOption>
+ */
+function stageOptions(): Collection
+{
+    return CustomField::query()
+        ->withoutGlobalScopes()
+        ->where('code', 'stage')
+        ->firstOrFail()
+        ->options()
+        ->withoutGlobalScopes()
+        ->orderBy('sort_order')
+        ->get();
+}

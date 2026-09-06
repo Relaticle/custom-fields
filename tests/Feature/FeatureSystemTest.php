@@ -57,7 +57,7 @@ it('falls back to the package default for a flag the host did not list', functio
     config(['custom-fields.features' => FeatureConfigurator::configure()]);
 
     expect(FeatureManager::isEnabled(CustomFieldsFeature::SYSTEM_RELATIONSHIPS))->toBeTrue()
-        ->and(FeatureManager::isEnabled(CustomFieldsFeature::FIELD_OPTION_CATEGORIES))->toBeTrue()
+        ->and(FeatureManager::isEnabled(CustomFieldsFeature::FIELD_OPTION_COLORS))->toBeTrue()
         ->and(FeatureManager::isEnabled(CustomFieldsFeature::SYSTEM_MULTI_TENANCY))->toBeFalse()
         ->and(FeatureManager::isEnabled(CustomFieldsFeature::FIELD_MULTI_VALUE))->toBeFalse();
 
@@ -68,7 +68,7 @@ it('falls back to the package default for a flag the host did not list', functio
 
     expect(FeatureManager::isEnabled(CustomFieldsFeature::SYSTEM_RELATIONSHIPS))->toBeFalse()
         ->and(FeatureManager::isEnabled(CustomFieldsFeature::FIELD_MULTI_VALUE))->toBeTrue()
-        ->and(FeatureManager::isEnabled(CustomFieldsFeature::FIELD_OPTION_CATEGORIES))->toBeTrue();
+        ->and(FeatureManager::isEnabled(CustomFieldsFeature::FIELD_OPTION_COLORS))->toBeTrue();
 });
 
 it('keeps the package defaults and the shipped config in step', function (): void {
@@ -106,7 +106,6 @@ it('ships the feature defaults reviewed for 4.0', function (): void {
         CustomFieldsFeature::FIELD_CONDITIONAL_VISIBILITY->value => true,
         CustomFieldsFeature::FIELD_ENCRYPTION->value => true,
         CustomFieldsFeature::FIELD_OPTION_COLORS->value => true,
-        CustomFieldsFeature::FIELD_OPTION_CATEGORIES->value => true,
         CustomFieldsFeature::FIELD_CODE_AUTO_GENERATE->value => false,
         CustomFieldsFeature::FIELD_MULTI_VALUE->value => false,
         CustomFieldsFeature::FIELD_UNIQUE_VALUE->value => false,

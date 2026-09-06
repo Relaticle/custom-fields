@@ -36,13 +36,13 @@ use Relaticle\CustomFields\CustomFields;
 use Relaticle\CustomFields\Data\CustomFieldOptionSettingsData;
 use Relaticle\CustomFields\Enums\CustomFieldsFeature;
 use Relaticle\CustomFields\Enums\DescriptionPosition;
-use Relaticle\CustomFields\Enums\FieldDataType;
 use Relaticle\CustomFields\Enums\OptionCategory;
 use Relaticle\CustomFields\Enums\RelationshipCardinality;
 use Relaticle\CustomFields\Enums\UiSurface;
 use Relaticle\CustomFields\Facades\CustomFieldsType;
 use Relaticle\CustomFields\Facades\Entities;
 use Relaticle\CustomFields\FeatureSystem\FeatureManager;
+use Relaticle\CustomFields\FieldTypeSystem\Definitions\StatusFieldType;
 use Relaticle\CustomFields\Filament\Management\Forms\Components\RelationshipConfigurator;
 use Relaticle\CustomFields\Filament\Management\Forms\Components\TypeField;
 use Relaticle\CustomFields\Filament\Management\Forms\Components\VisibilityComponent;
@@ -303,8 +303,8 @@ final class FieldForm implements FormInterface
             return;
         }
 
-        // defaultItems(1) opens a fresh field on a blank row, and a pasted list would leave it
-        // behind to fail the required rule on a row nobody typed.
+        // A row opened and left blank fails the required name rule, and a pasted list has no
+        // use for it.
         $items = array_filter(
             self::optionItems($component),
             fn (array $item): bool => filled($item['name'] ?? null),
@@ -570,15 +570,11 @@ final class FieldForm implements FormInterface
     // position, so the category header and the category select answer one question.
     private static function showsOptionCategories(mixed $type): bool
     {
-        if (! FeatureManager::isEnabled(CustomFieldsFeature::FIELD_OPTION_CATEGORIES)) {
-            return false;
-        }
-
         if (! is_string($type) || $type === '') {
             return false;
         }
 
-        return CustomFieldsType::getFieldType($type)?->dataType === FieldDataType::SINGLE_CHOICE;
+        return CustomFieldsType::getFieldType($type)?->carriesOptionCategories === true;
     }
 
     /**
@@ -707,7 +703,9 @@ final class FieldForm implements FormInterface
                 return CustomFieldsType::toCollection()->acceptsArbitraryValues()->pluck('key')->toArray();
             })
             ->hiddenLabel()
-            ->defaultItems(1)
+            // A blank row the user never typed fails the name rule on the one type whose
+            // options are optional, so the first row comes from the add action instead.
+            ->defaultItems(0)
             ->hintAction(self::pasteOptionsAction())
             ->addActionLabel(
                 __('custom-fields::custom-fields.field.form.options.add')
@@ -968,6 +966,7 @@ final class FieldForm implements FormInterface
                             ): bool => FeatureManager::isEnabled(CustomFieldsFeature::FIELD_OPTION_COLORS) &&
                                 in_array((string) $get('type'), [
                                     'select',
+                                    StatusFieldType::KEY,
                                     'multi_select',
                                     'tags-input',
                                 ], true)

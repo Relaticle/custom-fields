@@ -12,6 +12,7 @@ use Relaticle\CustomFields\Data\CustomFieldSectionData;
 use Relaticle\CustomFields\Enums\CustomFieldsFeature;
 use Relaticle\CustomFields\Enums\OptionCategory;
 use Relaticle\CustomFields\FeatureSystem\FeatureConfigurator;
+use Relaticle\CustomFields\FieldTypeSystem\Definitions\StatusFieldType;
 use Relaticle\CustomFields\Filament\Integration\Migrations\CustomFieldsMigrator;
 use Relaticle\CustomFields\Livewire\ManageCustomField;
 use Relaticle\CustomFields\Livewire\ManageCustomFieldSection;
@@ -25,9 +26,9 @@ dataset('option categories', fn (): array => array_map(
     OptionCategory::cases(),
 ));
 
-function selectFieldForCategories(): CustomField
+function statusFieldForCategories(): CustomField
 {
-    return CustomField::factory()->ofType('select')->create();
+    return CustomField::factory()->ofType(StatusFieldType::KEY)->create();
 }
 
 it('treats completed and cancelled as terminal categories', function (): void {
@@ -38,7 +39,7 @@ it('treats completed and cancelled as terminal categories', function (): void {
 });
 
 it('round-trips a category through the stored option settings', function (OptionCategory $category): void {
-    $option = selectFieldForCategories()->options()->create([
+    $option = statusFieldForCategories()->options()->create([
         'name' => 'Some option',
         'sort_order' => 0,
         'settings' => ['category' => $category->value],
@@ -48,7 +49,7 @@ it('round-trips a category through the stored option settings', function (Option
 })->with('option categories');
 
 it('stores the category as its backed value in the settings json', function (): void {
-    $option = selectFieldForCategories()->options()->create([
+    $option = statusFieldForCategories()->options()->create([
         'name' => 'Closed Won',
         'sort_order' => 0,
         'settings' => new CustomFieldOptionSettingsData(category: OptionCategory::Completed),
@@ -60,7 +61,7 @@ it('stores the category as its backed value in the settings json', function (): 
 });
 
 it('keeps the category null when an option is saved without one', function (): void {
-    $option = selectFieldForCategories()->options()->create([
+    $option = statusFieldForCategories()->options()->create([
         'name' => 'Untagged',
         'sort_order' => 0,
     ]);
@@ -69,7 +70,7 @@ it('keeps the category null when an option is saved without one', function (): v
 });
 
 it('clears the category back to null', function (): void {
-    $option = selectFieldForCategories()->options()->create([
+    $option = statusFieldForCategories()->options()->create([
         'name' => 'Done',
         'sort_order' => 0,
         'settings' => ['category' => OptionCategory::Completed->value],
@@ -87,7 +88,7 @@ it('fails validation on an unknown category', function (): void {
 });
 
 it('refuses to store an unknown category', function (): void {
-    $field = selectFieldForCategories();
+    $field = statusFieldForCategories();
 
     expect(fn () => $field->options()->create([
         'name' => 'Archived',
@@ -99,7 +100,7 @@ it('refuses to store an unknown category', function (): void {
 });
 
 it('returns the options of one category in sort order', function (): void {
-    $field = selectFieldForCategories();
+    $field = statusFieldForCategories();
     $field->options()->createMany([
         ['name' => 'Won Back', 'sort_order' => 3, 'settings' => ['category' => 'completed']],
         ['name' => 'Closed Won', 'sort_order' => 2, 'settings' => ['category' => 'completed']],
@@ -116,17 +117,17 @@ it('returns the options of one category in sort order', function (): void {
 });
 
 it("keeps another field's options out of the category result", function (): void {
-    $field = selectFieldForCategories();
+    $field = statusFieldForCategories();
     $field->options()->create(['name' => 'Closed Won', 'sort_order' => 1, 'settings' => ['category' => 'completed']]);
 
-    $otherField = selectFieldForCategories();
+    $otherField = statusFieldForCategories();
     $otherField->options()->create(['name' => 'Done', 'sort_order' => 1, 'settings' => ['category' => 'completed']]);
 
     expect($field->optionsInCategory(OptionCategory::Completed)->pluck('name')->all())->toBe(['Closed Won']);
 });
 
 it('filters options by category through the query builder', function (): void {
-    $field = selectFieldForCategories();
+    $field = statusFieldForCategories();
     $field->options()->createMany([
         ['name' => 'Closed Won', 'sort_order' => 1, 'settings' => ['category' => 'completed']],
         ['name' => 'Won Back', 'sort_order' => 2, 'settings' => ['category' => 'completed']],
@@ -141,7 +142,7 @@ it('filters options by category through the query builder', function (): void {
         ->and(CustomFields::newOptionModel()->query()->whereCategory(OptionCategory::Unstarted)->count())->toBe(0);
 });
 
-function configureOptionFeatures(bool $categories = false, bool $colors = false): void
+function configureOptionFeatures(bool $colors = false): void
 {
     $configurator = FeatureConfigurator::configure()->enable(
         CustomFieldsFeature::FIELD_CONDITIONAL_VISIBILITY,
@@ -150,10 +151,6 @@ function configureOptionFeatures(bool $categories = false, bool $colors = false)
         CustomFieldsFeature::SYSTEM_MANAGEMENT_INTERFACE,
         CustomFieldsFeature::SYSTEM_SECTIONS,
     );
-
-    if ($categories) {
-        $configurator = $configurator->enable(CustomFieldsFeature::FIELD_OPTION_CATEGORIES);
-    }
 
     if ($colors) {
         $configurator = $configurator->enable(CustomFieldsFeature::FIELD_OPTION_COLORS);
@@ -200,10 +197,8 @@ function mountedOptionsRepeater(CustomField $field): array
     return ['repeater' => $repeater, 'categorySelects' => $categorySelects];
 }
 
-it('offers a category column on a single-choice field', function (): void {
-    configureOptionFeatures(categories: true);
-
-    $field = CustomField::factory()->ofType('select')->withOptions(['Discovery', 'Closed Won'])->create();
+it('offers a category column on a status field', function (): void {
+    $field = CustomField::factory()->ofType(StatusFieldType::KEY)->withOptions(['Discovery', 'Closed Won'])->create();
 
     $mounted = mountedOptionsRepeater($field);
 
@@ -212,8 +207,6 @@ it('offers a category column on a single-choice field', function (): void {
 });
 
 it('offers no category column on a multi-choice field', function (): void {
-    configureOptionFeatures(categories: true);
-
     $field = CustomField::factory()->ofType('multi-select')->withOptions(['Discovery', 'Closed Won'])->create();
 
     $mounted = mountedOptionsRepeater($field);
@@ -222,7 +215,7 @@ it('offers no category column on a multi-choice field', function (): void {
         ->and($mounted['categorySelects'])->toBeEmpty();
 });
 
-it('offers no category column while the feature flag is off', function (): void {
+it('offers no category column on a select field', function (): void {
     $field = CustomField::factory()->ofType('select')->withOptions(['Discovery', 'Closed Won'])->create();
 
     $mounted = mountedOptionsRepeater($field);
@@ -232,8 +225,6 @@ it('offers no category column while the feature flag is off', function (): void 
 });
 
 it('saves a category chosen in the field editor', function (): void {
-    configureOptionFeatures(categories: true);
-
     $section = CustomFieldSection::factory()->forEntityType(User::class)->create();
 
     livewire(ManageCustomFieldSection::class, [
@@ -243,7 +234,7 @@ it('saves a category chosen in the field editor', function (): void {
         ->callAction('createField', [
             'name' => 'Stage',
             'code' => 'stage',
-            'type' => 'select',
+            'type' => StatusFieldType::KEY,
             'entity_type' => User::class,
             'options' => [
                 ['name' => 'Discovery', 'settings' => ['category' => 'started']],
@@ -259,9 +250,7 @@ it('saves a category chosen in the field editor', function (): void {
 });
 
 it('clears a category back to none in the field editor', function (): void {
-    configureOptionFeatures(categories: true);
-
-    $field = CustomField::factory()->ofType('select')->create();
+    $field = CustomField::factory()->ofType(StatusFieldType::KEY)->create();
     $option = $field->options()->create([
         'name' => 'Closed Won',
         'sort_order' => 1,
@@ -320,14 +309,12 @@ it('rejects a migrator option array without a name', function (): void {
     expect(CustomFields::newOptionModel()->query()->count())->toBe(0);
 });
 
-it('keeps a stored category when the flag is off and the option is renamed', function (): void {
-    configureOptionFeatures(categories: true, colors: true);
+it('keeps a stored category when a select option is renamed', function (): void {
+    configureOptionFeatures(colors: true);
 
     $field = CustomField::factory()->ofType('select')->withOptions(['Closed Won'])->create();
     $option = $field->options()->first();
     $option->update(['settings' => ['color' => '#16a34a', 'category' => 'completed']]);
-
-    configureOptionFeatures(colors: true);
 
     renameFirstOption($field->fresh(), 'Won');
 
@@ -336,13 +323,13 @@ it('keeps a stored category when the flag is off and the option is renamed', fun
 });
 
 it('keeps a stored color when option colors are hidden and the option is renamed', function (): void {
-    configureOptionFeatures(categories: true, colors: true);
+    configureOptionFeatures(colors: true);
 
-    $field = CustomField::factory()->ofType('select')->withOptions(['Closed Won'])->create();
+    $field = CustomField::factory()->ofType(StatusFieldType::KEY)->withOptions(['Closed Won'])->create();
     $option = $field->options()->first();
     $option->update(['settings' => ['color' => '#16a34a', 'category' => 'completed']]);
 
-    configureOptionFeatures(categories: true);
+    configureOptionFeatures();
 
     renameFirstOption($field->fresh(), 'Won');
 
@@ -351,7 +338,7 @@ it('keeps a stored color when option colors are hidden and the option is renamed
 });
 
 it('keeps stored option settings when a multi-choice option is renamed', function (): void {
-    configureOptionFeatures(categories: true, colors: true);
+    configureOptionFeatures(colors: true);
 
     $field = CustomField::factory()->ofType('multi-select')->withOptions(['Closed Won'])->create();
     $option = $field->options()->first();
@@ -394,7 +381,7 @@ it('rejects an unknown key in a migrator option array', function (): void {
 });
 
 it('reads a category from the loaded options relation without querying again', function (): void {
-    $field = selectFieldForCategories();
+    $field = statusFieldForCategories();
     $field->options()->createMany([
         ['name' => 'Discovery', 'sort_order' => 1],
         ['name' => 'Closed Won', 'sort_order' => 2, 'settings' => ['category' => 'completed']],

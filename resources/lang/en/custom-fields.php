@@ -110,7 +110,7 @@ return [
                 'label' => 'Options',
                 'add' => 'Add Option',
                 'category' => 'Category',
-                'category_placeholder' => 'Category',
+                'category_placeholder' => 'Uncategorised',
                 'paste' => 'Paste a list',
                 'paste_modal_heading' => 'Paste a list of options',
                 'paste_names' => 'One option per line',
