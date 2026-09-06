@@ -53,6 +53,11 @@ function legacyRecordField(bool $allowMultiple = true, string $code = 'legacy_re
     return $field;
 }
 
+function commitsSchemaChanges(): bool
+{
+    return DB::connection()->getDriverName() === 'mysql';
+}
+
 function restoreLookupTypeColumn(): void
 {
     $table = (string) config('custom-fields.database.table_names.custom_fields');
@@ -79,11 +84,6 @@ function definitionForField(CustomField $field, string $code, RelationshipCardin
     ]);
 }
 
-function commitsSchemaChanges(): bool
-{
-    return DB::connection()->getDriverName() === 'mysql';
-}
-
 it('migrates json_value arrays into definitions and links', function (): void {
     $field = legacyRecordField();
     [$first, $second] = Post::factory()->count(2)->create();
@@ -108,7 +108,7 @@ it('migrates json_value arrays into definitions and links', function (): void {
         ->and(CustomFieldLink::query()->active()->orderBy('sort_order')->pluck('sort_order')->all())->toBe([0, 1])
         ->and(CustomFieldValue::query()->where('custom_field_id', $field->getKey())->count())->toBe(1)
         ->and($post->fresh()->getCustomFieldValue($migrated))->toBe([$first->getKey(), $second->getKey()]);
-})->skip(commitsSchemaChanges(...), 'MySQL commits DDL implicitly, so restoring the dropped lookup_type column would end the test transaction.');
+});
 
 it('gives a single-value record field a many to one definition', function (): void {
     $field = legacyRecordField(allowMultiple: false);
@@ -118,7 +118,7 @@ it('gives a single-value record field a many to one definition', function (): vo
     $this->artisan('custom-fields:upgrade', ['--force' => true])->assertSuccessful();
 
     expect(CustomFieldRelationship::query()->sole()->cardinality)->toBe(RelationshipCardinality::ManyToOne);
-})->skip(commitsSchemaChanges(...), 'MySQL commits DDL implicitly, so restoring the dropped lookup_type column would end the test transaction.');
+});
 
 it('writes no link for a record value that was cleared', function (): void {
     $field = legacyRecordField();
@@ -131,7 +131,7 @@ it('writes no link for a record value that was cleared', function (): void {
     expect(CustomFieldLink::query()->count())->toBe(0)
         ->and(CustomFieldRelationship::query()->count())->toBe(1)
         ->and($post->fresh()->getCustomFieldValue($field->fresh()))->toBe([]);
-})->skip(commitsSchemaChanges(...), 'MySQL commits DDL implicitly, so restoring the dropped lookup_type column would end the test transaction.');
+});
 
 it('reports the migration in dry-run mode and writes nothing', function (): void {
     $field = legacyRecordField();
@@ -145,7 +145,7 @@ it('reports the migration in dry-run mode and writes nothing', function (): void
     expect(CustomFieldLink::query()->count())->toBe(0)
         ->and(CustomFieldRelationship::query()->count())->toBe(0)
         ->and(CustomFieldValue::query()->where('custom_field_id', $field->getKey())->count())->toBe(1);
-})->skip(commitsSchemaChanges(...), 'MySQL commits DDL implicitly, so restoring the dropped lookup_type column would end the test transaction.');
+});
 
 it('creates nothing twice across reruns', function (): void {
     $field = legacyRecordField();
@@ -157,7 +157,7 @@ it('creates nothing twice across reruns', function (): void {
 
     expect(CustomFieldRelationship::query()->count())->toBe(1)
         ->and(CustomFieldLink::query()->count())->toBe(2);
-})->skip(commitsSchemaChanges(...), 'MySQL commits DDL implicitly, so restoring the dropped lookup_type column would end the test transaction.');
+});
 
 it('migrates the values a field with a definition still holds', function (): void {
     $field = legacyRecordField();
@@ -181,7 +181,7 @@ it('migrates the values a field with a definition still holds', function (): voi
     expect(CustomFieldRelationship::query()->count())->toBe(1)
         ->and(CustomFieldLink::query()->active()->count())->toBe(2)
         ->and($leftover->fresh()->getCustomFieldValue($field->fresh()))->toBe([$second->getKey()]);
-})->skip(commitsSchemaChanges(...), 'MySQL commits DDL implicitly, so restoring the dropped lookup_type column would end the test transaction.');
+});
 
 it('refuses to migrate a field that reads the far end of its definition', function (): void {
     $field = recordField();
@@ -215,7 +215,7 @@ it('keeps the migrated value rows until the purge is asked for', function (): vo
         ->assertSuccessful();
 
     expect(CustomFieldValue::query()->where('custom_field_id', $field->getKey())->count())->toBe(1);
-})->skip(commitsSchemaChanges(...), 'MySQL commits DDL implicitly, so restoring the dropped lookup_type column would end the test transaction.');
+});
 
 it('purges the migrated value rows when asked, leaving the links alone', function (): void {
     $field = legacyRecordField();
@@ -230,7 +230,7 @@ it('purges the migrated value rows when asked, leaving the links alone', functio
     expect(CustomFieldValue::query()->where('custom_field_id', $field->getKey())->count())->toBe(0)
         ->and(CustomFieldLink::query()->active()->count())->toBe(1)
         ->and($post->fresh()->getCustomFieldValue($field->fresh()))->toBe([$target->getKey()]);
-})->skip(commitsSchemaChanges(...), 'MySQL commits DDL implicitly, so restoring the dropped lookup_type column would end the test transaction.');
+});
 
 it('deletes nothing in a dry-run purge', function (): void {
     $field = legacyRecordField();
@@ -243,7 +243,7 @@ it('deletes nothing in a dry-run purge', function (): void {
         ->assertSuccessful();
 
     expect(CustomFieldValue::query()->where('custom_field_id', $field->getKey())->count())->toBe(1);
-})->skip(commitsSchemaChanges(...), 'MySQL commits DDL implicitly, so restoring the dropped lookup_type column would end the test transaction.');
+});
 
 it('stops at the gate before a purge that would delete unmigrated values', function (): void {
     $field = recordField();
@@ -334,7 +334,7 @@ it('warns about record links still in json_value while the run migrates them', f
     $this->artisan('custom-fields:upgrade', ['--force' => true])
         ->expectsOutputToContain('links still in json_value, migrating below')
         ->assertSuccessful();
-})->skip(commitsSchemaChanges(...), 'MySQL commits DDL implicitly, so restoring the dropped lookup_type column would end the test transaction.');
+});
 
 it('fails validation when the record-links step is skipped and links are still in json_value', function (): void {
     $field = recordField();
@@ -399,7 +399,7 @@ it('leaves every record field with a definition, and no column to hold a target'
     expect(Schema::hasColumn((string) config('custom-fields.database.table_names.custom_fields'), 'lookup_type'))->toBeFalse()
         ->and($definitionless)->toBeEmpty()
         ->and(CustomField::query()->forType('record')->count())->toBe(1);
-})->skip(commitsSchemaChanges(...), 'MySQL commits DDL implicitly, so restoring the dropped lookup_type column would end the test transaction.');
+})->skip(commitsSchemaChanges(...), 'MySQL commits DDL implicitly, so dropping the column inside the test would end its transaction.');
 
 it('refuses to drop the lookup column while a record field still has no definition', function (): void {
     $field = legacyRecordField();
@@ -410,7 +410,7 @@ it('refuses to drop the lookup column while a record field still has no definiti
 
     expect(fn () => $migration->up())->toThrow(RuntimeException::class, $field->code)
         ->and(Schema::hasColumn((string) config('custom-fields.database.table_names.custom_fields'), 'lookup_type'))->toBeTrue();
-})->skip(commitsSchemaChanges(...), 'MySQL commits DDL implicitly, so restoring the dropped lookup_type column would end the test transaction.');
+});
 
 it('skips an id whose record is gone and reports it', function (): void {
     $field = recordField();
@@ -499,7 +499,7 @@ it('gives a legacy record field with no values a definition of its own', functio
     expect($definition->from_field_id)->toEqual($field->getKey())
         ->and($definition->to_entity_type)->toBe((new Post)->getMorphClass())
         ->and(CustomFieldLink::query()->count())->toBe(0);
-})->skip(commitsSchemaChanges(...), 'MySQL commits DDL implicitly, so restoring the dropped lookup_type column would end the test transaction.');
+});
 
 it('refuses to drop the lookup column while a valueless record field still has no definition', function (): void {
     $field = legacyRecordField();
@@ -514,7 +514,7 @@ it('refuses to drop the lookup column while a valueless record field still has n
 
     expect(Schema::hasColumn((string) config('custom-fields.database.table_names.custom_fields'), 'lookup_type'))->toBeFalse()
         ->and($field->fresh()->targetEntityType())->toBe((new Post)->getMorphClass());
-})->skip(commitsSchemaChanges(...), 'MySQL commits DDL implicitly, so restoring the dropped lookup_type column would end the test transaction.');
+})->skip(commitsSchemaChanges(...), 'MySQL commits DDL implicitly, so dropping the column inside the test would end its transaction.');
 
 it('drops the lookup column when a record field without a definition has no target either', function (): void {
     restoreLookupTypeColumn();
@@ -524,4 +524,4 @@ it('drops the lookup column when a record field without a definition has no targ
     $migration->up();
 
     expect(Schema::hasColumn((string) config('custom-fields.database.table_names.custom_fields'), 'lookup_type'))->toBeFalse();
-})->skip(commitsSchemaChanges(...), 'MySQL commits DDL implicitly, so restoring the dropped lookup_type column would end the test transaction.');
+})->skip(commitsSchemaChanges(...), 'MySQL commits DDL implicitly, so dropping the column inside the test would end its transaction.');
