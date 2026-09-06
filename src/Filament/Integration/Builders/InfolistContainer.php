@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Relaticle\CustomFields\Filament\Integration\Builders;
 
 use Filament\Forms\Components\Field;
@@ -12,8 +14,10 @@ final class InfolistContainer extends Grid
 {
     private Model|string|null $explicitModel = null;
 
+    /** @var array<int, string> */
     private array $except = [];
 
+    /** @var array<int, string> */
     private array $only = [];
 
     /** @var array<int, int> */
@@ -46,6 +50,9 @@ final class InfolistContainer extends Grid
         return $this;
     }
 
+    /**
+     * @param  array<int, string>  $fieldCodes
+     */
     public function except(array $fieldCodes): static
     {
         $this->except = $fieldCodes;
@@ -53,6 +60,9 @@ final class InfolistContainer extends Grid
         return $this;
     }
 
+    /**
+     * @param  array<int, string>  $fieldCodes
+     */
     public function only(array $fieldCodes): static
     {
         $this->only = $fieldCodes;

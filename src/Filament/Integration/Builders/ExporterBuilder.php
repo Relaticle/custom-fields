@@ -7,10 +7,11 @@ declare(strict_types=1);
 
 namespace Relaticle\CustomFields\Filament\Integration\Builders;
 
+use Filament\Actions\Exports\ExportColumn;
 use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Contracts\Container\CircularDependencyException;
 use Illuminate\Support\Collection;
-use Relaticle\CustomFields\Contracts\ValueResolvers;
+use Relaticle\CustomFields\Contracts\ValueResolverInterface;
 use Relaticle\CustomFields\Facades\CustomFieldsType;
 use Relaticle\CustomFields\Filament\Integration\Factories\ExportColumnFactory;
 use Relaticle\CustomFields\Models\CustomField;
@@ -19,6 +20,8 @@ use Relaticle\CustomFields\Services\Visibility\BackendVisibilityService;
 final class ExporterBuilder extends BaseBuilder
 {
     /**
+     * @return Collection<int, ExportColumn>
+     *
      * @throws BindingResolutionException
      * @throws CircularDependencyException
      */
@@ -42,7 +45,7 @@ final class ExporterBuilder extends BaseBuilder
                         return null; // Don't export values for hidden fields
                     }
 
-                    $valueResolver = app(ValueResolvers::class);
+                    $valueResolver = app(ValueResolverInterface::class);
 
                     $value = $valueResolver->resolve(
                         record: $record,

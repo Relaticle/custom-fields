@@ -14,7 +14,7 @@ use Relaticle\CustomFields\Facades\CustomFieldsType;
  * Handles safe conversion of values to database-compatible formats
  * to prevent issues like numeric overflow.
  */
-class SafeValueConverter
+final class SafeValueConverter
 {
     /**
      * Maximum allowable integer for BIGINT in most SQL databases

@@ -19,7 +19,7 @@ use Spatie\LaravelData\DataCollection;
 use Spatie\LaravelData\Mappers\SnakeCaseMapper;
 
 #[MapName(SnakeCaseMapper::class)]
-class VisibilityData extends Data
+final class VisibilityData extends Data
 {
     /**
      * @param  DataCollection<int, VisibilityConditionData>|null  $conditions

@@ -23,10 +23,13 @@ abstract class BaseBuilder
 
     protected Model|string|null $explicitModel = null;
 
+    /** @var ?Builder<CustomFieldSection> */
     protected ?Builder $sections = null;
 
+    /** @var array<int, string> */
     protected array $except = [];
 
+    /** @var array<int, string> */
     protected array $only = [];
 
     /** @var array<int, int> */
@@ -71,6 +74,9 @@ abstract class BaseBuilder
         return $this;
     }
 
+    /**
+     * @param  array<int, string>  $fieldCodes
+     */
     public function except(array $fieldCodes): static
     {
         $this->except = $fieldCodes;
@@ -78,6 +84,9 @@ abstract class BaseBuilder
         return $this;
     }
 
+    /**
+     * @param  array<int, string>  $fieldCodes
+     */
     public function only(array $fieldCodes): static
     {
         $this->only = $fieldCodes;

@@ -90,9 +90,6 @@
         ],
         "test-coverage": "vendor/bin/pest --coverage"
     },
-    "bin": [
-        "bin/custom-fields-upgrade"
-    ],
     "config": {
         "sort-packages": true,
         "allow-plugins": {

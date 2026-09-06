@@ -15,21 +15,23 @@ use Filament\Notifications\Notification;
 use Filament\Support\Enums\Size;
 use Filament\Support\Enums\Width;
 use Illuminate\Contracts\View\View;
-use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\View as ViewFactory;
 use Livewire\Component;
 use Relaticle\CustomFields\CustomFields;
 use Relaticle\CustomFields\CustomFieldsPlugin;
 use Relaticle\CustomFields\Filament\Management\Schemas\FieldForm;
 use Relaticle\CustomFields\Filament\Management\Schemas\SectionForm;
-use Relaticle\CustomFields\Livewire\Concerns\CreatesCustomFields;
+use Relaticle\CustomFields\Livewire\Concerns\ManagesCustomFields;
 use Relaticle\CustomFields\Livewire\Concerns\ManagesFields;
+use Relaticle\CustomFields\Models\CustomField;
 use Relaticle\CustomFields\Models\CustomFieldSection;
+use Relaticle\CustomFields\Models\Scopes\SortOrderScope;
 
 final class ManageCustomFieldSection extends Component implements HasActions, HasForms
 {
-    use CreatesCustomFields;
     use InteractsWithActions;
     use InteractsWithForms;
+    use ManagesCustomFields;
     use ManagesFields;
 
     /** @var ?Closure(CustomFieldSection): ?Closure */
@@ -44,6 +46,9 @@ final class ManageCustomFieldSection extends Component implements HasActions, Ha
         self::$uniqueRuleModifierResolver = $callback;
     }
 
+    /**
+     * @param  array<int, int|string>  $fields
+     */
     public function updateFieldsOrder(int|string $sectionId, array $fields): void
     {
         $model = CustomFields::newCustomFieldModel();
@@ -80,9 +85,10 @@ final class ManageCustomFieldSection extends Component implements HasActions, Ha
     /**
      * @param  array<int, int|string>  $fieldIds
      */
-    private function fieldsHaveDuplicateCode(Model $model, array $fieldIds): bool
+    private function fieldsHaveDuplicateCode(CustomField $model, array $fieldIds): bool
     {
         return $model->query()
+            ->withoutGlobalScope(SortOrderScope::class)
             ->withDeactivated()
             ->whereIn($model->getKeyName(), $fieldIds)
             ->select('code')
@@ -195,16 +201,16 @@ final class ManageCustomFieldSection extends Component implements HasActions, Ha
             ->size(Size::ExtraSmall)
             ->label(__('custom-fields::custom-fields.field.form.add_field'))
             ->model(CustomFields::customFieldModel())
-            ->schema(FieldForm::schema(withOptionsRelationship: false, section: $this->section))
-            ->fillForm(['entity_type' => $this->entityType])
+            ->schema(FieldForm::schema(withOptionsRelationship: false, section: $this->section, entityType: $this->entityType))
             ->mutateDataUsing(fn (array $data): array => $this->mutateFieldData($data, $this->entityType, $this->section->getKey()))
-            ->action(fn (array $data) => $this->storeField($data))
+            ->action(fn (array $data): CustomField => $this->storeField($data))
             ->modalWidth(Width::ScreenLarge)
+            ->extraModalWindowAttributes($this->submitsOnMetaEnter())
             ->slideOver();
     }
 
     public function render(): View
     {
-        return view('custom-fields::livewire.manage-custom-field-section');
+        return ViewFactory::make('custom-fields::livewire.manage-custom-field-section');
     }
 }

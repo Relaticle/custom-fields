@@ -7,6 +7,7 @@ namespace Relaticle\CustomFields\Rules;
 use Closure;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Support\Arr;
 use Relaticle\CustomFields\CustomFields;
@@ -14,7 +15,9 @@ use Relaticle\CustomFields\Enums\CustomFieldsFeature;
 use Relaticle\CustomFields\FeatureSystem\FeatureManager;
 use Relaticle\CustomFields\FieldTypeSystem\FieldManager;
 use Relaticle\CustomFields\Models\CustomField;
+use Relaticle\CustomFields\Models\CustomFieldValue;
 use Relaticle\CustomFields\Services\TenantContextService;
+use RuntimeException;
 
 final class UniqueCustomFieldValue implements ValidationRule
 {
@@ -92,12 +95,24 @@ final class UniqueCustomFieldValue implements ValidationRule
             ->all();
     }
 
+    /**
+     * @return Builder<CustomFieldValue>
+     */
     private function baseQuery(): Builder
     {
         $valueModel = CustomFields::newValueModel();
 
         $entityType = $this->customField->entity_type;
         $entityClass = Relation::getMorphedModel($entityType) ?? $entityType;
+
+        if (! class_exists($entityClass) || ! is_subclass_of($entityClass, Model::class)) {
+            throw new RuntimeException(sprintf(
+                'Custom field "%s" references an unresolvable entity type "%s".',
+                $this->customField->code,
+                $entityType,
+            ));
+        }
+
         $morphAlias = (new $entityClass)->getMorphClass();
 
         $query = $valueModel->newQuery()

@@ -7,6 +7,9 @@ namespace Relaticle\CustomFields\Collections;
 use Illuminate\Support\Collection;
 use Relaticle\CustomFields\Data\FieldTypeData;
 
+/**
+ * @extends Collection<array-key, FieldTypeData>
+ */
 final class FieldTypeCollection extends Collection
 {
     public function acceptsArbitraryValues(): static

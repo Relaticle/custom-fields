@@ -12,12 +12,14 @@ use Filament\Actions\Contracts\HasActions;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
 use Filament\Support\Enums\Width;
+use Illuminate\Contracts\View\View;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\View as ViewFactory;
 use Illuminate\Support\Str;
-use Illuminate\View\View;
 use Livewire\Component;
 use Relaticle\CustomFields\CustomFields;
-use Relaticle\CustomFields\Filament\Management\Forms\Components\DateConstraintField;
 use Relaticle\CustomFields\Filament\Management\Schemas\FieldForm;
+use Relaticle\CustomFields\Livewire\Concerns\ManagesCustomFields;
 use Relaticle\CustomFields\Models\CustomField;
 
 final class ManageCustomField extends Component implements HasActions, HasForms
@@ -25,6 +27,7 @@ final class ManageCustomField extends Component implements HasActions, HasForms
     use InteractsWithActions;
     use InteractsWithForms;
     use InteractsWithRecord;
+    use ManagesCustomFields;
 
     public CustomField $field;
 
@@ -48,22 +51,10 @@ final class ManageCustomField extends Component implements HasActions, HasForms
             ->model(CustomFields::customFieldModel())
             ->record($this->field)
             ->schema(FieldForm::schema(section: $this->field->section))
-            ->fillForm(function (): array {
-                $data = $this->field->toArray();
-                $data['options'] = $this->field->options->toArray();
-
-                return $data;
-            })
-            ->action(function (array $data): void {
-                $data = DateConstraintField::sanitizeValidationRules($data);
-
-                if (isset($data['settings'])) {
-                    $data['settings'] = array_merge($this->field->settings->toArray(), $data['settings']);
-                }
-
-                $this->field->update($data);
-            })
+            ->fillForm(fn (): array => $this->fieldFormState($this->field))
+            ->action(fn (array $data) => $this->updateField($this->field, $data))
             ->modalWidth(Width::ScreenLarge)
+            ->extraModalWindowAttributes($this->submitsOnMetaEnter())
             ->slideOver();
     }
 
@@ -82,22 +73,26 @@ final class ManageCustomField extends Component implements HasActions, HasForms
                     $this->field->entity_type
                 );
 
-                $clone = $this->field->replicate([
-                    'id', 'created_at', 'updated_at',
-                ]);
-                $clone->name = $this->field->name.' (Copy)';
-                $clone->code = $code;
-                $clone->system_defined = false;
-                $clone->active = true;
-                $clone->save();
-
-                foreach ($this->field->options as $option) {
-                    $clone->options()->create([
-                        'name' => $option->getRawOriginal('name'),
-                        'sort_order' => $option->sort_order,
-                        'settings' => $option->settings,
+                DB::transaction(function () use ($code): void {
+                    $clone = $this->field->replicate([
+                        'id', 'created_at', 'updated_at',
                     ]);
-                }
+                    $clone->name = $this->field->name.' (Copy)';
+                    $clone->code = $code;
+                    $clone->system_defined = false;
+                    $clone->active = true;
+                    $clone->save();
+
+                    foreach ($this->field->options as $option) {
+                        $clone->options()->create([
+                            'name' => $option->getRawOriginal('name'),
+                            'sort_order' => $option->sort_order,
+                            'settings' => $option->settings,
+                        ]);
+                    }
+
+                    $this->copyRelationship($this->field, $clone);
+                });
 
                 $this->dispatch('field-created');
             });
@@ -167,6 +162,6 @@ final class ManageCustomField extends Component implements HasActions, HasForms
 
     public function render(): View
     {
-        return view('custom-fields::livewire.manage-custom-field');
+        return ViewFactory::make('custom-fields::livewire.manage-custom-field');
     }
 }

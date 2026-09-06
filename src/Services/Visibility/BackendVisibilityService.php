@@ -295,9 +295,10 @@ final class BackendVisibilityService
             return $this->normalizeOptionsForVisibility($options);
         }
 
-        // Priority 2: Handle lookup types (existing functionality)
-        if ($field->lookup_type) {
-            return $this->getLookupOptions($field->lookup_type);
+        $targetEntityType = $field->targetEntityType();
+
+        if ($targetEntityType !== null) {
+            return $this->getLookupOptions($targetEntityType);
         }
 
         // Priority 3: Fallback to database options (existing functionality)

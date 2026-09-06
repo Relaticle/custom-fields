@@ -4,7 +4,7 @@ name: Docs
 # caught on the pull request instead of after the merge, when only the deploy runs.
 on:
   pull_request:
-    branches: [3.x]
+    branches: [3.x, 4.x]
 
 permissions:
   contents: read
