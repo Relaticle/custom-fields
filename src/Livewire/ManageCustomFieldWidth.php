@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Relaticle\CustomFields\Livewire;
 
 use Illuminate\Contracts\View\View;
+use Illuminate\Support\Facades\View as ViewFactory;
 use Livewire\Component;
 use Relaticle\CustomFields\Enums\CustomFieldWidth;
 
@@ -29,6 +30,6 @@ final class ManageCustomFieldWidth extends Component
 
     public function render(): View
     {
-        return view('custom-fields::livewire.manage-custom-field-width');
+        return ViewFactory::make('custom-fields::livewire.manage-custom-field-width');
     }
 }

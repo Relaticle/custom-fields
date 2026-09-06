@@ -14,6 +14,7 @@ use Filament\Support\Enums\Width;
 use Illuminate\Contracts\View\View;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Support\Facades\View as ViewFactory;
 use Livewire\Attributes\Computed;
 use Livewire\Attributes\On;
 use Livewire\Component;
@@ -204,6 +205,6 @@ final class ManageFieldsTable extends Component implements HasActions, HasForms
 
     public function render(): View
     {
-        return view('custom-fields::livewire.manage-fields-table');
+        return ViewFactory::make('custom-fields::livewire.manage-fields-table');
     }
 }

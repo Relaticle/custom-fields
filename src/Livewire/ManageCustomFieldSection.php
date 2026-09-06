@@ -15,6 +15,7 @@ use Filament\Notifications\Notification;
 use Filament\Support\Enums\Size;
 use Filament\Support\Enums\Width;
 use Illuminate\Contracts\View\View;
+use Illuminate\Support\Facades\View as ViewFactory;
 use Livewire\Component;
 use Relaticle\CustomFields\CustomFields;
 use Relaticle\CustomFields\CustomFieldsPlugin;
@@ -208,6 +209,6 @@ final class ManageCustomFieldSection extends Component implements HasActions, Ha
 
     public function render(): View
     {
-        return view('custom-fields::livewire.manage-custom-field-section');
+        return ViewFactory::make('custom-fields::livewire.manage-custom-field-section');
     }
 }

@@ -12,8 +12,9 @@ use Filament\Actions\Contracts\HasActions;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
 use Filament\Support\Enums\Width;
+use Illuminate\Contracts\View\View;
+use Illuminate\Support\Facades\View as ViewFactory;
 use Illuminate\Support\Str;
-use Illuminate\View\View;
 use Livewire\Component;
 use Relaticle\CustomFields\CustomFields;
 use Relaticle\CustomFields\Filament\Management\Forms\Components\DateConstraintField;
@@ -167,6 +168,6 @@ final class ManageCustomField extends Component implements HasActions, HasForms
 
     public function render(): View
     {
-        return view('custom-fields::livewire.manage-custom-field');
+        return ViewFactory::make('custom-fields::livewire.manage-custom-field');
     }
 }
