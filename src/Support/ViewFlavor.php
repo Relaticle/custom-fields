@@ -12,11 +12,23 @@ final class ViewFlavor
 {
     public static function flavor(UiSurface $surface): UiFlavor
     {
-        return self::overrides()[$surface->value] ?? self::configured();
+        // Both keys resolve before the lookup: an override must not hide a typo in the other.
+        $configured = self::configured();
+        $overrides = self::overrides();
+
+        return $overrides[$surface->value] ?? $configured;
     }
 
-    // Null is the native flavor: the caller renders the stock view it already owns,
-    // so a flavor decides what a surface looks like and never what it does.
+    // Every surface reads the same two keys, so validating once at boot turns a typo into a
+    // failure on the first request rather than on the first render of a forked surface.
+    public static function validate(): void
+    {
+        self::configured();
+        self::overrides();
+    }
+
+    // Null is the native flavor: the caller renders the view it shipped with, so a flavor
+    // decides what a surface looks like and never what it does.
     public static function view(UiSurface $surface): ?string
     {
         return match (self::flavor($surface)) {

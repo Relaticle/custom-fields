@@ -128,10 +128,10 @@ return [
     |--------------------------------------------------------------------------
     |
     | Five surfaces have no Filament primitive behind them, so each ships in two
-    | presentations: 'polished' renders the package's own Blade views, 'native'
-    | renders stock Filament markup from the same Livewire classes. Only views fork,
-    | never the logic underneath, which is what keeps a second presentation cheap
-    | enough to carry.
+    | presentations of the same Livewire class: 'native' renders the view the surface
+    | shipped with before the 4.0 redesign, 'polished' renders the redesigned one.
+    | Only views fork, never the logic underneath, which is what keeps a second
+    | presentation cheap enough to carry.
     |
     | Polished is the default because it is the experience the package is designed
     | around. Switch the whole panel with 'flavor', or name single surfaces in

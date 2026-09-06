@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use Relaticle\CustomFields\CustomFieldsServiceProvider;
 use Relaticle\CustomFields\Enums\UiFlavor;
 use Relaticle\CustomFields\Enums\UiSurface;
 use Relaticle\CustomFields\Livewire\ManageFieldsTable;
@@ -67,6 +68,19 @@ describe('flavor resolution', function (): void {
         config()->set('custom-fields.ui.flavor', 'fancy');
 
         ViewFlavor::view(UiSurface::AttributeTable);
+    })->throws(InvalidArgumentException::class, 'Unknown custom-fields UI flavor [fancy]');
+
+    it('validates the global flavor even when an override covers the surface', function (): void {
+        config()->set('custom-fields.ui.flavor', 'fancy');
+        config()->set('custom-fields.ui.flavor_overrides', ['attribute-table' => 'polished']);
+
+        ViewFlavor::view(UiSurface::AttributeTable);
+    })->throws(InvalidArgumentException::class, 'Unknown custom-fields UI flavor [fancy]');
+
+    it('rejects a bad flavor when the package boots, before any surface renders', function (): void {
+        config()->set('custom-fields.ui.flavor', 'fancy');
+
+        app()->register(CustomFieldsServiceProvider::class, force: true);
     })->throws(InvalidArgumentException::class, 'Unknown custom-fields UI flavor [fancy]');
 
     it('rejects an unknown flavor in the override map', function (): void {

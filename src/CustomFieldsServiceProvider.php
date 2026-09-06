@@ -39,6 +39,7 @@ use Relaticle\CustomFields\Services\TenantContextService;
 use Relaticle\CustomFields\Services\ValueResolver\LookupCache;
 use Relaticle\CustomFields\Services\ValueResolver\ValueResolver;
 use Relaticle\CustomFields\Services\Visibility\BackendVisibilityService;
+use Relaticle\CustomFields\Support\ViewFlavor;
 use Spatie\LaravelPackageTools\Commands\InstallCommand;
 use Spatie\LaravelPackageTools\Package;
 use Spatie\LaravelPackageTools\PackageServiceProvider;
@@ -135,6 +136,8 @@ final class CustomFieldsServiceProvider extends PackageServiceProvider
 
     public function packageBooted(): void
     {
+        ViewFlavor::validate();
+
         // Asset Registration
         FilamentAsset::register(
             $this->getAssets(),
