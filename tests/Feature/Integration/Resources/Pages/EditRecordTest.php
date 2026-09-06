@@ -297,8 +297,8 @@ describe('Custom Fields Integration', function (): void {
 
         $storedValue = $this->post->refresh()->customFieldValues->firstWhere('custom_field_id', $customField->getKey());
 
-        expect($this->post->getCustomFieldValue($customField))->toBeNull()
-            ->and($storedValue?->getAttribute($customField->getValueColumn()))->toBeNull();
+        expect($this->post->getCustomFieldValue($customField))->toBe([])
+            ->and($storedValue?->getAttribute($customField->getValueColumn()))->toBeEmpty();
     });
 
     it('validates required custom fields during update', function (): void {

@@ -180,9 +180,7 @@ final class SafeValueConverter
      */
     public static function toSafeArray(mixed $value): ?array
     {
-        // A cleared multi-choice field arrives as an empty array now that emptiness is
-        // dehydrated, and an empty column is how every other type says "no value".
-        if (in_array($value, [null, '', []], true)) {
+        if ($value === null || $value === '') {
             return null;
         }
 

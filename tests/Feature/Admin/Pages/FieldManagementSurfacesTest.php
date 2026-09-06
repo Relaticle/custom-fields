@@ -42,8 +42,10 @@ describe('the attribute table', function (): void {
             ->assertSee('Unique');
 
         if (! rendersPolished(UiSurface::AttributeTable)) {
+            // The stock row draws one badge, unique or required, never both.
             $table->assertDontSeeHtml('data-surface="attribute-table"')
-                ->assertDontSeeHtml('fi-cf-attribute-row');
+                ->assertDontSeeHtml('fi-cf-attribute-row')
+                ->assertDontSee('Required');
 
             return;
         }
@@ -121,10 +123,6 @@ describe('the attribute table', function (): void {
     });
 
     it('reads the relationship pairs in a fixed number of queries however many fields there are', function (): void {
-        // The count is read off one render path: both flavors reach the same memoised method
-        // through different views, so this pins the flavor rather than the number.
-        config()->set('custom-fields.ui.flavor', 'polished');
-
         $section = sectionForEntity(Post::class);
 
         $created = 0;
@@ -158,6 +156,10 @@ describe('the attribute table', function (): void {
                 DB::flushQueryLog();
             }
         };
+
+        // The first render that has a pair to resolve pays a one-time check, and the two
+        // flavors reach that render at different points, so the count is read after it.
+        $pairQueries(2);
 
         // The two field lists, the definitions, and one eager load for the populated slot.
         expect($pairQueries(2))->toBe(4)
