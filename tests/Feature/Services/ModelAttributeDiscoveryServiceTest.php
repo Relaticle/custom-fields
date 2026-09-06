@@ -2,9 +2,11 @@
 
 declare(strict_types=1);
 
+use Illuminate\Database\Schema\Blueprint;
 use Relaticle\CustomFields\Enums\FieldDataType;
 use Relaticle\CustomFields\Services\ModelAttributeDiscoveryService;
 use Relaticle\CustomFields\Tests\Fixtures\Models\Post;
+use Relaticle\CustomFields\Tests\Fixtures\Models\SecondConnectionModel;
 
 beforeEach(function (): void {
     ModelAttributeDiscoveryService::clearCache();
@@ -88,4 +90,24 @@ it('returns empty collection for non-existent entity type', function (): void {
     $attributes = $this->service->getAttributes('NonExistent\\Model\\Class');
 
     expect($attributes)->toBeEmpty();
+});
+
+it("discovers columns from the model's own connection instead of the default connection", function (): void {
+    config()->set('database.connections.second', [
+        'driver' => 'sqlite',
+        'database' => ':memory:',
+        'prefix' => '',
+    ]);
+
+    app('db')->connection('second')->getSchemaBuilder()->create(
+        'second_connection_models',
+        function (Blueprint $table): void {
+            $table->id();
+            $table->string('only_on_second_connection');
+        }
+    );
+
+    $attributes = $this->service->getAttributes(SecondConnectionModel::class);
+
+    expect($attributes->has('only_on_second_connection'))->toBeTrue();
 });
