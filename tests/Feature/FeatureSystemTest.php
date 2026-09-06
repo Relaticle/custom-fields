@@ -53,6 +53,33 @@ it('can toggle UI_FIELD_WIDTH_CONTROL feature', function (): void {
     expect(FeatureManager::isEnabled(CustomFieldsFeature::UI_FIELD_WIDTH_CONTROL))->toBeFalse();
 });
 
+it('falls back to the package default for a flag the host did not list', function (): void {
+    config(['custom-fields.features' => FeatureConfigurator::configure()]);
+
+    expect(FeatureManager::isEnabled(CustomFieldsFeature::SYSTEM_RELATIONSHIPS))->toBeTrue()
+        ->and(FeatureManager::isEnabled(CustomFieldsFeature::FIELD_OPTION_CATEGORIES))->toBeTrue()
+        ->and(FeatureManager::isEnabled(CustomFieldsFeature::SYSTEM_MULTI_TENANCY))->toBeFalse()
+        ->and(FeatureManager::isEnabled(CustomFieldsFeature::FIELD_MULTI_VALUE))->toBeFalse();
+
+    config(['custom-fields.features' => FeatureConfigurator::configure()
+        ->disable(CustomFieldsFeature::SYSTEM_RELATIONSHIPS)
+        ->enable(CustomFieldsFeature::FIELD_MULTI_VALUE),
+    ]);
+
+    expect(FeatureManager::isEnabled(CustomFieldsFeature::SYSTEM_RELATIONSHIPS))->toBeFalse()
+        ->and(FeatureManager::isEnabled(CustomFieldsFeature::FIELD_MULTI_VALUE))->toBeTrue()
+        ->and(FeatureManager::isEnabled(CustomFieldsFeature::FIELD_OPTION_CATEGORIES))->toBeTrue();
+});
+
+it('keeps the package defaults and the shipped config in step', function (): void {
+    $shipped = shippedFeatureConfigurator();
+
+    foreach (CustomFieldsFeature::cases() as $feature) {
+        expect($feature->isEnabledByDefault())
+            ->toBe($shipped->isEnabled($feature), $feature->value.' disagrees with the shipped config.');
+    }
+});
+
 it('lists every feature flag explicitly in the shipped config', function (): void {
     $shipped = shippedFeatureConfigurator();
 

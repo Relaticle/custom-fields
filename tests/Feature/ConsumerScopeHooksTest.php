@@ -465,6 +465,7 @@ describe('BaseBuilder onlySections() scope on a sections-disabled install', func
     beforeEach(function (): void {
         config()->set('custom-fields.features', FeatureConfigurator::configure()
             ->enable(CustomFieldsFeature::FIELD_CONDITIONAL_VISIBILITY)
+            ->disable(CustomFieldsFeature::SYSTEM_SECTIONS)
         );
 
         collect(Schema::getIndexes('custom_fields'))

@@ -118,7 +118,8 @@ class TestCase extends BaseTestCase
         config()->set('custom-fields.database.table_names.custom_field_values', 'custom_field_values');
         config()->set('custom-fields.database.table_names.custom_field_options', 'custom_field_options');
 
-        // Enable all necessary features for testing
+        // Every flag is pinned, enabled or disabled, so the suite never rides the package
+        // defaults an unlisted flag falls back to.
         config()->set('custom-fields.features', FeatureConfigurator::configure()
             ->enable(
                 CustomFieldsFeature::FIELD_CONDITIONAL_VISIBILITY,
@@ -129,6 +130,22 @@ class TestCase extends BaseTestCase
                 CustomFieldsFeature::SYSTEM_MANAGEMENT_INTERFACE,
                 CustomFieldsFeature::SYSTEM_SECTIONS,
                 CustomFieldsFeature::SYSTEM_RELATIONSHIPS,
+            )
+            ->disable(
+                CustomFieldsFeature::FIELD_ENCRYPTION,
+                CustomFieldsFeature::FIELD_OPTION_COLORS,
+                CustomFieldsFeature::FIELD_OPTION_CATEGORIES,
+                CustomFieldsFeature::FIELD_CODE_AUTO_GENERATE,
+                CustomFieldsFeature::FIELD_MULTI_VALUE,
+                CustomFieldsFeature::FIELD_UNIQUE_VALUE,
+                CustomFieldsFeature::FIELD_VALIDATION_RULES,
+                CustomFieldsFeature::FIELD_DESCRIPTION,
+                CustomFieldsFeature::FIELD_DESCRIPTION_POSITION,
+                CustomFieldsFeature::SECTION_CONDITIONAL_VISIBILITY,
+                CustomFieldsFeature::UI_TOGGLEABLE_COLUMNS_HIDDEN_DEFAULT,
+                CustomFieldsFeature::UI_FIELD_WIDTH_CONTROL,
+                CustomFieldsFeature::UI_SECTION_WIDTH_CONTROL,
+                CustomFieldsFeature::SYSTEM_MULTI_TENANCY,
             )
         );
 

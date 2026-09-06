@@ -71,7 +71,8 @@ it('renders full width when the flag is on but width is 100', function (): void 
 
 it('ignores section width when the flag is off', function (): void {
     config(['custom-fields.features' => FeatureConfigurator::configure()
-        ->enable(CustomFieldsFeature::SYSTEM_SECTIONS)]);
+        ->enable(CustomFieldsFeature::SYSTEM_SECTIONS)
+        ->disable(CustomFieldsFeature::UI_SECTION_WIDTH_CONTROL)]);
 
     $section = CustomFieldSection::factory()
         ->width(CustomFieldWidth::_50)
@@ -112,7 +113,8 @@ it('applies the same width rules on the infolist path', function (): void {
 
 it('ignores section width on the infolist path when the flag is off', function (): void {
     config(['custom-fields.features' => FeatureConfigurator::configure()
-        ->enable(CustomFieldsFeature::SYSTEM_SECTIONS)]);
+        ->enable(CustomFieldsFeature::SYSTEM_SECTIONS)
+        ->disable(CustomFieldsFeature::UI_SECTION_WIDTH_CONTROL)]);
 
     $section = CustomFieldSection::factory()
         ->width(CustomFieldWidth::_50)
@@ -149,10 +151,12 @@ it('persists a chosen section width from the management form when the flag is on
 });
 
 it('does not persist section width from the form when the flag is off', function (): void {
-    config(['custom-fields.features' => FeatureConfigurator::configure()->enable(
-        CustomFieldsFeature::SYSTEM_SECTIONS,
-        CustomFieldsFeature::SYSTEM_MANAGEMENT_INTERFACE,
-    )]);
+    config(['custom-fields.features' => FeatureConfigurator::configure()
+        ->enable(
+            CustomFieldsFeature::SYSTEM_SECTIONS,
+            CustomFieldsFeature::SYSTEM_MANAGEMENT_INTERFACE,
+        )
+        ->disable(CustomFieldsFeature::UI_SECTION_WIDTH_CONTROL)]);
 
     $this->actingAs(User::factory()->create());
 
