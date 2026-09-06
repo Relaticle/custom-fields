@@ -14,6 +14,7 @@ use Relaticle\CustomFields\Enums\DateOffsetDirection;
 use Relaticle\CustomFields\Enums\DateUnit;
 use Relaticle\CustomFields\Enums\DescriptionPosition;
 use Relaticle\CustomFields\Enums\EntityFeature;
+use Relaticle\CustomFields\Enums\OptionCategory;
 use Relaticle\CustomFields\Enums\VisibilityLogic;
 use Relaticle\CustomFields\Enums\VisibilityMode;
 use Relaticle\CustomFields\Enums\VisibilityOperator;
@@ -77,6 +78,11 @@ it('routes enum getLabel through translator', function (string $enumClass, strin
 
     [DescriptionPosition::class, 'below', 'enums.description_position.below'],
     [DescriptionPosition::class, 'above', 'enums.description_position.above'],
+
+    [OptionCategory::class, 'unstarted', 'enums.option_category.unstarted'],
+    [OptionCategory::class, 'started', 'enums.option_category.started'],
+    [OptionCategory::class, 'completed', 'enums.option_category.completed'],
+    [OptionCategory::class, 'cancelled', 'enums.option_category.cancelled'],
 ]);
 
 it('routes EntityFeature getDescription through translator', function (string $caseValue, string $key): void {

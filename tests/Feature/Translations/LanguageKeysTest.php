@@ -53,6 +53,10 @@ it('has translation key', function (string $key): void {
     'enums.visibility_operator.is_not_empty',
     'enums.description_position.below',
     'enums.description_position.above',
+    'enums.option_category.unstarted',
+    'enums.option_category.started',
+    'enums.option_category.completed',
+    'enums.option_category.cancelled',
 
     // visibility.*
     'visibility.heading',

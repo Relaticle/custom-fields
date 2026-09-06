@@ -506,6 +506,12 @@ return [
             'point' => 'Point',
             'comma' => 'Comma',
         ],
+        'option_category' => [
+            'unstarted' => 'Not started',
+            'started' => 'Started',
+            'completed' => 'Completed',
+            'cancelled' => 'Cancelled',
+        ],
         'visibility_logic' => [
             'all' => 'All conditions must be met (AND)',
             'any' => 'Any condition must be met (OR)',
