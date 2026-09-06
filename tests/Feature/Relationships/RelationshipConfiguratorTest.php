@@ -9,6 +9,10 @@ use Illuminate\View\ComponentAttributeBag;
 use Livewire\Features\SupportTesting\Testable;
 use Relaticle\CustomFields\Data\FieldSlotData;
 use Relaticle\CustomFields\Data\RelationshipDefinitionData;
+use Relaticle\CustomFields\EntitySystem\EntityConfigurator;
+use Relaticle\CustomFields\EntitySystem\EntityManager;
+use Relaticle\CustomFields\EntitySystem\EntityModel;
+use Relaticle\CustomFields\Enums\EntityFeature;
 use Relaticle\CustomFields\Enums\RelationshipCardinality;
 use Relaticle\CustomFields\Facades\Entities;
 use Relaticle\CustomFields\FieldTypeSystem\Definitions\RelationshipFieldType;
@@ -39,6 +43,35 @@ function mountRelationshipField(CustomFieldSection $section, ?string $targetEnti
         ->set('mountedActions.0.data.code', 'related_comment');
 
     return $component->set('mountedActions.0.data.relationship.target_entity_type', $targetEntityType);
+}
+
+/**
+ * A host whose entity labels are written for Filament's sentence use, where "Create
+ * opportunity" is right and an entity card heading reading "opportunity" is not.
+ */
+function registerLowercaseLabelledEntities(): void
+{
+    config()->set('custom-fields.entity_configuration',
+        EntityConfigurator::configure()
+            ->autoDiscover(false)
+            ->cache(false)
+            ->models([
+                EntityModel::configure(
+                    modelClass: Post::class,
+                    labelSingular: 'post',
+                    labelPlural: 'posts',
+                    features: [EntityFeature::CUSTOM_FIELDS, EntityFeature::LOOKUP_SOURCE],
+                ),
+                EntityModel::configure(
+                    modelClass: Comment::class,
+                    labelSingular: 'comment',
+                    labelPlural: 'comments',
+                    features: [EntityFeature::CUSTOM_FIELDS, EntityFeature::LOOKUP_SOURCE],
+                ),
+            ])
+    );
+
+    app()->forgetInstance(EntityManager::class);
 }
 
 function mountedConfigurator(Testable $component): ?RelationshipConfigurator
@@ -143,6 +176,19 @@ describe('the cardinality sentence', function (): void {
         [RelationshipCardinality::ManyToMany->value, 'Many Posts link to many Comments.'],
     ]);
 
+    it('opens each name with a capital however the host cased its labels', function (string $cardinality, string $sentence): void {
+        registerLowercaseLabelledEntities();
+
+        $component = mountRelationshipField($this->postSection)
+            ->set('mountedActions.0.data.relationship.cardinality', $cardinality);
+
+        expect(mountedConfigurator($component)?->getCardinalitySentence())->toBe($sentence);
+    })->with([
+        [RelationshipCardinality::OneToOne->value, 'One Post links to one Comment.'],
+        [RelationshipCardinality::ManyToOne->value, 'Many Posts link to one Comment.'],
+        [RelationshipCardinality::OneToMany->value, 'One Post links to many Comments.'],
+    ]);
+
     it('has no sentence to read until both ends are chosen', function (): void {
         $component = mountRelationshipField($this->postSection, targetEntityType: null)
             ->set('mountedActions.0.data.relationship.cardinality', RelationshipCardinality::ManyToOne->value);
@@ -205,6 +251,32 @@ describe('polished markup', function (): void {
             ->toContain('relationship.target_entity_type')
             ->toContain('relationship.cardinality')
             ->toContain('relationship.paired_field_name');
+    });
+
+    it('heads each entity card with a capital however the host cased its labels', function (): void {
+        registerLowercaseLabelledEntities();
+
+        $html = view('custom-fields::flavors.polished.relationship-configurator', [
+            'attributes' => new ComponentAttributeBag,
+            'getId' => fn (): string => 'configurator',
+            'getExtraAttributes' => fn (): array => [],
+            'getConfiguredFields' => fn (): array => [],
+            'getSourceEntity' => fn () => Entities::getEntity(Post::class),
+            'getTargetEntity' => fn () => Entities::getEntity(Comment::class),
+            'getCardinalitySentence' => fn (): ?string => null,
+            'getFieldName' => fn (): string => 'Related Comment',
+            'getFieldNameStatePath' => fn (): string => 'data.name',
+            'isSymmetric' => fn (): bool => false,
+            'pairsAField' => fn (): bool => false,
+        ])->render();
+
+        $compact = (string) preg_replace(['/>\s+/', '/\s+</'], ['>', '<'], $html);
+
+        expect($compact)
+            ->toContain('>Post<')
+            ->toContain('>Comment<')
+            ->not->toContain('>post<')
+            ->not->toContain('>comment<');
     });
 
     it('says the two fields stay in sync once the other side is named', function (): void {

@@ -452,6 +452,7 @@ return [
         'click_to_add' => 'Click to add',
         'searching' => 'Searching...',
         'reorder' => 'Drag to reorder',
+        'entity_tabs' => 'Entity tabs',
     ],
 
     'email' => [

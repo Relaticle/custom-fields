@@ -99,6 +99,55 @@ describe('the attribute table', function (): void {
             ->assertSee('Paired with Mentions on Post');
     });
 
+    it('leaves the pairing sentence readable in a column narrower than it', function (): void {
+        $section = sectionForEntity(Post::class);
+
+        app(CreateRelationshipDefinition::class)->execute(new RelationshipDefinitionData(
+            code: 'mentions',
+            fromEntityType: Post::class,
+            toEntityType: Post::class,
+            cardinality: RelationshipCardinality::ManyToMany,
+            fromField: new FieldSlotData(name: 'Mentions', sectionId: $section->getKey(), type: RelationshipFieldType::KEY),
+            toField: new FieldSlotData(name: 'Mentioned By', sectionId: $section->getKey(), type: RelationshipFieldType::KEY),
+        ));
+
+        $table = postFieldsTable();
+
+        if (! rendersPolished(UiSurface::AttributeTable)) {
+            // The stock row draws no pairing line at all.
+            $table->assertDontSee('Paired with Mentioned By on Post');
+
+            return;
+        }
+
+        $table->assertSeeHtml('title="Paired with Mentioned By on Post"')
+            ->assertSeeHtml('<span>Paired with Mentioned By on Post</span>');
+    });
+
+    it('leaves a symmetric pairing sentence readable too', function (): void {
+        $section = sectionForEntity(Post::class);
+
+        app(CreateRelationshipDefinition::class)->execute(new RelationshipDefinitionData(
+            code: 'peers',
+            fromEntityType: Post::class,
+            toEntityType: Post::class,
+            cardinality: RelationshipCardinality::ManyToMany,
+            isSymmetric: true,
+            fromField: new FieldSlotData(name: 'Peers', sectionId: $section->getKey(), type: RelationshipFieldType::KEY),
+        ));
+
+        $table = postFieldsTable();
+
+        if (! rendersPolished(UiSurface::AttributeTable)) {
+            $table->assertDontSee('Read from both ends on Post');
+
+            return;
+        }
+
+        $table->assertSeeHtml('title="Read from both ends on Post"')
+            ->assertSeeHtml('<span>Read from both ends on Post</span>');
+    });
+
     it('says what a custom field is when there are none', function (): void {
         $table = postFieldsTable()->assertSee('No custom fields yet');
 

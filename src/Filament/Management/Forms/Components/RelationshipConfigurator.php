@@ -7,6 +7,7 @@ namespace Relaticle\CustomFields\Filament\Management\Forms\Components;
 use Filament\Forms\Components\Field;
 use Filament\Schemas\Components\Component;
 use Filament\Schemas\Components\Utilities\Get;
+use Illuminate\Support\Str;
 use Relaticle\CustomFields\Data\EntityConfigurationData;
 use Relaticle\CustomFields\Enums\RelationshipCardinality;
 use Relaticle\CustomFields\Enums\UiSurface;
@@ -93,9 +94,11 @@ final class RelationshipConfigurator extends Component
             RelationshipCardinality::ManyToMany => [true, true],
         };
 
+        // A host resource label can be lowercase for Filament's sentence use, and both names
+        // sit mid-sentence here only after a count word that opens it.
         return __('custom-fields::custom-fields.field.form.record.sentence.'.$cardinality->value, [
-            'source' => $sourceIsPlural ? $source->getLabelPlural() : $source->getLabelSingular(),
-            'target' => $targetIsPlural ? $target->getLabelPlural() : $target->getLabelSingular(),
+            'source' => Str::ucfirst($sourceIsPlural ? $source->getLabelPlural() : $source->getLabelSingular()),
+            'target' => Str::ucfirst($targetIsPlural ? $target->getLabelPlural() : $target->getLabelSingular()),
         ]);
     }
 

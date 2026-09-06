@@ -1,6 +1,12 @@
 @php
     $isActive = $field->isActive();
     $isSystemDefined = $field->isSystemDefined();
+
+    $pairSentence = $pair === null ? null : match (true) {
+        $pair['symmetric'] => __('custom-fields::custom-fields.field.form.pair.symmetric', ['entity' => $pair['entity']]),
+        $pair['partner_name'] !== null => __('custom-fields::custom-fields.field.form.pair.paired', ['field' => $pair['partner_name'], 'entity' => $pair['entity']]),
+        default => __('custom-fields::custom-fields.field.form.pair.one_way', ['entity' => $pair['entity']]),
+    };
 @endphp
 
 <div
@@ -42,18 +48,15 @@
     <div class="px-3 py-3 @unless ($isActive) opacity-60 @endunless">
         <span class="truncate text-sm text-gray-600 dark:text-gray-400">{{ $field->typeData?->label }}</span>
 
-        @if ($pair !== null)
-            <span class="mt-0.5 flex items-center gap-1 text-xs text-primary-600 dark:text-primary-400">
-                <x-filament::icon icon="heroicon-m-arrows-right-left" class="h-3 w-3 shrink-0" aria-hidden="true"/>
-                <span class="truncate">
-                    @if ($pair['symmetric'])
-                        {{ __('custom-fields::custom-fields.field.form.pair.symmetric', ['entity' => $pair['entity']]) }}
-                    @elseif ($pair['partner_name'] !== null)
-                        {{ __('custom-fields::custom-fields.field.form.pair.paired', ['field' => $pair['partner_name'], 'entity' => $pair['entity']]) }}
-                    @else
-                        {{ __('custom-fields::custom-fields.field.form.pair.one_way', ['entity' => $pair['entity']]) }}
-                    @endif
-                </span>
+        @if ($pairSentence !== null)
+            {{-- The column is too narrow for the sentence, and which entity the field pairs to
+                 is the whole content, so it wraps instead of being cut. --}}
+            <span
+                class="mt-0.5 flex items-start gap-1 text-xs text-primary-600 dark:text-primary-400"
+                title="{{ $pairSentence }}"
+            >
+                <x-filament::icon icon="heroicon-m-arrows-right-left" class="mt-0.5 h-3 w-3 shrink-0" aria-hidden="true"/>
+                <span>{{ $pairSentence }}</span>
             </span>
         @endif
     </div>

@@ -1,4 +1,6 @@
 @php
+    use Illuminate\Support\Str;
+
     $fields = $getConfiguredFields();
     $sourceEntity = $getSourceEntity();
     $targetEntity = $getTargetEntity();
@@ -50,8 +52,12 @@
                     class="h-5 w-5 shrink-0 text-gray-400 dark:text-gray-500"
                     aria-hidden="true"
                 />
+                {{-- A host resource label is written for Filament's sentence use ("Create
+                     opportunity"), and this is a heading. --}}
                 <span class="truncate text-sm font-semibold text-gray-950 dark:text-white">
-                    {{ $sourceEntity?->getLabelSingular() ?? __('custom-fields::custom-fields.field.form.record.unknown_entity') }}
+                    {{ $sourceEntity === null
+                        ? __('custom-fields::custom-fields.field.form.record.unknown_entity')
+                        : Str::ucfirst($sourceEntity->getLabelSingular()) }}
                 </span>
             </div>
 
@@ -92,7 +98,7 @@
                             aria-hidden="true"
                         />
                         <span class="truncate text-sm font-semibold text-gray-950 dark:text-white">
-                            {{ $targetEntity->getLabelSingular() }}
+                            {{ Str::ucfirst($targetEntity->getLabelSingular()) }}
                         </span>
                     </div>
                 @endif
