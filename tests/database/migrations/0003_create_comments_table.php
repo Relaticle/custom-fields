@@ -15,6 +15,7 @@ return new class extends Migration
             $table->foreignId('post_id');
             $table->foreignId('author_id');
             $table->text('body');
+            $table->nullableMorphs('commentable');
             $table->timestamps();
         });
     }

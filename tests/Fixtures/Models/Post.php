@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\MorphOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Relaticle\CustomFields\Models\Concerns\UsesCustomFields;
 use Relaticle\CustomFields\Models\Contracts\HasCustomFields;
@@ -35,6 +36,11 @@ class Post extends Model implements HasCustomFields
     public function tagModels(): BelongsToMany
     {
         return $this->belongsToMany(Tag::class, 'post_tag');
+    }
+
+    public function featuredComment(): MorphOne
+    {
+        return $this->morphOne(Comment::class, 'commentable');
     }
 
     protected static function newFactory()
