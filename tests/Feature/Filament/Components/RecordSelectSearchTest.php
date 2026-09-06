@@ -39,6 +39,30 @@ describe('RecordSelectInputComponent search', function (): void {
         expect(recordSelectSearch('Ac'))->toHaveCount(2);
     });
 
+    it('splits the term and matches the words across attributes', function (): void {
+        registerLookupEntity(Post::class, primaryAttribute: 'title', searchAttributes: ['title', 'content']);
+
+        Post::factory()->create(['title' => 'Jane Industries', 'content' => 'Founded by Doe']);
+        Post::factory()->create(['title' => 'Zenith Corp', 'content' => 'Nothing to see']);
+
+        expect(array_column(recordSelectSearch('Jane Doe'), 'label'))->toBe(['Jane Industries']);
+    });
+
+    it('matches a lookup record whatever the case of the term', function (): void {
+        makeLookupRecord('Acme Industries');
+
+        expect(array_column(recordSelectSearch('ACME'), 'label'))->toBe(['Acme Industries']);
+    });
+
+    it('accepts a nested group of search attributes', function (): void {
+        registerLookupEntity(Post::class, primaryAttribute: 'title', searchAttributes: [['title', 'content']]);
+
+        Post::factory()->create(['title' => 'Acme Industries', 'content' => 'Nothing to see']);
+        Post::factory()->create(['title' => 'Zenith Corp', 'content' => 'Nothing to see']);
+
+        expect(array_column(recordSelectSearch('Acme'), 'label'))->toBe(['Acme Industries']);
+    });
+
     it('hands the configured minimum to the rendered field', function (): void {
         config()->set('custom-fields.selects.record_lookup.min_search_length', 3);
 

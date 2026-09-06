@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Relaticle\CustomFields\QueryBuilders;
 
+use Filament\Facades\Filament;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\Relation;
@@ -61,7 +62,7 @@ final readonly class RecordLinkQuery
         // The matching-ids subquery is uncorrelated, so it needs no alias even when the
         // host and the target are the same table.
         $matches = $this->entitySearch
-            ->apply($target->newQuery(), $search, $searchAttributes)
+            ->apply($target->newQuery(), $search, $searchAttributes, Filament::getModelResource($target::class))
             ->select($target->qualifyColumn($target->getKeyName()))
             ->getQuery();
 
@@ -109,7 +110,20 @@ final readonly class RecordLinkQuery
             ->where($alias.'.'.$target->getKeyName(), '=', $linkedId)
             ->limit(1);
 
-        return $query->orderBy($linkedAttribute, $sortDirection);
+        $sql = $linkedAttribute->toSql();
+        $bindings = $linkedAttribute->getBindings();
+
+        // Unlinked rows sort last in both directions. The leading term says so without a
+        // NULLS LAST clause, which the MySQL family does not have.
+        return $query->orderByRaw(
+            sprintf('(%s) is null asc, (%s) %s', $sql, $sql, $this->sortDirection($sortDirection)),
+            [...$bindings, ...$bindings],
+        );
+    }
+
+    private function sortDirection(string $direction): string
+    {
+        return strtolower($direction) === 'desc' ? 'desc' : 'asc';
     }
 
     private function matchHost(QueryBuilder $nested, string $direction, Model $host): QueryBuilder

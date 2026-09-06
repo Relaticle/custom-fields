@@ -172,3 +172,23 @@ it('rolls an update back when a link target is rejected', function (): void {
     expect($post->fresh()->title)->toBe('Kept')
         ->and(activeTargetIds())->toBe([$user->getKey()]);
 });
+
+it('still clears a non-record field when the payload omits its key', function (string $type, mixed $value): void {
+    $field = CustomField::factory()->create([
+        'code' => 'omitted_'.$type,
+        'type' => $type,
+        'entity_type' => (new Post)->getMorphClass(),
+        'custom_field_section_id' => sectionForEntity((new Post)->getMorphClass())->getKey(),
+    ]);
+
+    $post = Post::factory()->create(['custom_fields' => ['omitted_'.$type => $value]]);
+
+    expect(Post::query()->findOrFail($post->getKey())->getCustomFieldValue($field))->toBe($value);
+
+    $post->update(['custom_fields' => []]);
+
+    expect(Post::query()->findOrFail($post->getKey())->getCustomFieldValue($field))->toBeNull();
+})->with([
+    'text' => ['text', 'kept'],
+    'select' => ['select', 7],
+]);

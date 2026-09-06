@@ -262,7 +262,7 @@ class RecordSelectInputComponent extends Field implements HasNestedRecursiveVali
             $searchAttributes = [$titleAttribute];
         }
 
-        $query = app(EntitySearchQuery::class)->apply($query, $search, $searchAttributes);
+        $query = app(EntitySearchQuery::class)->apply($query, $search, $searchAttributes, $entity->getResourceClass());
 
         $records = $this->applyLookupOrder($query, $model)
             ->limit($this->lookupLimit())

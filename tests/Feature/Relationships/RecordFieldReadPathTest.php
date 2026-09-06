@@ -126,7 +126,7 @@ it('batch loads links so reading a page of records costs one query per side', fu
         ->and($large)->toBe($small);
 });
 
-it('preloads linked titles so a page render never queries the target per row', function (): void {
+it('resolves linked titles for a loaded page without a query per record', function (): void {
     $definition = readPathRelated();
     $targets = Post::factory()->count(3)->create();
 

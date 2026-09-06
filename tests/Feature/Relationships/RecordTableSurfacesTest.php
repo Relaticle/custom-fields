@@ -66,13 +66,14 @@ it('reads a record field from the to side of a paired definition', function (): 
         ->assertCanNotSeeTableRecords([$mentions, $unrelated]);
 });
 
-it('sorts posts by the linked record title', function (): void {
+it('sorts posts by the linked record title and puts unlinked rows last', function (): void {
     $definition = tableSurfaceDefinition(RelationshipCardinality::ManyToOne);
     $code = $definition->fromField->code;
 
     $alpha = Post::factory()->create(['title' => 'Alpha']);
     $bravo = Post::factory()->create(['title' => 'Bravo']);
     $charlie = Post::factory()->create(['title' => 'Charlie']);
+    $unlinked = Post::factory()->create(['title' => 'Delta']);
 
     $alpha->update(['custom_fields' => [$code => [$charlie->getKey()]]]);
     $bravo->update(['custom_fields' => [$code => [$alpha->getKey()]]]);
@@ -80,9 +81,50 @@ it('sorts posts by the linked record title', function (): void {
 
     livewire(ListPosts::class)
         ->sortTable('custom_fields.'.$code, 'asc')
-        ->assertCanSeeTableRecords([$bravo, $charlie, $alpha], inOrder: true)
+        ->assertCanSeeTableRecords([$bravo, $charlie, $alpha, $unlinked], inOrder: true)
         ->sortTable('custom_fields.'.$code, 'desc')
-        ->assertCanSeeTableRecords([$alpha, $charlie, $bravo], inOrder: true);
+        ->assertCanSeeTableRecords([$alpha, $charlie, $bravo, $unlinked], inOrder: true);
+});
+
+it('filters, sorts, and searches a symmetric definition from either end', function (): void {
+    registerPostLookupEntity();
+
+    $definition = app(CreateRelationshipDefinition::class)->execute(new RelationshipDefinitionData(
+        code: 'table_surface_sibling',
+        fromEntityType: (new Post)->getMorphClass(),
+        toEntityType: (new Post)->getMorphClass(),
+        cardinality: RelationshipCardinality::OneToOne,
+        isSymmetric: true,
+        fromField: new FieldSlotData(name: 'Sibling', sectionId: sectionForEntity((new Post)->getMorphClass())->getKey()),
+    ));
+
+    $definition->fromField->update(['settings' => new CustomFieldSettingsData(searchable: true)]);
+    $code = $definition->fromField->code;
+
+    $left = Post::factory()->create(['title' => 'Aaa Left']);
+    $right = Post::factory()->create(['title' => 'Zzz Right']);
+    $lonely = Post::factory()->create(['title' => 'Mmm Lonely']);
+
+    $left->update(['custom_fields' => [$code => [$right->getKey()]]]);
+
+    livewire(ListPosts::class)
+        ->set(sprintf('tableFilters.custom_fields.%s.values', $code), [$right->getKey()])
+        ->assertCanSeeTableRecords([$left])
+        ->assertCanNotSeeTableRecords([$lonely]);
+
+    livewire(ListPosts::class)
+        ->set(sprintf('tableFilters.custom_fields.%s.values', $code), [$left->getKey()])
+        ->assertCanSeeTableRecords([$right])
+        ->assertCanNotSeeTableRecords([$lonely]);
+
+    livewire(ListPosts::class)
+        ->sortTable('custom_fields.'.$code, 'asc')
+        ->assertCanSeeTableRecords([$right, $left, $lonely], inOrder: true);
+
+    livewire(ListPosts::class)
+        ->searchTable('Zzz')
+        ->assertCanSeeTableRecords([$left, $right])
+        ->assertCanNotSeeTableRecords([$lonely]);
 });
 
 it('searches posts by the linked record title', function (): void {

@@ -96,14 +96,15 @@ final class RecordFilter extends AbstractTableFilter
         $recordTitleAttribute = $entity->getPrimaryAttribute();
         $searchAttributes = $entity->getSearchAttributes();
         $avatarConfig = $entity->getAvatarConfiguration();
+        $resourceClass = $entity->getResourceClass();
 
         if ($searchAttributes === []) {
             $searchAttributes = [$recordTitleAttribute];
         }
 
         return $filter
-            ->getSearchResultsUsing(function (string $search) use ($entityInstance, $recordTitleAttribute, $searchAttributes, $avatarConfig): array {
-                $query = app(EntitySearchQuery::class)->apply($entityInstance->query(), $search, $searchAttributes);
+            ->getSearchResultsUsing(function (string $search) use ($entityInstance, $recordTitleAttribute, $searchAttributes, $avatarConfig, $resourceClass): array {
+                $query = app(EntitySearchQuery::class)->apply($entityInstance->query(), $search, $searchAttributes, $resourceClass);
 
                 $records = $query->limit(50)->get();
 
@@ -119,7 +120,7 @@ final class RecordFilter extends AbstractTableFilter
             })
             ->getOptionLabelsUsing(function (array $values) use ($entityInstance, $recordTitleAttribute, $avatarConfig): array {
                 $records = $entityInstance::query()
-                    ->whereIn('id', $values)
+                    ->whereKey($values)
                     ->get();
 
                 return $this->formatOptionsWithAvatars($records, $recordTitleAttribute, $avatarConfig);

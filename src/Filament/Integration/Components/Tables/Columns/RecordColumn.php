@@ -174,7 +174,7 @@ final class RecordColumnView extends Column
         }
 
         $recordIds = is_array($value) ? $value : [$value];
-        $records = $this->entity->newQuery()->whereIn('id', $recordIds)->get()
+        $records = $this->entity->newQuery()->whereKey($recordIds)->get()
             ->sortBy(fn (Model $record): int|false => array_search($record->getKey(), $recordIds, true));
 
         return $records->map(function (Model $relatedRecord): array {

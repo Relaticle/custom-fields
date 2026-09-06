@@ -67,11 +67,13 @@ final readonly class LinkReader
             $related = $record->getRelation($relation);
 
             foreach ($related as $link) {
-                $links->push($link);
+                // A symmetric edge whose ends are the same record sits in both relations,
+                // and the SQL path returns that row once.
+                $links->put((string) $link->getKey(), $link);
             }
         }
 
-        return $links;
+        return $links->values();
     }
 
     /**
