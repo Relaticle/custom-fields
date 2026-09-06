@@ -8,7 +8,8 @@ use Illuminate\Support\Facades\Schema;
 
 /**
  * The flag gates the relationship migrations, not what a record or field does once they
- * have run, and schema never changes mid-request, so this is worth memoising once per caller.
+ * have run. The memo is process-wide: a long-lived worker booted before the migrations ran
+ * keeps the answer until it restarts, which a deploy does.
  */
 final class RelationshipTables
 {
