@@ -2,20 +2,23 @@
 
 declare(strict_types=1);
 
+use Illuminate\Support\Facades\DB;
 use Relaticle\CustomFields\Data\CustomFieldSettingsData;
 use Relaticle\CustomFields\Enums\CustomFieldsFeature;
 use Relaticle\CustomFields\Enums\RelationshipCardinality;
+use Relaticle\CustomFields\FeatureSystem\FeatureManager;
 use Relaticle\CustomFields\Models\CustomField;
 use Relaticle\CustomFields\Models\CustomFieldLink;
 use Relaticle\CustomFields\Models\CustomFieldRelationship;
 use Relaticle\CustomFields\Models\CustomFieldValue;
+use Relaticle\CustomFields\Services\TenantContextService;
 use Relaticle\CustomFields\Tests\Fixtures\Models\Post;
 
 function legacyRecordField(bool $allowMultiple = true, string $code = 'legacy_related'): CustomField
 {
     registerPostLookupEntity();
 
-    return CustomField::factory()->create([
+    $attributes = [
         'code' => $code,
         'name' => 'Legacy Related',
         'type' => 'record',
@@ -23,7 +26,13 @@ function legacyRecordField(bool $allowMultiple = true, string $code = 'legacy_re
         'lookup_type' => (new Post)->getMorphClass(),
         'settings' => new CustomFieldSettingsData(allow_multiple: $allowMultiple),
         'custom_field_section_id' => sectionForEntity((new Post)->getMorphClass())->getKey(),
-    ]);
+    ];
+
+    if (FeatureManager::isEnabled(CustomFieldsFeature::SYSTEM_MULTI_TENANCY)) {
+        $attributes[config('custom-fields.database.column_names.tenant_foreign_key')] = TenantContextService::getCurrentTenantId();
+    }
+
+    return CustomField::factory()->create($attributes);
 }
 
 it('migrates json_value arrays into definitions and links', function (): void {
@@ -241,3 +250,19 @@ it('validates the schema without the relationship tables while the feature is of
         ->expectsOutputToContain('Skipping: purge-record-values')
         ->assertSuccessful();
 });
+
+it('stamps the tenant of the field on the definition and its links', function (): void {
+    useTenantSchema(9);
+
+    $field = legacyRecordField();
+    $target = Post::factory()->create();
+    Post::factory()->create(['custom_fields' => [$field->code => [$target->getKey()]]]);
+
+    $this->artisan('custom-fields:upgrade', ['--force' => true])->assertSuccessful();
+
+    expect(CustomFieldRelationship::query()->sole()->tenant_id)->toBe(9)
+        ->and(CustomFieldLink::query()->sole()->tenant_id)->toBe(9);
+})->skip(
+    fn (): bool => DB::connection()->getDriverName() === 'mysql',
+    'MySQL commits DDL implicitly, so the added tenant columns would outlive the test transaction.',
+);
