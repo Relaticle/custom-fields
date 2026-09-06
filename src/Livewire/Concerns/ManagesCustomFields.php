@@ -199,6 +199,6 @@ trait ManagesCustomFields
      */
     private function resolveEntityType(string $entityType): string
     {
-        return (Entities::getEntity($entityType)?->getAlias()) ?? $entityType;
+        return Entities::getEntity($entityType)?->getAlias() ?? $entityType;
     }
 }
