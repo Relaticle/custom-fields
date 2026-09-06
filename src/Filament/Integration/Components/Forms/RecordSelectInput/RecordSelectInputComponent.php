@@ -58,7 +58,13 @@ class RecordSelectInputComponent extends Field implements HasNestedRecursiveVali
     {
         parent::setUp();
 
-        $this->view(ViewFlavor::view(UiSurface::RecordPicker) ?? $this->view);
+        $polishedView = ViewFlavor::view(UiSurface::RecordPicker);
+
+        if ($polishedView !== null) {
+
+            $this->view($polishedView);
+
+        }
 
         $this->default([]);
 

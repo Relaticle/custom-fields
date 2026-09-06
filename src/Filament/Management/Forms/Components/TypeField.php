@@ -21,7 +21,13 @@ final class TypeField extends Select
     {
         parent::setUp();
 
-        $this->view(ViewFlavor::view(UiSurface::TypePicker) ?? $this->view);
+        $polishedView = ViewFlavor::view(UiSurface::TypePicker);
+
+        if ($polishedView !== null) {
+
+            $this->view($polishedView);
+
+        }
 
         $this->native(false)
             ->allowHtml()
