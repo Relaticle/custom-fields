@@ -24,6 +24,7 @@ use Relaticle\CustomFields\FieldTypeSystem\Definitions\NumberFieldType;
 use Relaticle\CustomFields\FieldTypeSystem\Definitions\PhoneFieldType;
 use Relaticle\CustomFields\FieldTypeSystem\Definitions\RadioFieldType;
 use Relaticle\CustomFields\FieldTypeSystem\Definitions\RecordFieldType;
+use Relaticle\CustomFields\FieldTypeSystem\Definitions\RelationshipFieldType;
 use Relaticle\CustomFields\FieldTypeSystem\Definitions\RichEditorFieldType;
 use Relaticle\CustomFields\FieldTypeSystem\Definitions\SelectFieldType;
 use Relaticle\CustomFields\FieldTypeSystem\Definitions\TagsInputFieldType;
@@ -58,6 +59,7 @@ final class FieldManager
         SelectFieldType::class,
         MultiSelectFieldType::class,
         RecordFieldType::class,
+        RelationshipFieldType::class,
         FileUploadFieldType::class,
     ];
 

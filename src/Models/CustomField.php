@@ -187,9 +187,9 @@ class CustomField extends Model
             return null;
         }
 
-        // Only record fields are ever slots, and every save asks each field in turn, so the
-        // rest never pay for a definition lookup.
-        if ($this->type !== 'record') {
+        // Only a field type that points at records is ever a slot, and every save asks each
+        // field in turn, so the rest never pay for a definition lookup.
+        if ($this->typeData?->requiresRelationship !== true) {
             return null;
         }
 

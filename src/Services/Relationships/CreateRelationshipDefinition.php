@@ -13,6 +13,7 @@ use Relaticle\CustomFields\Data\FieldSlotData;
 use Relaticle\CustomFields\Data\RelationshipDefinitionData;
 use Relaticle\CustomFields\Enums\CustomFieldSectionType;
 use Relaticle\CustomFields\Enums\CustomFieldsFeature;
+use Relaticle\CustomFields\Facades\CustomFieldsType;
 use Relaticle\CustomFields\FeatureSystem\FeatureManager;
 use Relaticle\CustomFields\Models\CustomField;
 use Relaticle\CustomFields\Models\CustomFieldRelationship;
@@ -80,6 +81,29 @@ final readonly class CreateRelationshipDefinition
         if ($this->codeIsTaken($data->code)) {
             throw new InvalidArgumentException(sprintf('A relationship with the code [%s] already exists.', $data->code));
         }
+
+        foreach ([$data->fromField, $data->toField] as $slot) {
+            if ($slot instanceof FieldSlotData) {
+                $this->assertSlotTypeLinks($slot, $data->code);
+            }
+        }
+    }
+
+    /**
+     * A slot renders one end, so its field type has to be one that points at records. A slot
+     * adopting an existing field is checked against that row instead.
+     */
+    private function assertSlotTypeLinks(FieldSlotData $slot, string $code): void
+    {
+        if ($slot->fieldId !== null) {
+            return;
+        }
+
+        if (CustomFieldsType::getFieldType($slot->type)?->requiresRelationship === true) {
+            return;
+        }
+
+        throw new InvalidArgumentException(sprintf('A relationship slot cannot render the [%s] field type (relationship [%s]).', $slot->type, $code));
     }
 
     /**
@@ -130,7 +154,7 @@ final readonly class CreateRelationshipDefinition
             throw new InvalidArgumentException(sprintf('Field [%s] cannot be a relationship slot: it does not exist.', $fieldId));
         }
 
-        if ($field->type !== 'record') {
+        if ($field->typeData?->requiresRelationship !== true) {
             throw new InvalidArgumentException(sprintf('Field [%s] cannot be a relationship slot: it is a [%s] field.', $field->code, $field->type));
         }
 
@@ -150,7 +174,7 @@ final readonly class CreateRelationshipDefinition
         $attributes = [
             'code' => CodeGenerator::generateUniqueFieldCode($slot->name, $entityType, sectionId: $slot->sectionId),
             'name' => $slot->name,
-            'type' => 'record',
+            'type' => $slot->type,
             'entity_type' => $entityType,
             'active' => true,
         ];

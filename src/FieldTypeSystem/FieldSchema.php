@@ -149,6 +149,7 @@ final class FieldSchema
             encryptable: $this->encryptable,
             withoutUserOptions: $this->withoutUserOptions,
             requiresRelationship: $this->requiresRelationship,
+            supportsPairing: $this->supportsPairing,
             acceptsArbitraryValues: $this->acceptsArbitraryValues,
             supportsMultiValue: $this->supportsMultiValue,
             supportsUniqueConstraint: $this->supportsUniqueConstraint,

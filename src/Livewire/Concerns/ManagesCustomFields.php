@@ -206,7 +206,11 @@ trait ManagesCustomFields
             fromField: new FieldSlotData(name: $field->name, fieldId: $field->getKey()),
             toField: $isSymmetric || $pairedName === ''
                 ? null
-                : new FieldSlotData(name: $pairedName, sectionId: $relationship['paired_section_id'] ?? null),
+                : new FieldSlotData(
+                    name: $pairedName,
+                    sectionId: $relationship['paired_section_id'] ?? null,
+                    type: (string) $field->type,
+                ),
         ));
     }
 

@@ -26,6 +26,8 @@ trait ConfiguresCapabilities
 
     private bool $requiresRelationship = false;
 
+    private bool $supportsPairing = false;
+
     /** @var array<int, VisibilityOperator>|null */
     private ?array $visibilityOperators = null;
 
@@ -157,6 +159,18 @@ trait ConfiguresCapabilities
     public function requiresRelationship(bool $requires = true): self
     {
         $this->requiresRelationship = $requires;
+
+        return $this;
+    }
+
+    /**
+     * Field carries a relationship the user configures on both ends: a second slot, a
+     * cardinality, symmetry. The one-way types share the substrate and answer false, which is
+     * what keeps their configuration and their surfaces the plain ones they have always been.
+     */
+    public function supportsPairing(bool $supports = true): self
+    {
+        $this->supportsPairing = $supports;
 
         return $this;
     }
