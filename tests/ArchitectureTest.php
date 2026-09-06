@@ -25,6 +25,7 @@ use Relaticle\CustomFields\Filament\Management\Schemas\SectionFormInterface;
 use Relaticle\CustomFields\Models\Concerns\UsesCustomFields;
 use Relaticle\CustomFields\Models\Contracts\HasCustomFields;
 use Relaticle\CustomFields\Models\CustomField;
+use Relaticle\CustomFields\Models\CustomFieldLink;
 use Relaticle\CustomFields\Models\CustomFieldOption;
 use Relaticle\CustomFields\Models\CustomFieldRelationship;
 use Relaticle\CustomFields\Models\CustomFieldSection;
@@ -108,6 +109,12 @@ test('configurable models are only instantiated via CustomFields facade', functi
         'facade' => 'CustomFields::newRelationshipModel()',
         'allowedFiles' => ['CustomFields.php', 'Models/CustomFieldRelationship.php'],
     ],
+    'CustomFieldLink' => [
+        'model' => 'CustomFieldLink',
+        'pattern' => '/CustomFieldLink::(query|where|find|create|first|all|get)\s*\(|new\s+CustomFieldLink[^a-zA-Z]/',
+        'facade' => 'CustomFields::newLinkModel()',
+        'allowedFiles' => ['CustomFields.php', 'Models/CustomFieldLink.php'],
+    ],
 ]);
 
 arch('Models extend Eloquent Model')
@@ -117,6 +124,7 @@ arch('Models extend Eloquent Model')
         CustomFieldOption::class,
         CustomFieldValue::class,
         CustomFieldRelationship::class,
+        CustomFieldLink::class,
     ])
     ->toExtend(Model::class);
 
@@ -137,6 +145,7 @@ test('custom field models are scoped by the tenant scope', function (string $mod
     CustomFieldOption::class,
     CustomFieldValue::class,
     CustomFieldRelationship::class,
+    CustomFieldLink::class,
 ]);
 
 arch('Filament Resource extends base Resource')
@@ -287,6 +296,7 @@ arch('Classes are final outside the documented extension points')
         'Relaticle\CustomFields\Models\Contracts',
         CustomField::class,
         CustomFieldRelationship::class,
+        CustomFieldLink::class,
         ActivableScope::class,
         CustomFieldQueryBuilder::class,
         AbstractDateCapability::class,

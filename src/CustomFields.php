@@ -8,6 +8,7 @@ use Closure;
 use Relaticle\CustomFields\Enums\ImportDateFormat;
 use Relaticle\CustomFields\Enums\ImportNumberFormat;
 use Relaticle\CustomFields\Models\CustomField;
+use Relaticle\CustomFields\Models\CustomFieldLink;
 use Relaticle\CustomFields\Models\CustomFieldOption;
 use Relaticle\CustomFields\Models\CustomFieldRelationship;
 use Relaticle\CustomFields\Models\CustomFieldSection;
@@ -40,6 +41,11 @@ final class CustomFields
      * The relationship definition model that should be used by Custom Fields.
      */
     public static string $relationshipModel = CustomFieldRelationship::class;
+
+    /**
+     * The relationship link model that should be used by Custom Fields.
+     */
+    public static string $linkModel = CustomFieldLink::class;
 
     /**
      * The display format for date fields (e.g., 'm/d/Y', 'Y-m-d', 'd.m.Y').
@@ -208,6 +214,36 @@ final class CustomFields
     public static function useRelationshipModel(string $model): static
     {
         self::$relationshipModel = $model;
+
+        return new self;
+    }
+
+    /**
+     * Get the name of the relationship link model used by the application.
+     *
+     * @return class-string<CustomFieldLink>
+     */
+    public static function linkModel(): string
+    {
+        return self::$linkModel;
+    }
+
+    /**
+     * Get a new instance of the relationship link model.
+     */
+    public static function newLinkModel(): CustomFieldLink
+    {
+        $model = self::linkModel();
+
+        return new $model;
+    }
+
+    /**
+     * Specify the relationship link model that should be used by Custom Fields.
+     */
+    public static function useLinkModel(string $model): static
+    {
+        self::$linkModel = $model;
 
         return new self;
     }
