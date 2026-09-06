@@ -118,6 +118,8 @@ function useTenantSchema(int|string $tenantId): void
     $tables = [
         config('custom-fields.database.table_names.custom_field_sections'),
         config('custom-fields.database.table_names.custom_fields'),
+        config('custom-fields.database.table_names.custom_field_options'),
+        config('custom-fields.database.table_names.custom_field_values'),
         config('custom-fields.database.table_names.custom_field_relationships'),
         config('custom-fields.database.table_names.custom_field_links'),
     ];
@@ -129,7 +131,8 @@ function useTenantSchema(int|string $tenantId): void
     }
 
     // Eloquent caches each model's column listing statically to decide what is guardable, and
-    // an earlier test in this process cached these tables without their tenant column.
+    // an earlier test in this process cached these tables without their tenant column. The
+    // global afterEach in Pest.php clears it again for whatever runs next.
     Closure::bind(static function (): void {
         Model::$guardableColumns = [];
     }, null, Model::class)();
