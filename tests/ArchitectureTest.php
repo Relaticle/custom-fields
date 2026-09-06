@@ -256,6 +256,7 @@ arch('Classes are final outside the documented extension points')
         CustomFieldsPlugin::class,
         'Relaticle\CustomFields\Enums',
         BaseFieldType::class,
+        'Relaticle\CustomFields\FieldTypeSystem\Concerns',
         'Relaticle\CustomFields\FieldTypeSystem\Definitions',
         'Relaticle\CustomFields\Filament\Integration\Base',
         BaseBuilder::class,
