@@ -11,6 +11,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Crypt;
+use Illuminate\Support\Facades\Schema;
 use Relaticle\CustomFields\CustomFields;
 use Relaticle\CustomFields\Data\RecordLinkPayload;
 use Relaticle\CustomFields\Enums\CustomFieldsFeature;
@@ -193,7 +194,7 @@ trait UsesCustomFields
      */
     protected function deleteCustomFieldLinks(): void
     {
-        if (! FeatureManager::isEnabled(CustomFieldsFeature::SYSTEM_RELATIONSHIPS)) {
+        if (! self::relationshipLinksTableExists()) {
             return;
         }
 
@@ -215,7 +216,7 @@ trait UsesCustomFields
      */
     public function scopeWithActiveCustomFieldLinks(Builder $query): Builder
     {
-        if (! FeatureManager::isEnabled(CustomFieldsFeature::SYSTEM_RELATIONSHIPS)) {
+        if (! self::relationshipLinksTableExists()) {
             return $query;
         }
 
@@ -223,6 +224,17 @@ trait UsesCustomFields
             'outgoingLinks' => fn (MorphMany $links): MorphMany => $links->whereNull('active_until'),
             'incomingLinks' => fn (MorphMany $links): MorphMany => $links->whereNull('active_until'),
         ]);
+    }
+
+    /**
+     * The feature flag gates the relationship migrations, not what a record does once they
+     * have run: a host that turns it off afterward still has edges to delete and load.
+     * Schema never changes mid-process, so the introspection query is worth memoising once
+     * per boot rather than once per delete or per page of records.
+     */
+    private static function relationshipLinksTableExists(): bool
+    {
+        return once(fn (): bool => Schema::hasTable((string) config('custom-fields.database.table_names.custom_field_links')));
     }
 
     public function scopeWithCustomFieldValues(Builder $query): Builder
