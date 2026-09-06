@@ -11,6 +11,7 @@ use Filament\Panel;
 use Filament\Support\Concerns\EvaluatesClosures;
 use Filament\Support\Enums\Width;
 use InvalidArgumentException;
+use Relaticle\CustomFields\Contracts\FieldTypeDefinitionInterface;
 use Relaticle\CustomFields\Enums\CustomFieldsFeature;
 use Relaticle\CustomFields\Facades\CustomFieldsType;
 use Relaticle\CustomFields\FeatureSystem\FeatureManager;
@@ -84,7 +85,7 @@ class CustomFieldsPlugin implements Plugin
     }
 
     /**
-     * @param  array<mixed>|Closure  $fieldTypes
+     * @param  array<int|string, class-string<FieldTypeDefinitionInterface>> | Closure  $fieldTypes
      */
     public function registerFieldTypes(array|Closure $fieldTypes): static
     {

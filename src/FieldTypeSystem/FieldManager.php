@@ -62,7 +62,7 @@ final class FieldManager
     ];
 
     /**
-     * @var array<array<string, array<int, string> | string> | Closure>
+     * @var array<int, array<int|string, class-string<FieldTypeDefinitionInterface>> | Closure>
      */
     private array $fieldTypes = [];
 
@@ -77,7 +77,7 @@ final class FieldManager
     private array $cachedInstances = [];
 
     /**
-     * @param  array<string, array<int, string> | string> | Closure  $fieldTypes
+     * @param  array<int|string, class-string<FieldTypeDefinitionInterface>> | Closure  $fieldTypes
      */
     public function register(array|Closure $fieldTypes): static
     {

@@ -7,6 +7,7 @@ namespace Relaticle\CustomFields\Facades;
 use Closure;
 use Illuminate\Support\Facades\Facade;
 use Relaticle\CustomFields\Collections\FieldTypeCollection;
+use Relaticle\CustomFields\Contracts\FieldTypeDefinitionInterface;
 use Relaticle\CustomFields\FieldTypeSystem\FieldManager;
 
 /**
@@ -22,7 +23,7 @@ final class CustomFieldsType extends Facade
     }
 
     /**
-     * @param  array<string, array<int | string, string | int> | string> | Closure  $fieldTypes
+     * @param  array<int|string, class-string<FieldTypeDefinitionInterface>> | Closure  $fieldTypes
      */
     public static function register(array|Closure $fieldTypes): void
     {
