@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use Filament\Schemas\Components\Section;
+use Illuminate\Support\ViewErrorBag;
 use Illuminate\View\ComponentAttributeBag;
 use Livewire\Features\SupportTesting\Testable;
 use Relaticle\CustomFields\Data\FieldSlotData;
@@ -141,6 +142,26 @@ describe('polished markup', function (): void {
             ->toContain('One-way field')
             ->toContain('Related Comment')
             ->toContain('dark:');
+    });
+
+    it('renders the shared children inside the polished frame', function (): void {
+        // The error bag is a request-scoped view variable a field wrapper reads, and the
+        // schema is rendered here outside one.
+        view()->share('errors', new ViewErrorBag);
+
+        $configurator = mountedConfigurator(
+            mountRecordField($this->postSection)
+                ->set('mountedActions.0.data.relationship.cardinality', RelationshipCardinality::ManyToOne->value)
+        );
+
+        $html = (string) $configurator?->toHtml();
+
+        expect($html)
+            ->toContain('data-surface="relationship-configurator"')
+            ->toContain('Many Posts link to one Comment.')
+            ->toContain('relationship.target_entity_type')
+            ->toContain('relationship.cardinality')
+            ->toContain('relationship.paired_field_name');
     });
 
     it('says the two fields stay in sync once the other side is named', function (): void {
