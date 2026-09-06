@@ -40,7 +40,7 @@ final class MigrateRecordLinksStep implements UpgradeStep
 
     public function description(): string
     {
-        return 'Move record-type field values onto relationship definitions and links';
+        return 'Move record-type field values onto relationship definitions and links; each field stays a Record field';
     }
 
     public function execute(bool $dryRun, Command $command): UpgradeStepResult
@@ -245,7 +245,8 @@ final class MigrateRecordLinksStep implements UpgradeStep
 
     /**
      * A 3.x record field points one way and its multiplicity lived in the settings, so that
-     * is the definition it becomes.
+     * is the definition it becomes: one slot, no partner. The field keeps its record type,
+     * which is why a host reading this log sees no rename.
      */
     private function createDefinition(CustomField $field): CustomFieldRelationship
     {
