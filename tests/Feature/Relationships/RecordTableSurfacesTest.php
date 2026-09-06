@@ -88,6 +88,7 @@ it('sorts posts by the linked record title', function (): void {
 it('searches posts by the linked record title', function (): void {
     $definition = tableSurfaceDefinition(RelationshipCardinality::ManyToOne);
     $definition->fromField->update(['settings' => new CustomFieldSettingsData(searchable: true)]);
+
     $code = $definition->fromField->code;
 
     $target = Post::factory()->create(['title' => 'Findable Target']);
