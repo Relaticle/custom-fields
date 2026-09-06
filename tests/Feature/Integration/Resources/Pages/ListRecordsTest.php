@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use Filament\Tables\Columns\Column;
 use Relaticle\CustomFields\Data\CustomFieldSettingsData;
 use Relaticle\CustomFields\Data\FieldSlotData;
 use Relaticle\CustomFields\Data\RelationshipDefinitionData;
@@ -448,4 +449,56 @@ describe('Record Field Filtering', function (): void {
         'single-value' => RelationshipCardinality::ManyToOne,
         'multi-value' => RelationshipCardinality::ManyToMany,
     ]);
+
+    it('filters by a record field that has no definition yet', function (bool $allowMultiple, string $code): void {
+        $field = CustomField::factory()->create([
+            'custom_field_section_id' => $this->section->id,
+            'name' => 'Legacy Related Post',
+            'code' => $code,
+            'type' => 'record',
+            'entity_type' => Post::class,
+            'lookup_type' => Post::class,
+            'settings' => new CustomFieldSettingsData(
+                visible_in_list: true,
+                list_toggleable_hidden: false,
+                allow_multiple: $allowMultiple,
+            ),
+        ]);
+
+        $target = Post::factory()->create();
+        $linked = Post::factory()->create();
+        $unlinked = Post::factory()->create();
+
+        $linked->saveCustomFieldValue($field, [$target->getKey()]);
+
+        livewire(ListPosts::class)
+            ->set(sprintf('tableFilters.custom_fields.%s.values', $code), [$target->getKey()])
+            ->assertCanSeeTableRecords([$linked])
+            ->assertCanNotSeeTableRecords([$unlinked]);
+    })->with([
+        'single-value' => [false, 'legacy_related_single'],
+        'multi-value' => [true, 'legacy_related_multi'],
+    ]);
+
+    it('offers no sort or search control for a record field without a definition', function (): void {
+        CustomField::factory()->create([
+            'custom_field_section_id' => $this->section->id,
+            'name' => 'Legacy Related Post',
+            'code' => 'legacy_related_controls',
+            'type' => 'record',
+            'entity_type' => Post::class,
+            'lookup_type' => Post::class,
+            'settings' => new CustomFieldSettingsData(
+                visible_in_list: true,
+                list_toggleable_hidden: false,
+                searchable: true,
+            ),
+        ]);
+
+        livewire(ListPosts::class)
+            ->assertTableColumnExists(
+                'custom_fields.legacy_related_controls',
+                fn (Column $column): bool => ! $column->isSortable() && ! $column->isSearchable(),
+            );
+    });
 });

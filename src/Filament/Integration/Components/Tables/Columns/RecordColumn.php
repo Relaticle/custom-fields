@@ -38,33 +38,40 @@ final class RecordColumn extends AbstractTableColumn
         return $column;
     }
 
+    /**
+     * Both controls read edges, so a field the upgrade step has not migrated yet keeps the
+     * 3.x answer: no sort handle and no search, rather than a control that returns nothing.
+     */
     private function configureSorting(RecordColumnView $column, CustomField $customField): void
     {
-        $column->sortable(query: function (Builder $query, string $direction) use ($customField): Builder {
-            $definition = $customField->relationshipDefinition();
-            $attribute = $this->primaryAttribute($customField);
+        $definition = $customField->relationshipDefinition();
+        $attribute = $this->primaryAttribute($customField);
 
-            if (! $definition instanceof CustomFieldRelationship || $attribute === null) {
-                return $query;
-            }
+        $column->sortable(
+            condition: $definition instanceof CustomFieldRelationship && $attribute !== null,
+            query: function (Builder $query, string $direction) use ($customField, $definition, $attribute): Builder {
+                if (! $definition instanceof CustomFieldRelationship || $attribute === null) {
+                    return $query;
+                }
 
-            return app(RecordLinkQuery::class)->orderByLinkedAttribute(
-                $query,
-                $definition,
-                $definition->readDirectionFor($customField),
-                $attribute,
-                $direction,
-            );
-        });
+                return app(RecordLinkQuery::class)->orderByLinkedAttribute(
+                    $query,
+                    $definition,
+                    $definition->readDirectionFor($customField),
+                    $attribute,
+                    $direction,
+                );
+            },
+        );
     }
 
     private function configureSearching(RecordColumnView $column, CustomField $customField): void
     {
-        $column->searchable(
-            condition: $customField->settings->searchable,
-            query: function (Builder $query, string $search) use ($customField): Builder {
-                $definition = $customField->relationshipDefinition();
+        $definition = $customField->relationshipDefinition();
 
+        $column->searchable(
+            condition: $customField->settings->searchable && $definition instanceof CustomFieldRelationship,
+            query: function (Builder $query, string $search) use ($customField, $definition): Builder {
                 if (! $definition instanceof CustomFieldRelationship) {
                     return $query;
                 }

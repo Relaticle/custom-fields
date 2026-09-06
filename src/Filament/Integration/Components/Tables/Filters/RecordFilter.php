@@ -42,7 +42,7 @@ final class RecordFilter extends AbstractTableFilter
             $definition = $customField->relationshipDefinition();
 
             if (! $definition instanceof CustomFieldRelationship) {
-                return $query;
+                return $this->whereStoredValue($query, $customField, $data['values']);
             }
 
             return app(RecordLinkQuery::class)->whereLinkedTo(
@@ -54,6 +54,27 @@ final class RecordFilter extends AbstractTableFilter
         });
 
         return $filter;
+    }
+
+    /**
+     * A record field the upgrade step has not migrated yet still keeps its ids in
+     * json_value, and 3.x stored them there for both cardinalities.
+     *
+     * @param  Builder<Model>  $query
+     * @param  array<int, mixed>  $values
+     * @return Builder<Model>
+     */
+    private function whereStoredValue(Builder $query, CustomField $customField, array $values): Builder
+    {
+        return $query->whereHas('customFieldValues', function (Builder $related) use ($customField, $values): void {
+            $related->where('custom_field_id', $customField->getKey());
+
+            $related->where(function (Builder $anyValue) use ($values): void {
+                foreach ($values as $value) {
+                    $anyValue->orWhereJsonContains('json_value', $value);
+                }
+            });
+        });
     }
 
     /**
