@@ -115,6 +115,7 @@ final class ManageFieldsTable extends Component implements HasActions, HasForms
                 $this->resetFieldsCache();
             })
             ->modalWidth(Width::ScreenLarge)
+            ->extraModalWindowAttributes($this->submitsOnMetaEnter())
             ->slideOver();
     }
 
@@ -198,6 +199,7 @@ final class ManageFieldsTable extends Component implements HasActions, HasForms
                 $this->resetFieldsCache();
             })
             ->modalWidth(Width::ScreenLarge)
+            ->extraModalWindowAttributes($this->submitsOnMetaEnter())
             ->slideOver();
     }
 

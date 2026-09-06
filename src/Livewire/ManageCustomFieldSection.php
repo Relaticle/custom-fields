@@ -206,6 +206,7 @@ final class ManageCustomFieldSection extends Component implements HasActions, Ha
             ->mutateDataUsing(fn (array $data): array => $this->mutateFieldData($data, $this->entityType, $this->section->getKey()))
             ->action(fn (array $data): CustomField => $this->storeField($data))
             ->modalWidth(Width::ScreenLarge)
+            ->extraModalWindowAttributes($this->submitsOnMetaEnter())
             ->slideOver();
     }
 

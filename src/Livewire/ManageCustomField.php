@@ -54,6 +54,7 @@ final class ManageCustomField extends Component implements HasActions, HasForms
             ->fillForm(fn (): array => $this->fieldFormState($this->field))
             ->action(fn (array $data) => $this->updateField($this->field, $data))
             ->modalWidth(Width::ScreenLarge)
+            ->extraModalWindowAttributes($this->submitsOnMetaEnter())
             ->slideOver();
     }
 

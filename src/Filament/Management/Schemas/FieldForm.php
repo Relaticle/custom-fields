@@ -17,6 +17,7 @@ use Filament\Forms\Components\Toggle;
 use Filament\Schemas\Components\Component;
 use Filament\Schemas\Components\Fieldset;
 use Filament\Schemas\Components\Grid;
+use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Tabs;
 use Filament\Schemas\Components\Tabs\Tab;
 use Filament\Schemas\Components\Utilities\Get;
@@ -34,15 +35,18 @@ use Relaticle\CustomFields\Enums\DescriptionPosition;
 use Relaticle\CustomFields\Enums\FieldDataType;
 use Relaticle\CustomFields\Enums\OptionCategory;
 use Relaticle\CustomFields\Enums\RelationshipCardinality;
+use Relaticle\CustomFields\Enums\UiSurface;
 use Relaticle\CustomFields\Facades\CustomFieldsType;
 use Relaticle\CustomFields\Facades\Entities;
 use Relaticle\CustomFields\FeatureSystem\FeatureManager;
+use Relaticle\CustomFields\Filament\Management\Forms\Components\RelationshipConfigurator;
 use Relaticle\CustomFields\Filament\Management\Forms\Components\TypeField;
 use Relaticle\CustomFields\Filament\Management\Forms\Components\VisibilityComponent;
 use Relaticle\CustomFields\Models\CustomField;
 use Relaticle\CustomFields\Models\CustomFieldRelationship;
 use Relaticle\CustomFields\Models\CustomFieldSection;
 use Relaticle\CustomFields\Services\TenantContextService;
+use Relaticle\CustomFields\Support\ViewFlavor;
 
 final class FieldForm implements FormInterface
 {
@@ -105,66 +109,150 @@ final class FieldForm implements FormInterface
      * holds, and the field rendering the other end. It is one relationship definition, so it
      * is collected here and submitted through the definition services, never as columns.
      */
-    private static function recordConfiguration(): Fieldset
+    private static function recordConfiguration(): Component
     {
-        return Fieldset::make(__('custom-fields::custom-fields.field.form.record.label'))
-            ->columns(2)
+        $view = ViewFlavor::view(UiSurface::RelationshipConfigurator);
+        $components = self::recordConfigurationComponents();
+
+        // The flavor decides the frame the same children are placed in, and nothing else:
+        // every closure below is shared, so the two presentations cannot drift apart.
+        if ($view === null) {
+            return Fieldset::make(__('custom-fields::custom-fields.field.form.record.label'))
+                ->columns(2)
+                ->columnSpanFull()
+                ->visible(fn (Get $get): bool => self::isRelationshipField($get('type')))
+                ->schema($components);
+        }
+
+        return RelationshipConfigurator::make()
+            ->view($view)
             ->columnSpanFull()
             ->visible(fn (Get $get): bool => self::isRelationshipField($get('type')))
+            ->schema($components);
+    }
+
+    /**
+     * The machine code is derived from the name and rarely touched by hand, so it sits behind
+     * a disclosure instead of beside the name it comes from. Uniqueness is scoped per entity
+     * type, and per tenant when the host is multi-tenant.
+     */
+    private static function advancedDisclosure(?Closure $uniqueCodeRuleModifier): Section
+    {
+        return Section::make(__('custom-fields::custom-fields.field.form.advanced'))
+            ->description(__('custom-fields::custom-fields.field.form.advanced_description'))
+            ->icon(Heroicon::OutlinedWrenchScrewdriver)
+            ->collapsible()
+            ->collapsed()
+            ->columnSpanFull()
+            ->visible(fn (): bool => ! FeatureManager::isEnabled(CustomFieldsFeature::FIELD_CODE_AUTO_GENERATE))
             ->schema([
-                Select::make('relationship.target_entity_type')
-                    ->label(__('custom-fields::custom-fields.field.form.record.target'))
-                    ->hintIcon(Heroicon::OutlinedQuestionMarkCircle, tooltip: __('custom-fields::custom-fields.field.form.record.target_help'))
-                    ->options(Entities::getLookupOptions())
-                    ->default((Entities::asLookupSources()->first()?->getAlias()) ?? '')
-                    ->disabled(fn (?CustomField $record): bool => (bool) $record?->exists)
-                    ->required()
-                    ->live(),
-                Select::make('relationship.cardinality')
-                    ->label(__('custom-fields::custom-fields.field.form.record.cardinality'))
-                    ->hintIcon(Heroicon::OutlinedQuestionMarkCircle, tooltip: __('custom-fields::custom-fields.field.form.record.cardinality_help'))
-                    ->options(fn (Get $get): array => self::cardinalityOptions($get('relationship.is_symmetric') === true))
-                    ->default(RelationshipCardinality::ManyToOne->value)
-                    ->required()
-                    ->live(),
-                Toggle::make('relationship.is_symmetric')
-                    ->inline()
-                    ->live()
-                    ->label(__('custom-fields::custom-fields.field.form.record.is_symmetric'))
-                    ->hintIcon(Heroicon::OutlinedQuestionMarkCircle, tooltip: __('custom-fields::custom-fields.field.form.record.is_symmetric_help'))
-                    ->visible(fn (Get $get, ?CustomField $record): bool => $record?->exists !== true
-                        && self::endsMatch($get('entity_type'), $get('relationship.target_entity_type')))
-                    ->default(false),
-                TextInput::make('relationship.paired_field_name')
-                    ->label(__('custom-fields::custom-fields.field.form.record.paired_field_name'))
-                    ->hintIcon(Heroicon::OutlinedQuestionMarkCircle, tooltip: __('custom-fields::custom-fields.field.form.record.paired_field_name_help'))
-                    ->maxLength(50)
+                TextInput::make('code')
+                    ->label(__('custom-fields::custom-fields.field.form.code'))
                     ->live(onBlur: true)
-                    ->disabled(fn (?CustomField $record): bool => (bool) $record?->exists)
-                    ->visible(fn (Get $get, ?CustomField $record): bool => $record?->exists === true
-                        ? filled($get('relationship.paired_field_name'))
-                        : $get('relationship.is_symmetric') !== true),
-                Select::make('relationship.paired_section_id')
-                    ->label(__('custom-fields::custom-fields.field.form.record.paired_section'))
-                    ->hintIcon(Heroicon::OutlinedQuestionMarkCircle, tooltip: __('custom-fields::custom-fields.field.form.record.paired_section_help'))
-                    ->options(fn (Get $get): array => self::sectionOptions($get('relationship.target_entity_type')))
-                    ->required()
-                    // An entity with no section has nothing to choose, and the definition
-                    // service puts the paired field in a default one, so asking would only
-                    // block the save.
-                    ->visible(fn (Get $get, ?CustomField $record): bool => FeatureManager::isEnabled(CustomFieldsFeature::SYSTEM_SECTIONS)
-                        && $record?->exists !== true
-                        && filled($get('relationship.paired_field_name'))
-                        && $get('relationship.is_symmetric') !== true
-                        && self::sectionOptions($get('relationship.target_entity_type')) !== []),
-                Checkbox::make('relationship.keep_first')
-                    ->label(__('custom-fields::custom-fields.field.form.record.keep_first'))
-                    ->helperText(__('custom-fields::custom-fields.field.form.record.keep_first_help'))
-                    ->columnSpanFull()
-                    ->accepted()
-                    ->default(false)
-                    ->visible(fn (Get $get, ?CustomField $record): bool => self::narrowsCardinality($record, $get('relationship.cardinality'))),
+                    ->required(fn (): bool => ! FeatureManager::isEnabled(CustomFieldsFeature::FIELD_CODE_AUTO_GENERATE))
+                    ->alphaDash()
+                    ->maxLength(50)
+                    ->disabled(self::disabledForSystemFields())
+                    ->visible(fn (): bool => ! FeatureManager::isEnabled(CustomFieldsFeature::FIELD_CODE_AUTO_GENERATE))
+                    ->unique(
+                        table: CustomFields::customFieldModel(),
+                        column: 'code',
+                        ignoreRecord: true,
+                        modifyRuleUsing: function (Unique $rule, Get $get) use ($uniqueCodeRuleModifier): Unique {
+                            $rule = $rule
+                                ->where('entity_type', $get('entity_type'))
+                                ->when(
+                                    FeatureManager::isEnabled(CustomFieldsFeature::SYSTEM_MULTI_TENANCY),
+                                    fn (Unique $rule) => $rule->where(
+                                        config('custom-fields.database.column_names.tenant_foreign_key'),
+                                        TenantContextService::getCurrentTenantId()
+                                    )
+                                );
+
+                            if ($uniqueCodeRuleModifier instanceof Closure) {
+                                return $uniqueCodeRuleModifier($rule, $get);
+                            }
+
+                            return $rule;
+                        }
+                    )
+                    ->afterStateUpdated(function (Set $set, ?string $state): void {
+                        $set('code', Str::of($state)->slug('_')->toString());
+                    }),
             ]);
+    }
+
+    /**
+     * @return array<int, Component>
+     */
+    private static function recordConfigurationComponents(): array
+    {
+        return [
+            Select::make('relationship.target_entity_type')
+                ->label(__('custom-fields::custom-fields.field.form.record.target'))
+                ->hintIcon(Heroicon::OutlinedQuestionMarkCircle, tooltip: __('custom-fields::custom-fields.field.form.record.target_help'))
+                ->options(Entities::getLookupOptions())
+                ->default((Entities::asLookupSources()->first()?->getAlias()) ?? '')
+                ->disabled(fn (?CustomField $record): bool => (bool) $record?->exists)
+                ->required()
+                ->live(),
+            Select::make('relationship.cardinality')
+                ->label(__('custom-fields::custom-fields.field.form.record.cardinality'))
+                ->hintIcon(Heroicon::OutlinedQuestionMarkCircle, tooltip: __('custom-fields::custom-fields.field.form.record.cardinality_help'))
+                ->options(fn (Get $get): array => self::cardinalityOptions($get('relationship.is_symmetric') === true))
+                ->default(RelationshipCardinality::ManyToOne->value)
+                ->required()
+                ->live(),
+            Toggle::make('relationship.is_symmetric')
+                ->inline()
+                ->live()
+                ->label(__('custom-fields::custom-fields.field.form.record.is_symmetric'))
+                ->hintIcon(Heroicon::OutlinedQuestionMarkCircle, tooltip: __('custom-fields::custom-fields.field.form.record.is_symmetric_help'))
+                ->visible(fn (Get $get, ?CustomField $record): bool => $record?->exists !== true
+                    && self::endsMatch($get('entity_type'), $get('relationship.target_entity_type')))
+                ->default(false),
+            TextInput::make('relationship.paired_field_name')
+                ->label(__('custom-fields::custom-fields.field.form.record.paired_field_name'))
+                ->hintIcon(Heroicon::OutlinedQuestionMarkCircle, tooltip: __('custom-fields::custom-fields.field.form.record.paired_field_name_help'))
+                // A suggestion, never a value: filling it would turn every one-way field
+                // into a paired one without the user asking for a second field.
+                ->placeholder(fn (Get $get): ?string => self::pairedFieldNameSuggestion($get('entity_type')))
+                ->maxLength(50)
+                ->live(onBlur: true)
+                ->disabled(fn (?CustomField $record): bool => (bool) $record?->exists)
+                ->visible(fn (Get $get, ?CustomField $record): bool => $record?->exists === true
+                    ? filled($get('relationship.paired_field_name'))
+                    : $get('relationship.is_symmetric') !== true),
+            Select::make('relationship.paired_section_id')
+                ->label(__('custom-fields::custom-fields.field.form.record.paired_section'))
+                ->hintIcon(Heroicon::OutlinedQuestionMarkCircle, tooltip: __('custom-fields::custom-fields.field.form.record.paired_section_help'))
+                ->options(fn (Get $get): array => self::sectionOptions($get('relationship.target_entity_type')))
+                ->required()
+                // An entity with no section has nothing to choose, and the definition
+                // service puts the paired field in a default one, so asking would only
+                // block the save.
+                ->visible(fn (Get $get, ?CustomField $record): bool => FeatureManager::isEnabled(CustomFieldsFeature::SYSTEM_SECTIONS)
+                    && $record?->exists !== true
+                    && filled($get('relationship.paired_field_name'))
+                    && $get('relationship.is_symmetric') !== true
+                    && self::sectionOptions($get('relationship.target_entity_type')) !== []),
+            Checkbox::make('relationship.keep_first')
+                ->label(__('custom-fields::custom-fields.field.form.record.keep_first'))
+                ->helperText(__('custom-fields::custom-fields.field.form.record.keep_first_help'))
+                ->columnSpanFull()
+                ->accepted()
+                ->default(false)
+                ->visible(fn (Get $get, ?CustomField $record): bool => self::narrowsCardinality($record, $get('relationship.cardinality'))),
+        ];
+    }
+
+    private static function pairedFieldNameSuggestion(mixed $entityType): ?string
+    {
+        if (! is_string($entityType) || $entityType === '') {
+            return null;
+        }
+
+        return Entities::getEntity($entityType)?->getLabelPlural();
     }
 
     /**
@@ -475,7 +563,7 @@ final class FieldForm implements FormInterface
                     )
                 ),
             Grid::make()
-                ->columns(fn (): int => FeatureManager::isEnabled(CustomFieldsFeature::FIELD_CODE_AUTO_GENERATE) ? 2 : 3)
+                ->columns(2)
                 ->columnSpanFull()
                 ->schema([
                     TypeField::make('type')
@@ -539,39 +627,6 @@ final class FieldForm implements FormInterface
                                 return;
                             }
 
-                            $set('code', Str::of($state)->slug('_')->toString());
-                        }),
-                    TextInput::make('code')
-                        ->label(__('custom-fields::custom-fields.field.form.code'))
-                        ->live(onBlur: true)
-                        ->required(fn (): bool => ! FeatureManager::isEnabled(CustomFieldsFeature::FIELD_CODE_AUTO_GENERATE))
-                        ->alphaDash()
-                        ->maxLength(50)
-                        ->disabled(self::disabledForSystemFields())
-                        ->visible(fn (): bool => ! FeatureManager::isEnabled(CustomFieldsFeature::FIELD_CODE_AUTO_GENERATE))
-                        ->unique(
-                            table: CustomFields::customFieldModel(),
-                            column: 'code',
-                            ignoreRecord: true,
-                            modifyRuleUsing: function (Unique $rule, Get $get) use ($uniqueCodeRuleModifier): Unique {
-                                $rule = $rule
-                                    ->where('entity_type', $get('entity_type'))
-                                    ->when(
-                                        FeatureManager::isEnabled(CustomFieldsFeature::SYSTEM_MULTI_TENANCY),
-                                        fn (Unique $rule) => $rule->where(
-                                            config('custom-fields.database.column_names.tenant_foreign_key'),
-                                            TenantContextService::getCurrentTenantId()
-                                        )
-                                    );
-
-                                if ($uniqueCodeRuleModifier instanceof Closure) {
-                                    return $uniqueCodeRuleModifier($rule, $get);
-                                }
-
-                                return $rule;
-                            }
-                        )
-                        ->afterStateUpdated(function (Set $set, ?string $state): void {
                             $set('code', Str::of($state)->slug('_')->toString());
                         }),
                 ]),
@@ -781,6 +836,8 @@ final class FieldForm implements FormInterface
         $generalSchema[] = self::recordConfiguration();
 
         $generalSchema[] = $optionsRepeater;
+
+        $generalSchema[] = self::advancedDisclosure($uniqueCodeRuleModifier);
 
         // Build additional tabs based on feature flags
         $additionalTabs = [];

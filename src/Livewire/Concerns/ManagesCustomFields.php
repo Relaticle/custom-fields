@@ -26,6 +26,21 @@ use Relaticle\CustomFields\Support\CodeGenerator;
 trait ManagesCustomFields
 {
     /**
+     * The field form is a slide-over tall enough to push the save button below the fold, so
+     * the keyboard has to be able to submit it. The attributes land on the modal's own form
+     * element, which is what carries the wire:submit handler.
+     *
+     * @return array<string, string>
+     */
+    protected function submitsOnMetaEnter(): array
+    {
+        return [
+            'x-on:keydown.meta.enter.prevent' => '$el.requestSubmit()',
+            'x-on:keydown.ctrl.enter.prevent' => '$el.requestSubmit()',
+        ];
+    }
+
+    /**
      * @param  array<string, mixed>  $data
      * @return array<string, mixed>
      */
