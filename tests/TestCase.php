@@ -128,6 +128,7 @@ class TestCase extends BaseTestCase
                 CustomFieldsFeature::UI_TABLE_FILTERS,
                 CustomFieldsFeature::SYSTEM_MANAGEMENT_INTERFACE,
                 CustomFieldsFeature::SYSTEM_SECTIONS,
+                CustomFieldsFeature::SYSTEM_RELATIONSHIPS,
             )
         );
 

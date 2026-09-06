@@ -514,6 +514,12 @@ return [
             'completed' => 'Completed',
             'cancelled' => 'Cancelled',
         ],
+        'relationship_cardinality' => [
+            'one_to_one' => 'One to one',
+            'one_to_many' => 'One to many',
+            'many_to_one' => 'Many to one',
+            'many_to_many' => 'Many to many',
+        ],
         'visibility_logic' => [
             'all' => 'All conditions must be met (AND)',
             'any' => 'Any condition must be met (OR)',

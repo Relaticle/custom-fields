@@ -77,6 +77,9 @@ return [
             // New at 4.0: adds a category column to single-choice options; every option
             // starts uncategorised, so nothing reads differently until one is set.
             CustomFieldsFeature::FIELD_OPTION_CATEGORIES,
+            // New at 4.0: creates the relationship definitions and the edge ledger that record
+            // fields store their links in. Off means no record field can be created at all.
+            CustomFieldsFeature::SYSTEM_RELATIONSHIPS,
         )
         ->disable(
             // Would take the code away from whoever creates the field, and codes are the
@@ -207,11 +210,18 @@ return [
 
     'database' => [
         'migrations_path' => database_path('custom-fields'),
+
+        // Key type of the tables added in 4.0: 'bigint', 'ulid', or 'uuid'. A ULID or UUID host
+        // sets it here instead of hand-editing them; the older tables keep the hand-edit path.
+        'key_type' => 'bigint',
+
         'table_names' => [
             'custom_field_sections' => 'custom_field_sections',
             'custom_fields' => 'custom_fields',
             'custom_field_values' => 'custom_field_values',
             'custom_field_options' => 'custom_field_options',
+            'custom_field_relationships' => 'custom_field_relationships',
+            'custom_field_links' => 'custom_field_links',
         ],
         'column_names' => [
             'tenant_foreign_key' => 'tenant_id',

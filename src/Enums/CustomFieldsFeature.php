@@ -38,4 +38,5 @@ enum CustomFieldsFeature: string
     case SYSTEM_MANAGEMENT_INTERFACE = 'system_management_interface';
     case SYSTEM_MULTI_TENANCY = 'system_multi_tenancy';
     case SYSTEM_SECTIONS = 'system_sections';
+    case SYSTEM_RELATIONSHIPS = 'system_relationships';
 }

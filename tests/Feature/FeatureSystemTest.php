@@ -97,5 +97,6 @@ it('ships the feature defaults reviewed for 4.0', function (): void {
         CustomFieldsFeature::SYSTEM_MANAGEMENT_INTERFACE->value => true,
         CustomFieldsFeature::SYSTEM_MULTI_TENANCY->value => false,
         CustomFieldsFeature::SYSTEM_SECTIONS->value => true,
+        CustomFieldsFeature::SYSTEM_RELATIONSHIPS->value => true,
     ]);
 });

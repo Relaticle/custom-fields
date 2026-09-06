@@ -57,6 +57,10 @@ it('has translation key', function (string $key): void {
     'enums.option_category.started',
     'enums.option_category.completed',
     'enums.option_category.cancelled',
+    'enums.relationship_cardinality.one_to_one',
+    'enums.relationship_cardinality.one_to_many',
+    'enums.relationship_cardinality.many_to_one',
+    'enums.relationship_cardinality.many_to_many',
 
     // visibility.*
     'visibility.heading',
