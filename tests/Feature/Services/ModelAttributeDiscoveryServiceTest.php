@@ -3,8 +3,11 @@
 declare(strict_types=1);
 
 use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 use Relaticle\CustomFields\Enums\FieldDataType;
 use Relaticle\CustomFields\Services\ModelAttributeDiscoveryService;
+use Relaticle\CustomFields\Tests\Fixtures\Models\JsonbColumnModel;
 use Relaticle\CustomFields\Tests\Fixtures\Models\Post;
 use Relaticle\CustomFields\Tests\Fixtures\Models\SecondConnectionModel;
 
@@ -39,6 +42,25 @@ it('excludes columns cast to array or json', function (): void {
     // Post model casts 'tags' and 'json_array_of_objects' to array
     expect($attributes->has('tags'))->toBeFalse()
         ->and($attributes->has('json_array_of_objects'))->toBeFalse();
+});
+
+it('excludes jsonb columns on postgres', function (): void {
+    if (DB::connection()->getDriverName() !== 'pgsql') {
+        $this->markTestSkipped('jsonb is a Postgres-only column type.');
+    }
+
+    Schema::create('jsonb_column_models', function (Blueprint $table): void {
+        $table->id();
+        $table->string('title');
+        $table->jsonb('payload');
+    });
+
+    $attributes = $this->service->getAttributes(JsonbColumnModel::class);
+
+    expect($attributes->has('title'))->toBeTrue()
+        ->and($attributes->has('payload'))->toBeFalse();
+
+    Schema::dropIfExists('jsonb_column_models');
 });
 
 it('maps column types to correct FieldDataType', function (): void {
