@@ -1120,6 +1120,46 @@ describe('Record field configuration', function (): void {
             ->and($copy->relationshipDefinition()->cardinality)->toBe(RelationshipCardinality::ManyToMany);
     });
 
+    it('pairs onto an entity with no sections by creating a default one', function (): void {
+        $this->commentSection->delete();
+
+        livewire(ManageCustomFieldSection::class, [
+            'section' => $this->postSection,
+            'entityType' => Post::class,
+        ])
+            ->callAction('createField', [
+                'name' => 'Related Comment',
+                'code' => 'related_comment',
+                'type' => 'record',
+                'entity_type' => Post::class,
+                'relationship' => [
+                    'target_entity_type' => Comment::class,
+                    'cardinality' => RelationshipCardinality::ManyToMany->value,
+                    'paired_field_name' => 'Related Post',
+                ],
+            ])
+            ->assertHasNoActionErrors();
+
+        $paired = CustomFieldRelationship::query()->sole()->toField;
+
+        expect($paired->name)->toBe('Related Post')
+            ->and($paired->section)->not->toBeNull()
+            ->and($paired->section->entity_type)->toBe(Comment::class)
+            ->and(CustomField::query()->whereKey($paired->getKey())->exists())->toBeTrue();
+    });
+
+    it('never offers a symmetric toggle across an entity the host has not registered', function (): void {
+        livewire(ManageCustomFieldSection::class, [
+            'section' => $this->postSection,
+            'entityType' => Post::class,
+        ])
+            ->mountAction('createField')
+            ->set('mountedActions.0.data.type', 'record')
+            ->set('mountedActions.0.data.entity_type', 'ghost_entity')
+            ->set('mountedActions.0.data.relationship.target_entity_type', 'other_ghost_entity')
+            ->assertSchemaComponentHidden('relationship.is_symmetric');
+    });
+
     it('keeps a duplicated to-end field pointing the way it read', function (): void {
         $definition = pairedCommentAuthorship($this->postSection, $this->commentSection);
         $toField = $definition->toField;

@@ -149,10 +149,14 @@ final class FieldForm implements FormInterface
                     ->hintIcon(Heroicon::OutlinedQuestionMarkCircle, tooltip: __('custom-fields::custom-fields.field.form.record.paired_section_help'))
                     ->options(fn (Get $get): array => self::sectionOptions($get('relationship.target_entity_type')))
                     ->required()
+                    // An entity with no section has nothing to choose, and the definition
+                    // service puts the paired field in a default one, so asking would only
+                    // block the save.
                     ->visible(fn (Get $get, ?CustomField $record): bool => FeatureManager::isEnabled(CustomFieldsFeature::SYSTEM_SECTIONS)
                         && $record?->exists !== true
                         && filled($get('relationship.paired_field_name'))
-                        && $get('relationship.is_symmetric') !== true),
+                        && $get('relationship.is_symmetric') !== true
+                        && self::sectionOptions($get('relationship.target_entity_type')) !== []),
                 Checkbox::make('relationship.keep_first')
                     ->label(__('custom-fields::custom-fields.field.form.record.keep_first'))
                     ->helperText(__('custom-fields::custom-fields.field.form.record.keep_first_help'))
@@ -227,7 +231,11 @@ final class FieldForm implements FormInterface
             return false;
         }
 
-        return Entities::getEntity($entityType)?->getAlias() === (Entities::getEntity($targetEntityType)?->getAlias());
+        $alias = Entities::getEntity($entityType)?->getAlias();
+
+        // Two entity types the host has not registered are not the same entity, and a
+        // relationship cannot be symmetric across an end that resolves to nothing.
+        return $alias !== null && $alias === Entities::getEntity($targetEntityType)?->getAlias();
     }
 
     /**

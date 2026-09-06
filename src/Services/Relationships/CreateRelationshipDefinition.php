@@ -11,15 +11,20 @@ use InvalidArgumentException;
 use Relaticle\CustomFields\CustomFields;
 use Relaticle\CustomFields\Data\FieldSlotData;
 use Relaticle\CustomFields\Data\RelationshipDefinitionData;
+use Relaticle\CustomFields\Enums\CustomFieldSectionType;
 use Relaticle\CustomFields\Enums\CustomFieldsFeature;
 use Relaticle\CustomFields\FeatureSystem\FeatureManager;
 use Relaticle\CustomFields\Models\CustomField;
 use Relaticle\CustomFields\Models\CustomFieldRelationship;
+use Relaticle\CustomFields\Models\CustomFieldSection;
+use Relaticle\CustomFields\Models\Scopes\ActivableScope;
 use Relaticle\CustomFields\Services\TenantContextService;
 use Relaticle\CustomFields\Support\CodeGenerator;
 
 final readonly class CreateRelationshipDefinition
 {
+    private const string DEFAULT_SECTION_CODE = 'default';
+
     public function execute(RelationshipDefinitionData $data): CustomFieldRelationship
     {
         $this->assertDefinable($data);
@@ -151,7 +156,7 @@ final readonly class CreateRelationshipDefinition
         ];
 
         if (FeatureManager::isEnabled(CustomFieldsFeature::SYSTEM_SECTIONS)) {
-            $attributes['custom_field_section_id'] = $slot->sectionId;
+            $attributes['custom_field_section_id'] = $slot->sectionId ?? $this->defaultSection($entityType, $tenantId)->getKey();
         }
 
         if (FeatureManager::isEnabled(CustomFieldsFeature::SYSTEM_MULTI_TENANCY)) {
@@ -159,5 +164,28 @@ final readonly class CreateRelationshipDefinition
         }
 
         return CustomFields::newCustomFieldModel()->newQuery()->create($attributes);
+    }
+
+    /**
+     * A sectionless field never renders, because the activable scope asks for a section, so
+     * a slot the caller placed nowhere lands in the entity's default one. An entity with no
+     * section at all is the paired-field case: the form has nothing to offer there.
+     */
+    private function defaultSection(string $entityType, int|string|null $tenantId): CustomFieldSection
+    {
+        $attributes = ['entity_type' => $entityType, 'code' => self::DEFAULT_SECTION_CODE];
+
+        if (FeatureManager::isEnabled(CustomFieldsFeature::SYSTEM_MULTI_TENANCY)) {
+            $attributes[(string) config('custom-fields.database.column_names.tenant_foreign_key')] = $tenantId;
+        }
+
+        return CustomFields::newSectionModel()
+            ->newQuery()
+            ->withoutGlobalScope(ActivableScope::class)
+            ->firstOrCreate($attributes, [
+                'name' => __('custom-fields::custom-fields.section.default_section_name'),
+                'type' => CustomFieldSectionType::SECTION,
+                'active' => true,
+            ]);
     }
 }
