@@ -6,8 +6,10 @@ namespace Relaticle\CustomFields\Models;
 
 use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 use Illuminate\Database\Eloquent\Attributes\ScopedBy;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\AsCollection;
 use Illuminate\Database\Eloquent\Casts\Attribute;
+use Illuminate\Database\Eloquent\Collection as EloquentCollection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -158,11 +160,30 @@ class CustomField extends Model
     }
 
     /**
-     * @return Collection<int, CustomFieldOption>
+     * @return EloquentCollection<int, CustomFieldOption>
      */
-    public function optionsInCategory(OptionCategory $category): Collection
+    public function optionsInCategory(OptionCategory $category): EloquentCollection
     {
+        if ($this->relationLoaded('options')) {
+            return $this->options
+                ->filter(fn (CustomFieldOption $option): bool => $option->settings->category === $category)
+                ->values();
+        }
+
         return $this->options()->whereCategory($category)->get();
+    }
+
+    /**
+     * The definition this field is a presentation slot of, from either end.
+     */
+    public function relationshipDefinition(): ?CustomFieldRelationship
+    {
+        return once(fn (): ?CustomFieldRelationship => CustomFields::newRelationshipModel()
+            ->newQuery()
+            ->where(fn (Builder $query): Builder => $query
+                ->where('from_field_id', $this->getKey())
+                ->orWhere('to_field_id', $this->getKey()))
+            ->first());
     }
 
     /**

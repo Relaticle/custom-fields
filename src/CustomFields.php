@@ -9,6 +9,7 @@ use Relaticle\CustomFields\Enums\ImportDateFormat;
 use Relaticle\CustomFields\Enums\ImportNumberFormat;
 use Relaticle\CustomFields\Models\CustomField;
 use Relaticle\CustomFields\Models\CustomFieldOption;
+use Relaticle\CustomFields\Models\CustomFieldRelationship;
 use Relaticle\CustomFields\Models\CustomFieldSection;
 use Relaticle\CustomFields\Models\CustomFieldValue;
 use Relaticle\CustomFields\Services\TenantContextService;
@@ -34,6 +35,11 @@ final class CustomFields
      * The custom field section model that should be used by Custom Fields.
      */
     public static string $sectionModel = CustomFieldSection::class;
+
+    /**
+     * The relationship definition model that should be used by Custom Fields.
+     */
+    public static string $relationshipModel = CustomFieldRelationship::class;
 
     /**
      * The display format for date fields (e.g., 'm/d/Y', 'Y-m-d', 'd.m.Y').
@@ -172,6 +178,36 @@ final class CustomFields
     public static function useSectionModel(string $model): static
     {
         self::$sectionModel = $model;
+
+        return new self;
+    }
+
+    /**
+     * Get the name of the relationship definition model used by the application.
+     *
+     * @return class-string<CustomFieldRelationship>
+     */
+    public static function relationshipModel(): string
+    {
+        return self::$relationshipModel;
+    }
+
+    /**
+     * Get a new instance of the relationship definition model.
+     */
+    public static function newRelationshipModel(): CustomFieldRelationship
+    {
+        $model = self::relationshipModel();
+
+        return new $model;
+    }
+
+    /**
+     * Specify the relationship definition model that should be used by Custom Fields.
+     */
+    public static function useRelationshipModel(string $model): static
+    {
+        self::$relationshipModel = $model;
 
         return new self;
     }
