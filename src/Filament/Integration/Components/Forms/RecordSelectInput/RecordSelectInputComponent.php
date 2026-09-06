@@ -13,13 +13,11 @@ use Filament\Support\Components\Attributes\ExposedLivewireMethod;
 use Filament\Support\Concerns\HasExtraAlpineAttributes;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Facades\App;
 use Livewire\Attributes\Renderless;
 use Relaticle\CustomFields\Data\AvatarConfiguration;
 use Relaticle\CustomFields\Data\EntityConfigurationData;
 use Relaticle\CustomFields\Facades\Entities;
-use Relaticle\CustomFields\Support\Utils;
-use Throwable;
+use Relaticle\CustomFields\QueryBuilders\EntitySearchQuery;
 
 /**
  * A custom Filament form field for selecting records from other entities
@@ -260,30 +258,11 @@ class RecordSelectInputComponent extends Field implements HasNestedRecursiveVali
         ['entity' => $entity, 'model' => $model, 'query' => $query, 'keyName' => $keyName, 'titleAttribute' => $titleAttribute, 'avatarConfig' => $avatarConfig] = $prepared;
         $searchAttributes = $entity->getSearchAttributes();
 
-        // Try to use resource's search if available
-        $resource = null;
-        if ($entity->getResourceClass()) {
-            try {
-                $resource = App::make($entity->getResourceClass());
-            } catch (Throwable) {
-                $resource = null;
-            }
+        if ($searchAttributes === []) {
+            $searchAttributes = [$titleAttribute];
         }
 
-        if ($resource !== null) {
-            Utils::invokeMethodByReflection($resource, 'applyGlobalSearchAttributeConstraints', [
-                $query,
-                $search,
-                $searchAttributes,
-            ]);
-        } else {
-            $query->where(function (Builder $q) use ($search, $searchAttributes, $titleAttribute): void {
-                $attrs = $searchAttributes === [] ? [$titleAttribute] : $searchAttributes;
-                foreach ($attrs as $attribute) {
-                    $q->orWhere($attribute, 'like', sprintf('%%%s%%', $search));
-                }
-            });
-        }
+        $query = app(EntitySearchQuery::class)->apply($query, $search, $searchAttributes);
 
         $records = $this->applyLookupOrder($query, $model)
             ->limit($this->lookupLimit())

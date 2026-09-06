@@ -17,15 +17,17 @@ final class RecordEntry extends AbstractInfolistEntry
 {
     public function make(CustomField $customField, ?Model $record = null): ViewEntry
     {
-        if ($customField->lookup_type === null) {
+        $entityType = $customField->targetEntityType();
+
+        if ($entityType === null) {
             return ViewEntry::make($customField->getFieldName())
                 ->label($customField->name)
                 ->view('custom-fields::infolists.record-entry')
                 ->state(['records' => [], 'multiple' => false]);
         }
 
-        $entity = Entities::getEntity($customField->lookup_type);
-        $isMultiSelect = $customField->settings->allow_multiple ?? false;
+        $entity = Entities::getEntity($entityType);
+        $isMultiSelect = $customField->allowsMultipleRecords();
 
         return ViewEntry::make($customField->getFieldName())
             ->label($customField->name)

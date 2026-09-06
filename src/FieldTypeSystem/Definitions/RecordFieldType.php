@@ -28,8 +28,8 @@ class RecordFieldType extends BaseFieldType
             ->withoutUserOptions()
             ->requiresLookupType()
             ->supportsMultiValue()
-            ->sortable(false)
-            ->searchable(false)
+            ->sortable()
+            ->searchable()
             ->filterable()
             ->priority(45)
             ->withValidationCapabilities(

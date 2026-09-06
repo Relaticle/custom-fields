@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Relaticle\CustomFields\Filament\Integration\Components\Tables\Columns;
 
 use Filament\Tables\Columns\Column;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use InvalidArgumentException;
 use Relaticle\CustomFields\Data\AvatarConfiguration;
@@ -13,6 +14,8 @@ use Relaticle\CustomFields\Filament\Integration\Base\AbstractTableColumn;
 use Relaticle\CustomFields\Filament\Integration\Concerns\Tables\ConfiguresColumnLabel;
 use Relaticle\CustomFields\Models\Contracts\HasCustomFields;
 use Relaticle\CustomFields\Models\CustomField;
+use Relaticle\CustomFields\Models\CustomFieldRelationship;
+use Relaticle\CustomFields\QueryBuilders\RecordLinkQuery;
 
 final class RecordColumn extends AbstractTableColumn
 {
@@ -29,8 +32,78 @@ final class RecordColumn extends AbstractTableColumn
             ]);
 
         $this->configureLabel($column, $customField);
+        $this->configureSorting($column, $customField);
+        $this->configureSearching($column, $customField);
 
         return $column;
+    }
+
+    private function configureSorting(RecordColumnView $column, CustomField $customField): void
+    {
+        $column->sortable(query: function (Builder $query, string $direction) use ($customField): Builder {
+            $definition = $customField->relationshipDefinition();
+            $attribute = $this->primaryAttribute($customField);
+
+            if (! $definition instanceof CustomFieldRelationship || $attribute === null) {
+                return $query;
+            }
+
+            return app(RecordLinkQuery::class)->orderByLinkedAttribute(
+                $query,
+                $definition,
+                $definition->readDirectionFor($customField),
+                $attribute,
+                $direction,
+            );
+        });
+    }
+
+    private function configureSearching(RecordColumnView $column, CustomField $customField): void
+    {
+        $column->searchable(
+            condition: $customField->settings->searchable,
+            query: function (Builder $query, string $search) use ($customField): Builder {
+                $definition = $customField->relationshipDefinition();
+
+                if (! $definition instanceof CustomFieldRelationship) {
+                    return $query;
+                }
+
+                return app(RecordLinkQuery::class)->whereLinkedMatching(
+                    $query,
+                    $definition,
+                    $definition->readDirectionFor($customField),
+                    $this->searchAttributes($customField),
+                    $search,
+                );
+            },
+        );
+    }
+
+    private function primaryAttribute(CustomField $customField): ?string
+    {
+        $entityType = $customField->targetEntityType();
+
+        return $entityType === null
+            ? null
+            : Entities::getEntity($entityType)?->getPrimaryAttribute();
+    }
+
+    /**
+     * @return array<int, string>
+     */
+    private function searchAttributes(CustomField $customField): array
+    {
+        $entityType = $customField->targetEntityType();
+        $entity = $entityType === null ? null : Entities::getEntity($entityType);
+
+        if ($entity === null) {
+            return [];
+        }
+
+        $attributes = $entity->getSearchAttributes();
+
+        return $attributes === [] ? [$entity->getPrimaryAttribute()] : $attributes;
     }
 }
 
@@ -54,10 +127,11 @@ final class RecordColumnView extends Column
     public function customField(CustomField $customField): static
     {
         $this->customField = $customField;
+        $entityType = $customField->targetEntityType();
 
-        if ($customField->lookup_type !== null) {
-            $this->entity = Entities::getEntity($customField->lookup_type);
-            $this->multiple = $customField->settings->allow_multiple ?? false;
+        if ($entityType !== null) {
+            $this->entity = Entities::getEntity($entityType);
+            $this->multiple = $customField->allowsMultipleRecords();
 
             if ($this->entity !== null) {
                 $this->avatarConfig = $this->entity->getAvatarConfiguration();

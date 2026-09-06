@@ -3,13 +3,17 @@
 declare(strict_types=1);
 
 use Relaticle\CustomFields\Data\CustomFieldSettingsData;
+use Relaticle\CustomFields\Data\FieldSlotData;
+use Relaticle\CustomFields\Data\RelationshipDefinitionData;
 use Relaticle\CustomFields\Data\VisibilityConditionData;
 use Relaticle\CustomFields\Data\VisibilityData;
+use Relaticle\CustomFields\Enums\RelationshipCardinality;
 use Relaticle\CustomFields\Enums\VisibilityLogic;
 use Relaticle\CustomFields\Enums\VisibilityMode;
 use Relaticle\CustomFields\Enums\VisibilityOperator;
 use Relaticle\CustomFields\Models\CustomField;
 use Relaticle\CustomFields\Models\CustomFieldSection;
+use Relaticle\CustomFields\Services\Relationships\CreateRelationshipDefinition;
 use Relaticle\CustomFields\Tests\Fixtures\Models\Post;
 use Relaticle\CustomFields\Tests\Fixtures\Models\User;
 use Relaticle\CustomFields\Tests\Fixtures\Resources\Posts\Pages\ListPosts;
@@ -421,33 +425,27 @@ describe('Record Field Filtering', function (): void {
         ]);
     });
 
-    it('filters by a record field regardless of cardinality', function (bool $allowMultiple, string $code): void {
-        $field = CustomField::factory()->create([
-            'custom_field_section_id' => $this->section->id,
-            'name' => 'Related Post',
-            'code' => $code,
-            'type' => 'record',
-            'entity_type' => Post::class,
-            'lookup_type' => Post::class,
-            'settings' => new CustomFieldSettingsData(
-                visible_in_list: true,
-                list_toggleable_hidden: false,
-                allow_multiple: $allowMultiple,
-            ),
-        ]);
+    it('filters by a record field regardless of cardinality', function (RelationshipCardinality $cardinality): void {
+        $definition = app(CreateRelationshipDefinition::class)->execute(new RelationshipDefinitionData(
+            code: 'related_post_'.$cardinality->value,
+            fromEntityType: (new Post)->getMorphClass(),
+            toEntityType: (new Post)->getMorphClass(),
+            cardinality: $cardinality,
+            fromField: new FieldSlotData(name: 'Related Post', sectionId: $this->section->getKey()),
+        ));
+
+        $code = $definition->fromField->code;
 
         $target = Post::factory()->create();
-        $linked = Post::factory()->create();
+        $linked = Post::factory()->create(['custom_fields' => [$code => [$target->getKey()]]]);
         $unlinked = Post::factory()->create();
-
-        $linked->saveCustomFieldValue($field, [$target->getKey()]);
 
         livewire(ListPosts::class)
             ->set(sprintf('tableFilters.custom_fields.%s.values', $code), [$target->getKey()])
             ->assertCanSeeTableRecords([$linked])
             ->assertCanNotSeeTableRecords([$unlinked]);
     })->with([
-        'single-value' => [false, 'related_post_single'],
-        'multi-value' => [true, 'related_post_multi'],
+        'single-value' => RelationshipCardinality::ManyToOne,
+        'multi-value' => RelationshipCardinality::ManyToMany,
     ]);
 });

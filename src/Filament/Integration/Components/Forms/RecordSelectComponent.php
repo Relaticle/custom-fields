@@ -14,11 +14,11 @@ final readonly class RecordSelectComponent extends AbstractFormComponent
 
     public function create(CustomField $customField): RecordSelectInputComponent
     {
-        $allowMultiple = $customField->settings->allow_multiple ?? false;
+        $allowMultiple = $customField->allowsMultipleRecords();
         $maxValues = $allowMultiple ? self::MAX_MULTIPLE_RECORDS : 1;
 
         return RecordSelectInputComponent::make($customField->getFieldName())
-            ->lookupType($customField->lookup_type)
+            ->lookupType($customField->targetEntityType())
             ->allowMultiple($allowMultiple)
             ->maxValues($maxValues)
             ->placeholder(__('custom-fields::custom-fields.record.search_placeholder'))

@@ -217,6 +217,23 @@ class CustomField extends Model
     }
 
     /**
+     * Cardinality owns multiplicity once a field is a relationship slot. The settings flag
+     * stays authoritative for a field the upgrade step has not migrated yet.
+     */
+    public function allowsMultipleRecords(): bool
+    {
+        $definition = $this->relationshipDefinition();
+
+        if (! $definition instanceof CustomFieldRelationship) {
+            return $this->settings->allow_multiple;
+        }
+
+        return $definition->directionFor($this) === CustomFieldRelationship::DIRECTION_TO
+            ? ! $definition->cardinality->toSideIsSingle()
+            : ! $definition->cardinality->fromSideIsSingle();
+    }
+
+    /**
      * @return Attribute<?FieldTypeData, never>
      */
     public function typeData(): Attribute
