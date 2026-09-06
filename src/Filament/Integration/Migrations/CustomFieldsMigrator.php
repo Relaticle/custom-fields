@@ -5,9 +5,12 @@ declare(strict_types=1);
 namespace Relaticle\CustomFields\Filament\Integration\Migrations;
 
 use Exception;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
+use InvalidArgumentException;
 use Relaticle\CustomFields\CustomFields;
 use Relaticle\CustomFields\Data\CustomFieldData;
+use Relaticle\CustomFields\Data\CustomFieldOptionSettingsData;
 use Relaticle\CustomFields\Data\CustomFieldSectionData;
 use Relaticle\CustomFields\Enums\CustomFieldsFeature;
 use Relaticle\CustomFields\Exceptions\CustomFieldAlreadyExistsException;
@@ -274,7 +277,10 @@ final class CustomFieldsMigrator
     }
 
     /**
-     * @param  array<string, mixed>  $options
+     * An option is either its name, or an array carrying the name plus the option settings
+     * beside it (`color`, `category`).
+     *
+     * @param  array<int|string, mixed>  $options
      */
     private function createOptions(
         CustomField $customField,
@@ -287,6 +293,15 @@ final class CustomFieldsMigrator
                         'name' => $value,
                         'sort_order' => $key,
                     ];
+
+                    if (is_array($value)) {
+                        if (! isset($value['name']) || ! is_string($value['name'])) {
+                            throw new InvalidArgumentException('An option array must carry a name.');
+                        }
+
+                        $data['name'] = $value['name'];
+                        $data['settings'] = CustomFieldOptionSettingsData::from(Arr::except($value, 'name'));
+                    }
 
                     if (FeatureManager::isEnabled(CustomFieldsFeature::SYSTEM_MULTI_TENANCY)) {
                         $data[config(

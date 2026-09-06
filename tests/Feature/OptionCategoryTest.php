@@ -5,10 +5,12 @@ declare(strict_types=1);
 use Filament\Forms\Components\Repeater;
 use Illuminate\Validation\ValidationException;
 use Relaticle\CustomFields\CustomFields;
+use Relaticle\CustomFields\Data\CustomFieldData;
 use Relaticle\CustomFields\Data\CustomFieldOptionSettingsData;
 use Relaticle\CustomFields\Enums\CustomFieldsFeature;
 use Relaticle\CustomFields\Enums\OptionCategory;
 use Relaticle\CustomFields\FeatureSystem\FeatureConfigurator;
+use Relaticle\CustomFields\Filament\Integration\Migrations\CustomFieldsMigrator;
 use Relaticle\CustomFields\Livewire\ManageCustomField;
 use Relaticle\CustomFields\Livewire\ManageCustomFieldSection;
 use Relaticle\CustomFields\Models\CustomField;
@@ -253,4 +255,42 @@ it('clears a category back to none in the field editor', function (): void {
         ->assertHasNoActionErrors();
 
     expect($option->fresh()->settings->category)->toBeNull();
+});
+
+it('seeds categories through the migrator options payload', function (): void {
+    app(CustomFieldsMigrator::class)->new(
+        model: User::class,
+        fieldData: new CustomFieldData(
+            name: 'Stage',
+            code: 'stage',
+            type: 'select',
+        ),
+    )->options([
+        'Discovery',
+        ['name' => 'Closed Won', 'category' => OptionCategory::Completed, 'color' => '#16a34a'],
+        ['name' => 'Closed Lost', 'category' => 'cancelled'],
+    ])->create();
+
+    $field = CustomField::query()->withoutGlobalScopes()->where('code', 'stage')->firstOrFail();
+
+    expect($field->options->pluck('name')->all())->toBe(['Discovery', 'Closed Won', 'Closed Lost'])
+        ->and($field->options->pluck('settings.category')->all())
+        ->toBe([null, OptionCategory::Completed, OptionCategory::Cancelled])
+        ->and($field->options->pluck('settings.color')->all())->toBe([null, '#16a34a', null])
+        ->and($field->optionsInCategory(OptionCategory::Completed)->pluck('name')->all())->toBe(['Closed Won']);
+});
+
+it('rejects a migrator option array without a name', function (): void {
+    $migrator = app(CustomFieldsMigrator::class)->new(
+        model: User::class,
+        fieldData: new CustomFieldData(
+            name: 'Stage',
+            code: 'stage',
+            type: 'select',
+        ),
+    )->options([['category' => 'completed']]);
+
+    expect(fn (): CustomField => $migrator->create())->toThrow(InvalidArgumentException::class);
+
+    expect(CustomFields::newOptionModel()->query()->count())->toBe(0);
 });
