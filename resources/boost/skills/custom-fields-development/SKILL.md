@@ -217,6 +217,9 @@ use Relaticle\CustomFields\FeatureSystem\FeatureConfigurator;
 | `SYSTEM_SECTIONS` | Organize fields into sections |
 | `SYSTEM_MULTI_TENANCY` | Tenant isolation for fields |
 
+Every flag and its shipped default lives in `config/custom-fields.php`, each with the
+reason for that default; read it there rather than assuming one.
+
 ## Configuration
 
 ### Entity Discovery

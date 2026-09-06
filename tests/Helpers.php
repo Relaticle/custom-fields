@@ -7,6 +7,7 @@ use Relaticle\CustomFields\EntitySystem\EntityConfigurator;
 use Relaticle\CustomFields\EntitySystem\EntityManager;
 use Relaticle\CustomFields\EntitySystem\EntityModel;
 use Relaticle\CustomFields\Enums\EntityFeature;
+use Relaticle\CustomFields\FeatureSystem\FeatureConfigurator;
 use Relaticle\CustomFields\Filament\Integration\Components\Forms\RecordSelectInput\RecordSelectInputComponent;
 use Relaticle\CustomFields\Tests\Fixtures\Models\Post;
 
@@ -72,4 +73,15 @@ function recordSelectInitialOptions(string $modelClass = Post::class): array
 function recordSelectSearch(string $term, string $modelClass = Post::class): array
 {
     return recordSelectFor($modelClass)->getSearchResultsForJs($term);
+}
+
+/**
+ * The features block exactly as the package ships it, bypassing the test environment's own.
+ */
+function shippedFeatureConfigurator(): FeatureConfigurator
+{
+    /** @var array{features: FeatureConfigurator} $config */
+    $config = require dirname(__DIR__).'/config/custom-fields.php';
+
+    return $config['features'];
 }

@@ -37,8 +37,10 @@ it('casts the stored section width to the CustomFieldWidth enum', function (): v
     ]);
 });
 
-it('has UI_SECTION_WIDTH_CONTROL disabled by default', function (): void {
-    expect(FeatureManager::isEnabled(CustomFieldsFeature::UI_SECTION_WIDTH_CONTROL))->toBeFalse();
+it('ships UI_SECTION_WIDTH_CONTROL enabled', function (): void {
+    config(['custom-fields.features' => shippedFeatureConfigurator()]);
+
+    expect(FeatureManager::isEnabled(CustomFieldsFeature::UI_SECTION_WIDTH_CONTROL))->toBeTrue();
 });
 
 it('renders a fractional column span when the flag is on and width is non-100', function (): void {

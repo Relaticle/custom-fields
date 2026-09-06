@@ -52,3 +52,49 @@ it('can toggle UI_FIELD_WIDTH_CONTROL feature', function (): void {
 
     expect(FeatureManager::isEnabled(CustomFieldsFeature::UI_FIELD_WIDTH_CONTROL))->toBeFalse();
 });
+
+it('lists every feature flag explicitly in the shipped config', function (): void {
+    $shipped = shippedFeatureConfigurator();
+
+    $configured = (new ReflectionProperty(FeatureConfigurator::class, 'features'))->getValue($shipped);
+
+    $cases = array_map(
+        fn (CustomFieldsFeature $feature): string => $feature->value,
+        CustomFieldsFeature::cases(),
+    );
+
+    expect(array_keys($configured))->toEqualCanonicalizing($cases);
+});
+
+it('ships the feature defaults reviewed for 4.0', function (): void {
+    config(['custom-fields.features' => shippedFeatureConfigurator()]);
+
+    $actual = [];
+
+    foreach (CustomFieldsFeature::cases() as $feature) {
+        $actual[$feature->value] = FeatureManager::isEnabled($feature);
+    }
+
+    expect($actual)->toEqual([
+        CustomFieldsFeature::FIELD_CONDITIONAL_VISIBILITY->value => true,
+        CustomFieldsFeature::FIELD_ENCRYPTION->value => true,
+        CustomFieldsFeature::FIELD_OPTION_COLORS->value => true,
+        CustomFieldsFeature::FIELD_CODE_AUTO_GENERATE->value => false,
+        CustomFieldsFeature::FIELD_MULTI_VALUE->value => false,
+        CustomFieldsFeature::FIELD_UNIQUE_VALUE->value => false,
+        CustomFieldsFeature::FIELD_VALIDATION_RULES->value => true,
+        CustomFieldsFeature::FIELD_DESCRIPTION->value => true,
+        CustomFieldsFeature::FIELD_DESCRIPTION_POSITION->value => true,
+        CustomFieldsFeature::MODEL_ATTRIBUTE_CONDITIONS->value => false,
+        CustomFieldsFeature::SECTION_CONDITIONAL_VISIBILITY->value => true,
+        CustomFieldsFeature::UI_TABLE_COLUMNS->value => true,
+        CustomFieldsFeature::UI_TABLE_FILTERS->value => true,
+        CustomFieldsFeature::UI_TOGGLEABLE_COLUMNS->value => true,
+        CustomFieldsFeature::UI_TOGGLEABLE_COLUMNS_HIDDEN_DEFAULT->value => false,
+        CustomFieldsFeature::UI_FIELD_WIDTH_CONTROL->value => true,
+        CustomFieldsFeature::UI_SECTION_WIDTH_CONTROL->value => true,
+        CustomFieldsFeature::SYSTEM_MANAGEMENT_INTERFACE->value => true,
+        CustomFieldsFeature::SYSTEM_MULTI_TENANCY->value => false,
+        CustomFieldsFeature::SYSTEM_SECTIONS->value => true,
+    ]);
+});
