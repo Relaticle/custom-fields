@@ -7,13 +7,12 @@ namespace Relaticle\CustomFields\Observers;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\DB;
 use Relaticle\CustomFields\CustomFields;
-use Relaticle\CustomFields\Enums\CustomFieldsFeature;
-use Relaticle\CustomFields\FeatureSystem\FeatureManager;
 use Relaticle\CustomFields\Models\CustomField;
 use Relaticle\CustomFields\Models\CustomFieldRelationship;
 use Relaticle\CustomFields\Models\Scopes\TenantScope;
 use Relaticle\CustomFields\Services\Relationships\DeleteRelationshipDefinition;
 use Relaticle\CustomFields\Services\Visibility\BackendVisibilityService;
+use Relaticle\CustomFields\Support\RelationshipTables;
 use RuntimeException;
 
 final class CustomFieldObserver
@@ -67,7 +66,7 @@ final class CustomFieldObserver
      */
     private function unpairRelationshipSlots(CustomField $customField): void
     {
-        if (! FeatureManager::isEnabled(CustomFieldsFeature::SYSTEM_RELATIONSHIPS)) {
+        if (! RelationshipTables::exist()) {
             return;
         }
 

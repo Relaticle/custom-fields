@@ -11,7 +11,6 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Crypt;
-use Illuminate\Support\Facades\Schema;
 use Relaticle\CustomFields\CustomFields;
 use Relaticle\CustomFields\Data\RecordLinkPayload;
 use Relaticle\CustomFields\Enums\CustomFieldsFeature;
@@ -26,6 +25,7 @@ use Relaticle\CustomFields\QueryBuilders\CustomFieldQueryBuilder;
 use Relaticle\CustomFields\Services\Relationships\LinkReader;
 use Relaticle\CustomFields\Services\Relationships\LinkWriter;
 use Relaticle\CustomFields\Services\ValueResolver\LookupPreloader;
+use Relaticle\CustomFields\Support\RelationshipTables;
 
 /**
  * @see HasCustomFields
@@ -194,7 +194,7 @@ trait UsesCustomFields
      */
     protected function deleteCustomFieldLinks(): void
     {
-        if (! self::relationshipLinksTableExists()) {
+        if (! RelationshipTables::exist()) {
             return;
         }
 
@@ -216,7 +216,7 @@ trait UsesCustomFields
      */
     public function scopeWithActiveCustomFieldLinks(Builder $query): Builder
     {
-        if (! self::relationshipLinksTableExists()) {
+        if (! RelationshipTables::exist()) {
             return $query;
         }
 
@@ -224,17 +224,6 @@ trait UsesCustomFields
             'outgoingLinks' => fn (MorphMany $links): MorphMany => $links->whereNull('active_until'),
             'incomingLinks' => fn (MorphMany $links): MorphMany => $links->whereNull('active_until'),
         ]);
-    }
-
-    /**
-     * The feature flag gates the relationship migrations, not what a record does once they
-     * have run: a host that turns it off afterward still has edges to delete and load.
-     * Schema never changes mid-request, so each host model is worth memoising once instead
-     * of once per delete or per page of records.
-     */
-    private static function relationshipLinksTableExists(): bool
-    {
-        return once(fn (): bool => Schema::hasTable((string) config('custom-fields.database.table_names.custom_field_links')));
     }
 
     public function scopeWithCustomFieldValues(Builder $query): Builder

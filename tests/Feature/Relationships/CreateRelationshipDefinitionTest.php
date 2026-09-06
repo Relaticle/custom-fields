@@ -8,6 +8,7 @@ use Relaticle\CustomFields\Data\CustomFieldSectionData;
 use Relaticle\CustomFields\Data\CustomFieldSettingsData;
 use Relaticle\CustomFields\Data\FieldSlotData;
 use Relaticle\CustomFields\Data\RelationshipDefinitionData;
+use Relaticle\CustomFields\Enums\CustomFieldsFeature;
 use Relaticle\CustomFields\Enums\RelationshipCardinality;
 use Relaticle\CustomFields\Filament\Integration\Migrations\CustomFieldsMigrator;
 use Relaticle\CustomFields\Models\CustomField;
@@ -181,6 +182,19 @@ it('deletes the slot fields when asked', function (): void {
 it('keeps the definition and its edges when one slot field is deleted', function (): void {
     $definition = authorship();
     CustomFieldLink::factory()->create(['relationship_id' => $definition->getKey()]);
+
+    $definition->toField->delete();
+
+    expect($definition->refresh()->to_field_id)->toBeNull()
+        ->and($definition->from_field_id)->not->toBeNull()
+        ->and(CustomFieldLink::query()->count())->toBe(1);
+});
+
+it('still unpairs a deleted slot field while the relationships feature is off', function (): void {
+    $definition = authorship();
+    CustomFieldLink::factory()->create(['relationship_id' => $definition->getKey()]);
+
+    config('custom-fields.features')->disable(CustomFieldsFeature::SYSTEM_RELATIONSHIPS);
 
     $definition->toField->delete();
 

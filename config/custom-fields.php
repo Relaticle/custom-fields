@@ -77,10 +77,8 @@ return [
             // Adds a category column to single-choice options; every option starts
             // uncategorised, so nothing reads differently until one is set.
             CustomFieldsFeature::FIELD_OPTION_CATEGORIES,
-            // New at 4.0: while off, the two relationship migrations and the lookup_type
-            // drop never run, so no relationship storage exists. It does not change how a
-            // record field that already has a definition reads, writes, and deletes its
-            // links either way.
+            // New at 4.0: while off, the relationship migrations and the upgrade steps
+            // never run; a record field with a definition still reads, writes, and deletes its links.
             CustomFieldsFeature::SYSTEM_RELATIONSHIPS,
         )
         ->disable(
