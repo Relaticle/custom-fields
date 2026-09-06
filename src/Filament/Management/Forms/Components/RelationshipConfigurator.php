@@ -9,7 +9,9 @@ use Filament\Schemas\Components\Component;
 use Filament\Schemas\Components\Utilities\Get;
 use Relaticle\CustomFields\Data\EntityConfigurationData;
 use Relaticle\CustomFields\Enums\RelationshipCardinality;
+use Relaticle\CustomFields\Enums\UiSurface;
 use Relaticle\CustomFields\Facades\Entities;
+use Relaticle\CustomFields\Support\ViewFlavor;
 
 /**
  * The polished presentation of the record configuration: the same child components the stock
@@ -29,7 +31,12 @@ final class RelationshipConfigurator extends Component
     {
         parent::setUp();
 
-        $this->view('custom-fields::flavors.polished.relationship-configurator');
+        $polishedView = ViewFlavor::view(UiSurface::RelationshipConfigurator);
+
+        if ($polishedView !== null) {
+            $this->view($polishedView);
+        }
+
         $this->columnSpanFull();
     }
 
