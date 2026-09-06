@@ -523,3 +523,30 @@ describe('Morph alias resolution', function (): void {
         expect($errors)->toBeEmpty();
     });
 });
+
+describe('Invalid entity type handling', function (): void {
+    it('throws a clear exception instead of a fatal error for an unresolvable entity type', function (): void {
+        $section = CustomFieldSection::factory()
+            ->forEntityType(Post::class)
+            ->create(['active' => true]);
+
+        $field = CustomField::factory()->create([
+            'custom_field_section_id' => $section->getKey(),
+            'entity_type' => 'Bogus\\Missing\\Entity',
+            'code' => 'bogus_code',
+            'name' => 'Bogus Code',
+            'type' => 'text',
+            'settings' => new CustomFieldSettingsData(
+                unique_per_entity_type: true,
+            ),
+        ]);
+
+        $rule = new UniqueCustomFieldValue($field);
+
+        expect(fn () => $rule->validate(
+            'custom_fields.bogus_code',
+            'some-value',
+            function (string $message): void {}
+        ))->toThrow(RuntimeException::class);
+    });
+});
