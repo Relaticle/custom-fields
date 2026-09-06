@@ -3,6 +3,8 @@
 declare(strict_types=1);
 
 use Filament\Tables\Columns\Column;
+use Illuminate\Database\Eloquent\Collection as EloquentCollection;
+use Illuminate\Database\Eloquent\Factories\Sequence;
 use Relaticle\CustomFields\Data\CustomFieldSettingsData;
 use Relaticle\CustomFields\Data\FieldSlotData;
 use Relaticle\CustomFields\Data\RelationshipDefinitionData;
@@ -25,6 +27,19 @@ beforeEach(function (): void {
     $this->user = User::factory()->create();
     $this->actingAs($this->user);
 });
+
+/** @return EloquentCollection<int, Post> */
+function orderedPosts(): EloquentCollection
+{
+    return Post::factory()
+        ->count(10)
+        ->sequence(fn (Sequence $sequence): array => [
+            'title' => sprintf('Title %02d', $sequence->index + 1),
+            'is_published' => $sequence->index % 2 === 0,
+            'author_id' => User::factory()->create(['name' => sprintf('Author %02d', $sequence->index + 1)]),
+        ])
+        ->create();
+}
 
 describe('Page Rendering and Authorization', function (): void {
     it('can render the list page', function (): void {
@@ -91,7 +106,7 @@ describe('Basic Table Functionality', function (): void {
 
 describe('Table Sorting', function (): void {
     beforeEach(function (): void {
-        $this->posts = Post::factory()->count(10)->create();
+        $this->posts = orderedPosts();
     });
 
     it('can sort records by standard columns', function (string $column, string $direction): void {
@@ -112,7 +127,7 @@ describe('Table Sorting', function (): void {
 
 describe('Table Search', function (): void {
     beforeEach(function (): void {
-        $this->posts = Post::factory()->count(10)->create();
+        $this->posts = orderedPosts();
     });
 
     it('can search records by title', function (): void {
@@ -157,7 +172,7 @@ describe('Table Search', function (): void {
 
 describe('Table Filtering', function (): void {
     beforeEach(function (): void {
-        $this->posts = Post::factory()->count(10)->create();
+        $this->posts = orderedPosts();
     });
 
     it('can filter records by is_published status', function (): void {
