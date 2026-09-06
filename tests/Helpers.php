@@ -16,6 +16,8 @@ use Relaticle\CustomFields\EntitySystem\EntityManager;
 use Relaticle\CustomFields\EntitySystem\EntityModel;
 use Relaticle\CustomFields\Enums\CustomFieldsFeature;
 use Relaticle\CustomFields\Enums\EntityFeature;
+use Relaticle\CustomFields\Enums\UiFlavor;
+use Relaticle\CustomFields\Enums\UiSurface;
 use Relaticle\CustomFields\Facades\CustomFields;
 use Relaticle\CustomFields\FeatureSystem\FeatureConfigurator;
 use Relaticle\CustomFields\FeatureSystem\FeatureManager;
@@ -23,8 +25,18 @@ use Relaticle\CustomFields\Filament\Integration\Components\Forms\RecordSelectInp
 use Relaticle\CustomFields\Models\CustomField;
 use Relaticle\CustomFields\Models\CustomFieldSection;
 use Relaticle\CustomFields\Services\TenantContextService;
+use Relaticle\CustomFields\Support\ViewFlavor;
 use Relaticle\CustomFields\Tests\Fixtures\Livewire\ThroughTable;
 use Relaticle\CustomFields\Tests\Fixtures\Models\Post;
+
+/**
+ * Whether a forked surface draws its polished view in this run. CI runs the whole suite once
+ * per flavor, so a test reading markup only one presentation has asks instead of assuming.
+ */
+function rendersPolished(UiSurface $surface): bool
+{
+    return ViewFlavor::flavor($surface) === UiFlavor::Polished;
+}
 
 /**
  * Replace the registered entities with a single lookup source and rebuild the registry.

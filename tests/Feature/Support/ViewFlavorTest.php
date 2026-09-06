@@ -23,7 +23,9 @@ describe('flavor resolution', function (): void {
         ]);
     });
 
-    it('resolves a surface to its polished view by default', function (string $key): void {
+    it('resolves a surface to its polished view under the polished flavor', function (string $key): void {
+        config()->set('custom-fields.ui.flavor', 'polished');
+
         $surface = UiSurface::from($key);
 
         expect(ViewFlavor::flavor($surface))->toBe(UiFlavor::Polished)
@@ -129,6 +131,8 @@ describe('attribute table rendering', function (): void {
     });
 
     it('renders the attribute table through the polished view', function (): void {
+        config()->set('custom-fields.ui.flavor', 'polished');
+
         livewire(ManageFieldsTable::class, ['entityType' => Post::class])
             ->assertSee('Flavor smoke field')
             ->assertSeeHtml('data-flavor="polished"');

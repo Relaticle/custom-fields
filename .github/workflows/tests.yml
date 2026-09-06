@@ -47,13 +47,24 @@ jobs:
         laravel: [12.*, 13.*]
         stability: [prefer-stable]
         db: [sqlite, pgsql, mysql]
+        flavor: [polished]
         include:
           - laravel: 12.*
             testbench: 10.*
           - laravel: 13.*
             testbench: 11.*
+          # The forked UI surfaces render twice, so one leg reads them in the other flavor.
+          # A flavor no base combination carries adds a leg rather than converting one, and an
+          # earlier include never reaches a combination a later one creates, so it spells out
+          # every key it needs.
+          - php: 8.4
+            laravel: 13.*
+            stability: prefer-stable
+            db: sqlite
+            flavor: native
+            testbench: 11.*
 
-    name: P${{ matrix.php }} - L${{ matrix.laravel }} - ${{ matrix.db }}
+    name: P${{ matrix.php }} - L${{ matrix.laravel }} - ${{ matrix.db }} - ${{ matrix.flavor }}
 
     services:
       postgres:
@@ -115,6 +126,7 @@ jobs:
           DB_DATABASE: custom_fields_test
           DB_USERNAME: root
           DB_PASSWORD: ${{ matrix.db == 'pgsql' && 'password' || '' }}
+          CUSTOM_FIELDS_UI_FLAVOR: ${{ matrix.flavor }}
         run: vendor/bin/pest --ci
 
   gate:

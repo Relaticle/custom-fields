@@ -11,6 +11,7 @@ use Relaticle\CustomFields\EntitySystem\EntityManager;
 use Relaticle\CustomFields\EntitySystem\EntityModel;
 use Relaticle\CustomFields\Enums\EntityFeature;
 use Relaticle\CustomFields\Enums\RelationshipCardinality;
+use Relaticle\CustomFields\Enums\UiSurface;
 use Relaticle\CustomFields\Enums\VisibilityLogic;
 use Relaticle\CustomFields\Enums\VisibilityMode;
 use Relaticle\CustomFields\Enums\VisibilityOperator;
@@ -92,11 +93,13 @@ describe('record chips', function (): void {
             'custom_fields' => [$definition->fromField->code => [$target->getKey()]],
         ]);
 
-        livewire(ListPosts::class)
-            ->assertSeeHtml('data-surface="record-chips"')
+        $table = livewire(ListPosts::class)
             ->assertSeeHtml('https://avatars.test/aurora.png')
-            ->assertSeeHtml('fi-cf-record-chip')
             ->assertSee('Aurora Labs');
+
+        rendersPolished(UiSurface::RecordChips)
+            ? $table->assertSeeHtml('data-surface="record-chips"')->assertSeeHtml('fi-cf-record-chip')
+            : $table->assertDontSeeHtml('data-surface="record-chips"')->assertDontSeeHtml('fi-cf-record-chip');
     });
 
     it('draws the chips in the order the links were set', function (): void {
@@ -126,9 +129,11 @@ describe('record chips', function (): void {
             'custom_fields' => [$definition->fromField->code => $targets->pluck('id')->all()],
         ]);
 
-        livewire(ListPosts::class)
-            ->assertSeeHtml('fi-cf-record-chips-overflow')
-            ->assertSee('2 more');
+        $table = livewire(ListPosts::class)->assertSee('2 more');
+
+        rendersPolished(UiSurface::RecordChips)
+            ? $table->assertSeeHtml('fi-cf-record-chips-overflow')
+            : $table->assertDontSeeHtml('fi-cf-record-chips-overflow');
     });
 
     it('reads provenance from the edge the page already loaded', function (): void {
@@ -141,9 +146,13 @@ describe('record chips', function (): void {
             'custom_fields' => [$definition->fromField->code => [$target->getKey()]],
         ]);
 
-        livewire(ListPosts::class)
-            ->assertSeeHtml('data-provenance')
-            ->assertSee('Linked by hand');
+        $table = livewire(ListPosts::class);
+
+        // Provenance is a polished affordance: the stock column draws the record and nothing
+        // about the edge it came from, while the ledger reads the same either way.
+        rendersPolished(UiSurface::RecordChips)
+            ? $table->assertSeeHtml('data-provenance')->assertSee('Linked by hand')
+            : $table->assertDontSeeHtml('data-provenance')->assertSee('Aurora Labs');
 
         $host->load('outgoingLinks.createdBy');
 
@@ -179,7 +188,11 @@ describe('record chips', function (): void {
 
         Post::factory()->create(['title' => 'Holder']);
 
-        livewire(ListPosts::class)->assertSee('Not linked');
+        $table = livewire(ListPosts::class);
+
+        rendersPolished(UiSurface::RecordChips)
+            ? $table->assertSee('Not linked')
+            : $table->assertDontSee('Not linked');
     });
 
     it('keeps the stock chip markup in the native flavor', function (): void {
@@ -229,11 +242,14 @@ describe('record picker', function (): void {
         registerChipEntity();
         relatedPostsField();
 
-        livewire(EditPost::class, ['record' => Post::factory()->create()->getRouteKey()])
-            ->assertSeeHtml('data-surface="record-picker"')
+        $page = livewire(EditPost::class, ['record' => Post::factory()->create()->getRouteKey()])
             ->assertSeeHtml('role="listbox"')
             ->assertSeeHtml('aria-activedescendant')
             ->assertSee('Create a new Post');
+
+        rendersPolished(UiSurface::RecordPicker)
+            ? $page->assertSeeHtml('data-surface="record-picker"')
+            : $page->assertDontSeeHtml('data-surface="record-picker"');
     });
 
     it('keeps the stock picker in the native flavor', function (): void {
@@ -294,10 +310,13 @@ describe('record picker', function (): void {
             'custom_fields' => [$definition->fromField->code => $targets->pluck('id')->all()],
         ]);
 
-        livewire(ListPosts::class)
-            ->assertSeeHtml('fi-cf-record-chips-overflow')
+        $table = livewire(ListPosts::class)
             ->assertSee('3 more')
             ->assertDontSee('{1} :count more');
+
+        rendersPolished(UiSurface::RecordChips)
+            ? $table->assertSeeHtml('fi-cf-record-chips-overflow')
+            : $table->assertDontSeeHtml('fi-cf-record-chips-overflow');
     });
 
     it('reorders the links to the order the chips were left in', function (): void {

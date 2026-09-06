@@ -29,6 +29,7 @@ use Relaticle\CustomFields\EntitySystem\EntityManager;
 use Relaticle\CustomFields\EntitySystem\EntityModel;
 use Relaticle\CustomFields\Enums\CustomFieldsFeature;
 use Relaticle\CustomFields\Enums\EntityFeature;
+use Relaticle\CustomFields\Enums\UiFlavor;
 use Relaticle\CustomFields\FeatureSystem\FeatureConfigurator;
 use Relaticle\CustomFields\Tests\Database\Factories\TagFactory;
 use Relaticle\CustomFields\Tests\database\factories\UserFactory;
@@ -111,6 +112,10 @@ class TestCase extends BaseTestCase
 
         // Authentication configuration for testing
         config()->set('auth.providers.users.model', User::class);
+
+        // The flavor is a run dimension, not a per-test one: CI runs the whole suite once per
+        // flavor, so the forked surfaces are exercised in both presentations.
+        config()->set('custom-fields.ui.flavor', env('CUSTOM_FIELDS_UI_FLAVOR', UiFlavor::Polished->value));
 
         // Custom fields configuration
         config()->set('custom-fields.database.table_names.custom_field_sections', 'custom_field_sections');

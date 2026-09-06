@@ -9,6 +9,7 @@ use Livewire\Features\SupportTesting\Testable;
 use Relaticle\CustomFields\Data\FieldSlotData;
 use Relaticle\CustomFields\Data\RelationshipDefinitionData;
 use Relaticle\CustomFields\Enums\RelationshipCardinality;
+use Relaticle\CustomFields\Enums\UiSurface;
 use Relaticle\CustomFields\Filament\Management\Forms\Components\TypeField;
 use Relaticle\CustomFields\Livewire\ManageFieldsTable;
 use Relaticle\CustomFields\Models\CustomField;
@@ -34,12 +35,20 @@ describe('the attribute table', function (): void {
             'validation_rules' => ['required' => true],
         ]);
 
-        postFieldsTable()
-            ->assertSeeHtml('data-surface="attribute-table"')
+        $table = postFieldsTable()
             ->assertSeeHtml('x-sortable-handle')
-            ->assertSeeHtml('fi-cf-attribute-row')
             ->assertSee('Account owner')
-            ->assertSee('Unique')
+            ->assertSee('Unique');
+
+        if (! rendersPolished(UiSurface::AttributeTable)) {
+            $table->assertDontSeeHtml('data-surface="attribute-table"')
+                ->assertDontSeeHtml('fi-cf-attribute-row');
+
+            return;
+        }
+
+        $table->assertSeeHtml('data-surface="attribute-table"')
+            ->assertSeeHtml('fi-cf-attribute-row')
             ->assertSee('Required');
     });
 
@@ -70,8 +79,17 @@ describe('the attribute table', function (): void {
             toField: new FieldSlotData(name: 'Mentioned By', sectionId: $section->getKey()),
         ));
 
-        postFieldsTable()
-            ->assertSeeHtml('data-pair="'.$definition->getKey().'"')
+        $table = postFieldsTable();
+
+        expect($table->instance()->relationshipPairs())->toHaveCount(2);
+
+        if (! rendersPolished(UiSurface::AttributeTable)) {
+            $table->assertDontSeeHtml('data-pair="'.$definition->getKey().'"');
+
+            return;
+        }
+
+        $table->assertSeeHtml('data-pair="'.$definition->getKey().'"')
             ->assertSeeHtml('data-pair-partner="'.$definition->to_field_id.'"')
             ->assertSeeHtml('data-pair-partner="'.$definition->from_field_id.'"')
             ->assertSee('Paired with Mentioned By on Post')
@@ -79,20 +97,33 @@ describe('the attribute table', function (): void {
     });
 
     it('says what a custom field is when there are none', function (): void {
-        postFieldsTable()
-            ->assertSee('No custom fields yet')
-            ->assertSee('adds a column of your own to every record');
+        $table = postFieldsTable()->assertSee('No custom fields yet');
+
+        rendersPolished(UiSurface::AttributeTable)
+            ? $table->assertSee('adds a column of your own to every record')
+            : $table->assertDontSee('adds a column of your own to every record');
     });
 
     it('holds a skeleton for the row that is still loading', function (): void {
         CustomField::factory()->ofType('text')->create(['entity_type' => Post::class, 'name' => 'Owner']);
 
-        postFieldsTable()
-            ->assertSeeHtml('fi-cf-attribute-skeleton')
+        $table = postFieldsTable();
+
+        if (! rendersPolished(UiSurface::AttributeTable)) {
+            $table->assertDontSeeHtml('fi-cf-attribute-skeleton');
+
+            return;
+        }
+
+        $table->assertSeeHtml('fi-cf-attribute-skeleton')
             ->assertSeeHtml('wire:target="search"');
     });
 
     it('reads the relationship pairs in a fixed number of queries however many fields there are', function (): void {
+        // The count is read off one render path: both flavors reach the same memoised method
+        // through different views, so this pins the flavor rather than the number.
+        config()->set('custom-fields.ui.flavor', 'polished');
+
         $section = sectionForEntity(Post::class);
 
         $created = 0;

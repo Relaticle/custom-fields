@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use Filament\Forms\Components\Select;
 use Filament\Schemas\Components\Section;
 use Illuminate\Support\ViewErrorBag;
 use Illuminate\View\ComponentAttributeBag;
@@ -50,6 +51,8 @@ function mountedConfigurator(Testable $component): ?RelationshipConfigurator
 
 describe('flavors', function (): void {
     it('frames the record configuration in the polished configurator', function (): void {
+        config()->set('custom-fields.ui.flavor', 'polished');
+
         $configurator = mountedConfigurator(mountRecordField($this->postSection));
 
         expect($configurator)->not->toBeNull()
@@ -123,6 +126,10 @@ describe('create defaults', function (): void {
 });
 
 describe('the cardinality sentence', function (): void {
+    // The sentence is the polished configurator's own reading of the state, so this block
+    // asserts one flavor whichever one the run is configured for.
+    beforeEach(fn () => config()->set('custom-fields.ui.flavor', 'polished'));
+
     it('names both ends in the words the cardinality means', function (string $cardinality, string $sentence): void {
         $component = mountRecordField($this->postSection)
             ->set('mountedActions.0.data.relationship.cardinality', $cardinality);
@@ -151,6 +158,8 @@ describe('the cardinality sentence', function (): void {
 });
 
 describe('polished markup', function (): void {
+    beforeEach(fn () => config()->set('custom-fields.ui.flavor', 'polished'));
+
     it('renders both entity cards, the sync banner and the sentence', function (): void {
         $html = view('custom-fields::flavors.polished.relationship-configurator', [
             'attributes' => new ComponentAttributeBag,
@@ -313,13 +322,13 @@ describe('lifecycle', function (): void {
     it('locks both ends once the definition exists', function (): void {
         $definition = manyToManyComments($this->postSection);
 
-        $component = livewire(ManageCustomField::class, ['field' => $definition->fromField])
+        livewire(ManageCustomField::class, ['field' => $definition->fromField])
             ->mountAction('edit')
-            ->assertSchemaComponentHidden('relationship.is_symmetric');
-
-        $target = mountedConfigurator($component)?->getConfiguredFields()['relationship.target_entity_type'] ?? null;
-
-        expect($target?->isDisabled())->toBeTrue();
+            ->assertSchemaComponentHidden('relationship.is_symmetric')
+            ->assertSchemaComponentExists(
+                'relationship.target_entity_type',
+                checkComponentUsing: fn (Select $component): bool => $component->isDisabled(),
+            );
     });
 });
 
