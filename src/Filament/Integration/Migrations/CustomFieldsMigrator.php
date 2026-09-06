@@ -15,7 +15,6 @@ use Relaticle\CustomFields\Data\CustomFieldSectionData;
 use Relaticle\CustomFields\Data\FieldSlotData;
 use Relaticle\CustomFields\Data\RelationshipDefinitionData;
 use Relaticle\CustomFields\Enums\CustomFieldsFeature;
-use Relaticle\CustomFields\Enums\FieldDataType;
 use Relaticle\CustomFields\Enums\RelationshipCardinality;
 use Relaticle\CustomFields\Exceptions\CustomFieldAlreadyExistsException;
 use Relaticle\CustomFields\Exceptions\CustomFieldDoesNotExistException;
@@ -408,9 +407,9 @@ final class CustomFieldsMigrator
             return;
         }
 
-        if (CustomFieldsType::getFieldType($this->customFieldData->type)?->dataType !== FieldDataType::SINGLE_CHOICE) {
+        if (CustomFieldsType::getFieldType($this->customFieldData->type)?->carriesOptionCategories !== true) {
             throw new InvalidArgumentException(
-                sprintf('Option [%s] carries a category, but [%s] is not a single-choice field.', $option['name'], $code)
+                sprintf('Option [%s] carries a category, but the options of [%s] are not workflow states.', $option['name'], $code)
             );
         }
     }

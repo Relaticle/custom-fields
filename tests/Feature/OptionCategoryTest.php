@@ -18,6 +18,7 @@ use Relaticle\CustomFields\Livewire\ManageCustomField;
 use Relaticle\CustomFields\Livewire\ManageCustomFieldSection;
 use Relaticle\CustomFields\Models\CustomField;
 use Relaticle\CustomFields\Models\CustomFieldSection;
+use Relaticle\CustomFields\Tests\Fixtures\Models\Post;
 use Relaticle\CustomFields\Tests\Fixtures\Models\User;
 use Spatie\LaravelData\Exceptions\CannotCastEnum;
 
@@ -277,7 +278,7 @@ it('seeds categories through the migrator options payload', function (): void {
         fieldData: new CustomFieldData(
             name: 'Stage',
             code: 'stage',
-            type: 'select',
+            type: StatusFieldType::KEY,
         ),
     )->options([
         'Discovery',
@@ -350,20 +351,21 @@ it('keeps stored option settings when a multi-choice option is renamed', functio
         ->and($option->fresh()->settings->category)->toBe(OptionCategory::Completed);
 });
 
-it('rejects a migrator category on a field that is not single choice', function (): void {
+it('rejects a migrator category on a field whose options are not states', function (string $type): void {
     $migrator = app(CustomFieldsMigrator::class)->new(
         model: User::class,
         fieldData: new CustomFieldData(
             name: 'Tags',
             code: 'tags',
-            type: 'multi-select',
+            type: $type,
         ),
     )->options([['name' => 'Closed Won', 'category' => OptionCategory::Completed]]);
 
-    expect(fn (): CustomField => $migrator->create())->toThrow(InvalidArgumentException::class);
+    expect(fn (): CustomField => $migrator->create())
+        ->toThrow(InvalidArgumentException::class, 'the options of [tags] are not workflow states');
 
     expect(CustomFields::newOptionModel()->query()->count())->toBe(0);
-});
+})->with(['select', 'multi-select']);
 
 it('rejects an unknown key in a migrator option array', function (): void {
     $migrator = app(CustomFieldsMigrator::class)->new(
@@ -404,7 +406,7 @@ it('applies categories when the migrator updates an existing field', function ()
         fieldData: new CustomFieldData(
             name: 'Stage',
             code: 'stage',
-            type: 'select',
+            type: StatusFieldType::KEY,
             section: new CustomFieldSectionData(name: 'Pipeline', code: 'pipeline'),
         ),
     )->options(['Discovery', 'Closed Won'])->create();
@@ -420,4 +422,34 @@ it('applies categories when the migrator updates an existing field', function ()
     $field = CustomField::query()->withoutGlobalScopes()->where('code', 'stage')->firstOrFail();
 
     expect($field->options->pluck('settings.category')->all())->toBe([null, OptionCategory::Completed]);
+});
+
+it('keeps the options, their ids and a stored value when a select becomes a status field', function (): void {
+    app(CustomFieldsMigrator::class)->new(
+        model: Post::class,
+        fieldData: new CustomFieldData(
+            name: 'Stage',
+            code: 'stage',
+            type: 'select',
+            section: new CustomFieldSectionData(name: 'Pipeline', code: 'pipeline'),
+        ),
+    )->options(['Discovery', 'Closed Won'])->create();
+
+    $field = CustomField::query()->withoutGlobalScopes()->where('code', 'stage')->firstOrFail();
+    $optionIds = $field->options()->orderBy('sort_order')->pluck('id')->all();
+    $closedWon = $field->options()->where('name', 'Closed Won')->sole();
+
+    $post = Post::factory()->create();
+    $post->saveCustomFieldValue($field, (string) $closedWon->getKey());
+
+    app(CustomFieldsMigrator::class)->find(Post::class, 'stage')->update(['type' => StatusFieldType::KEY]);
+    $closedWon->update(['settings' => ['category' => OptionCategory::Completed->value]]);
+
+    $converted = CustomField::query()->withoutGlobalScopes()->where('code', 'stage')->firstOrFail();
+
+    expect($converted->type)->toBe(StatusFieldType::KEY)
+        ->and($converted->options()->orderBy('sort_order')->pluck('id')->all())->toEqual($optionIds)
+        ->and($post->fresh()->getCustomFieldValue($converted))->toEqual($closedWon->getKey())
+        ->and($converted->optionsInCategory(OptionCategory::Completed)->pluck('name')->all())->toBe(['Closed Won'])
+        ->and(mountedOptionsRepeater($converted)['categorySelects'])->toHaveCount(2);
 });
