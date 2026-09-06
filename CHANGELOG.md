@@ -2,28 +2,6 @@
 
 All notable changes to `custom-fields` will be documented in this file.
 
-## Unreleased
-
-Everything below ships in 4.0.
-
-### Option categories (additive)
-
-Every option of a single-choice field can carry a category from a closed vocabulary
-(`unstarted`, `started`, `completed`, `cancelled`) on `settings.category`, so consumers
-stop matching option labels and survive a rename or a translation. `completed` and
-`cancelled` are terminal, named by `OptionCategory::isTerminal()`.
-
-Read it with `CustomField::optionsInCategory()` or the `whereCategory()` scope on the
-option model, set it in the options repeater, and seed it by passing
-`['name' => 'Closed Won', 'category' => OptionCategory::Completed]` to the migrator's
-`options()`. Plain option-name strings keep working there.
-
-Nothing is required to upgrade. There is no migration and no backfill: every existing
-option starts with no category, which reads as unknown, never as "not done". The
-`FIELD_OPTION_CATEGORIES` flag ships enabled and only adds the editor column, so it can be
-turned off without losing stored categories. Full documentation: Essentials, Option
-Categories.
-
 ## v3.9.0 - 2026-08-28
 
 <!-- Release notes generated using configuration in .github/release.yml at 3.x -->

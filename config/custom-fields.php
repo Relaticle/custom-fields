@@ -74,8 +74,8 @@ return [
             // Sections stay full width too, with one exception: a preset migration that
             // passed a width stored it even while this was off, and it now applies.
             CustomFieldsFeature::UI_SECTION_WIDTH_CONTROL,
-            // New at 4.0: adds a category column to single-choice options; every option
-            // starts uncategorised, so nothing reads differently until one is set.
+            // Adds a category column to single-choice options; every option starts
+            // uncategorised, so nothing reads differently until one is set.
             CustomFieldsFeature::FIELD_OPTION_CATEGORIES,
             // New at 4.0: creates the relationship definitions and the edge ledger that record
             // fields store their links in. Off means no record field can be created at all.
