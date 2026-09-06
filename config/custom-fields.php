@@ -64,14 +64,15 @@ return [
             CustomFieldsFeature::SYSTEM_MANAGEMENT_INTERFACE,
             CustomFieldsFeature::SYSTEM_SECTIONS,
 
-            // Turned on at 4.0, each one a no-op for the fields you already have:
-            // a field with no rules validates as before,
+            // Turned on at 4.0. Three change nothing about what you already store: a
+            // field with no rules validates as before,
             CustomFieldsFeature::FIELD_VALIDATION_RULES,
             // an unset position still renders the description below the input,
             CustomFieldsFeature::FIELD_DESCRIPTION_POSITION,
-            // a section with no conditions renders on every record,
+            // and a section with no conditions renders on every record.
             CustomFieldsFeature::SECTION_CONDITIONAL_VISIBILITY,
-            // and every existing section is already the full row width.
+            // Sections stay full width too, with one exception: a preset migration that
+            // passed a width stored it even while this was off, and it now applies.
             CustomFieldsFeature::UI_SECTION_WIDTH_CONTROL,
         )
         ->disable(
