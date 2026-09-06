@@ -60,10 +60,10 @@ function nullGet(): Get
 
 function availableFields(VisibilityComponent $component): array
 {
-    $method = new ReflectionMethod($component, 'getAvailableFields');
-    $method->setAccessible(true);
+    $property = new ReflectionProperty($component, 'conditionOptions');
+    $property->setAccessible(true);
 
-    return $method->invoke($component, nullGet());
+    return $property->getValue($component)->getAvailableFields(nullGet());
 }
 
 /**
