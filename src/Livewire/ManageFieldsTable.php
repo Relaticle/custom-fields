@@ -52,6 +52,9 @@ final class ManageFieldsTable extends Component implements HasActions, HasForms
         return $this->getFieldsQuery()->where('active', false)->get();
     }
 
+    /**
+     * @return Builder<CustomField>
+     */
     private function getFieldsQuery(): Builder
     {
         return CustomFields::newCustomFieldModel()

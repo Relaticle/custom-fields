@@ -62,7 +62,7 @@ final class CustomFields
     /**
      * Get a new instance of the custom field model.
      */
-    public static function newCustomFieldModel(): mixed
+    public static function newCustomFieldModel(): CustomField
     {
         $model = self::customFieldModel();
 
@@ -92,7 +92,7 @@ final class CustomFields
     /**
      * Get a new instance of the custom field value model.
      */
-    public static function newValueModel(): mixed
+    public static function newValueModel(): CustomFieldValue
     {
         $model = self::valueModel();
 
@@ -122,7 +122,7 @@ final class CustomFields
     /**
      * Get a new instance of the custom field option model.
      */
-    public static function newOptionModel(): mixed
+    public static function newOptionModel(): CustomFieldOption
     {
         $model = self::optionModel();
 
@@ -159,7 +159,7 @@ final class CustomFields
     /**
      * Get a new instance of the custom field section model.
      */
-    public static function newSectionModel(): mixed
+    public static function newSectionModel(): CustomFieldSection
     {
         $model = self::sectionModel();
 

@@ -24,6 +24,7 @@ use Relaticle\CustomFields\Enums\CustomFieldsFeature;
 use Relaticle\CustomFields\Facades\Entities;
 use Relaticle\CustomFields\FeatureSystem\FeatureManager;
 use Relaticle\CustomFields\Filament\Management\Schemas\SectionForm;
+use Relaticle\CustomFields\Models\CustomField;
 use Relaticle\CustomFields\Models\CustomFieldSection;
 use Relaticle\CustomFields\Services\TenantContextService;
 use Relaticle\CustomFields\Support\CodeGenerator;
@@ -67,17 +68,20 @@ class CustomFieldsManagementPage extends Page
             return collect();
         }
 
-        return CustomFieldsModel::newSectionModel()->query()
-            ->withDeactivated()
+        return CustomFieldsModel::newSectionModel()::withDeactivated()
             ->forEntityType($this->currentEntityType)
-            ->with([
-                'fields' => function (HasMany $query): void {
-                    $query->forMorphEntity($this->currentEntityType)
-                        ->orderBy('sort_order');
-                },
-            ])
+            ->with(['fields' => $this->orderFieldsOfCurrentEntity(...)])
             ->orderBy('sort_order')
             ->get();
+    }
+
+    /**
+     * @param  HasMany<CustomField, CustomFieldSection>  $query
+     */
+    private function orderFieldsOfCurrentEntity(HasMany $query): void
+    {
+        $query->forMorphEntity($this->currentEntityType)
+            ->orderBy('sort_order');
     }
 
     #[Computed]
@@ -166,8 +170,7 @@ class CustomFieldsManagementPage extends Page
         $sectionModel = CustomFieldsModel::newSectionModel();
 
         foreach ($sections as $index => $section) {
-            $sectionModel->query()
-                ->withDeactivated()
+            $sectionModel::withDeactivated()
                 ->where($sectionModel->getKeyName(), $section)
                 ->update([
                     'sort_order' => $index,
@@ -198,7 +201,7 @@ class CustomFieldsManagementPage extends Page
     #[On('section-deleted')]
     public function sectionDeleted(): void
     {
-        $this->sections = $this->sections->filter(fn (CustomFieldSection $section): bool => $section->exists);
+        unset($this->sections);
     }
 
     #[Override]

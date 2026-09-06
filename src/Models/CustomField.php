@@ -44,6 +44,7 @@ use Relaticle\CustomFields\QueryBuilders\CustomFieldQueryBuilder;
  * @property bool $system_defined
  * @property FieldTypeData $typeData
  * @property CustomFieldWidth $width
+ * @property-read ?CustomFieldSection $section
  *
  * @method static CustomFieldQueryBuilder<CustomField> query()
  * @method static CustomFieldQueryBuilder<CustomField> where($column, $operator = null, $value = null, $boolean = 'and')

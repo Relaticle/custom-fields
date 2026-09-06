@@ -15,7 +15,6 @@ use Filament\Notifications\Notification;
 use Filament\Support\Enums\Size;
 use Filament\Support\Enums\Width;
 use Illuminate\Contracts\View\View;
-use Illuminate\Database\Eloquent\Model;
 use Livewire\Component;
 use Relaticle\CustomFields\CustomFields;
 use Relaticle\CustomFields\CustomFieldsPlugin;
@@ -23,6 +22,7 @@ use Relaticle\CustomFields\Filament\Management\Schemas\FieldForm;
 use Relaticle\CustomFields\Filament\Management\Schemas\SectionForm;
 use Relaticle\CustomFields\Livewire\Concerns\CreatesCustomFields;
 use Relaticle\CustomFields\Livewire\Concerns\ManagesFields;
+use Relaticle\CustomFields\Models\CustomField;
 use Relaticle\CustomFields\Models\CustomFieldSection;
 
 final class ManageCustomFieldSection extends Component implements HasActions, HasForms
@@ -80,7 +80,7 @@ final class ManageCustomFieldSection extends Component implements HasActions, Ha
     /**
      * @param  array<int, int|string>  $fieldIds
      */
-    private function fieldsHaveDuplicateCode(Model $model, array $fieldIds): bool
+    private function fieldsHaveDuplicateCode(CustomField $model, array $fieldIds): bool
     {
         return $model->query()
             ->withDeactivated()
