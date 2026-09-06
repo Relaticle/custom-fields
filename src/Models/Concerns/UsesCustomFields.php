@@ -290,13 +290,13 @@ trait UsesCustomFields
     }
 
     /**
-     * The feature flag is the write fork: a host that turns it off keeps writing record
-     * values the way 3.x did, even where the definitions it once migrated still resolve.
+     * A definition is the write fork, exactly as it already is for reads: no definition can
+     * exist without the tables it lives in, so a host that never enabled the feature keeps
+     * writing value rows either way.
      */
     protected function writesLinksFor(CustomField $customField): bool
     {
-        return FeatureManager::isEnabled(CustomFieldsFeature::SYSTEM_RELATIONSHIPS)
-            && $customField->relationshipDefinition() instanceof CustomFieldRelationship;
+        return $customField->relationshipDefinition() instanceof CustomFieldRelationship;
     }
 
     /**

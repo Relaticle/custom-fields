@@ -100,17 +100,35 @@ it('leaves the edges alone when the payload omits the record field', function ()
     expect(activeTargetIds())->toBe([$user->getKey()]);
 });
 
-it('keeps record fields on the value row while the relationships feature is off', function (): void {
+it('writes links for a record field with a definition even while the relationships feature is off', function (): void {
     $definition = writePathAuthorship();
     $code = $definition->fromField->code;
     $user = User::factory()->create();
 
     config('custom-fields.features')->disable(CustomFieldsFeature::SYSTEM_RELATIONSHIPS);
 
-    Post::factory()->create(['custom_fields' => [$code => [$user->getKey()]]]);
+    $post = Post::factory()->create(['custom_fields' => [$code => [$user->getKey()]]]);
+
+    expect(activeTargetIds())->toBe([$user->getKey()])
+        ->and(CustomFieldValue::query()->where('custom_field_id', $definition->from_field_id)->count())->toBe(0)
+        ->and($post->refresh()->getCustomFieldValue($definition->fromField))->toBe([$user->getKey()]);
+});
+
+it('keeps an undefined record field on the value row while the relationships feature is off', function (): void {
+    $field = CustomField::factory()->create([
+        'code' => 'write_path_unbound',
+        'type' => 'record',
+        'entity_type' => (new Post)->getMorphClass(),
+        'custom_field_section_id' => sectionForEntity((new Post)->getMorphClass())->getKey(),
+    ]);
+    $user = User::factory()->create();
+
+    config('custom-fields.features')->disable(CustomFieldsFeature::SYSTEM_RELATIONSHIPS);
+
+    Post::factory()->create(['custom_fields' => [$field->code => [$user->getKey()]]]);
 
     expect(CustomFieldLink::query()->count())->toBe(0)
-        ->and(CustomFieldValue::query()->where('custom_field_id', $definition->from_field_id)->count())->toBe(1);
+        ->and(CustomFieldValue::query()->where('custom_field_id', $field->getKey())->count())->toBe(1);
 });
 
 it('stamps the definition tenant on links written through the trait', function (): void {

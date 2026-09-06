@@ -194,9 +194,9 @@ class CustomField extends Model
         }
 
         return once(function () use ($key): ?CustomFieldRelationship {
-            // The feature flag gates the two migrations and the write fork, not what a field
-            // can read: a host that turns it off after migrating still has definitions to
-            // find, and one that never migrated has no table to look in.
+            // The feature flag gates the two migrations and the lookup_type drop, not what a
+            // field can read or write: a host that turns it off after migrating still has
+            // definitions to find, and one that never migrated has no table to look in.
             if (! Schema::hasTable((string) config('custom-fields.database.table_names.custom_field_relationships'))) {
                 return null;
             }

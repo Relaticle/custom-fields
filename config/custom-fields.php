@@ -77,8 +77,9 @@ return [
             // Adds a category column to single-choice options; every option starts
             // uncategorised, so nothing reads differently until one is set.
             CustomFieldsFeature::FIELD_OPTION_CATEGORIES,
-            // New at 4.0: creates the relationship definitions table and the edge ledger.
-            // Off means neither migration runs, so no relationship storage exists.
+            // New at 4.0: gates the two relationship migrations and the lookup_type drop
+            // only. Off means no relationship storage exists; it never changes how a
+            // record field that already has a definition is read or written.
             CustomFieldsFeature::SYSTEM_RELATIONSHIPS,
         )
         ->disable(
