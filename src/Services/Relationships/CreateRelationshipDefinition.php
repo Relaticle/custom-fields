@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Relaticle\CustomFields\Services\Relationships;
 
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Support\Facades\DB;
 use InvalidArgumentException;
 use Relaticle\CustomFields\CustomFields;
@@ -55,6 +57,9 @@ final readonly class CreateRelationshipDefinition
 
     private function assertDefinable(RelationshipDefinitionData $data): void
     {
+        $this->assertEndResolves($data->fromEntityType, $data->code);
+        $this->assertEndResolves($data->toEntityType, $data->code);
+
         if ($data->isSymmetric && $data->fromEntityType !== $data->toEntityType) {
             throw new InvalidArgumentException('A symmetric relationship requires matching entity types.');
         }
@@ -70,6 +75,21 @@ final readonly class CreateRelationshipDefinition
         if ($this->codeIsTaken($data->code)) {
             throw new InvalidArgumentException(sprintf('A relationship with the code [%s] already exists.', $data->code));
         }
+    }
+
+    /**
+     * Ends are locked once a definition exists, so an unusable one is rejected here rather
+     * than at the first write. The resolution mirrors the writer's.
+     */
+    private function assertEndResolves(string $entityType, string $code): void
+    {
+        $entityClass = Relation::getMorphedModel($entityType) ?? $entityType;
+
+        if (class_exists($entityClass) && is_subclass_of($entityClass, Model::class)) {
+            return;
+        }
+
+        throw new InvalidArgumentException(sprintf('A relationship cannot end on the unresolvable entity type [%s] (relationship [%s]).', $entityType, $code));
     }
 
     private function codeIsTaken(string $code): bool

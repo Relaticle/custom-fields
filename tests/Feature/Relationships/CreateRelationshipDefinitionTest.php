@@ -129,6 +129,15 @@ it('writes no field when the definition is rejected', function (): void {
         ->and(CustomFieldRelationship::query()->count())->toBe(0);
 });
 
+it('rejects an end that resolves to no model', function (): void {
+    app(CreateRelationshipDefinition::class)->execute(new RelationshipDefinitionData(
+        code: 'authorship',
+        fromEntityType: (new Post)->getMorphClass(),
+        toEntityType: 'acme_ghosts',
+        cardinality: RelationshipCardinality::ManyToOne,
+    ));
+})->throws(InvalidArgumentException::class);
+
 it('rejects a code already used by another definition', function (): void {
     authorship();
 

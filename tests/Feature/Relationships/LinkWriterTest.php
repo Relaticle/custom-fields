@@ -54,7 +54,7 @@ it('adds, keeps, and removes links from a diff', function (): void {
 
     app(LinkWriter::class)->apply($post, $definition->fromField, [$b->getKey(), $c->getKey()]);
 
-    expect(CustomFieldLink::query()->active()->pluck('to_entity_id')->map(intval(...))->all())
+    expect(CustomFieldLink::query()->active()->orderBy('sort_order')->pluck('to_entity_id')->map(intval(...))->all())
         ->toBe([$b->getKey(), $c->getKey()])
         ->and(CustomFieldLink::query()->count())->toBe(3)
         ->and($kept->refresh()->active_until)->toBeNull()
@@ -148,8 +148,9 @@ it('canonicalizes a symmetric edge to one row read from both records', function 
     $link = CustomFieldLink::query()->sole();
 
     expect(CustomFieldLink::query()->count())->toBe(1)
+        ->and(strcmp((string) $link->from_entity_id, (string) $link->to_entity_id))->toBeLessThanOrEqual(0)
         ->and([(string) $link->from_entity_id, (string) $link->to_entity_id])
-        ->toBe([(string) min($a->getKey(), $b->getKey()), (string) max($a->getKey(), $b->getKey())]);
+        ->toEqualCanonicalizing([(string) $a->getKey(), (string) $b->getKey()]);
 });
 
 it('steals a taken symmetric end from either side', function (): void {
