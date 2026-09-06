@@ -124,6 +124,32 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | UI Flavor
+    |--------------------------------------------------------------------------
+    |
+    | Five surfaces have no Filament primitive behind them, so each ships in two
+    | presentations: 'polished' renders the package's own Blade views, 'native'
+    | renders stock Filament markup from the same Livewire classes. Only views fork,
+    | never the logic underneath, which is what keeps a second presentation cheap
+    | enough to carry.
+    |
+    | Polished is the default because it is the experience the package is designed
+    | around. Switch the whole panel with 'flavor', or name single surfaces in
+    | 'flavor_overrides'. The only accepted keys there are the five forked surfaces:
+    | relationship-configurator, record-chips, record-picker, type-picker, and
+    | attribute-table. Anything else throws rather than falling back silently.
+    |
+    */
+    'ui' => [
+        'flavor' => 'polished',
+
+        'flavor_overrides' => [
+            // 'attribute-table' => 'native',
+        ],
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
     | Field Settings
     |--------------------------------------------------------------------------
     |

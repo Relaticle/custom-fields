@@ -19,9 +19,11 @@ use Livewire\Attributes\Computed;
 use Livewire\Attributes\On;
 use Livewire\Component;
 use Relaticle\CustomFields\CustomFields;
+use Relaticle\CustomFields\Enums\UiSurface;
 use Relaticle\CustomFields\Filament\Management\Schemas\FieldForm;
 use Relaticle\CustomFields\Livewire\Concerns\ManagesCustomFields;
 use Relaticle\CustomFields\Models\CustomField;
+use Relaticle\CustomFields\Support\ViewFlavor;
 
 /**
  * Livewire component for managing custom fields in a flat table layout.
@@ -201,6 +203,8 @@ final class ManageFieldsTable extends Component implements HasActions, HasForms
 
     public function render(): View
     {
-        return ViewFactory::make('custom-fields::livewire.manage-fields-table');
+        return ViewFactory::make(
+            ViewFlavor::view(UiSurface::AttributeTable) ?? 'custom-fields::livewire.manage-fields-table'
+        );
     }
 }
