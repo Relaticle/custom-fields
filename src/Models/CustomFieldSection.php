@@ -28,7 +28,6 @@ use Relaticle\CustomFields\Observers\CustomFieldSectionObserver;
  * @property CustomFieldSectionType $type
  * @property CustomFieldWidth $width
  * @property string $entity_type
- * @property ?string $lookup_type
  * @property CustomFieldSectionSettingsData $settings
  * @property int $sort_order
  * @property bool $active

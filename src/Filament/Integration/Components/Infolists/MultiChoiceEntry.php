@@ -59,7 +59,7 @@ final class MultiChoiceEntry extends AbstractInfolistEntry
     {
         if (! FeatureManager::isEnabled(CustomFieldsFeature::FIELD_OPTION_COLORS)
             || ! $customField->settings->enable_option_colors
-            || $customField->lookup_type) {
+            || $customField->typeData->requiresRelationship) {
             return [];
         }
 

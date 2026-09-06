@@ -3,9 +3,13 @@
 declare(strict_types=1);
 
 use Illuminate\Support\Facades\DB;
+use Relaticle\CustomFields\Data\CustomFieldData;
+use Relaticle\CustomFields\Data\CustomFieldSectionData;
+use Relaticle\CustomFields\Data\CustomFieldSettingsData;
 use Relaticle\CustomFields\Data\FieldSlotData;
 use Relaticle\CustomFields\Data\RelationshipDefinitionData;
 use Relaticle\CustomFields\Enums\RelationshipCardinality;
+use Relaticle\CustomFields\Filament\Integration\Migrations\CustomFieldsMigrator;
 use Relaticle\CustomFields\Models\CustomField;
 use Relaticle\CustomFields\Models\CustomFieldLink;
 use Relaticle\CustomFields\Models\CustomFieldRelationship;
@@ -274,3 +278,142 @@ it('stamps the tenant on the definition and both slot fields', function (): void
     fn (): bool => DB::connection()->getDriverName() === 'mysql',
     'MySQL commits DDL implicitly, so the added tenant columns would outlive the test transaction.',
 );
+
+describe('adopting a field the caller already wrote', function (): void {
+    it('wraps an existing record field as the slot instead of creating one', function (): void {
+        $field = CustomField::factory()->create([
+            'code' => 'mentor',
+            'name' => 'Mentor',
+            'type' => 'record',
+            'entity_type' => (new User)->getMorphClass(),
+            'custom_field_section_id' => sectionForEntity((new User)->getMorphClass())->getKey(),
+        ]);
+
+        $definition = app(CreateRelationshipDefinition::class)->execute(new RelationshipDefinitionData(
+            code: 'mentorship',
+            fromEntityType: (new User)->getMorphClass(),
+            toEntityType: (new User)->getMorphClass(),
+            cardinality: RelationshipCardinality::ManyToOne,
+            fromField: new FieldSlotData(name: 'Mentor', fieldId: $field->getKey()),
+        ));
+
+        expect($definition->from_field_id)->toBe($field->getKey())
+            ->and(CustomField::query()->count())->toBe(1);
+    });
+
+    it('refuses a field that is not a record field', function (): void {
+        $field = CustomField::factory()->create([
+            'code' => 'stage',
+            'type' => 'select',
+            'entity_type' => (new User)->getMorphClass(),
+            'custom_field_section_id' => sectionForEntity((new User)->getMorphClass())->getKey(),
+        ]);
+
+        app(CreateRelationshipDefinition::class)->execute(new RelationshipDefinitionData(
+            code: 'mentorship',
+            fromEntityType: (new User)->getMorphClass(),
+            toEntityType: (new User)->getMorphClass(),
+            cardinality: RelationshipCardinality::ManyToOne,
+            fromField: new FieldSlotData(name: 'Stage', fieldId: $field->getKey()),
+        ));
+    })->throws(InvalidArgumentException::class);
+
+    it('refuses a field that sits on the other entity', function (): void {
+        $field = CustomField::factory()->create([
+            'code' => 'mentor',
+            'type' => 'record',
+            'entity_type' => (new Post)->getMorphClass(),
+            'custom_field_section_id' => sectionForEntity((new Post)->getMorphClass())->getKey(),
+        ]);
+
+        app(CreateRelationshipDefinition::class)->execute(new RelationshipDefinitionData(
+            code: 'mentorship',
+            fromEntityType: (new User)->getMorphClass(),
+            toEntityType: (new User)->getMorphClass(),
+            cardinality: RelationshipCardinality::ManyToOne,
+            fromField: new FieldSlotData(name: 'Mentor', fieldId: $field->getKey()),
+        ));
+    })->throws(InvalidArgumentException::class);
+
+    it('refuses a field that already renders a relationship', function (): void {
+        $definition = authorship();
+
+        app(CreateRelationshipDefinition::class)->execute(new RelationshipDefinitionData(
+            code: 'second_authorship',
+            fromEntityType: (new Post)->getMorphClass(),
+            toEntityType: (new User)->getMorphClass(),
+            cardinality: RelationshipCardinality::ManyToOne,
+            fromField: new FieldSlotData(name: 'Author', fieldId: $definition->from_field_id),
+        ));
+    })->throws(InvalidArgumentException::class);
+});
+
+describe('preset migrations', function (): void {
+    it('gives a record field a one-way definition instead of a lookup column', function (): void {
+        app(CustomFieldsMigrator::class)->new(
+            model: Post::class,
+            fieldData: new CustomFieldData(
+                name: 'Sales Representative',
+                code: 'sales_rep',
+                type: 'record',
+                section: new CustomFieldSectionData(name: 'Sales', code: 'sales'),
+            ),
+        )->lookupType(User::class)->create();
+
+        $definition = CustomFieldRelationship::query()->sole();
+
+        expect($definition->from_entity_type)->toBe((new Post)->getMorphClass())
+            ->and($definition->to_entity_type)->toBe((new User)->getMorphClass())
+            ->and($definition->cardinality)->toBe(RelationshipCardinality::ManyToOne)
+            ->and($definition->fromField->code)->toBe('sales_rep')
+            ->and($definition->to_field_id)->toBeNull();
+    });
+
+    it('reads allow_multiple once, to pick the cardinality', function (): void {
+        app(CustomFieldsMigrator::class)->new(
+            model: Post::class,
+            fieldData: new CustomFieldData(
+                name: 'Reviewers',
+                code: 'reviewers',
+                type: 'record',
+                section: new CustomFieldSectionData(name: 'Sales', code: 'sales'),
+                settings: new CustomFieldSettingsData(allow_multiple: true),
+            ),
+        )->lookupType(User::class)->create();
+
+        expect(CustomFieldRelationship::query()->sole()->cardinality)
+            ->toBe(RelationshipCardinality::ManyToMany);
+    });
+
+    it('takes an explicit cardinality over the settings flag', function (): void {
+        app(CustomFieldsMigrator::class)->new(
+            model: Post::class,
+            fieldData: new CustomFieldData(
+                name: 'Owner',
+                code: 'owner',
+                type: 'record',
+                section: new CustomFieldSectionData(name: 'Sales', code: 'sales'),
+                settings: new CustomFieldSettingsData(allow_multiple: true),
+            ),
+        )->lookupType(User::class, RelationshipCardinality::OneToOne)->create();
+
+        expect(CustomFieldRelationship::query()->sole()->cardinality)
+            ->toBe(RelationshipCardinality::OneToOne);
+    });
+
+    it('refuses to move the ends of a field it already created', function (): void {
+        app(CustomFieldsMigrator::class)->new(
+            model: Post::class,
+            fieldData: new CustomFieldData(
+                name: 'Sales Representative',
+                code: 'sales_rep',
+                type: 'record',
+                section: new CustomFieldSectionData(name: 'Sales', code: 'sales'),
+            ),
+        )->lookupType(User::class)->create();
+
+        app(CustomFieldsMigrator::class)
+            ->find(Post::class, 'sales_rep')
+            ->update(['lookup_type' => (new Post)->getMorphClass()]);
+    })->throws(InvalidArgumentException::class);
+});

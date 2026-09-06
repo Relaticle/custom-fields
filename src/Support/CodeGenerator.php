@@ -75,6 +75,23 @@ final class CodeGenerator
     }
 
     /**
+     * Generate a unique code for a relationship definition, whose codes are unique per tenant
+     * rather than per entity type.
+     */
+    public static function generateUniqueRelationshipCode(string $baseCode): string
+    {
+        $code = $baseCode;
+        $counter = 1;
+
+        while (CustomFields::newRelationshipModel()->newQuery()->where('code', $code)->exists()) {
+            $code = sprintf('%s_%d', $baseCode, $counter);
+            $counter++;
+        }
+
+        return $code;
+    }
+
+    /**
      * Check if a code already exists and append a counter if needed.
      */
     private static function ensureUniqueCode(

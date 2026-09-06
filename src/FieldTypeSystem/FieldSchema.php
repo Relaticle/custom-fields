@@ -148,7 +148,7 @@ final class FieldSchema
             filterable: $this->filterable,
             encryptable: $this->encryptable,
             withoutUserOptions: $this->withoutUserOptions,
-            requiresLookupType: $this->requiresLookupType,
+            requiresRelationship: $this->requiresRelationship,
             acceptsArbitraryValues: $this->acceptsArbitraryValues,
             supportsMultiValue: $this->supportsMultiValue,
             supportsUniqueConstraint: $this->supportsUniqueConstraint,

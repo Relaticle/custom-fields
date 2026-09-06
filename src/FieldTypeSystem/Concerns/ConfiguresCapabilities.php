@@ -24,7 +24,7 @@ trait ConfiguresCapabilities
 
     private bool $withoutUserOptions = false;
 
-    private bool $requiresLookupType = false;
+    private bool $requiresRelationship = false;
 
     /** @var array<int, VisibilityOperator>|null */
     private ?array $visibilityOperators = null;
@@ -151,12 +151,12 @@ trait ConfiguresCapabilities
     }
 
     /**
-     * Field requires lookup_type selection (entity type selector)
-     * This shows the entity selector directly without the options toggle
+     * Field points at records of another entity, configured by a relationship definition
+     * rather than by the user-defined options UI.
      */
-    public function requiresLookupType(bool $requires = true): self
+    public function requiresRelationship(bool $requires = true): self
     {
-        $this->requiresLookupType = $requires;
+        $this->requiresRelationship = $requires;
 
         return $this;
     }

@@ -11,6 +11,7 @@ use Relaticle\CustomFields\FeatureSystem\FeatureManager;
 use Relaticle\CustomFields\Models\CustomField;
 use Relaticle\CustomFields\Models\CustomFieldRelationship;
 use Relaticle\CustomFields\Models\Scopes\TenantScope;
+use Relaticle\CustomFields\Support\CodeGenerator;
 
 final readonly class DeleteRelationshipDefinition
 {
@@ -75,7 +76,7 @@ final readonly class DeleteRelationshipDefinition
         $holdsToSlot = $definition->is_symmetric || $direction === CustomFieldRelationship::DIRECTION_TO;
 
         $attributes = [
-            'code' => $this->availableCode($field->code),
+            'code' => CodeGenerator::generateUniqueRelationshipCode($field->code),
             'from_entity_type' => $definition->from_entity_type,
             'to_entity_type' => $definition->to_entity_type,
             'cardinality' => $definition->cardinality,
@@ -90,22 +91,5 @@ final readonly class DeleteRelationshipDefinition
         }
 
         CustomFields::newRelationshipModel()->newQuery()->create($attributes);
-    }
-
-    /**
-     * Definition codes are unique per tenant, not per entity type, so two kept slots can
-     * arrive with the same field code.
-     */
-    private function availableCode(string $code): string
-    {
-        $candidate = $code;
-        $suffix = 1;
-
-        while (CustomFields::newRelationshipModel()->newQuery()->where('code', $candidate)->exists()) {
-            $candidate = sprintf('%s_%d', $code, $suffix);
-            $suffix++;
-        }
-
-        return $candidate;
     }
 }

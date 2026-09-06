@@ -253,7 +253,7 @@ final class FieldForm implements FormInterface
                 fn (Get $get): bool => $get('type') !== null
                     && CustomFieldsType::getFieldType($get('type'))->dataType->isChoiceField()
                     && ! CustomFieldsType::getFieldType($get('type'))->withoutUserOptions
-                    && ! CustomFieldsType::getFieldType($get('type'))->requiresLookupType
+                    && ! CustomFieldsType::getFieldType($get('type'))->requiresRelationship
             )
             ->mutateRelationshipDataBeforeCreateUsing(function (
                 array $data
@@ -572,7 +572,7 @@ final class FieldForm implements FormInterface
 
                             return FeatureManager::isEnabled(CustomFieldsFeature::FIELD_MULTI_VALUE) &&
                                 $fieldType?->supportsMultiValue === true &&
-                                $fieldType->requiresLookupType !== true &&
+                                $fieldType->requiresRelationship !== true &&
                                 $get('settings.allow_multiple') === true;
                         }),
                     // Uniqueness constraint
@@ -601,7 +601,7 @@ final class FieldForm implements FormInterface
             ->label(__('custom-fields::custom-fields.field.form.lookup_type.label'))
             ->visible(
                 fn (Get $get): bool => $get('type') !== null
-                    && CustomFieldsType::getFieldType($get('type'))?->requiresLookupType === true
+                    && CustomFieldsType::getFieldType($get('type'))?->requiresRelationship === true
             )
             ->disabled(fn (?CustomField $record): bool => (bool) $record?->exists)
             ->options(Entities::getLookupOptions())

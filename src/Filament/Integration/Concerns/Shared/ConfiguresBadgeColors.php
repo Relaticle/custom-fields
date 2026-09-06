@@ -66,6 +66,6 @@ trait ConfiguresBadgeColors
     {
         return FeatureManager::isEnabled(CustomFieldsFeature::FIELD_OPTION_COLORS)
             && $customField->settings->enable_option_colors
-            && ! $customField->lookup_type;
+            && ! $customField->typeData->requiresRelationship;
     }
 }

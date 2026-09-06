@@ -10,7 +10,9 @@ namespace Relaticle\CustomFields\Filament\Integration\Support\Imports;
 use Carbon\CarbonImmutable;
 use Closure;
 use Filament\Actions\Imports\ImportColumn;
+use InvalidArgumentException;
 use Relaticle\CustomFields\CustomFields;
+use Relaticle\CustomFields\Data\EntityConfigurationData;
 use Relaticle\CustomFields\Enums\FieldDataType;
 use Relaticle\CustomFields\Facades\CustomFieldsType;
 use Relaticle\CustomFields\Facades\Entities;
@@ -87,7 +89,7 @@ final class ImportColumnConfigurator
     private function configureSingleChoice(ImportColumn $column, CustomField $customField): void
     {
         // Lookup fields (Record type) handle entity references
-        if ($customField->typeData->requiresLookupType) {
+        if ($customField->typeData->requiresRelationship) {
             $this->configureLookup($column, $customField, false);
         } else {
             $this->configureChoices($column, $customField, false);
@@ -118,7 +120,7 @@ final class ImportColumnConfigurator
 
             $column->example('tag1, tag2, tag3');
             $column->helperText(__('custom-fields::custom-fields.import.multi_value_helper'));
-        } elseif ($customField->typeData->requiresLookupType) {
+        } elseif ($customField->typeData->requiresRelationship) {
             // Lookup fields (Record type) handle entity references
             $this->configureLookup($column, $customField, true);
         } else {
@@ -154,7 +156,7 @@ final class ImportColumnConfigurator
     private function resolveLookupValue(CustomField $customField, mixed $value): int|UnresolvedValue
     {
         try {
-            $entity = Entities::getEntity($customField->lookup_type);
+            $entity = $this->targetEntity($customField);
             $modelInstance = $entity->createModelInstance();
             $primaryAttribute = $entity->getPrimaryAttribute();
 
@@ -224,9 +226,23 @@ final class ImportColumnConfigurator
 
     private function lookupRecordLabel(CustomField $customField): string
     {
-        return filled($customField->lookup_type)
-            ? $customField->lookup_type.' record'
-            : 'record';
+        $entityType = $customField->targetEntityType();
+
+        return $entityType === null
+            ? 'record'
+            : $entityType.' record';
+    }
+
+    /**
+     * The entity a record field points at. Both callers translate the failure into an
+     * unresolved value or a generic example, so an unusable field never aborts the import.
+     */
+    private function targetEntity(CustomField $customField): EntityConfigurationData
+    {
+        $entityType = $customField->targetEntityType();
+        $entity = $entityType === null ? null : Entities::getEntity($entityType);
+
+        return $entity ?? throw new InvalidArgumentException(sprintf('Record field [%s] points at no entity.', $customField->code));
     }
 
     /**
@@ -460,7 +476,7 @@ final class ImportColumnConfigurator
     private function setLookupExamples(ImportColumn $column, CustomField $customField, bool $multiple): void
     {
         try {
-            $entity = Entities::getEntity($customField->lookup_type);
+            $entity = $this->targetEntity($customField);
             $modelInstance = $entity->createModelInstance();
             $primaryAttribute = $entity->getPrimaryAttribute();
 

@@ -2,8 +2,11 @@
 
 declare(strict_types=1);
 
-use Relaticle\CustomFields\Models\CustomField;
+use Relaticle\CustomFields\Data\FieldSlotData;
+use Relaticle\CustomFields\Data\RelationshipDefinitionData;
+use Relaticle\CustomFields\Enums\RelationshipCardinality;
 use Relaticle\CustomFields\Models\CustomFieldSection;
+use Relaticle\CustomFields\Services\Relationships\CreateRelationshipDefinition;
 use Relaticle\CustomFields\Tests\Fixtures\Models\Post;
 use Relaticle\CustomFields\Tests\Fixtures\Resources\Posts\Pages\EditPost;
 
@@ -68,14 +71,13 @@ describe('RecordSelectInputComponent search', function (): void {
 
         $section = CustomFieldSection::factory()->forEntityType(Post::class)->create();
 
-        CustomField::factory()->create([
-            'code' => 'related_post',
-            'name' => 'Related Post',
-            'type' => 'record',
-            'entity_type' => Post::class,
-            'lookup_type' => Post::class,
-            'custom_field_section_id' => $section->getKey(),
-        ]);
+        app(CreateRelationshipDefinition::class)->execute(new RelationshipDefinitionData(
+            code: 'related_post',
+            fromEntityType: (new Post)->getMorphClass(),
+            toEntityType: (new Post)->getMorphClass(),
+            cardinality: RelationshipCardinality::ManyToOne,
+            fromField: new FieldSlotData(name: 'Related Post', sectionId: $section->getKey()),
+        ));
 
         livewire(EditPost::class, ['record' => makeLookupRecord('Acme Industries')->getRouteKey()])
             ->assertSee('minSearchLength: 3', escape: false)

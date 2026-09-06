@@ -12,8 +12,11 @@ use Relaticle\CustomFields\CustomFields;
 use Relaticle\CustomFields\Data\CustomFieldData;
 use Relaticle\CustomFields\Data\CustomFieldOptionSettingsData;
 use Relaticle\CustomFields\Data\CustomFieldSectionData;
+use Relaticle\CustomFields\Data\FieldSlotData;
+use Relaticle\CustomFields\Data\RelationshipDefinitionData;
 use Relaticle\CustomFields\Enums\CustomFieldsFeature;
 use Relaticle\CustomFields\Enums\FieldDataType;
+use Relaticle\CustomFields\Enums\RelationshipCardinality;
 use Relaticle\CustomFields\Exceptions\CustomFieldAlreadyExistsException;
 use Relaticle\CustomFields\Exceptions\CustomFieldDoesNotExistException;
 use Relaticle\CustomFields\Exceptions\FieldTypeNotOptionableException;
@@ -21,11 +24,19 @@ use Relaticle\CustomFields\Facades\CustomFieldsType;
 use Relaticle\CustomFields\Facades\Entities;
 use Relaticle\CustomFields\FeatureSystem\FeatureManager;
 use Relaticle\CustomFields\Models\CustomField;
+use Relaticle\CustomFields\Models\CustomFieldRelationship;
+use Relaticle\CustomFields\Services\Relationships\CreateRelationshipDefinition;
+use Relaticle\CustomFields\Services\TenantContextService;
+use Relaticle\CustomFields\Support\CodeGenerator;
 use Throwable;
 
 final class CustomFieldsMigrator
 {
     private int|string|null $tenantId = null;
+
+    private ?string $targetEntityType = null;
+
+    private ?RelationshipCardinality $cardinality = null;
 
     private CustomFieldData $customFieldData;
 
@@ -89,17 +100,22 @@ final class CustomFieldsMigrator
     }
 
     /**
+     * Point a record field at another entity. The field becomes the single slot of a one-way
+     * relationship definition, created with the field. Without a cardinality, allow_multiple
+     * on the field data picks it, exactly as the 4.0 upgrade step does.
+     *
      * @param  class-string  $model
      *
      * @throws FieldTypeNotOptionableException
      */
-    public function lookupType(string $model): CustomFieldsMigrator
+    public function lookupType(string $model, ?RelationshipCardinality $cardinality = null): CustomFieldsMigrator
     {
         if (! $this->isCustomFieldTypeOptionable()) {
             throw new FieldTypeNotOptionableException;
         }
 
-        $this->customFieldData->lookupType = (Entities::getEntity($model)?->getAlias()) ?? $model;
+        $this->targetEntityType = (Entities::getEntity($model)?->getAlias()) ?? $model;
+        $this->cardinality = $cardinality;
 
         return $this;
     }
@@ -170,6 +186,10 @@ final class CustomFieldsMigrator
                 );
             }
 
+            if ($this->targetEntityType !== null) {
+                $this->defineRelationship($customField);
+            }
+
             DB::commit();
 
             return $customField;
@@ -190,6 +210,10 @@ final class CustomFieldsMigrator
             throw CustomFieldDoesNotExistException::whenUpdating(
                 $this->customFieldData->code
             );
+        }
+
+        if (array_key_exists('lookup_type', $data)) {
+            throw new InvalidArgumentException('The ends of a relationship are locked after it is created.');
         }
 
         try {
@@ -275,6 +299,34 @@ final class CustomFieldsMigrator
         }
 
         $this->customField->deactivate();
+    }
+
+    /**
+     * The migrator stamps its own tenant on every row it writes, so the definition service
+     * gets that tenant as its context rather than whatever the ambient one happens to be.
+     */
+    private function defineRelationship(CustomField $customField): void
+    {
+        $data = new RelationshipDefinitionData(
+            code: CodeGenerator::generateUniqueRelationshipCode($customField->code),
+            fromEntityType: (string) $customField->entity_type,
+            toEntityType: (string) $this->targetEntityType,
+            cardinality: $this->cardinality ?? $this->cardinalityFromSettings(),
+            fromField: new FieldSlotData(name: $customField->name, fieldId: $customField->getKey()),
+        );
+
+        $define = fn (): CustomFieldRelationship => app(CreateRelationshipDefinition::class)->execute($data);
+
+        $this->tenantId === null
+            ? $define()
+            : TenantContextService::withTenant($this->tenantId, $define);
+    }
+
+    private function cardinalityFromSettings(): RelationshipCardinality
+    {
+        return $this->customFieldData->settings?->allow_multiple === true
+            ? RelationshipCardinality::ManyToMany
+            : RelationshipCardinality::ManyToOne;
     }
 
     /**

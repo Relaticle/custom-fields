@@ -16,9 +16,13 @@ final class FieldSlotData extends Data
      *
      * @param  string  $name  The display name of the record field rendering this end.
      * @param  int|string|null  $sectionId  The section the field belongs to.
+     * @param  int|string|null  $fieldId  An existing field to adopt as this slot, for a caller
+     *                                    that wrote the field itself. Name and section then
+     *                                    describe the row that is already there.
      */
     public function __construct(
         public string $name,
         public int|string|null $sectionId = null,
+        public int|string|null $fieldId = null,
     ) {}
 }

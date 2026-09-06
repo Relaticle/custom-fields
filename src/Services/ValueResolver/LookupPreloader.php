@@ -14,7 +14,7 @@ use Relaticle\CustomFields\Models\CustomFieldValue;
 
 /**
  * Scans a set of loaded host records for their custom-field lookup references
- * and primes the LookupCache with one query per lookup_type.
+ * and primes the LookupCache with one query per target entity type.
  *
  * Called by scopeWithCustomFieldValues's afterQuery hook so tables and
  * infolists get batched lookup resolution for free.

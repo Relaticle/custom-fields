@@ -28,11 +28,11 @@ final readonly class CreateRelationshipDefinition
             $tenantId = TenantContextService::getCurrentTenantId();
 
             $fromField = $data->fromField instanceof FieldSlotData
-                ? $this->createSlotField($data->fromField, $data->fromEntityType, $tenantId)
+                ? $this->slotField($data->fromField, $data->fromEntityType, $tenantId)
                 : null;
 
             $toField = $data->toField instanceof FieldSlotData
-                ? $this->createSlotField($data->toField, $data->toEntityType, $tenantId)
+                ? $this->slotField($data->toField, $data->toEntityType, $tenantId)
                 : null;
 
             // A symmetric relationship renders one field that reads both ends, so both slots
@@ -98,6 +98,46 @@ final readonly class CreateRelationshipDefinition
             ->newQuery()
             ->where('code', $code)
             ->exists();
+    }
+
+    private function slotField(FieldSlotData $slot, string $entityType, int|string|null $tenantId): CustomField
+    {
+        if ($slot->fieldId !== null) {
+            return $this->adoptSlotField($slot->fieldId, $entityType);
+        }
+
+        return $this->createSlotField($slot, $entityType, $tenantId);
+    }
+
+    /**
+     * A caller that owns the whole field form (the management UI, a preset migration) writes
+     * the field itself and hands the key over, so the definition wraps that row.
+     */
+    private function adoptSlotField(int|string $fieldId, string $entityType): CustomField
+    {
+        $field = CustomFields::newCustomFieldModel()
+            ->query()
+            ->withDeactivated()
+            ->whereKey($fieldId)
+            ->first();
+
+        if (! $field instanceof CustomField) {
+            throw new InvalidArgumentException(sprintf('Field [%s] cannot be a relationship slot: it does not exist.', $fieldId));
+        }
+
+        if ($field->type !== 'record') {
+            throw new InvalidArgumentException(sprintf('Field [%s] cannot be a relationship slot: it is a [%s] field.', $field->code, $field->type));
+        }
+
+        if ($field->entity_type !== $entityType) {
+            throw new InvalidArgumentException(sprintf('Field [%s] belongs to [%s], not to the [%s] end.', $field->code, $field->entity_type, $entityType));
+        }
+
+        if ($field->relationshipDefinition() instanceof CustomFieldRelationship) {
+            throw new InvalidArgumentException(sprintf('Field [%s] already renders a relationship.', $field->code));
+        }
+
+        return $field;
     }
 
     private function createSlotField(FieldSlotData $slot, string $entityType, int|string|null $tenantId): CustomField
