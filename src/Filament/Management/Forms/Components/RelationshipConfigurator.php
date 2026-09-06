@@ -17,9 +17,6 @@ use Relaticle\CustomFields\Facades\Entities;
  */
 final class RelationshipConfigurator extends Component
 {
-    /** @var view-string */
-    protected string $view = 'custom-fields::flavors.polished.relationship-configurator';
-
     public static function make(): static
     {
         $static = app(self::class);
@@ -32,6 +29,7 @@ final class RelationshipConfigurator extends Component
     {
         parent::setUp();
 
+        $this->view('custom-fields::flavors.polished.relationship-configurator');
         $this->columnSpanFull();
     }
 
