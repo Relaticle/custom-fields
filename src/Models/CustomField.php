@@ -200,6 +200,23 @@ class CustomField extends Model
     }
 
     /**
+     * The entity this field points at: the far end of its relationship definition, or the
+     * retiring lookup_type column while the upgrade step has not migrated the field yet.
+     */
+    public function targetEntityType(): ?string
+    {
+        $definition = $this->relationshipDefinition();
+
+        if (! $definition instanceof CustomFieldRelationship) {
+            return $this->lookup_type;
+        }
+
+        return $definition->directionFor($this) === CustomFieldRelationship::DIRECTION_TO
+            ? $definition->from_entity_type
+            : $definition->to_entity_type;
+    }
+
+    /**
      * @return Attribute<?FieldTypeData, never>
      */
     public function typeData(): Attribute

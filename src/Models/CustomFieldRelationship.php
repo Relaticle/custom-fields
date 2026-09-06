@@ -40,6 +40,8 @@ class CustomFieldRelationship extends Model
 
     public const string DIRECTION_TO = 'to';
 
+    public const string DIRECTION_BOTH = 'both';
+
     protected $guarded = [];
 
     /**
@@ -103,6 +105,18 @@ class CustomFieldRelationship extends Model
         }
 
         throw new InvalidArgumentException(sprintf('Field [%s] does not belong to relationship [%s].', $key ?? 'unsaved', $this->code));
+    }
+
+    /**
+     * A symmetric definition renders one field that reads both ends of its edges.
+     *
+     * @return self::DIRECTION_FROM|self::DIRECTION_TO|self::DIRECTION_BOTH
+     */
+    public function readDirectionFor(CustomField $field): string
+    {
+        return $this->is_symmetric
+            ? self::DIRECTION_BOTH
+            : $this->directionFor($field);
     }
 
     public function isHeadless(): bool

@@ -17,9 +17,11 @@ use Relaticle\CustomFields\Enums\CustomFieldsFeature;
 use Relaticle\CustomFields\FeatureSystem\FeatureManager;
 use Relaticle\CustomFields\Models\Contracts\HasCustomFields;
 use Relaticle\CustomFields\Models\CustomField;
+use Relaticle\CustomFields\Models\CustomFieldLink;
 use Relaticle\CustomFields\Models\CustomFieldRelationship;
 use Relaticle\CustomFields\Models\CustomFieldValue;
 use Relaticle\CustomFields\QueryBuilders\CustomFieldQueryBuilder;
+use Relaticle\CustomFields\Services\Relationships\LinkReader;
 use Relaticle\CustomFields\Services\Relationships\LinkWriter;
 use Relaticle\CustomFields\Services\ValueResolver\LookupPreloader;
 
@@ -127,9 +129,42 @@ trait UsesCustomFields
         return $this->morphMany(CustomFields::valueModel(), 'entity');
     }
 
+    /**
+     * @return MorphMany<CustomFieldLink>
+     */
+    public function outgoingLinks(): MorphMany
+    {
+        return $this->morphMany(CustomFields::linkModel(), 'from_entity');
+    }
+
+    /**
+     * @return MorphMany<CustomFieldLink>
+     */
+    public function incomingLinks(): MorphMany
+    {
+        return $this->morphMany(CustomFields::linkModel(), 'to_entity');
+    }
+
+    /**
+     * The ledger keeps closed edges forever, so only the active ones are worth carrying
+     * into a page render.
+     */
+    public function scopeWithActiveCustomFieldLinks(Builder $query): Builder
+    {
+        if (! FeatureManager::isEnabled(CustomFieldsFeature::SYSTEM_RELATIONSHIPS)) {
+            return $query;
+        }
+
+        return $query->with([
+            'outgoingLinks' => fn (MorphMany $links): MorphMany => $links->whereNull('active_until'),
+            'incomingLinks' => fn (MorphMany $links): MorphMany => $links->whereNull('active_until'),
+        ]);
+    }
+
     public function scopeWithCustomFieldValues(Builder $query): Builder
     {
         return $query
+            ->withActiveCustomFieldLinks()
             ->with('customFieldValues.customField.options')
             ->afterQuery(function ($records): void {
                 if ($records instanceof EloquentCollection) {
@@ -140,6 +175,12 @@ trait UsesCustomFields
 
     public function getCustomFieldValue(CustomField $customField): mixed
     {
+        $definition = $customField->relationshipDefinition();
+
+        if ($definition instanceof CustomFieldRelationship) {
+            return app(LinkReader::class)->orderedIdsFor($this, $definition, $definition->readDirectionFor($customField));
+        }
+
         $fieldValue = $this->customFieldValues
             ->firstWhere('custom_field_id', $customField->getKey())
             ?->getValue();
