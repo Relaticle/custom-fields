@@ -104,13 +104,14 @@ final readonly class ThroughRelationResolver
             // The foreign key sits on the row table already, so the value correlates without a hop.
             $values->whereColumn($entityId, $instance->getQualifiedForeignKeyName());
         } else {
-            $related = $instance->getRelated();
-
-            $values->whereIn($entityId, $instance->getRelationExistenceQuery(
-                $related->newQueryWithoutRelationships(),
+            // A self relation aliases the inner table, and only the returned builder knows
+            // the alias, so the key column is chosen after the correlation is built.
+            $keys = $instance->getRelationExistenceQuery(
+                $instance->getRelated()->newQueryWithoutRelationships(),
                 $query,
-                [$related->qualifyColumn($related->getKeyName())],
-            ));
+            );
+
+            $values->whereIn($entityId, $keys->select($keys->getModel()->getQualifiedKeyName()));
         }
 
         return $query->orderBy($values->getQuery(), $direction);
