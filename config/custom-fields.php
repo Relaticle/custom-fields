@@ -53,34 +53,26 @@ return [
     */
     'features' => FeatureConfigurator::configure()
         ->enable(
-            // Field-level show/hide rules, the base the other visibility features build on.
             CustomFieldsFeature::FIELD_CONDITIONAL_VISIBILITY,
-            // The same rules one level up; a section without conditions renders as before.
-            CustomFieldsFeature::SECTION_CONDITIONAL_VISIBILITY,
-            // Per-field encryption at rest, opt in per field.
             CustomFieldsFeature::FIELD_ENCRYPTION,
-            // Colored option badges, ignored by fields that set no colors.
             CustomFieldsFeature::FIELD_OPTION_COLORS,
-            // Per-field validation rules; fields with none configured validate as before.
-            CustomFieldsFeature::FIELD_VALIDATION_RULES,
-            // Help text under a field.
             CustomFieldsFeature::FIELD_DESCRIPTION,
-            // Whether that help text sits above or below the input; unset still means below.
-            CustomFieldsFeature::FIELD_DESCRIPTION_POSITION,
-            // Custom fields as table columns, the entry point for the table integration.
             CustomFieldsFeature::UI_TABLE_COLUMNS,
-            // Lets users pick which of those columns they see.
             CustomFieldsFeature::UI_TOGGLEABLE_COLUMNS,
-            // Table filters for filterable field types.
             CustomFieldsFeature::UI_TABLE_FILTERS,
-            // Field width within the form grid; every field defaults to full width.
             CustomFieldsFeature::UI_FIELD_WIDTH_CONTROL,
-            // The same for sections; every existing section is already 100%.
-            CustomFieldsFeature::UI_SECTION_WIDTH_CONTROL,
-            // The Filament page that manages fields and sections.
             CustomFieldsFeature::SYSTEM_MANAGEMENT_INTERFACE,
-            // Grouping fields into sections.
             CustomFieldsFeature::SYSTEM_SECTIONS,
+
+            // Turned on at 4.0, each one a no-op for the fields you already have:
+            // a field with no rules validates as before,
+            CustomFieldsFeature::FIELD_VALIDATION_RULES,
+            // an unset position still renders the description below the input,
+            CustomFieldsFeature::FIELD_DESCRIPTION_POSITION,
+            // a section with no conditions renders on every record,
+            CustomFieldsFeature::SECTION_CONDITIONAL_VISIBILITY,
+            // and every existing section is already the full row width.
+            CustomFieldsFeature::UI_SECTION_WIDTH_CONTROL,
         )
         ->disable(
             // Would take the code away from whoever creates the field, and codes are the
