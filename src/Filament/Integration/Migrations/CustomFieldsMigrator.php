@@ -277,9 +277,6 @@ final class CustomFieldsMigrator
     }
 
     /**
-     * An option is either its name, or an array carrying the name plus the option settings
-     * beside it (`color`, `category`).
-     *
      * @param  array<int|string, mixed>  $options
      */
     private function createOptions(

@@ -23,10 +23,6 @@ enum OptionCategory: string implements HasLabel
         };
     }
 
-    /**
-     * A record that reaches a terminal category has finished; the two terminal categories
-     * separate a successful ending from an abandoned one.
-     */
     public function isTerminal(): bool
     {
         return in_array($this, [self::Completed, self::Cancelled], true);

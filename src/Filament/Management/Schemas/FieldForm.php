@@ -104,10 +104,8 @@ final class FieldForm implements FormInterface
         return fn (?CustomField $record): bool => $record?->isSystemDefined() ?? false;
     }
 
-    /**
-     * The options repeater pairs each table column with the schema component in the same
-     * position, so the category header and the category select answer one question.
-     */
+    // The options repeater pairs each table column with the schema component in the same
+    // position, so the category header and the category select answer one question.
     private static function showsOptionCategories(mixed $type): bool
     {
         if (! FeatureManager::isEnabled(CustomFieldsFeature::FIELD_OPTION_CATEGORIES)) {
