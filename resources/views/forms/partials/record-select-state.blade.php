@@ -460,5 +460,22 @@
 
     removeRecord(recordId) {
         this.commit(this.ids.filter(id => id !== recordId));
+    },
+
+    // The order the chips are left in is the order the links are written in, so the snapshot
+    // moves with the payload and the open panel keeps reading the same list.
+    moveRecord(recordId, offset) {
+        const ids = this.selectedRecords.map(record => record.id);
+        const from = ids.indexOf(recordId);
+        const to = from + offset;
+
+        if (from < 0 || to < 0 || to >= ids.length) {
+            return;
+        }
+
+        ids.splice(to, 0, ids.splice(from, 1)[0]);
+
+        this.selectedSnapshot = [...ids];
+        this.commit(ids);
     }
 }

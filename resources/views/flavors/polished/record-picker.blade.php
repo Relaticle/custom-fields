@@ -101,7 +101,7 @@
                         <span class="text-sm text-gray-400 dark:text-gray-500">{{ $emptyStateLabel }}</span>
                     </template>
 
-                    <template x-for="record in visibleRecords" :key="'chip-' + record.id">
+                    <template x-for="(record, index) in visibleRecords" :key="'chip-' + record.id">
                         <span
                             class="{{ $chipClasses }}"
                             :title="record.provenance"
@@ -119,6 +119,9 @@
                                 ></span>
                             </template>
                             <span class="max-w-[10rem] truncate" x-text="record.label"></span>
+
+                            @include('custom-fields::forms.partials.record-move-buttons')
+
                             <button
                                 type="button"
                                 x-on:click.stop="removeRecord(record.id)"

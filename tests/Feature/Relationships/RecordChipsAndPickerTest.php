@@ -16,6 +16,7 @@ use Relaticle\CustomFields\Enums\UiSurface;
 use Relaticle\CustomFields\Enums\VisibilityLogic;
 use Relaticle\CustomFields\Enums\VisibilityMode;
 use Relaticle\CustomFields\Enums\VisibilityOperator;
+use Relaticle\CustomFields\FieldTypeSystem\Definitions\RecordFieldType;
 use Relaticle\CustomFields\FieldTypeSystem\Definitions\RelationshipFieldType;
 use Relaticle\CustomFields\Filament\Integration\Support\RecordChips;
 use Relaticle\CustomFields\Models\CustomField;
@@ -266,6 +267,46 @@ describe('record picker', function (): void {
         livewire(EditPost::class, ['record' => Post::factory()->create()->getRouteKey()])
             ->assertDontSeeHtml('data-surface="record-picker"')
             ->assertSeeHtml('role="listbox"');
+    });
+
+    it('offers the linked records a keyboard reorder in both flavors', function (string $flavor): void {
+        config()->set('custom-fields.ui.flavor', $flavor);
+        registerChipEntity();
+        $definition = relatedPostsField();
+
+        [$first, $second] = Post::factory()->count(2)->create();
+        $host = Post::factory()->create([
+            'custom_fields' => [$definition->fromField->code => [$first->getKey(), $second->getKey()]],
+        ]);
+
+        livewire(EditPost::class, ['record' => $host->getRouteKey()])
+            ->assertSeeHtml('fi-cf-record-chip-move')
+            ->assertSeeHtml('moveRecord(record.id, -1)')
+            ->assertSeeHtml('moveRecord(record.id, 1)')
+            ->assertSeeHtml('index === selectedRecords.length - 1');
+    })->with(['polished', 'native']);
+
+    it('offers the same reorder on a record field holding many records', function (): void {
+        registerChipEntity();
+
+        $definition = app(CreateRelationshipDefinition::class)->execute(new RelationshipDefinitionData(
+            code: 'many_posts',
+            fromEntityType: (new Post)->getMorphClass(),
+            toEntityType: (new Post)->getMorphClass(),
+            cardinality: RelationshipCardinality::ManyToMany,
+            fromField: new FieldSlotData(
+                name: 'Many Posts',
+                sectionId: sectionForEntity((new Post)->getMorphClass())->getKey(),
+                type: RecordFieldType::KEY,
+            ),
+        ));
+
+        $host = Post::factory()->create([
+            'custom_fields' => [$definition->fromField->code => Post::factory()->count(2)->create()->pluck('id')->all()],
+        ]);
+
+        livewire(EditPost::class, ['record' => $host->getRouteKey()])
+            ->assertSeeHtml('fi-cf-record-chip-move');
     });
 
     it('offers no create-new when the entity has no resource to create in', function (): void {

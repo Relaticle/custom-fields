@@ -491,6 +491,8 @@ return [
         'select_label' => 'Select records',
         'clear' => 'Clear selection',
         'remove' => 'Remove :record',
+        'move_up' => 'Move :record earlier',
+        'move_down' => 'Move :record later',
         'no_results' => 'No records found',
         'announce_selected' => 'selected',
         'announce_deselected' => 'deselected',

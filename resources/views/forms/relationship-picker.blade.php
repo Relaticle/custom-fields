@@ -163,7 +163,7 @@
                             </template>
 
                             {{-- Visible Records as Pills --}}
-                            <template x-for="record in visibleRecords" :key="'pill-' + record.id">
+                            <template x-for="(record, index) in visibleRecords" :key="'pill-' + record.id">
                                 <span class="inline-flex items-center gap-1 rounded-md bg-gray-100 px-2 py-1 text-xs font-medium text-gray-700 dark:bg-gray-700 dark:text-gray-200">
                                     <template x-if="record.avatar">
                                         <img
@@ -174,6 +174,9 @@
                                         />
                                     </template>
                                     <span x-text="record.label" class="truncate max-w-[100px]"></span>
+
+                                    @include('custom-fields::forms.partials.record-move-buttons')
+
                                     <button
                                         type="button"
                                         x-on:click.stop="removeRecord(record.id)"
