@@ -23,8 +23,18 @@ final class ViewFlavor
     // failure on the first request rather than on the first render of a forked surface.
     public static function validate(): void
     {
-        self::configured();
-        self::overrides();
+        try {
+            self::configured();
+            self::overrides();
+        } catch (InvalidArgumentException $invalidArgumentException) {
+            // A cached bad flavor has to stay recoverable: throwing here would take
+            // config:clear down with the config it exists to clear.
+            if (! app()->runningInConsole()) {
+                throw $invalidArgumentException;
+            }
+
+            report($invalidArgumentException);
+        }
     }
 
     // Null is the native flavor: the caller renders the view it shipped with, so a flavor

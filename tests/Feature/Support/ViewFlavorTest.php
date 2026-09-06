@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use Illuminate\Support\Facades\Exceptions;
 use Relaticle\CustomFields\CustomFieldsServiceProvider;
 use Relaticle\CustomFields\Enums\UiFlavor;
 use Relaticle\CustomFields\Enums\UiSurface;
@@ -79,9 +80,24 @@ describe('flavor resolution', function (): void {
 
     it('rejects a bad flavor when the package boots, before any surface renders', function (): void {
         config()->set('custom-fields.ui.flavor', 'fancy');
+        (function (): void {
+            $this->isRunningInConsole = false;
+        })->call(app());
 
         app()->register(CustomFieldsServiceProvider::class, force: true);
     })->throws(InvalidArgumentException::class, 'Unknown custom-fields UI flavor [fancy]');
+
+    it('reports a bad flavor in the console so config:clear can recover from a cached one', function (): void {
+        Exceptions::fake();
+        config()->set('custom-fields.ui.flavor', 'fancy');
+
+        app()->register(CustomFieldsServiceProvider::class, force: true);
+
+        Exceptions::assertReported(fn (InvalidArgumentException $exception): bool => str_contains(
+            $exception->getMessage(),
+            'Unknown custom-fields UI flavor [fancy]',
+        ));
+    });
 
     it('rejects an unknown flavor in the override map', function (): void {
         config()->set('custom-fields.ui.flavor_overrides', ['attribute-table' => 'fancy']);
