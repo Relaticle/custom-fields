@@ -112,7 +112,7 @@ final readonly class UpdateRelationshipDefinition
             ->get();
 
         foreach ($links as $link) {
-            $holders = $this->holders($link, $ends);
+            $holders = $this->holders($definition, $link, $ends);
 
             if (array_intersect($holders, $taken) !== []) {
                 $link->close($now);
@@ -128,15 +128,21 @@ final readonly class UpdateRelationshipDefinition
     }
 
     /**
+     * A directional edge holds its ends apart, so a self relation counts a record once per
+     * end: the record something reports to is not the record reporting to it. Only a
+     * symmetric edge, canonicalized by value, is counted by value (CardinalityGuard::ends()).
+     *
      * @param  array<int, string>  $ends
      * @return array<int, string>
      */
-    private function holders(CustomFieldLink $link, array $ends): array
+    private function holders(CustomFieldRelationship $definition, CustomFieldLink $link, array $ends): array
     {
         $holders = [];
 
         foreach ($ends as $end) {
-            $holders[] = sprintf('%s:%s', $link->{$end.'_entity_type'}, $link->{$end.'_entity_id'});
+            $holders[] = $definition->is_symmetric
+                ? sprintf('%s:%s', $link->{$end.'_entity_type'}, $link->{$end.'_entity_id'})
+                : sprintf('%s:%s:%s', $end, $link->{$end.'_entity_type'}, $link->{$end.'_entity_id'});
         }
 
         return $holders;

@@ -98,3 +98,25 @@ it('keeps one edge per record on either end of a symmetric definition', function
     expect(CustomFieldLink::query()->active()->count())->toBe(1)
         ->and($posts[0]->fresh()->getCustomFieldValue($definition->fromField))->toBe([$posts[1]->getKey()]);
 });
+
+it('keeps a record on one end from closing its own edge on the other', function (): void {
+    $definition = app(CreateRelationshipDefinition::class)->execute(new RelationshipDefinitionData(
+        code: 'reports_to',
+        fromEntityType: (new Post)->getMorphClass(),
+        toEntityType: (new Post)->getMorphClass(),
+        cardinality: RelationshipCardinality::ManyToMany,
+        fromField: new FieldSlotData(name: 'Reports To', sectionId: sectionForEntity((new Post)->getMorphClass())->getKey()),
+    ));
+
+    $code = $definition->fromField->code;
+    [$a, $b, $c] = Post::factory()->count(3)->create();
+
+    $a->update(['custom_fields' => [$code => [$b->getKey()]]]);
+    $c->update(['custom_fields' => [$code => [$a->getKey()]]]);
+
+    app(UpdateRelationshipDefinition::class)->execute($definition, RelationshipCardinality::OneToOne, keepFirst: true);
+
+    expect(CustomFieldLink::query()->active()->count())->toBe(2)
+        ->and($a->fresh()->getCustomFieldValue($definition->fromField))->toBe([$b->getKey()])
+        ->and($c->fresh()->getCustomFieldValue($definition->fromField))->toBe([$a->getKey()]);
+});

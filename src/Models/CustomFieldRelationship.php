@@ -118,6 +118,18 @@ class CustomFieldRelationship extends Model
     }
 
     /**
+     * A cardinality in the given slot's own terms: a to-end field reads the definition
+     * backwards, so what is stored as many_to_one holds many records there. The transform is
+     * its own inverse, so the same call converts that field's answer back for storage.
+     */
+    public function orientCardinality(CustomField $field, RelationshipCardinality $cardinality): RelationshipCardinality
+    {
+        return $this->directionFor($field) === self::DIRECTION_TO
+            ? $cardinality->inverse()
+            : $cardinality;
+    }
+
+    /**
      * A symmetric definition renders one field that reads both ends of its edges.
      *
      * @return self::DIRECTION_FROM|self::DIRECTION_TO|self::DIRECTION_BOTH

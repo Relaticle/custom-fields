@@ -185,7 +185,7 @@ final class FieldForm implements FormInterface
 
         return [
             'target_entity_type' => $field->targetEntityType(),
-            'cardinality' => $definition->cardinality->value,
+            'cardinality' => $definition->orientCardinality($field, $definition->cardinality)->value,
             'is_symmetric' => $definition->is_symmetric,
             'paired_field_name' => $partner?->name,
         ];
@@ -267,7 +267,7 @@ final class FieldForm implements FormInterface
             return false;
         }
 
-        return $definition->cardinality->narrows($target);
+        return $definition->orientCardinality($record, $definition->cardinality)->narrows($target);
     }
 
     /**

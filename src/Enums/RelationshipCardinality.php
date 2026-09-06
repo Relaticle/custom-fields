@@ -26,6 +26,20 @@ enum RelationshipCardinality: string implements HasLabel
     }
 
     /**
+     * The same relationship read from the other end: one_to_many holds as many records from
+     * the to side as many_to_one holds from the from side. The two even ones are their own
+     * inverse, so the transform is an involution.
+     */
+    public function inverse(): self
+    {
+        return match ($this) {
+            self::OneToMany => self::ManyToOne,
+            self::ManyToOne => self::OneToMany,
+            self::OneToOne, self::ManyToMany => $this,
+        };
+    }
+
+    /**
      * Whether moving to the given cardinality takes an end from many records to one, which
      * closes the edges that no longer fit.
      */

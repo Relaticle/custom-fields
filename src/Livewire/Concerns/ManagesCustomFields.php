@@ -114,7 +114,7 @@ trait ManagesCustomFields
 
             app(UpdateRelationshipDefinition::class)->execute(
                 $definition,
-                RelationshipCardinality::from((string) $relationship['cardinality']),
+                $definition->orientCardinality($field, RelationshipCardinality::from((string) $relationship['cardinality'])),
                 keepFirst: ($relationship['keep_first'] ?? false) === true,
             );
         });
@@ -145,9 +145,11 @@ trait ManagesCustomFields
             return;
         }
 
+        // The copy renders the from end of its own definition, so a source that reads the to
+        // end hands over the cardinality the way it sees it, not the way it is stored.
         $this->defineRelationship($copy, [
             'target_entity_type' => $targetEntityType,
-            'cardinality' => $definition->cardinality->value,
+            'cardinality' => $definition->orientCardinality($field, $definition->cardinality)->value,
             'is_symmetric' => $definition->is_symmetric,
         ]);
     }

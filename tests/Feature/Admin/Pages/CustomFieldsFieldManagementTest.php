@@ -1004,6 +1004,18 @@ describe('ManageFieldsTable - Field Management', function (): void {
     });
 });
 
+function pairedCommentAuthorship(CustomFieldSection $postSection, CustomFieldSection $commentSection): CustomFieldRelationship
+{
+    return app(CreateRelationshipDefinition::class)->execute(new RelationshipDefinitionData(
+        code: 'comment_authorship',
+        fromEntityType: Post::class,
+        toEntityType: Comment::class,
+        cardinality: RelationshipCardinality::ManyToOne,
+        fromField: new FieldSlotData(name: 'Lead Comment', sectionId: $postSection->getKey()),
+        toField: new FieldSlotData(name: 'Leads For', sectionId: $commentSection->getKey()),
+    ));
+}
+
 describe('Record field configuration', function (): void {
     beforeEach(function (): void {
         $this->postSection = CustomFieldSection::factory()->forEntityType(Post::class)->create();
@@ -1106,6 +1118,40 @@ describe('Record field configuration', function (): void {
         expect(CustomFieldRelationship::query()->count())->toBe(2)
             ->and($copy->targetEntityType())->toBe(Comment::class)
             ->and($copy->relationshipDefinition()->cardinality)->toBe(RelationshipCardinality::ManyToMany);
+    });
+
+    it('keeps a duplicated to-end field pointing the way it read', function (): void {
+        $definition = pairedCommentAuthorship($this->postSection, $this->commentSection);
+        $toField = $definition->toField;
+
+        expect($toField->allowsMultipleRecords())->toBeTrue();
+
+        livewire(ManageCustomField::class, ['field' => $toField])
+            ->callAction('duplicate');
+
+        $copy = CustomField::query()
+            ->where('entity_type', Comment::class)
+            ->whereKeyNot($toField->getKey())
+            ->sole();
+
+        expect($copy->targetEntityType())->toBe(Post::class)
+            ->and($copy->allowsMultipleRecords())->toBeTrue()
+            ->and($copy->relationshipDefinition()->cardinality)->toBe(RelationshipCardinality::OneToMany);
+    });
+
+    it('shows and stores a to-end field the cardinality from its own side', function (): void {
+        $definition = pairedCommentAuthorship($this->postSection, $this->commentSection);
+
+        livewire(ManageCustomField::class, ['field' => $definition->toField])
+            ->mountAction('edit')
+            ->assertActionDataSet(['relationship.cardinality' => RelationshipCardinality::OneToMany->value])
+            ->set('mountedActions.0.data.relationship.cardinality', RelationshipCardinality::ManyToOne->value)
+            ->set('mountedActions.0.data.relationship.keep_first', true)
+            ->callMountedAction()
+            ->assertHasNoActionErrors();
+
+        expect($definition->refresh()->cardinality)->toBe(RelationshipCardinality::OneToMany)
+            ->and($definition->toField->allowsMultipleRecords())->toBeFalse();
     });
 
     it('narrows the cardinality on confirmation, keeping the first linked record', function (): void {
