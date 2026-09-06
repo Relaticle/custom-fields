@@ -351,6 +351,17 @@ it('keeps stored option settings when a multi-choice option is renamed', functio
         ->and($option->fresh()->settings->category)->toBe(OptionCategory::Completed);
 });
 
+it('shows the option colors toggle for a multi-select field', function (): void {
+    configureOptionFeatures(colors: true);
+
+    $field = CustomField::factory()->ofType('multi-select')->withOptions(['Closed Won'])->create();
+
+    livewire(ManageCustomField::class, ['field' => $field])
+        ->mountAction('edit', ['record' => $field->getKey()])
+        ->assertActionMounted('edit')
+        ->assertSchemaComponentVisible('settings.enable_option_colors');
+});
+
 it('rejects a migrator category on a field whose options are not states', function (string $type): void {
     $migrator = app(CustomFieldsMigrator::class)->new(
         model: User::class,

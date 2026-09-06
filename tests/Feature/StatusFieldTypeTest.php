@@ -46,6 +46,8 @@ it('registers status as a single-choice type that carries option categories', fu
     expect($status?->dataType)->toBe(FieldDataType::SINGLE_CHOICE)
         ->and($status?->carriesOptionCategories)->toBeTrue()
         ->and($select?->carriesOptionCategories)->toBeFalse()
+        ->and($status?->encryptable)->toBeFalse()
+        ->and($select?->encryptable)->toBeTrue()
         ->and($status?->searchable)->toBe($select?->searchable)
         ->and($status?->sortable)->toBe($select?->sortable)
         ->and($status?->filterable)->toBe($select?->filterable)
@@ -101,4 +103,7 @@ it('lists status in the type picker with its own description, in both flavors', 
         ->and($choices[StatusFieldType::KEY]['description'])
         ->toBe('One choice from a list of workflow states you define.')
         ->and($choices['select']['description'])->toBe('One choice from a list you define.');
+
+    expect(array_keys($field->getEnabledOptions()))->toContain(StatusFieldType::KEY)
+        ->and($field->getEnabledOptions()[StatusFieldType::KEY])->toContain('Status');
 })->with(['polished', 'native']);

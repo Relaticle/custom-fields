@@ -976,7 +976,7 @@ final class FieldForm implements FormInterface
                                 in_array((string) $get('type'), [
                                     'select',
                                     StatusFieldType::KEY,
-                                    'multi_select',
+                                    'multi-select',
                                     'tags-input',
                                 ], true)
                         ),

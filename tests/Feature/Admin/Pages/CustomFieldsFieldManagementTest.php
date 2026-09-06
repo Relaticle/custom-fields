@@ -518,6 +518,22 @@ describe('ManageCustomField - Field Actions', function (): void {
             ->and($field->options)->toBeEmpty();
     });
 
+    it('refuses to create a select field with no options', function (): void {
+        livewire(ManageCustomFieldSection::class, [
+            'section' => $this->section,
+            'entityType' => $this->userEntityType,
+        ])
+            ->callAction('createField', [
+                'name' => 'Stage',
+                'code' => 'stage',
+                'type' => 'select',
+                'entity_type' => $this->userEntityType,
+            ])
+            ->assertHasActionErrors(['options' => 'required_unless']);
+
+        expect(CustomField::query()->withoutGlobalScopes()->where('code', 'stage')->exists())->toBeFalse();
+    });
+
     it('sets sort_order on options when creating a select field via storeField', function (): void {
         livewire(ManageCustomFieldSection::class, [
             'section' => $this->section,
@@ -1017,6 +1033,21 @@ describe('ManageFieldsTable - Field Management', function (): void {
 
         expect($field->type)->toBe('tags-input')
             ->and($field->options)->toBeEmpty();
+    });
+
+    it('refuses to create a select field with no options', function (): void {
+        CustomFieldSection::factory()->forEntityType(Post::class)->create();
+
+        livewire(ManageFieldsTable::class, ['entityType' => Post::class])
+            ->callAction('createField', [
+                'name' => 'Stage',
+                'code' => 'stage',
+                'type' => 'select',
+                'entity_type' => Post::class,
+            ])
+            ->assertHasActionErrors(['options' => 'required_unless']);
+
+        expect(CustomField::query()->withoutGlobalScopes()->where('code', 'stage')->exists())->toBeFalse();
     });
 
     it('edits a select field without duplicating its stored options', function (): void {

@@ -21,6 +21,7 @@ class StatusFieldType extends BaseFieldType
 
     public function configure(): FieldSchema
     {
+        // Not encryptable: its categories drive reporting, so the value must stay queryable.
         return FieldSchema::singleChoice()
             ->key(self::KEY)
             ->label(__('custom-fields::custom-fields.field_types.status'))
