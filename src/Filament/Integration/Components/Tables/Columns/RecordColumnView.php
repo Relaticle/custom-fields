@@ -120,8 +120,8 @@ final class RecordColumnView extends Column
 
     /**
      * A table page reads provenance from the edges it already loaded. Loading the actor here
-     * would be a query per row, so the host eager loads outgoingLinks.createdBy or the chip
-     * says when the link was made without saying who made it.
+     * would be a query per row, so the host eager loads outgoingLinks.createdBy and
+     * incomingLinks.createdBy, or the chip says nothing about where the link came from.
      *
      * Both link relations have to be loaded, not either: the reader falls back to SQL as soon
      * as one relation it needs for the direction is missing, which is the per-row query this

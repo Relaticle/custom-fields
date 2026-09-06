@@ -5,6 +5,7 @@ declare(strict_types=1);
 use Filament\Infolists\Components\ViewEntry;
 use Filament\Schemas\Schema;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Js;
 use Relaticle\CustomFields\Data\AvatarConfiguration;
 use Relaticle\CustomFields\Data\FieldSlotData;
 use Relaticle\CustomFields\Data\RelationshipDefinitionData;
@@ -239,6 +240,29 @@ describe('a confirmation in a payload of several records', function (): void {
 
         expect(app(LinkReader::class)->orderedIdsFor($host->fresh(), $definition, CustomFieldRelationship::DIRECTION_FROM))
             ->toBe([$taken->getKey(), $free->getKey(), $confirmed->getKey()]);
+    });
+
+    it('carries only the named record back into the picker after a failed round trip', function (): void {
+        $definition = linkedPostsField(RelationshipFieldType::KEY, RelationshipCardinality::OneToMany);
+        $code = $definition->fromField->code;
+
+        [$taken, $confirmed] = Post::factory()->count(2)->create();
+        Post::factory()->create(['custom_fields' => [$code => [$taken->getKey()]]]);
+        Post::factory()->create(['custom_fields' => [$code => [$confirmed->getKey()]]]);
+
+        $host = Post::factory()->create();
+
+        $html = livewire(EditPost::class, ['record' => $host->getRouteKey()])
+            ->set('data.custom_fields.'.$code, [
+                'ids' => [$taken->getKey(), $confirmed->getKey()],
+                'confirmed' => [(string) $confirmed->getKey()],
+            ])
+            ->call('save')
+            ->assertHasFormErrors(['custom_fields.'.$code])
+            ->html();
+
+        expect($html)->toContain('confirmedStealIds: '.Js::from([(string) $confirmed->getKey()])->toHtml())
+            ->and($html)->not->toContain('confirmedStealIds: '.Js::from([(string) $taken->getKey()])->toHtml());
     });
 
     it('drops the confirmation once the record it names leaves the payload', function (): void {
