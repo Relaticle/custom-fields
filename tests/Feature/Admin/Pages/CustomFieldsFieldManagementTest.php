@@ -824,22 +824,7 @@ describe('Custom Fields Management Workflow - Phase 2.1', function (): void {
             expect($field)->toHaveFieldType($fieldType);
         }
     });
-    it('validates field type constraints and behaviors', function (): void {
-        // Test text field constraints
-        $textField = CustomField::factory()
-            ->ofType('text')
-            ->create([
-                'custom_field_section_id' => $this->section->getKey(),
-                'entity_type' => $this->userEntityType,
-            ]);
-
-        livewire(ManageCustomField::class, [
-            'field' => $textField,
-        ])
-            ->assertSuccessful()
-            ->assertSee($textField->name);
-
-        // Test select field with options constraint
+    it('loads the stored options into the form when editing a select field', function (): void {
         $selectField = CustomField::factory()
             ->ofType('select')
             ->withOptions([
@@ -851,19 +836,20 @@ describe('Custom Fields Management Workflow - Phase 2.1', function (): void {
                 'entity_type' => $this->userEntityType,
             ]);
 
-        expect($selectField->options)->toHaveCount(2);
-
-        livewire(ManageCustomField::class, [
+        $page = livewire(ManageCustomField::class, [
             'field' => $selectField,
         ])
             ->assertSuccessful()
             ->mountAction('edit', ['record' => $selectField->getKey()])
-            ->callMountedAction()
-            ->assertSee([
-                'Option 1',
-                'Option 2',
-            ]);
-    })->todo();
+            ->assertActionMounted('edit')
+            ->assertSchemaComponentVisible('options');
+
+        $component = $page->instance();
+        $schema = $component->{$component->getMountedActionSchemaName()};
+
+        expect(collect($schema->getRawState()['options'])->pluck('name')->all())
+            ->toBe(['Option 1', 'Option 2']);
+    });
 
     it('can handle field section management and organization', function (): void {
         // Create multiple sections
