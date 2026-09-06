@@ -37,11 +37,11 @@ final readonly class LinkWriter
      * Apply the ordered payload of one record field as the record's active edges.
      *
      * @param  array<int, int|string>  $targetIds
-     * @param  bool  $replace  The caller confirmed taking a record from the holder of a single end.
+     * @param  array<int, string>  $confirmed  Ids the caller agreed to take from their holder.
      *
      * @throws ValidationException
      */
-    public function apply(Model $record, CustomField $field, array $targetIds, string $source = CustomFieldLink::SOURCE_USER, bool $replace = false): void
+    public function apply(Model $record, CustomField $field, array $targetIds, string $source = CustomFieldLink::SOURCE_USER, array $confirmed = []): void
     {
         $definition = $field->relationshipDefinition();
 
@@ -50,8 +50,8 @@ final readonly class LinkWriter
         }
 
         try {
-            DB::transaction(function () use ($record, $definition, $field, $targetIds, $source, $replace): void {
-                $events = $this->diff($record, $definition, $field, $targetIds, $source, $replace);
+            DB::transaction(function () use ($record, $definition, $field, $targetIds, $source, $confirmed): void {
+                $events = $this->diff($record, $definition, $field, $targetIds, $source, $confirmed);
 
                 // A rolled back write never happened, so its listeners must never hear about it.
                 DB::afterCommit(static function () use ($events): void {
@@ -89,9 +89,10 @@ final readonly class LinkWriter
 
     /**
      * @param  array<int, int|string>  $targetIds
+     * @param  array<int, string>  $confirmed
      * @return array<int, RelationshipLinkClosed|RelationshipLinkCreated>
      */
-    private function diff(Model $record, CustomFieldRelationship $definition, CustomField $field, array $targetIds, string $source, bool $replace): array
+    private function diff(Model $record, CustomFieldRelationship $definition, CustomField $field, array $targetIds, string $source, array $confirmed): array
     {
         $definition = $this->lock($definition);
 
@@ -108,7 +109,7 @@ final readonly class LinkWriter
         $added = array_values(array_diff($targets, $current->map(fn (CustomFieldLink $link): string => $this->otherEndId($link, $record))->all()));
 
         $this->assertTargetsExist($definition, $field, $direction, $added);
-        $this->assertCardinality($definition, $field, $direction, $record, $targets, $replace);
+        $this->assertCardinality($definition, $field, $direction, $record, $targets, $confirmed);
 
         $now = now();
         $actor = $this->actorResolver->resolve();
@@ -181,12 +182,13 @@ final readonly class LinkWriter
      * confirm the replacement.
      *
      * @param  array<int, string>  $targets
+     * @param  array<int, string>  $confirmed
      *
      * @throws ValidationException
      */
-    private function assertCardinality(CustomFieldRelationship $definition, CustomField $field, string $direction, Model $record, array $targets, bool $replace): void
+    private function assertCardinality(CustomFieldRelationship $definition, CustomField $field, string $direction, Model $record, array $targets, array $confirmed): void
     {
-        $violations = $this->cardinality->violations($definition, $direction, $record->getKey(), $targets, $replace);
+        $violations = $this->cardinality->violations($definition, $direction, $record->getKey(), $targets, $confirmed);
 
         if ($violations === []) {
             return;

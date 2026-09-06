@@ -18,10 +18,11 @@ final class RecordLinkPayload extends Data
 {
     /**
      * @param  array<int, int|string>  $ids
+     * @param  array<int, string>  $confirmed  the ids the caller agreed to take from a holder
      */
     public function __construct(
         public array $ids,
-        public bool $replace = false,
+        public array $confirmed = [],
     ) {}
 
     public static function fromValue(mixed $value): self
@@ -29,10 +30,34 @@ final class RecordLinkPayload extends Data
         $value = self::unwrap($value);
 
         if (is_array($value) && array_key_exists('ids', $value)) {
-            return new self(self::ids($value['ids']), (bool) ($value['replace'] ?? false));
+            $ids = self::ids($value['ids']);
+
+            return new self($ids, self::confirmedIds($value, $ids));
         }
 
         return new self(self::ids($value));
+    }
+
+    /**
+     * Which records the caller confirmed displacing. `replace` answers for the whole payload,
+     * which is the documented form a host sends; a picker names the one record the user agreed
+     * to move, so a record added later never inherits that answer.
+     *
+     * @param  array<array-key, mixed>  $value
+     * @param  array<int, int|string>  $ids
+     * @return array<int, string>
+     */
+    public static function confirmedIds(array $value, array $ids): array
+    {
+        $ids = array_map(strval(...), $ids);
+
+        if (($value['replace'] ?? false) === true) {
+            return $ids;
+        }
+
+        $confirmed = array_map(strval(...), self::ids($value['confirmed'] ?? []));
+
+        return array_values(array_intersect($confirmed, $ids));
     }
 
     /**

@@ -15,6 +15,7 @@ use Relaticle\CustomFields\Enums\UiSurface;
 use Relaticle\CustomFields\Enums\VisibilityLogic;
 use Relaticle\CustomFields\Enums\VisibilityMode;
 use Relaticle\CustomFields\Enums\VisibilityOperator;
+use Relaticle\CustomFields\FieldTypeSystem\Definitions\RelationshipFieldType;
 use Relaticle\CustomFields\Filament\Integration\Support\RecordChips;
 use Relaticle\CustomFields\Models\CustomField;
 use Relaticle\CustomFields\Models\CustomFieldLink;
@@ -58,7 +59,11 @@ function relatedPostsField(RelationshipCardinality $cardinality = RelationshipCa
         fromEntityType: (new Post)->getMorphClass(),
         toEntityType: (new Post)->getMorphClass(),
         cardinality: $cardinality,
-        fromField: new FieldSlotData(name: 'Related Posts', sectionId: sectionForEntity((new Post)->getMorphClass())->getKey()),
+        fromField: new FieldSlotData(
+            name: 'Related Posts',
+            sectionId: sectionForEntity((new Post)->getMorphClass())->getKey(),
+            type: RelationshipFieldType::KEY,
+        ),
     ));
 }
 
@@ -472,7 +477,7 @@ describe('the one-to-one steal', function (): void {
 
         // Confirming the first candidate is not an answer about the second: the guard is asked
         // per candidate, and still refuses the one nobody confirmed.
-        expect($guard->violations($definition, CustomFieldRelationship::DIRECTION_FROM, $taker->getKey(), [$first->getKey()], replace: true))
+        expect($guard->violations($definition, CustomFieldRelationship::DIRECTION_FROM, $taker->getKey(), [$first->getKey()], confirmed: [(string) $first->getKey()]))
             ->toBeEmpty()
             ->and($guard->violations($definition, CustomFieldRelationship::DIRECTION_FROM, $taker->getKey(), [$second->getKey()]))
             ->toHaveCount(1);
@@ -509,7 +514,7 @@ describe('the one-to-one steal', function (): void {
         ]);
 
         livewire(EditPost::class, ['record' => $host->getRouteKey()])
-            ->assertSeeHtml('confirmedStealId')
+            ->assertSeeHtml('confirmedStealIds')
             ->assertSeeHtml((string) $target->getKey());
     });
 

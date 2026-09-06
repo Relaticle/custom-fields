@@ -6,7 +6,7 @@ namespace Relaticle\CustomFields\FieldTypeSystem\Definitions;
 
 use Relaticle\CustomFields\FieldTypeSystem\BaseFieldType;
 use Relaticle\CustomFields\FieldTypeSystem\FieldSchema;
-use Relaticle\CustomFields\Filament\Integration\Components\Forms\RecordSelectComponent;
+use Relaticle\CustomFields\Filament\Integration\Components\Forms\RelationshipSelectComponent;
 use Relaticle\CustomFields\Filament\Integration\Components\Infolists\RecordEntry;
 use Relaticle\CustomFields\Filament\Integration\Components\Tables\Columns\RecordColumn;
 use Relaticle\CustomFields\Filament\Integration\Components\Tables\Filters\RecordFilter;
@@ -26,7 +26,7 @@ class RelationshipFieldType extends BaseFieldType
             ->key(self::KEY)
             ->label(__('custom-fields::custom-fields.field_types.relationship'))
             ->icon('heroicon-o-arrows-right-left')
-            ->formComponent(RecordSelectComponent::class)
+            ->formComponent(RelationshipSelectComponent::class)
             ->tableColumn(RecordColumn::class)
             ->tableFilter(RecordFilter::class)
             ->infolistEntry(RecordEntry::class)

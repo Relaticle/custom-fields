@@ -131,7 +131,7 @@ it('takes a taken one to one end on confirmation and closes the displaced edge',
     $user = User::factory()->create();
 
     app(LinkWriter::class)->apply($postA, $definition->fromField, [$user->getKey()]);
-    app(LinkWriter::class)->apply($postB, $definition->fromField, [$user->getKey()], replace: true);
+    app(LinkWriter::class)->apply($postB, $definition->fromField, [$user->getKey()], confirmed: [(string) $user->getKey()]);
 
     $active = CustomFieldLink::query()->active()->get();
 
@@ -161,7 +161,7 @@ it('takes a taken symmetric end from either side on confirmation', function (): 
     [$a, $b, $c] = User::factory()->count(3)->create();
 
     app(LinkWriter::class)->apply($a, $definition->fromField, [$b->getKey()]);
-    app(LinkWriter::class)->apply($c, $definition->fromField, [$b->getKey()], replace: true);
+    app(LinkWriter::class)->apply($c, $definition->fromField, [$b->getKey()], confirmed: [(string) $b->getKey()]);
 
     expect(CustomFieldLink::query()->active()->count())->toBe(1)
         ->and(CustomFieldLink::query()->count())->toBe(2);
@@ -379,7 +379,7 @@ it('applies many to one from the to end', function (): void {
 
     expect(CustomFieldLink::query()->active()->count())->toBe(2);
 
-    app(LinkWriter::class)->apply($userB, $definition->toField, [$postB->getKey()], replace: true);
+    app(LinkWriter::class)->apply($userB, $definition->toField, [$postB->getKey()], confirmed: [(string) $postB->getKey()]);
 
     expect(CustomFieldLink::query()->active()->count())->toBe(2)
         ->and(CustomFieldLink::query()->count())->toBe(3)
@@ -393,7 +393,7 @@ it('replaces a taken one to one end from the to side and keeps the closed edge',
     [$userA, $userB] = User::factory()->count(2)->create();
 
     app(LinkWriter::class)->apply($post, $definition->fromField, [$userA->getKey()]);
-    app(LinkWriter::class)->apply($userB, $definition->toField, [$post->getKey()], replace: true);
+    app(LinkWriter::class)->apply($userB, $definition->toField, [$post->getKey()], confirmed: [(string) $post->getKey()]);
 
     $closed = CustomFieldLink::query()->whereNotNull('active_until')->sole();
 

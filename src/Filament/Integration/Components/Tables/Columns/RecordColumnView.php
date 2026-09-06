@@ -76,9 +76,15 @@ final class RecordColumnView extends Column
         return $this->multiple;
     }
 
+    /**
+     * Chips are what a paired relationship draws. A record column keeps the row of linked
+     * names it has always drawn, in either flavor.
+     */
     public function getChipsView(): ?string
     {
-        return ViewFlavor::view(UiSurface::RecordChips);
+        return $this->customField?->supportsPairing() === true
+            ? ViewFlavor::view(UiSurface::RecordChips)
+            : null;
     }
 
     /**
@@ -117,6 +123,10 @@ final class RecordColumnView extends Column
      * would be a query per row, so the host eager loads outgoingLinks.createdBy or the chip
      * says when the link was made without saying who made it.
      *
+     * Both link relations have to be loaded, not either: the reader falls back to SQL as soon
+     * as one relation it needs for the direction is missing, which is the per-row query this
+     * guard exists to prevent.
+     *
      * @return array<string, string>
      */
     private function provenance(RecordChips $chips, HasCustomFields $subject): array
@@ -125,7 +135,7 @@ final class RecordColumnView extends Column
             return [];
         }
 
-        if (! $subject->relationLoaded('outgoingLinks') && ! $subject->relationLoaded('incomingLinks')) {
+        if (! $subject->relationLoaded('outgoingLinks') || ! $subject->relationLoaded('incomingLinks')) {
             return [];
         }
 

@@ -1,4 +1,6 @@
 @php
+    use Relaticle\CustomFields\Data\RecordLinkPayload;
+
     $fieldWrapperView = $getFieldWrapperView();
     $isDisabled = $isDisabled();
     $statePath = $getStatePath();
@@ -11,8 +13,15 @@
     $key = $getKey();
     $minSearchLength = $getMinSearchLength();
     $shortSearchMessage = __('custom-fields::custom-fields.record.short_search', ['count' => $minSearchLength]);
+    $checksHolderConflicts = $checksHolderConflicts();
+    $createUrl = $getCreateUrl();
+    $createLabel = $getCreateLabel();
+
+    // A confirmed move travels as a map naming the record it was given for, so a failed
+    // validation round trip brings back that record and not whichever one sorts first.
     $state = $getState() ?? [];
     $selectedIds = array_filter(is_array($state) ? ($state['ids'] ?? $state) : []);
+    $confirmedStealIds = RecordLinkPayload::confirmedIds(is_array($state) ? $state : [], $selectedIds);
     // A pluralized key cannot be read by __(), so both forms are chosen server-side and the
     // client picks between them by count.
     $overflowLabels = [
@@ -37,8 +46,8 @@
         'maxVisiblePills' => $maxVisiblePills,
         'minSearchLength' => $minSearchLength,
         'shortSearchMessage' => $shortSearchMessage,
-        'checksHolderConflicts' => false,
-        'confirmedStealIds' => [],
+        'checksHolderConflicts' => $checksHolderConflicts,
+        'confirmedStealIds' => $confirmedStealIds,
         'overflowLabels' => $overflowLabels,
         'countLabels' => $countLabels,
     ])->render();
@@ -230,6 +239,22 @@
                 />
             </div>
 
+            {{-- A record another holder already has moves only on confirmation --}}
+            <template x-if="pendingSteal">
+                <div class="border-b border-warning-200 bg-warning-50 px-3 py-2 text-sm dark:border-warning-400/20 dark:bg-warning-400/10">
+                    <p class="font-medium text-warning-800 dark:text-warning-200">{{ __('custom-fields::custom-fields.record.steal_heading') }}</p>
+                    <p class="mt-1 text-warning-700 dark:text-warning-300" x-text="pendingSteal.message"></p>
+                    <div class="mt-2 flex gap-2">
+                        <button type="button" x-on:click.stop="confirmSteal()" class="rounded-md bg-warning-600 px-2 py-1 text-xs font-medium text-white hover:bg-warning-500">
+                            {{ __('custom-fields::custom-fields.record.steal_confirm') }}
+                        </button>
+                        <button type="button" x-on:click.stop="cancelSteal()" class="rounded-md px-2 py-1 text-xs font-medium text-warning-800 hover:bg-warning-100 dark:text-warning-200 dark:hover:bg-warning-400/20">
+                            {{ __('custom-fields::custom-fields.record.steal_cancel') }}
+                        </button>
+                    </div>
+                </div>
+            </template>
+
             {{-- Options List --}}
             <div x-ref="optionsList" class="max-h-[280px] overflow-y-auto">
                 <template x-if="sortedOptions.length === 0 && !isSearching && emptyStateMessage">
@@ -295,6 +320,15 @@
                 </template>
             </div>
 
+            @if (filled($createUrl))
+                <a
+                    href="{{ $createUrl }}"
+                    class="flex items-center gap-2 border-t border-gray-100 px-3 py-2 text-sm text-primary-600 hover:bg-gray-50 dark:border-gray-800 dark:text-primary-400 dark:hover:bg-white/5"
+                >
+                    <x-filament::icon icon="heroicon-m-plus" class="size-4 shrink-0" aria-hidden="true" />
+                    {{ $createLabel }}
+                </a>
+            @endif
         </div>
     </div>
 </x-dynamic-component>

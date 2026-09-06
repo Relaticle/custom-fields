@@ -10,6 +10,7 @@ use Relaticle\CustomFields\Data\FieldSlotData;
 use Relaticle\CustomFields\Data\RelationshipDefinitionData;
 use Relaticle\CustomFields\Enums\RelationshipCardinality;
 use Relaticle\CustomFields\Enums\UiSurface;
+use Relaticle\CustomFields\FieldTypeSystem\Definitions\RelationshipFieldType;
 use Relaticle\CustomFields\Filament\Management\Forms\Components\TypeField;
 use Relaticle\CustomFields\Livewire\ManageFieldsTable;
 use Relaticle\CustomFields\Models\CustomField;
@@ -75,8 +76,8 @@ describe('the attribute table', function (): void {
             fromEntityType: Post::class,
             toEntityType: Post::class,
             cardinality: RelationshipCardinality::ManyToMany,
-            fromField: new FieldSlotData(name: 'Mentions', sectionId: $section->getKey()),
-            toField: new FieldSlotData(name: 'Mentioned By', sectionId: $section->getKey()),
+            fromField: new FieldSlotData(name: 'Mentions', sectionId: $section->getKey(), type: RelationshipFieldType::KEY),
+            toField: new FieldSlotData(name: 'Mentioned By', sectionId: $section->getKey(), type: RelationshipFieldType::KEY),
         ));
 
         $table = postFieldsTable();
@@ -135,7 +136,7 @@ describe('the attribute table', function (): void {
                     fromEntityType: Post::class,
                     toEntityType: Post::class,
                     cardinality: RelationshipCardinality::ManyToMany,
-                    fromField: new FieldSlotData(name: 'Pair '.$created, sectionId: $section->getKey()),
+                    fromField: new FieldSlotData(name: 'Pair '.$created, sectionId: $section->getKey(), type: RelationshipFieldType::KEY),
                 ));
 
                 $created++;

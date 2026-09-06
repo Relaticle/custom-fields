@@ -37,7 +37,7 @@ final class CardinalityRule implements ValidationRule
             $definition->writeDirectionFor($this->customField),
             $this->recordId,
             $payload->ids,
-            $payload->replace,
+            $payload->confirmed,
         );
 
         foreach ($violations as $violation) {

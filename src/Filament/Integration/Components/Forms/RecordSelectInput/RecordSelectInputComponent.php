@@ -16,21 +16,18 @@ use Illuminate\Database\Eloquent\Model;
 use Livewire\Attributes\Renderless;
 use Relaticle\CustomFields\Data\AvatarConfiguration;
 use Relaticle\CustomFields\Data\EntityConfigurationData;
-use Relaticle\CustomFields\Enums\UiSurface;
+use Relaticle\CustomFields\Data\RecordLinkPayload;
 use Relaticle\CustomFields\Facades\Entities;
-use Relaticle\CustomFields\Filament\Integration\Support\RecordChips;
 use Relaticle\CustomFields\Models\CustomField;
-use Relaticle\CustomFields\Models\CustomFieldRelationship;
 use Relaticle\CustomFields\QueryBuilders\EntitySearchQuery;
-use Relaticle\CustomFields\Services\Relationships\CardinalityGuard;
-use Relaticle\CustomFields\Support\ViewFlavor;
 
 /**
- * A custom Filament form field for selecting records from other entities
- * with search, avatars, and single/multiple mode support.
+ * The one-way record field's input: a searchable select with avatars, showing one record or a
+ * row of removable pills. It is the same control in every flavor, because a flavor decides how
+ * a surface looks and this type has only ever had the one look.
  *
- * Single value: Shows a searchable select dropdown
- * Multiple values: Shows pills + add button with searchable dropdown
+ * The paired type extends it with what pairing adds: chips, the inline move confirmation, and
+ * provenance on hover.
  */
 class RecordSelectInputComponent extends Field implements HasNestedRecursiveValidationRulesContract
 {
@@ -58,14 +55,6 @@ class RecordSelectInputComponent extends Field implements HasNestedRecursiveVali
     {
         parent::setUp();
 
-        $polishedView = ViewFlavor::view(UiSurface::RecordPicker);
-
-        if ($polishedView !== null) {
-
-            $this->view($polishedView);
-
-        }
-
         $this->default([]);
 
         $this->afterStateHydrated(static function (RecordSelectInputComponent $component, mixed $state): void {
@@ -88,12 +77,14 @@ class RecordSelectInputComponent extends Field implements HasNestedRecursiveVali
                 return $state !== null ? [$state] : [];
             }
 
-            // The map form carries the confirmation the writer needs for a one-to-one steal,
-            // so it travels whole; only its ids are cleaned.
+            // The map form carries the confirmation the writer needs before it takes a record
+            // from its holder, so it travels whole; only its ids are cleaned.
             if (array_key_exists('ids', $state)) {
+                $ids = self::filledIds($state['ids']);
+
                 return [
-                    'ids' => self::filledIds($state['ids']),
-                    'replace' => ($state['replace'] ?? false) === true,
+                    'ids' => $ids,
+                    'confirmed' => RecordLinkPayload::confirmedIds($state, $ids),
                 ];
             }
 
@@ -348,75 +339,23 @@ class RecordSelectInputComponent extends Field implements HasNestedRecursiveVali
     }
 
     /**
-     * Where each selected link came from, for the chip's hover. Candidates in the dropdown are
-     * not linked yet, so only the selected records carry it.
+     * Where each selected record's link came from, for the surfaces with somewhere to show it.
+     * A plain select draws no chip, so it says nothing.
      *
      * @return array<string, string>
      */
-    private function provenance(): array
+    protected function provenance(): array
     {
-        $customField = $this->getCustomField();
-
-        // A component built outside a schema, as the import path does, has no record to read
-        // provenance from and asking for one would fail before it could say so.
-        if (! $customField instanceof CustomField || ! isset($this->container)) {
-            return [];
-        }
-
-        $record = $this->getRecord();
-
-        if (! $record instanceof Model) {
-            return [];
-        }
-
-        $record->loadMissing(['outgoingLinks.createdBy', 'incomingLinks.createdBy']);
-
-        return app(RecordChips::class)->provenance($record, $customField);
+        return [];
     }
 
     /**
-     * The page that creates a record of the target entity, or null when the host registered no
-     * resource with one: the picker offers create-new only where it can land somewhere.
-     */
-    public function getCreateUrl(): ?string
-    {
-        $entity = $this->getEntityConfiguration();
-
-        return $entity instanceof EntityConfigurationData
-            ? app(RecordChips::class)->createUrl($entity)
-            : null;
-    }
-
-    /**
-     * Whether taking a record could take it away from another holder. A relationship whose far
-     * end holds many never can, so the picker skips the round trip that asks.
+     * Whether taking a record could take it away from another holder. The record type never
+     * offers that move, so its select never asks.
      */
     public function checksHolderConflicts(): bool
     {
-        $customField = $this->getCustomField();
-        $definition = $customField?->relationshipDefinition();
-
-        if (! $customField instanceof CustomField || ! $definition instanceof CustomFieldRelationship) {
-            return false;
-        }
-
-        $write = $definition->writeDirectionFor($customField);
-
-        return app(CardinalityGuard::class)->endHoldsOne(
-            $definition,
-            $write === CustomFieldRelationship::DIRECTION_FROM
-                ? CustomFieldRelationship::DIRECTION_TO
-                : CustomFieldRelationship::DIRECTION_FROM,
-        );
-    }
-
-    public function getCreateLabel(): ?string
-    {
-        $entity = $this->getEntityConfiguration();
-
-        return $entity instanceof EntityConfigurationData
-            ? __('custom-fields::custom-fields.record.create_new', ['entity' => $entity->getLabelSingular()])
-            : null;
+        return false;
     }
 
     /**
@@ -478,31 +417,6 @@ class RecordSelectInputComponent extends Field implements HasNestedRecursiveVali
         }
 
         return $record->getAttribute($avatarConfig->attribute);
-    }
-
-    /**
-     * What the writer would refuse for one candidate, so the picker can confirm the move
-     * inline instead of failing on save. The guard is the single source of that sentence.
-     */
-    #[ExposedLivewireMethod]
-    #[Renderless]
-    public function holderConflictFor(string $recordId): ?string
-    {
-        $customField = $this->getCustomField();
-        $definition = $customField?->relationshipDefinition();
-
-        if (! $customField instanceof CustomField || ! $definition instanceof CustomFieldRelationship) {
-            return null;
-        }
-
-        $violations = app(CardinalityGuard::class)->violations(
-            $definition,
-            $definition->writeDirectionFor($customField),
-            $this->getRecord()?->getKey(),
-            [$recordId],
-        );
-
-        return $violations[0] ?? null;
     }
 
     /**

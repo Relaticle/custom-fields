@@ -19,7 +19,7 @@ final readonly class CardinalityGuard
 {
     /**
      * @param  array<int, int|string>  $targetIds
-     * @param  bool  $replace  The caller confirmed taking a record from the holder of a single end.
+     * @param  array<int, string>  $confirmed  Ids the caller agreed to take from their holder.
      * @return array<int, string>
      */
     public function violations(
@@ -27,7 +27,7 @@ final readonly class CardinalityGuard
         string $direction,
         int|string|null $recordId,
         array $targetIds,
-        bool $replace = false,
+        array $confirmed = [],
     ): array {
         $targets = $this->normalize($targetIds);
         $messages = [];
@@ -36,7 +36,7 @@ final readonly class CardinalityGuard
             $messages[] = __('custom-fields::custom-fields.relationships.errors.single_value');
         }
 
-        if ($replace || $targets === []) {
+        if ($targets === []) {
             return $messages;
         }
 
@@ -45,6 +45,12 @@ final readonly class CardinalityGuard
         }
 
         foreach ($this->holders($definition, $direction, $recordId, $targets) as $targetId => $holderId) {
+            // The confirmation belongs to the record it was given for, so every other holder
+            // in the same payload is still reported.
+            if (in_array((string) $targetId, $confirmed, true)) {
+                continue;
+            }
+
             $messages[] = __('custom-fields::custom-fields.relationships.errors.already_linked', [
                 'record' => $this->label($this->entityType($definition, $this->opposite($direction)), $targetId),
                 'holder' => $this->label($this->entityType($definition, $direction), $holderId),

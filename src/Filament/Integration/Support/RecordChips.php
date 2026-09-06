@@ -72,7 +72,8 @@ final readonly class RecordChips
     {
         $definition = $customField->relationshipDefinition();
 
-        if (! $definition instanceof CustomFieldRelationship) {
+        // Provenance is read on a chip's hover, and only a paired relationship draws chips.
+        if (! $customField->supportsPairing() || ! $definition instanceof CustomFieldRelationship) {
             return [];
         }
 

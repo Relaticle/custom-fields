@@ -221,6 +221,16 @@ class CustomField extends Model
     }
 
     /**
+     * Whether the field's type configures both ends of its relationship. The surfaces that
+     * draw chips and confirm a move belong to that type; a one-way field keeps the plain ones
+     * it has always had.
+     */
+    public function supportsPairing(): bool
+    {
+        return $this->typeData?->supportsPairing === true;
+    }
+
+    /**
      * The entity this field points at: the far end of its relationship definition. A field
      * that is not a relationship slot points nowhere.
      */

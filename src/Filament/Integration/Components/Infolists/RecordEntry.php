@@ -52,7 +52,7 @@ final class RecordEntry extends AbstractInfolistEntry
                 return [
                     'records' => $chips->build($entity, $recordIds, $this->provenance($chips, $record, $customField)),
                     'multiple' => $isMultiSelect,
-                    'chipsView' => ViewFlavor::view(UiSurface::RecordChips),
+                    'chipsView' => $customField->supportsPairing() ? ViewFlavor::view(UiSurface::RecordChips) : null,
                 ];
             });
     }
@@ -65,7 +65,7 @@ final class RecordEntry extends AbstractInfolistEntry
      */
     private function provenance(RecordChips $chips, HasCustomFields $record, CustomField $customField): array
     {
-        if (! $record instanceof Model) {
+        if (! $customField->supportsPairing() || ! $record instanceof Model) {
             return [];
         }
 

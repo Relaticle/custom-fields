@@ -200,6 +200,7 @@ arch('Filament form components implement the shared form component interface')
         'Relaticle\CustomFields\Filament\Integration\Components\Forms\PhoneInput',
         'Relaticle\CustomFields\Filament\Integration\Components\Forms\MultiValueInput',
         'Relaticle\CustomFields\Filament\Integration\Components\Forms\RecordSelectInput',
+        'Relaticle\CustomFields\Filament\Integration\Components\Forms\RelationshipPicker',
     ]);
 
 arch('Livewire components extend the base Component class')

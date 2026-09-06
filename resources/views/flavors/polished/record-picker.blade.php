@@ -1,5 +1,5 @@
 @php
-    use Illuminate\Support\Arr;
+    use Relaticle\CustomFields\Data\RecordLinkPayload;
 
     $fieldWrapperView = $getFieldWrapperView();
     $isDisabled = $isDisabled();
@@ -16,12 +16,11 @@
     $createUrl = $getCreateUrl();
     $createLabel = $getCreateLabel();
 
-    // A confirmed move travels as a map, and survives a failed validation round trip.
+    // A confirmed move travels as a map naming the record it was given for, so a failed
+    // validation round trip brings back that record and not whichever one sorts first.
     $state = $getState() ?? [];
-    $confirmedStealId = is_array($state) && ($state['replace'] ?? false) === true
-        ? (string) (Arr::first($state['ids'] ?? []) ?? '')
-        : null;
     $selectedIds = array_filter(is_array($state) ? ($state['ids'] ?? $state) : []);
+    $confirmedStealIds = RecordLinkPayload::confirmedIds(is_array($state) ? $state : [], $selectedIds);
     // A pluralized key cannot be read by __(), so both forms are chosen server-side and the
     // client picks between them by count.
     $overflowLabels = [
@@ -47,7 +46,7 @@
         'minSearchLength' => $minSearchLength,
         'shortSearchMessage' => $shortSearchMessage,
         'checksHolderConflicts' => $checksHolderConflicts,
-        'confirmedStealId' => $confirmedStealId,
+        'confirmedStealIds' => $confirmedStealIds,
         'overflowLabels' => $overflowLabels,
         'countLabels' => $countLabels,
     ])->render();

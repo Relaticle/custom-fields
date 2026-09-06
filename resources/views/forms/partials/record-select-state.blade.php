@@ -17,7 +17,7 @@
     checksHolderConflicts: @js($checksHolderConflicts),
     overflowLabels: @js($overflowLabels),
     countLabels: @js($countLabels),
-    confirmedStealId: @js($confirmedStealId),
+    confirmedStealIds: @js($confirmedStealIds),
     pendingSteal: null,
     selectedSnapshot: [],
     activeIndex: -1,
@@ -83,17 +83,14 @@
         return Array.isArray(this.state?.ids) ? this.state.ids : [];
     },
 
-    // The confirmation belongs to one candidate, so the map form travels only while that
-    // record is actually in the payload: a later unrelated write must not carry a replace
-    // the user never agreed to.
+    // Each confirmation names the record it was given for, so it holds only while that
+    // record is in the payload and never answers for one added after it.
     commit(ids) {
-        const replaces = this.confirmedStealId !== null && ids.includes(this.confirmedStealId);
+        this.confirmedStealIds = this.confirmedStealIds.filter(id => ids.includes(id));
 
-        if (this.confirmedStealId !== null && ! replaces) {
-            this.confirmedStealId = null;
-        }
-
-        this.state = replaces ? { ids: ids, replace: true } : ids;
+        this.state = this.confirmedStealIds.length > 0
+            ? { ids: ids, confirmed: [...this.confirmedStealIds] }
+            : ids;
     },
 
     // A count the reader can act on, in the plural form the locale picked server-side.
@@ -219,7 +216,7 @@
     // A record already held by someone else is confirmed before the writer resolves it, and
     // the sentence shown is the one the writer would have refused with.
     async holderConflictFor(recordId) {
-        if (!this.checksHolderConflicts || this.confirmedStealId === recordId) {
+        if (!this.checksHolderConflicts || this.confirmedStealIds.includes(recordId)) {
             return null;
         }
 
@@ -239,7 +236,7 @@
 
         if (!pending) return;
 
-        this.confirmedStealId = pending.record.id;
+        this.confirmedStealIds = [...this.confirmedStealIds, pending.record.id];
         this.pendingSteal = null;
 
         await this.selectRecord(pending.record);
@@ -462,10 +459,6 @@
     },
 
     removeRecord(recordId) {
-        if (this.confirmedStealId === recordId) {
-            this.confirmedStealId = null;
-        }
-
         this.commit(this.ids.filter(id => id !== recordId));
     }
 }

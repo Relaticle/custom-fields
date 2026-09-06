@@ -268,7 +268,7 @@ trait UsesCustomFields
         if ($this->writesLinksFor($customField)) {
             $payload = RecordLinkPayload::fromValue($value);
 
-            app(LinkWriter::class)->apply($this, $customField, $payload->ids, replace: $payload->replace);
+            app(LinkWriter::class)->apply($this, $customField, $payload->ids, confirmed: $payload->confirmed);
 
             return;
         }
