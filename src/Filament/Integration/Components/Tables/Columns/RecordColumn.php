@@ -14,7 +14,6 @@ use Relaticle\CustomFields\Filament\Integration\Base\AbstractTableColumn;
 use Relaticle\CustomFields\Filament\Integration\Concerns\Tables\ConfiguresColumnLabel;
 use Relaticle\CustomFields\Models\Contracts\HasCustomFields;
 use Relaticle\CustomFields\Models\CustomField;
-use Relaticle\CustomFields\Models\CustomFieldRelationship;
 use Relaticle\CustomFields\QueryBuilders\RecordLinkQuery;
 
 final class RecordColumn extends AbstractTableColumn
@@ -39,18 +38,18 @@ final class RecordColumn extends AbstractTableColumn
     }
 
     /**
-     * Both controls read edges, so a field the upgrade step has not migrated yet keeps the
-     * 3.x answer: no sort handle and no search, rather than a control that returns nothing.
+     * Sorting joins the target's primary attribute, so an entity the host has not registered
+     * leaves the column unsorted rather than ordering by nothing.
      */
     private function configureSorting(RecordColumnView $column, CustomField $customField): void
     {
-        $definition = $customField->relationshipDefinition();
-        $attribute = $this->primaryAttribute($customField);
+        $definition = $customField->relationshipDefinitionOrFail();
+        $attribute = $this->primaryAttribute($definition->targetEntityTypeFor($customField));
 
         $column->sortable(
-            condition: $definition instanceof CustomFieldRelationship && $attribute !== null,
+            condition: $attribute !== null,
             query: function (Builder $query, string $direction) use ($customField, $definition, $attribute): Builder {
-                if (! $definition instanceof CustomFieldRelationship || $attribute === null) {
+                if ($attribute === null) {
                     return $query;
                 }
 
@@ -67,42 +66,31 @@ final class RecordColumn extends AbstractTableColumn
 
     private function configureSearching(RecordColumnView $column, CustomField $customField): void
     {
-        $definition = $customField->relationshipDefinition();
+        $definition = $customField->relationshipDefinitionOrFail();
 
         $column->searchable(
-            condition: $customField->settings->searchable && $definition instanceof CustomFieldRelationship,
-            query: function (Builder $query, string $search) use ($customField, $definition): Builder {
-                if (! $definition instanceof CustomFieldRelationship) {
-                    return $query;
-                }
-
-                return app(RecordLinkQuery::class)->whereLinkedMatching(
-                    $query,
-                    $definition,
-                    $definition->readDirectionFor($customField),
-                    $this->searchAttributes($customField),
-                    $search,
-                );
-            },
+            condition: $customField->settings->searchable,
+            query: fn (Builder $query, string $search): Builder => app(RecordLinkQuery::class)->whereLinkedMatching(
+                $query,
+                $definition,
+                $definition->readDirectionFor($customField),
+                $this->searchAttributes($definition->targetEntityTypeFor($customField)),
+                $search,
+            ),
         );
     }
 
-    private function primaryAttribute(CustomField $customField): ?string
+    private function primaryAttribute(string $entityType): ?string
     {
-        $entityType = $customField->targetEntityType();
-
-        return $entityType === null
-            ? null
-            : Entities::getEntity($entityType)?->getPrimaryAttribute();
+        return Entities::getEntity($entityType)?->getPrimaryAttribute();
     }
 
     /**
      * @return array<int, string>
      */
-    private function searchAttributes(CustomField $customField): array
+    private function searchAttributes(string $entityType): array
     {
-        $entityType = $customField->targetEntityType();
-        $entity = $entityType === null ? null : Entities::getEntity($entityType);
+        $entity = Entities::getEntity($entityType);
 
         if ($entity === null) {
             return [];

@@ -154,7 +154,7 @@ return [
     | searchable_threshold controls when option-backed selects render a search
     | box. Set it to 0 to always show one, which is the pre-3.8 behavior.
     |
-    | record_lookup governs the record-select field's initial page and search.
+    | record governs the record-select field's initial page and search.
     | order_column null means the model's key, which is backed by the primary
     | key index and so costs no more than an unordered query. Naming a column
     | instead (for example 'updated_at' for most-recently-touched-first) is
@@ -165,7 +165,7 @@ return [
     'selects' => [
         'searchable_threshold' => 10,
 
-        'record_lookup' => [
+        'record' => [
             'order_column' => null,
             'order_direction' => 'desc',
             'limit' => 50,

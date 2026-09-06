@@ -100,23 +100,6 @@ it('leaves the edges alone when the payload omits the record field', function ()
     expect(activeTargetIds())->toBe([$user->getKey()]);
 });
 
-it('keeps a record field with no definition on the value row', function (): void {
-    $field = CustomField::factory()->create([
-        'code' => 'unmigrated_record',
-        'type' => 'record',
-        'entity_type' => (new Post)->getMorphClass(),
-        'lookup_type' => (new User)->getMorphClass(),
-        'custom_field_section_id' => sectionForEntity((new Post)->getMorphClass())->getKey(),
-    ]);
-    $user = User::factory()->create();
-
-    Post::factory()->create(['custom_fields' => ['unmigrated_record' => [$user->getKey()]]]);
-
-    expect(CustomFieldLink::query()->count())->toBe(0)
-        ->and(CustomFieldValue::query()->where('custom_field_id', $field->getKey())->sole()->getValue()->all())
-        ->toBe([$user->getKey()]);
-});
-
 it('keeps record fields on the value row while the relationships feature is off', function (): void {
     $definition = writePathAuthorship();
     $code = $definition->fromField->code;

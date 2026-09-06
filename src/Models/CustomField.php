@@ -24,6 +24,7 @@ use Relaticle\CustomFields\Database\Factories\CustomFieldFactory;
 use Relaticle\CustomFields\Enums\CustomFieldsFeature;
 use Relaticle\CustomFields\Enums\CustomFieldWidth;
 use Relaticle\CustomFields\Enums\OptionCategory;
+use Relaticle\CustomFields\Exceptions\RelationshipDefinitionDoesNotExistException;
 use Relaticle\CustomFields\Facades\CustomFieldsType;
 use Relaticle\CustomFields\FeatureSystem\FeatureManager;
 use Relaticle\CustomFields\Models\Concerns\Activable;
@@ -39,7 +40,6 @@ use Relaticle\CustomFields\QueryBuilders\CustomFieldQueryBuilder;
  * @property string $code
  * @property string $type
  * @property string $entity_type
- * @property ?string $lookup_type
  * @property Collection<int, string> $validation_rules
  * @property CustomFieldSettingsData $settings
  * @property int $sort_order
@@ -206,25 +206,27 @@ class CustomField extends Model
     }
 
     /**
-     * The entity this field points at: the far end of its relationship definition. A field
-     * the upgrade step has not migrated yet has no definition, so it points nowhere.
+     * The definition a record field renders one end of. Every record field has one, so a
+     * surface that reads links asks for it here rather than guessing what a missing one meant.
      */
-    public function targetEntityType(): ?string
+    public function relationshipDefinitionOrFail(): CustomFieldRelationship
     {
-        $definition = $this->relationshipDefinition();
-
-        if (! $definition instanceof CustomFieldRelationship) {
-            return null;
-        }
-
-        return $definition->directionFor($this) === CustomFieldRelationship::DIRECTION_TO
-            ? $definition->from_entity_type
-            : $definition->to_entity_type;
+        return $this->relationshipDefinition()
+            ?? throw RelationshipDefinitionDoesNotExistException::forField($this->code);
     }
 
     /**
-     * Cardinality owns multiplicity once a field is a relationship slot. The settings flag
-     * stays authoritative for a field the upgrade step has not migrated yet.
+     * The entity this field points at: the far end of its relationship definition. A field
+     * that is not a relationship slot points nowhere.
+     */
+    public function targetEntityType(): ?string
+    {
+        return $this->relationshipDefinition()?->targetEntityTypeFor($this);
+    }
+
+    /**
+     * Cardinality owns multiplicity for a record field: allow_multiple describes a value row,
+     * and a relationship slot has none.
      */
     public function allowsMultipleRecords(): bool
     {

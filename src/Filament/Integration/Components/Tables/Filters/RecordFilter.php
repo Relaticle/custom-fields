@@ -13,7 +13,6 @@ use Relaticle\CustomFields\Data\AvatarConfiguration;
 use Relaticle\CustomFields\Facades\Entities;
 use Relaticle\CustomFields\Filament\Integration\Base\AbstractTableFilter;
 use Relaticle\CustomFields\Models\CustomField;
-use Relaticle\CustomFields\Models\CustomFieldRelationship;
 use Relaticle\CustomFields\QueryBuilders\EntitySearchQuery;
 use Relaticle\CustomFields\QueryBuilders\RecordLinkQuery;
 use Throwable;
@@ -32,60 +31,27 @@ final class RecordFilter extends AbstractTableFilter
             ->native(false)
             ->modifyFormFieldUsing(fn (Select $field): Select => $field->allowHtml());
 
-        $filter = $this->configureLookup($filter, $customField->targetEntityType());
+        $definition = $customField->relationshipDefinitionOrFail();
 
-        $filter->query(function (array $data, Builder $query) use ($customField): Builder {
-            if (empty($data['values'])) {
-                return $query;
-            }
+        $filter = $this->configureLookup($filter, $definition->targetEntityTypeFor($customField));
 
-            $definition = $customField->relationshipDefinition();
-
-            if (! $definition instanceof CustomFieldRelationship) {
-                return $this->whereStoredValue($query, $customField, $data['values']);
-            }
-
-            return app(RecordLinkQuery::class)->whereLinkedTo(
+        $filter->query(fn (array $data, Builder $query): Builder => empty($data['values'])
+            ? $query
+            : app(RecordLinkQuery::class)->whereLinkedTo(
                 $query,
                 $definition,
                 $definition->readDirectionFor($customField),
                 $data['values'],
-            );
-        });
+            ));
 
         return $filter;
     }
 
     /**
-     * A record field the upgrade step has not migrated yet still keeps its ids in
-     * json_value, and 3.x stored them there for both cardinalities.
-     *
-     * @param  Builder<Model>  $query
-     * @param  array<int, mixed>  $values
-     * @return Builder<Model>
-     */
-    private function whereStoredValue(Builder $query, CustomField $customField, array $values): Builder
-    {
-        return $query->whereHas('customFieldValues', function (Builder $related) use ($customField, $values): void {
-            $related->where('custom_field_id', $customField->getKey());
-
-            $related->where(function (Builder $anyValue) use ($values): void {
-                foreach ($values as $value) {
-                    $anyValue->orWhereJsonContains('json_value', $value);
-                }
-            });
-        });
-    }
-
-    /**
      * @throws Throwable
      */
-    private function configureLookup(FilamentSelectFilter $filter, ?string $lookupType): FilamentSelectFilter
+    private function configureLookup(FilamentSelectFilter $filter, string $lookupType): FilamentSelectFilter
     {
-        if ($lookupType === null) {
-            return $filter;
-        }
-
         $entity = Entities::getEntity($lookupType);
 
         if ($entity === null) {

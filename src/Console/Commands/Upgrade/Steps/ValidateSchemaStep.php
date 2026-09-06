@@ -21,7 +21,7 @@ final class ValidateSchemaStep implements UpgradeStep
     private const REQUIRED_COLUMNS = [
         'custom_fields' => [
             'id', 'entity_type', 'name', 'code', 'type',
-            'lookup_type', 'settings', 'sort_order',
+            'settings', 'sort_order',
         ],
         'custom_field_values' => [
             'id', 'entity_type', 'entity_id', 'custom_field_id',

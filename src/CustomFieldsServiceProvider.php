@@ -211,6 +211,7 @@ final class CustomFieldsServiceProvider extends PackageServiceProvider
             'relax_custom_fields_unique_key',
             'create_relationship_definitions_table',
             'create_relationship_links_table',
+            'drop_custom_fields_lookup_type',
         ];
     }
 }

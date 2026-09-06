@@ -34,7 +34,7 @@ describe('RecordSelectInputComponent search', function (): void {
     });
 
     it('honours a configured minimum search length', function (): void {
-        config()->set('custom-fields.selects.record_lookup.min_search_length', 3);
+        config()->set('custom-fields.selects.record.min_search_length', 3);
 
         makeLookupRecord('Acme Industries');
         makeLookupRecord('Zenith Corp');
@@ -67,7 +67,7 @@ describe('RecordSelectInputComponent search', function (): void {
     });
 
     it('hands the configured minimum to the rendered field', function (): void {
-        config()->set('custom-fields.selects.record_lookup.min_search_length', 3);
+        config()->set('custom-fields.selects.record.min_search_length', 3);
 
         $section = CustomFieldSection::factory()->forEntityType(Post::class)->create();
 

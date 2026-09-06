@@ -108,6 +108,16 @@ class CustomFieldRelationship extends Model
     }
 
     /**
+     * The entity the given slot points at: the end it does not sit on.
+     */
+    public function targetEntityTypeFor(CustomField $field): string
+    {
+        return $this->directionFor($field) === self::DIRECTION_TO
+            ? $this->from_entity_type
+            : $this->to_entity_type;
+    }
+
+    /**
      * A symmetric definition renders one field that reads both ends of its edges.
      *
      * @return self::DIRECTION_FROM|self::DIRECTION_TO|self::DIRECTION_BOTH

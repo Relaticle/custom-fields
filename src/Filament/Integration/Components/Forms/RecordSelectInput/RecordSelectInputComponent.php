@@ -157,7 +157,7 @@ class RecordSelectInputComponent extends Field implements HasNestedRecursiveVali
      */
     public function getMinSearchLength(): int
     {
-        return (int) config('custom-fields.selects.record_lookup.min_search_length', 2);
+        return (int) config('custom-fields.selects.record.min_search_length', 2);
     }
 
     /**
@@ -220,8 +220,8 @@ class RecordSelectInputComponent extends Field implements HasNestedRecursiveVali
      */
     private function applyLookupOrder(Builder $query, Model $model): Builder
     {
-        $column = config('custom-fields.selects.record_lookup.order_column');
-        $direction = (string) config('custom-fields.selects.record_lookup.order_direction', 'desc');
+        $column = config('custom-fields.selects.record.order_column');
+        $direction = (string) config('custom-fields.selects.record.order_direction', 'desc');
         $key = $model->getQualifiedKeyName();
 
         if (! is_string($column) || $column === '') {
@@ -239,7 +239,7 @@ class RecordSelectInputComponent extends Field implements HasNestedRecursiveVali
 
     private function lookupLimit(): int
     {
-        return (int) config('custom-fields.selects.record_lookup.limit', 50);
+        return (int) config('custom-fields.selects.record.limit', 50);
     }
 
     /**

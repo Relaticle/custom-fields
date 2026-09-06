@@ -27,7 +27,6 @@ class RecordFieldType extends BaseFieldType
             ->infolistEntry(RecordEntry::class)
             ->withoutUserOptions()
             ->requiresRelationship()
-            ->supportsMultiValue()
             ->sortable()
             ->searchable()
             ->filterable()

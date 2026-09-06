@@ -62,7 +62,7 @@ final class MigrateRecordLinksStep implements UpgradeStep
 
             $definition = $this->definitionFor($field);
 
-            if (! $definition instanceof CustomFieldRelationship && blank($field->lookup_type)) {
+            if (! $definition instanceof CustomFieldRelationship && blank($this->legacyTargetEntityType($field))) {
                 $failed++;
                 $warnings[] = sprintf("Field '%s' has no lookup type, so it has no relationship to define", $field->code);
                 $command->line(sprintf('  <comment>○</comment> %s: no lookup type, skipped', $field->code));
@@ -211,7 +211,7 @@ final class MigrateRecordLinksStep implements UpgradeStep
         $attributes = [
             'code' => $this->availableCode($field->code),
             'from_entity_type' => $field->entity_type,
-            'to_entity_type' => (string) $field->lookup_type,
+            'to_entity_type' => $this->legacyTargetEntityType($field),
             'cardinality' => $field->settings->allow_multiple
                 ? RelationshipCardinality::ManyToMany
                 : RelationshipCardinality::ManyToOne,
@@ -226,6 +226,17 @@ final class MigrateRecordLinksStep implements UpgradeStep
         }
 
         return CustomFields::newRelationshipModel()->newQuery()->create($attributes);
+    }
+
+    /**
+     * A host runs this before the migration that drops lookup_type, so the column is read
+     * raw: the model no longer knows about it, and on an upgraded host it is simply gone.
+     */
+    private function legacyTargetEntityType(CustomField $field): string
+    {
+        $target = $field->getRawOriginal('lookup_type');
+
+        return is_string($target) ? $target : '';
     }
 
     /**

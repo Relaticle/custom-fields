@@ -2,7 +2,6 @@
 
 declare(strict_types=1);
 
-use Illuminate\Support\Facades\DB;
 use Relaticle\CustomFields\CustomFields;
 use Relaticle\CustomFields\Data\CustomFieldOptionSettingsData;
 use Relaticle\CustomFields\Data\FieldSlotData;
@@ -1036,8 +1035,7 @@ describe('Record field configuration', function (): void {
             ->and($definition->is_symmetric)->toBeFalse()
             ->and($definition->fromField->code)->toBe('related_comment')
             ->and($definition->to_field_id)->toBeNull()
-            ->and(CustomField::query()->count())->toBe(1)
-            ->and(DB::table('custom_fields')->value('lookup_type'))->toBeNull();
+            ->and(CustomField::query()->count())->toBe(1);
     });
 
     it('creates the paired field on the target entity when it is named', function (): void {
@@ -1065,8 +1063,7 @@ describe('Record field configuration', function (): void {
             ->and($definition->fromField->code)->toBe('related_comment')
             ->and($definition->toField->name)->toBe('Related Post')
             ->and($definition->toField->entity_type)->toBe(Comment::class)
-            ->and($definition->toField->custom_field_section_id)->toBe($this->commentSection->getKey())
-            ->and(DB::table('custom_fields')->whereNotNull('lookup_type')->count())->toBe(0);
+            ->and($definition->toField->custom_field_section_id)->toBe($this->commentSection->getKey());
     });
 
     it('loads the definition into the edit form and keeps the ends where they are', function (): void {
