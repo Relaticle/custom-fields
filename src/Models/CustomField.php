@@ -21,6 +21,7 @@ use Relaticle\CustomFields\Data\Settings\CurrencyFieldSettingsData;
 use Relaticle\CustomFields\Database\Factories\CustomFieldFactory;
 use Relaticle\CustomFields\Enums\CustomFieldsFeature;
 use Relaticle\CustomFields\Enums\CustomFieldWidth;
+use Relaticle\CustomFields\Enums\OptionCategory;
 use Relaticle\CustomFields\Facades\CustomFieldsType;
 use Relaticle\CustomFields\FeatureSystem\FeatureManager;
 use Relaticle\CustomFields\Models\Concerns\Activable;
@@ -154,6 +155,14 @@ class CustomField extends Model
         return $this->hasMany(CustomFields::optionModel())
             ->with('customField')
             ->orderBy('sort_order');
+    }
+
+    /**
+     * @return Collection<int, CustomFieldOption>
+     */
+    public function optionsInCategory(OptionCategory $category): Collection
+    {
+        return $this->options()->whereCategory($category)->get();
     }
 
     /**
