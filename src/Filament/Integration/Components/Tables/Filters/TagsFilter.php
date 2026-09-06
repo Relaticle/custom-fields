@@ -27,13 +27,13 @@ final class TagsFilter extends AbstractTableFilter
         $filter->query(
             fn (array $data, Builder $query): Builder => $query->when(
                 ! empty($data['values']),
-                fn (Builder $query): Builder => $query->whereHas('customFieldValues', function (Builder $query) use ($customField, $data): void {
+                fn (Builder $query): Builder => $this->constrainThrough($query, $through, fn (Builder $query): Builder => $query->whereHas('customFieldValues', function (Builder $query) use ($customField, $data): void {
                     $query->where('custom_field_id', $customField->id);
 
                     foreach ($data['values'] as $tag) {
                         $query->whereJsonContains('json_value', $tag);
                     }
-                }),
+                })),
             )
         );
 

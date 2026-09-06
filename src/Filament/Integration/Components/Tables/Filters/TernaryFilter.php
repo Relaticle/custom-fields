@@ -22,18 +22,18 @@ final class TernaryFilter extends AbstractTableFilter
             ])
             ->nullable()
             ->queries(
-                true: fn (Builder $query) => $query
+                true: fn (Builder $query): Builder => $this->constrainThrough($query, $through, fn (Builder $query): Builder => $query
                     ->whereHas('customFieldValues', function (Builder $query) use ($customField): void {
                         $query->where('custom_field_id', $customField->getKey())->where($customField->getValueColumn(), true);
-                    }),
-                false: fn (Builder $query) => $query
+                    })),
+                false: fn (Builder $query): Builder => $this->constrainThrough($query, $through, fn (Builder $query): Builder => $query
                     ->where(fn (Builder $query) => $query
                         ->whereHas('customFieldValues', function (Builder $query) use ($customField): void {
                             $query->where('custom_field_id', $customField->getKey())->where($customField->getValueColumn(), false);
                         })->orWhereDoesntHave('customFieldValues', function (Builder $query) use ($customField): void {
                             $query->where('custom_field_id', $customField->getKey())->where($customField->getValueColumn(), true);
                         })
-                    )
+                    ))
             );
     }
 }

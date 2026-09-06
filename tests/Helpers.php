@@ -190,10 +190,26 @@ function throughTable(string|Closure $rows, string $sourceModel, string $relatio
     ThroughTable::$configureUsing = function (Table $table) use ($rows, $sourceModel, $relation, $extend): Table {
         $table = $table
             ->query(fn (): Builder => $rows instanceof Closure ? $rows() : $rows::query())
-            ->columns([...CustomFields::table()->forModel($sourceModel)->through($relation)->columns()]);
+            ->columns([...CustomFields::table()->forModel($sourceModel)->through($relation)->columns()])
+            ->filters([...CustomFields::table()->forModel($sourceModel)->through($relation)->filters()]);
 
         return $extend instanceof Closure ? $extend($table) : $table;
     };
+
+    return livewire(ThroughTable::class);
+}
+
+/**
+ * The same table without a through path, so a surface can be asserted from both sides.
+ *
+ * @param  class-string<Model>|Closure(): Builder<Model>  $rows
+ */
+function ownTable(string|Closure $rows, string $sourceModel): Testable
+{
+    ThroughTable::$configureUsing = fn (Table $table): Table => $table
+        ->query(fn (): Builder => $rows instanceof Closure ? $rows() : $rows::query())
+        ->columns([...CustomFields::table()->forModel($sourceModel)->columns()])
+        ->filters([...CustomFields::table()->forModel($sourceModel)->filters()]);
 
     return livewire(ThroughTable::class);
 }

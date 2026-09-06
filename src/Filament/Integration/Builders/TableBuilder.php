@@ -106,7 +106,7 @@ final class TableBuilder extends BaseBuilder
 
         return $this->getAllFields()
             ->filter(fn (CustomField $field): bool => $field->isFilterable() && $field->typeData->tableFilter !== null)
-            ->map(fn (CustomField $field) => $fieldFilterFactory->create($field))
+            ->map(fn (CustomField $field) => $fieldFilterFactory->create($field, $this->through))
             ->filter()
             ->values();
     }

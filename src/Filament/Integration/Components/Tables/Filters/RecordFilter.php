@@ -47,12 +47,12 @@ final class RecordFilter extends AbstractTableFilter
 
         $filter->query(fn (array $data, Builder $query): Builder => empty($data['values'])
             ? $query
-            : app(RecordLinkQuery::class)->whereLinkedTo(
+            : $this->constrainThrough($query, $through, fn (Builder $query): Builder => app(RecordLinkQuery::class)->whereLinkedTo(
                 $query,
                 $definition,
                 $definition->readDirectionFor($customField),
                 $data['values'],
-            ));
+            )));
 
         return $filter;
     }
