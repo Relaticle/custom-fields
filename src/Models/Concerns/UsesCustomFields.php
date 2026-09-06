@@ -138,8 +138,15 @@ trait UsesCustomFields
     {
         $objectId = spl_object_id($this);
 
-        if (isset(self::$tempCustomFields[$objectId]) && method_exists($this, 'saveCustomFields')) {
+        if (! isset(self::$tempCustomFields[$objectId]) || ! method_exists($this, 'saveCustomFields')) {
+            return;
+        }
+
+        // A rejected payload rolls its record back, and the store is keyed on an object id
+        // PHP reuses after collection, so the entry goes whichever way the write ends.
+        try {
             $this->saveCustomFields(self::$tempCustomFields[$objectId]);
+        } finally {
             unset(self::$tempCustomFields[$objectId]);
         }
     }

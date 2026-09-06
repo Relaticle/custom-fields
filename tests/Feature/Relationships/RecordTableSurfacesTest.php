@@ -99,6 +99,7 @@ it('filters, sorts, and searches a symmetric definition from either end', functi
     ));
 
     $definition->fromField->update(['settings' => new CustomFieldSettingsData(searchable: true)]);
+
     $code = $definition->fromField->code;
 
     $left = Post::factory()->create(['title' => 'Aaa Left']);

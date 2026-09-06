@@ -190,6 +190,24 @@ it('names the holder of a taken symmetric end', function (): void {
     expect($errors)->toBe(['Taken Partner is already linked to First Partner. Confirm the replacement to move it.']);
 });
 
+it('drops the rejected payload instead of retrying it on the next save', function (): void {
+    $definition = cardinalityPairing(RelationshipCardinality::ManyToOne);
+    $code = $definition->fromField->code;
+
+    [$first, $second] = Post::factory()->count(2)->create();
+    $post = Post::factory()->create(['title' => 'Rejected']);
+
+    $errors = cardinalityErrors(fn (): bool => $post->update([
+        'custom_fields' => [$code => [$first->getKey(), $second->getKey()]],
+    ]));
+
+    $post->update(['title' => 'Retried']);
+
+    expect($errors)->toBe(['This relationship holds a single record.'])
+        ->and($post->fresh()->title)->toBe('Retried')
+        ->and(CustomFieldLink::query()->count())->toBe(0);
+});
+
 it('reports the single-record message through the panel form', function (): void {
     $definition = cardinalityPairing(RelationshipCardinality::ManyToOne);
     $code = $definition->fromField->code;
