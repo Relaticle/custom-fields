@@ -186,6 +186,11 @@ class CustomField extends Model
             return null;
         }
 
+        // A host with the flag off never ran the two migrations, so the table is not there.
+        if (! FeatureManager::isEnabled(CustomFieldsFeature::SYSTEM_RELATIONSHIPS)) {
+            return null;
+        }
+
         return once(fn (): ?CustomFieldRelationship => CustomFields::newRelationshipModel()
             ->newQuery()
             ->where(fn (Builder $query): Builder => $query

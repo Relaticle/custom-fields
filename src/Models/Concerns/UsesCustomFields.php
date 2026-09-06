@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Relaticle\CustomFields\Models\Concerns;
 
 use Filament\Facades\Filament;
+use Illuminate\Contracts\Support\Arrayable;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection as EloquentCollection;
 use Illuminate\Database\Eloquent\Model;
@@ -16,8 +17,10 @@ use Relaticle\CustomFields\Enums\CustomFieldsFeature;
 use Relaticle\CustomFields\FeatureSystem\FeatureManager;
 use Relaticle\CustomFields\Models\Contracts\HasCustomFields;
 use Relaticle\CustomFields\Models\CustomField;
+use Relaticle\CustomFields\Models\CustomFieldRelationship;
 use Relaticle\CustomFields\Models\CustomFieldValue;
 use Relaticle\CustomFields\QueryBuilders\CustomFieldQueryBuilder;
+use Relaticle\CustomFields\Services\Relationships\LinkWriter;
 use Relaticle\CustomFields\Services\ValueResolver\LookupPreloader;
 
 /**
@@ -156,6 +159,12 @@ trait UsesCustomFields
 
     public function saveCustomFieldValue(CustomField $customField, mixed $value, ?Model $tenant = null): void
     {
+        if ($customField->relationshipDefinition() instanceof CustomFieldRelationship) {
+            app(LinkWriter::class)->apply($this, $customField, $this->linkTargetIds($value));
+
+            return;
+        }
+
         $data = ['custom_field_id' => $customField->getKey()];
 
         if (FeatureManager::isEnabled(CustomFieldsFeature::SYSTEM_MULTI_TENANCY)) {
@@ -171,6 +180,26 @@ trait UsesCustomFields
         $customFieldValue = $customFieldValue->firstOrNew($data);
         $customFieldValue->setValue($value);
         $customFieldValue->save();
+    }
+
+    /**
+     * An empty payload is a real value that closes every edge, so only null and blank ids
+     * fall away here.
+     *
+     * @return array<int, int|string>
+     */
+    private function linkTargetIds(mixed $value): array
+    {
+        if ($value instanceof Arrayable) {
+            $value = $value->toArray();
+        }
+
+        $ids = is_array($value) ? $value : [$value];
+
+        return array_values(array_filter(
+            $ids,
+            static fn (mixed $id): bool => is_int($id) || (is_string($id) && $id !== ''),
+        ));
     }
 
     /**
@@ -201,6 +230,13 @@ trait UsesCustomFields
     public function saveCustomFields(array $customFields, ?Model $tenant = null): void
     {
         $this->customFields()->each(function (CustomField $customField) use ($customFields, $tenant): void {
+            // A relationship has no row to overwrite with null: an absent key means the
+            // payload said nothing about those edges, so they stay as they are.
+            if (! array_key_exists($customField->code, $customFields)
+                && $customField->relationshipDefinition() instanceof CustomFieldRelationship) {
+                return;
+            }
+
             $value = $customFields[$customField->code] ?? null;
             $this->saveCustomFieldValue($customField, $value, $tenant);
         });
