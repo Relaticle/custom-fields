@@ -216,8 +216,7 @@ class RecordSelectInputComponent extends Field implements HasNestedRecursiveVali
      * resolved without a schema query: a runtime Schema::hasColumn() call would be
      * a per-request round trip. The one exception is the documented 'updated_at',
      * which falls back to the key on a model that opts out of timestamps.
-     */
-    /**
+     *
      * @param  Builder<Model>  $query
      * @return Builder<Model>
      */

@@ -25,5 +25,11 @@ parameters:
             identifier: argument.type
             path: src/Filament/Integration/Components/Tables/Columns/*
             reportUnmatched: false
+        # Laravel 13 made the Scope interface generic; Laravel 12 has the template on apply() only,
+        # so @implements Scope<Model> is required on one CI leg and rejected on the other
+        -
+            identifier: generics.notGeneric
+            path: src/Models/Scopes/*
+            reportUnmatched: false
     parallel:
     		maximumNumberOfProcesses: 3
