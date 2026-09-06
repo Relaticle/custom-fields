@@ -55,10 +55,19 @@ final class TableBuilder extends BaseBuilder
 
         return $allFields
             ->filter(fn (CustomField $field): bool => $field->typeData->tableColumn !== null)
-            ->map(function (CustomField $field) use ($fieldColumnFactory, $backendVisibilityService, $allFields) {
+            ->map(function (CustomField $field) use ($fieldColumnFactory, $backendVisibilityService, $allFields): Column {
                 $column = $fieldColumnFactory->create($field);
 
                 $this->readThroughRelation($column, $field);
+
+                $isVisible = fn (mixed $record): bool => ($subject = $this->fieldRecord($record)) instanceof Model
+                    && $backendVisibilityService->isFieldVisible($subject, $field, $allFields);
+
+                // A column that renders from the record instead of the state never reaches a
+                // formatter, so its cell answers the same condition where it is built.
+                if ($column instanceof RecordColumnView) {
+                    return $column->renderFor($isVisible);
+                }
 
                 if (! method_exists($column, 'formatStateUsing')) {
                     return $column;
@@ -66,21 +75,15 @@ final class TableBuilder extends BaseBuilder
 
                 $existingFormatter = (fn (): ?Closure => $this->formatStateUsing)->call($column); // @phpstan-ignore property.notFound
 
-                $column->formatStateUsing(function (mixed $state, mixed $record) use ($field, $backendVisibilityService, $allFields, $existingFormatter, $column): mixed {
-                    $subject = $this->fieldRecord($record);
-
-                    if (! $subject instanceof Model) {
-                        return null;
-                    }
-
-                    if (! $backendVisibilityService->isFieldVisible($subject, $field, $allFields)) {
+                $column->formatStateUsing(function (mixed $state, mixed $record) use ($isVisible, $existingFormatter, $column): mixed {
+                    if (! $isVisible($record)) {
                         return null;
                     }
 
                     if ($existingFormatter) {
                         return $column->evaluate($existingFormatter, [
                             'state' => $state,
-                            'record' => $subject,
+                            'record' => $this->fieldRecord($record),
                             'column' => $column,
                         ]);
                     }
@@ -143,12 +146,18 @@ final class TableBuilder extends BaseBuilder
             return;
         }
 
+        // The column type already knows how to search its own field; the path only decides
+        // which record is asked, so its query is re-run against the related model.
+        $existingSearch = (fn (): ?Closure => $this->searchQuery)->call($column); // @phpstan-ignore property.notFound
+
         $column->searchable(
             condition: true,
             query: fn (Builder $query, string $search): Builder => $resolver->constrain(
                 $query,
                 $relation,
-                fn (Builder $related): Builder => (new ColumnSearchableQuery)->builder($related, $field, $search),
+                fn (Builder $related): mixed => $existingSearch instanceof Closure
+                    ? $column->evaluate($existingSearch, ['query' => $related, 'search' => $search, 'searchQuery' => $search])
+                    : (new ColumnSearchableQuery)->builder($related, $field, $search),
             ),
         );
     }

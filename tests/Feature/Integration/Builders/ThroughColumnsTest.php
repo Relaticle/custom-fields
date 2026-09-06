@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use Filament\Tables\Columns\Column;
 use Illuminate\Database\Eloquent\Builder;
+use Relaticle\CustomFields\Data\CustomFieldSettingsData;
 use Relaticle\CustomFields\Data\FieldSlotData;
 use Relaticle\CustomFields\Data\RelationshipDefinitionData;
 use Relaticle\CustomFields\Data\VisibilityConditionData;
@@ -12,6 +13,10 @@ use Relaticle\CustomFields\Enums\RelationshipCardinality;
 use Relaticle\CustomFields\Enums\VisibilityLogic;
 use Relaticle\CustomFields\Enums\VisibilityMode;
 use Relaticle\CustomFields\Enums\VisibilityOperator;
+use Relaticle\CustomFields\Exceptions\UnsupportedThroughRelationException;
+use Relaticle\CustomFields\Facades\CustomFields;
+use Relaticle\CustomFields\Filament\Integration\Components\Tables\Columns\RecordColumn;
+use Relaticle\CustomFields\Filament\Integration\Components\Tables\Columns\RecordColumnView;
 use Relaticle\CustomFields\Models\CustomField;
 use Relaticle\CustomFields\Services\Relationships\CreateRelationshipDefinition;
 use Relaticle\CustomFields\Tests\Fixtures\Livewire\ThroughTable;
@@ -248,4 +253,145 @@ it('sorts through a constrained has-one by the child the relation admits', funct
         ->assertCanSeeTableRecords([$alpha, $bravo, $charlie], inOrder: true)
         ->sortTable('custom_fields.category', 'desc')
         ->assertCanSeeTableRecords([$charlie, $bravo, $alpha], inOrder: true);
+});
+
+function recordFieldOnPost(string $code, CustomFieldSettingsData $settings): CustomField
+{
+    registerPostLookupEntity();
+
+    $definition = app(CreateRelationshipDefinition::class)->execute(new RelationshipDefinitionData(
+        code: $code,
+        fromEntityType: (new Post)->getMorphClass(),
+        toEntityType: (new Post)->getMorphClass(),
+        cardinality: RelationshipCardinality::ManyToOne,
+        fromField: new FieldSlotData(name: 'Related Post', sectionId: sectionForEntity((new Post)->getMorphClass())->getKey()),
+    ));
+
+    $definition->fromField->update(['settings' => $settings]);
+
+    return $definition->fromField->refresh();
+}
+
+function throughColumnFor(string $relation, string $code): Column
+{
+    return CustomFields::table()
+        ->forModel(Post::class)
+        ->through($relation)
+        ->columns()
+        ->first(fn (Column $column): bool => $column->getName() === 'custom_fields.'.$code);
+}
+
+/**
+ * The root cause of rendering a table whose through path the row model cannot serve.
+ */
+function throughRenderFailure(string $modelClass, string $relation): ?Throwable
+{
+    $thrown = null;
+
+    try {
+        throughTable($modelClass, Post::class, $relation)->assertSuccessful();
+    } catch (Throwable $throwable) {
+        $thrown = $throwable;
+    }
+
+    while ($thrown?->getPrevious() instanceof Throwable) {
+        $thrown = $thrown->getPrevious();
+    }
+
+    return $thrown;
+}
+
+it('rejects an unsupported through path from the column entry', function (string $modelClass, string $relation, string $reason): void {
+    throughTextField(Post::class, 'category', 'Category');
+
+    $modelClass::factory()->create();
+
+    $thrown = throughRenderFailure($modelClass, $relation);
+
+    expect($thrown)->toBeInstanceOf(UnsupportedThroughRelationException::class)
+        ->and($thrown->getMessage())->toContain($reason);
+})->with([
+    'missing relation' => [Comment::class, 'publisher', 'has no relation named'],
+    'polymorphic to-one' => [Comment::class, 'commentable', 'is a MorphTo'],
+    'has many' => [User::class, 'posts', 'is a HasMany'],
+    'belongs to many' => [Post::class, 'tagModels', 'is a BelongsToMany'],
+    'target without custom fields' => [Post::class, 'author', 'does not implement HasCustomFields'],
+]);
+
+it('rejects an unsupported through path from the record column entry', function (string $modelClass, string $relation, string $reason): void {
+    $field = recordFieldOnPost('entry_guard', new CustomFieldSettingsData);
+
+    $record = $modelClass::factory()->create();
+
+    // Built without the builder, so the cell's own hop is what answers, not the gate the
+    // builder installs in front of it.
+    $column = app(RecordColumn::class)->make($field)->through($relation);
+
+    expect($column)->toBeInstanceOf(RecordColumnView::class)
+        ->and(fn (): array => $column->getRecords($record))
+        ->toThrow(UnsupportedThroughRelationException::class, $reason);
+})->with([
+    'missing relation' => [Comment::class, 'publisher', 'has no relation named'],
+    'polymorphic to-one' => [Comment::class, 'commentable', 'is a MorphTo'],
+    'has many' => [User::class, 'posts', 'is a HasMany'],
+]);
+
+it('searches a record field through a relation by the linked record, not the stored value', function (): void {
+    $field = recordFieldOnPost('searchable_link', new CustomFieldSettingsData(searchable: true));
+
+    $target = Post::factory()->create(['title' => 'Findable Target']);
+    $linking = Post::factory()->create(['custom_fields' => [$field->code => [$target->getKey()]]]);
+
+    $onLinking = Comment::factory()->create(['post_id' => $linking->getKey()]);
+    $onUnlinked = Comment::factory()->create(['post_id' => Post::factory()->create()->getKey()]);
+
+    throughTable(Comment::class, Post::class, 'post')
+        ->searchTable('Findable')
+        ->assertCanSeeTableRecords([$onLinking])
+        ->assertCanNotSeeTableRecords([$onUnlinked]);
+});
+
+it('hides a conditionally hidden record column per record on both paths', function (): void {
+    $status = throughTextField(Post::class, 'status', 'Status');
+
+    $field = recordFieldOnPost('conditional_link', new CustomFieldSettingsData(
+        visibility: new VisibilityData(
+            mode: VisibilityMode::SHOW_WHEN,
+            logic: VisibilityLogic::ALL,
+            conditions: new DataCollection(VisibilityConditionData::class, [
+                new VisibilityConditionData(field_code: 'status', operator: VisibilityOperator::EQUALS, value: 'published'),
+            ]),
+        ),
+    ));
+
+    $target = Post::factory()->create(['title' => 'Linked Target']);
+
+    $published = Post::factory()->create(['custom_fields' => [$field->code => [$target->getKey()]]]);
+    $published->saveCustomFieldValue($status, 'published');
+
+    $draft = Post::factory()->create(['custom_fields' => [$field->code => [$target->getKey()]]]);
+    $draft->saveCustomFieldValue($status, 'draft');
+
+    $direct = CustomFields::table()
+        ->forModel(Post::class)
+        ->columns()
+        ->first(fn (Column $column): bool => $column->getName() === 'custom_fields.'.$field->code);
+
+    expect($direct->getRecords($published))->toHaveCount(1)
+        ->and($direct->getRecords($draft))->toBe([]);
+
+    $onPublished = Comment::factory()->create(['post_id' => $published->getKey()]);
+    $onDraft = Comment::factory()->create(['post_id' => $draft->getKey()]);
+
+    $through = throughColumnFor('post', $field->code);
+
+    expect($through->getRecords($onPublished))->toHaveCount(1)
+        ->and($through->getRecords($onDraft))->toBe([]);
+
+    throughTable(fn (): Builder => Comment::query()->whereKey($onDraft->getKey()), Post::class, 'post')
+        ->assertCanSeeTableRecords([$onDraft])
+        ->assertDontSee('Linked Target');
+
+    throughTable(fn (): Builder => Comment::query()->whereKey($onPublished->getKey()), Post::class, 'post')
+        ->assertSee('Linked Target');
 });

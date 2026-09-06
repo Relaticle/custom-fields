@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Relaticle\CustomFields\Filament\Integration\Components\Tables\Columns;
 
+use Closure;
 use Filament\Tables\Columns\Column;
 use Illuminate\Database\Eloquent\Model;
 use Relaticle\CustomFields\Data\EntityConfigurationData;
@@ -12,6 +13,7 @@ use Relaticle\CustomFields\Facades\Entities;
 use Relaticle\CustomFields\Filament\Integration\Support\RecordChips;
 use Relaticle\CustomFields\Models\Contracts\HasCustomFields;
 use Relaticle\CustomFields\Models\CustomField;
+use Relaticle\CustomFields\Support\ThroughRelationResolver;
 use Relaticle\CustomFields\Support\ViewFlavor;
 
 /**
@@ -29,6 +31,9 @@ final class RecordColumnView extends Column
 
     private ?string $through = null;
 
+    /** @var (Closure(Model): bool)|null */
+    private ?Closure $shouldRenderFor = null;
+
     /**
      * The view renders from the record rather than the column state, so a through path has
      * to reach it here as well.
@@ -36,6 +41,19 @@ final class RecordColumnView extends Column
     public function through(?string $relation): static
     {
         $this->through = $relation;
+
+        return $this;
+    }
+
+    /**
+     * A cell-level gate. Filament evaluates a column's own visibility once per table, so a
+     * per-record condition has to be answered where the cell is built.
+     *
+     * @param  (Closure(Model): bool)|null  $callback
+     */
+    public function renderFor(?Closure $callback): static
+    {
+        $this->shouldRenderFor = $callback;
 
         return $this;
     }
@@ -68,7 +86,15 @@ final class RecordColumnView extends Column
      */
     public function getRecords(Model $record): array
     {
-        $subject = $this->through === null ? $record : $record->getAttribute($this->through);
+        // The path is validated before the gate, so an unsupported one is reported whether or
+        // not the cell would have rendered.
+        $subject = $this->through === null
+            ? $record
+            : app(ThroughRelationResolver::class)->relatedRecord($record, $this->through);
+
+        if ($this->shouldRenderFor instanceof Closure && ! ($this->shouldRenderFor)($record)) {
+            return [];
+        }
 
         if (! $subject instanceof HasCustomFields || ! $this->customField instanceof CustomField) {
             return [];
