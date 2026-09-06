@@ -29,6 +29,19 @@ final class RecordColumnView extends Column
 
     private ?string $titleAttribute = null;
 
+    private ?string $through = null;
+
+    /**
+     * The view renders from the record rather than the column state, so a through path has
+     * to reach it here as well.
+     */
+    public function through(?string $relation): static
+    {
+        $this->through = $relation;
+
+        return $this;
+    }
+
     public function customField(CustomField $customField): static
     {
         $this->customField = $customField;
@@ -57,11 +70,13 @@ final class RecordColumnView extends Column
      */
     public function getRecords(Model $record): array
     {
-        if (! $record instanceof HasCustomFields || ! $this->customField instanceof CustomField) {
+        $subject = $this->through === null ? $record : $record->getAttribute($this->through);
+
+        if (! $subject instanceof HasCustomFields || ! $this->customField instanceof CustomField) {
             return [];
         }
 
-        $value = $record->getCustomFieldValue($this->customField);
+        $value = $subject->getCustomFieldValue($this->customField);
 
         if ($value === null || (is_array($value) && $value === [])) {
             return [];

@@ -2,20 +2,28 @@
 
 declare(strict_types=1);
 
+use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Schema;
+use Livewire\Features\SupportTesting\Testable;
+use Relaticle\CustomFields\Data\CustomFieldSettingsData;
+use Relaticle\CustomFields\Data\VisibilityData;
 use Relaticle\CustomFields\EntitySystem\EntityConfigurator;
 use Relaticle\CustomFields\EntitySystem\EntityManager;
 use Relaticle\CustomFields\EntitySystem\EntityModel;
 use Relaticle\CustomFields\Enums\CustomFieldsFeature;
 use Relaticle\CustomFields\Enums\EntityFeature;
+use Relaticle\CustomFields\Facades\CustomFields;
 use Relaticle\CustomFields\FeatureSystem\FeatureConfigurator;
 use Relaticle\CustomFields\FeatureSystem\FeatureManager;
 use Relaticle\CustomFields\Filament\Integration\Components\Forms\RecordSelectInput\RecordSelectInputComponent;
+use Relaticle\CustomFields\Models\CustomField;
 use Relaticle\CustomFields\Models\CustomFieldSection;
 use Relaticle\CustomFields\Services\TenantContextService;
+use Relaticle\CustomFields\Tests\Fixtures\Livewire\ThroughTable;
 use Relaticle\CustomFields\Tests\Fixtures\Models\Post;
 
 /**
@@ -148,4 +156,44 @@ function useTenantSchema(int|string $tenantId): void
     config('custom-fields.features')->enable(CustomFieldsFeature::SYSTEM_MULTI_TENANCY);
 
     TenantContextService::setTenantId($tenantId);
+}
+
+/**
+ * A list-visible text field on the given entity, for through-relation table surfaces.
+ */
+function throughTextField(string $entityClass, string $code, string $name, bool $searchable = false, ?VisibilityData $visibility = null): CustomField
+{
+    return CustomField::factory()->create([
+        'custom_field_section_id' => sectionForEntity($entityClass)->getKey(),
+        'name' => $name,
+        'code' => $code,
+        'type' => 'text',
+        'entity_type' => $entityClass,
+        'settings' => new CustomFieldSettingsData(
+            visible_in_list: true,
+            list_toggleable_hidden: false,
+            searchable: $searchable,
+            visibility: $visibility ?? new VisibilityData,
+        ),
+    ]);
+}
+
+/**
+ * Mount a table over rows that carry no custom fields of their own, reading the fields of
+ * the model reached through the given relation.
+ *
+ * @param  class-string<Model>|Closure(): Builder<Model>  $rows
+ * @param  (Closure(Table): Table)|null  $extend
+ */
+function throughTable(string|Closure $rows, string $sourceModel, string $relation, ?Closure $extend = null): Testable
+{
+    ThroughTable::$configureUsing = function (Table $table) use ($rows, $sourceModel, $relation, $extend): Table {
+        $table = $table
+            ->query(fn (): Builder => $rows instanceof Closure ? $rows() : $rows::query())
+            ->columns([...CustomFields::table()->forModel($sourceModel)->through($relation)->columns()]);
+
+        return $extend instanceof Closure ? $extend($table) : $table;
+    };
+
+    return livewire(ThroughTable::class);
 }

@@ -232,7 +232,8 @@ test('every PHP file outside the source tree declares strict types', function ()
         );
 
         foreach ($iterator as $file) {
-            if ($file->getExtension() === 'php') {
+            // A Blade template ends in .php and can carry no declaration of its own.
+            if ($file->getExtension() === 'php' && ! str_ends_with($file->getBasename(), '.blade.php')) {
                 $files[] = $file->getPathname();
             }
         }

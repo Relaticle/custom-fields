@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Relaticle\CustomFields\Support;
 
+use Closure;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasOne;
@@ -12,6 +14,7 @@ use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Database\Eloquent\Relations\Relation;
 use Relaticle\CustomFields\Exceptions\UnsupportedThroughRelationException;
 use Relaticle\CustomFields\Models\Contracts\HasCustomFields;
+use Relaticle\CustomFields\Models\CustomField;
 
 /**
  * Decide whether a row model can reach custom fields through one of its relations.
@@ -48,6 +51,69 @@ final readonly class ThroughRelationResolver
         }
 
         return $instance;
+    }
+
+    /**
+     * The related record a field is read from, or null when the row has none.
+     *
+     * @return (Model&HasCustomFields)|null
+     *
+     * @throws UnsupportedThroughRelationException
+     */
+    public function relatedRecord(Model $record, string $relation): ?Model
+    {
+        $this->resolve($record, $relation);
+
+        $related = $record->getAttribute($relation);
+
+        return $related instanceof Model && $related instanceof HasCustomFields ? $related : null;
+    }
+
+    /**
+     * Apply a constraint written against the related model to a row query.
+     *
+     * @param  Builder<Model>  $query
+     * @param  Closure(Builder<Model>): mixed  $constraint
+     * @return Builder<Model>
+     *
+     * @throws UnsupportedThroughRelationException
+     */
+    public function constrain(Builder $query, string $relation, Closure $constraint): Builder
+    {
+        $this->resolve($query->getModel(), $relation);
+
+        return $query->whereHas($relation, $constraint);
+    }
+
+    /**
+     * @param  Builder<Model>  $query
+     * @return Builder<Model>
+     *
+     * @throws UnsupportedThroughRelationException
+     */
+    public function orderByFieldValue(Builder $query, string $relation, CustomField $customField, string $direction): Builder
+    {
+        $instance = $this->resolve($query->getModel(), $relation);
+
+        $values = $customField->values();
+        $entityId = $values->getRelated()->qualifyColumn('entity_id');
+
+        $values->select($customField->getValueColumn())->limit(1);
+
+        if ($instance instanceof BelongsTo) {
+            // The foreign key sits on the row table already, so the value correlates without a hop.
+            $values->whereColumn($entityId, $instance->getQualifiedForeignKeyName());
+        } else {
+            $related = $instance->getRelated();
+
+            $values->whereIn($entityId, $instance->getRelationExistenceQuery(
+                $related->newQueryWithoutRelationships(),
+                $query,
+                [$related->qualifyColumn($related->getKeyName())],
+            ));
+        }
+
+        return $query->orderBy($values->getQuery(), $direction);
     }
 
     /**
