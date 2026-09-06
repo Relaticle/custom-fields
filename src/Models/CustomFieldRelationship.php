@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Relaticle\CustomFields\Models;
 
+use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 use Illuminate\Database\Eloquent\Attributes\ScopedBy;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -14,6 +15,7 @@ use Relaticle\CustomFields\CustomFields;
 use Relaticle\CustomFields\Database\Factories\CustomFieldRelationshipFactory;
 use Relaticle\CustomFields\Enums\RelationshipCardinality;
 use Relaticle\CustomFields\Models\Scopes\TenantScope;
+use Relaticle\CustomFields\Observers\CustomFieldRelationshipObserver;
 
 /**
  * @property int $id
@@ -28,6 +30,7 @@ use Relaticle\CustomFields\Models\Scopes\TenantScope;
  * @property Carbon $updated_at
  */
 #[ScopedBy([TenantScope::class])]
+#[ObservedBy(CustomFieldRelationshipObserver::class)]
 class CustomFieldRelationship extends Model
 {
     /** @use HasFactory<CustomFieldRelationshipFactory> */

@@ -2,13 +2,20 @@
 
 declare(strict_types=1);
 
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Schema;
 use Relaticle\CustomFields\EntitySystem\EntityConfigurator;
 use Relaticle\CustomFields\EntitySystem\EntityManager;
 use Relaticle\CustomFields\EntitySystem\EntityModel;
+use Relaticle\CustomFields\Enums\CustomFieldsFeature;
 use Relaticle\CustomFields\Enums\EntityFeature;
 use Relaticle\CustomFields\FeatureSystem\FeatureConfigurator;
+use Relaticle\CustomFields\FeatureSystem\FeatureManager;
 use Relaticle\CustomFields\Filament\Integration\Components\Forms\RecordSelectInput\RecordSelectInputComponent;
+use Relaticle\CustomFields\Models\CustomFieldSection;
+use Relaticle\CustomFields\Services\TenantContextService;
 use Relaticle\CustomFields\Tests\Fixtures\Models\Post;
 
 /**
@@ -84,4 +91,50 @@ function shippedFeatureConfigurator(): FeatureConfigurator
     $config = require dirname(__DIR__).'/config/custom-fields.php';
 
     return $config['features'];
+}
+
+/**
+ * A section for the given entity type, so fields created under it survive the activable scope.
+ */
+function sectionForEntity(string $entityType): CustomFieldSection
+{
+    $attributes = ['entity_type' => $entityType];
+
+    if (FeatureManager::isEnabled(CustomFieldsFeature::SYSTEM_MULTI_TENANCY)) {
+        $attributes[config('custom-fields.database.column_names.tenant_foreign_key')] = TenantContextService::getCurrentTenantId();
+    }
+
+    return CustomFieldSection::factory()->create($attributes);
+}
+
+/**
+ * Rebuild the schema the multi-tenancy feature flag would have migrated, then enter a tenant.
+ * MySQL commits DDL implicitly, which ends the test transaction, so callers skip it there.
+ */
+function useTenantSchema(int|string $tenantId): void
+{
+    $tenantKey = config('custom-fields.database.column_names.tenant_foreign_key');
+
+    $tables = [
+        config('custom-fields.database.table_names.custom_field_sections'),
+        config('custom-fields.database.table_names.custom_fields'),
+        config('custom-fields.database.table_names.custom_field_relationships'),
+        config('custom-fields.database.table_names.custom_field_links'),
+    ];
+
+    foreach ($tables as $table) {
+        Schema::table($table, function (Blueprint $blueprint) use ($tenantKey): void {
+            $blueprint->unsignedBigInteger($tenantKey)->nullable();
+        });
+    }
+
+    // Eloquent caches each model's column listing statically to decide what is guardable, and
+    // an earlier test in this process cached these tables without their tenant column.
+    Closure::bind(static function (): void {
+        Model::$guardableColumns = [];
+    }, null, Model::class)();
+
+    config('custom-fields.features')->enable(CustomFieldsFeature::SYSTEM_MULTI_TENANCY);
+
+    TenantContextService::setTenantId($tenantId);
 }
