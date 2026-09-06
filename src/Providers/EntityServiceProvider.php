@@ -10,7 +10,7 @@ use Relaticle\CustomFields\EntitySystem\EntityConfigurator;
 use Relaticle\CustomFields\EntitySystem\EntityManager;
 use Relaticle\CustomFields\Enums\EntityFeature;
 
-class EntityServiceProvider extends ServiceProvider
+final class EntityServiceProvider extends ServiceProvider
 {
     /**
      * Register services

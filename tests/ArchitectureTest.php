@@ -278,7 +278,6 @@ arch('Classes are final outside the documented extension points')
         'Relaticle\CustomFields\Models\Contracts',
         CustomField::class,
         ActivableScope::class,
-        'Relaticle\CustomFields\Providers',
         CustomFieldQueryBuilder::class,
         AbstractDateCapability::class,
     ]);
