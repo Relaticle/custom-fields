@@ -27,6 +27,7 @@ use Relaticle\CustomFields\FieldTypeSystem\Definitions\RecordFieldType;
 use Relaticle\CustomFields\FieldTypeSystem\Definitions\RelationshipFieldType;
 use Relaticle\CustomFields\FieldTypeSystem\Definitions\RichEditorFieldType;
 use Relaticle\CustomFields\FieldTypeSystem\Definitions\SelectFieldType;
+use Relaticle\CustomFields\FieldTypeSystem\Definitions\StatusFieldType;
 use Relaticle\CustomFields\FieldTypeSystem\Definitions\TagsInputFieldType;
 use Relaticle\CustomFields\FieldTypeSystem\Definitions\TextareaFieldType;
 use Relaticle\CustomFields\FieldTypeSystem\Definitions\TextFieldType;
@@ -57,6 +58,7 @@ final class FieldManager
         DateFieldType::class,
         DateTimeFieldType::class,
         SelectFieldType::class,
+        StatusFieldType::class,
         MultiSelectFieldType::class,
         RecordFieldType::class,
         RelationshipFieldType::class,

@@ -28,6 +28,8 @@ trait ConfiguresCapabilities
 
     private bool $supportsPairing = false;
 
+    private bool $carriesOptionCategories = false;
+
     /** @var array<int, VisibilityOperator>|null */
     private ?array $visibilityOperators = null;
 
@@ -171,6 +173,18 @@ trait ConfiguresCapabilities
     public function supportsPairing(bool $supports = true): self
     {
         $this->supportsPairing = $supports;
+
+        return $this;
+    }
+
+    /**
+     * Each option of the field means a workflow state, so the options editor asks for a
+     * category beside every name and the migrator accepts one. A plain choice field answers
+     * false and keeps the free-text list it has always had.
+     */
+    public function carriesOptionCategories(bool $carries = true): self
+    {
+        $this->carriesOptionCategories = $carries;
 
         return $this;
     }

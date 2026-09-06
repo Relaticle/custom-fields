@@ -150,6 +150,7 @@ final class FieldSchema
             withoutUserOptions: $this->withoutUserOptions,
             requiresRelationship: $this->requiresRelationship,
             supportsPairing: $this->supportsPairing,
+            carriesOptionCategories: $this->carriesOptionCategories,
             acceptsArbitraryValues: $this->acceptsArbitraryValues,
             supportsMultiValue: $this->supportsMultiValue,
             supportsUniqueConstraint: $this->supportsUniqueConstraint,

@@ -665,6 +665,7 @@ return [
         'textarea' => 'Textarea',
         'markdown_editor' => 'Markdown Editor',
         'select' => 'Select',
+        'status' => 'Status',
         'tags_input' => 'Tags Input',
     ],
 
@@ -691,6 +692,7 @@ return [
         'textarea' => 'Several lines of plain text.',
         'markdown_editor' => 'Text written in markdown.',
         'select' => 'One choice from a list you define.',
+        'status' => 'One choice from a list of workflow states you define.',
         'tags_input' => 'Free-form tags, typed one at a time.',
     ],
 

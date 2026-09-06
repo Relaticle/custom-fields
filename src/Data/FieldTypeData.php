@@ -30,6 +30,7 @@ final class FieldTypeData extends Data implements Stringable
         public bool $withoutUserOptions = false,
         public bool $requiresRelationship = false,
         public bool $supportsPairing = false,
+        public bool $carriesOptionCategories = false,
         public bool $acceptsArbitraryValues = false,
         public bool $supportsMultiValue = false,
         public bool $supportsUniqueConstraint = false,
