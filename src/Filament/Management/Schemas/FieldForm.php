@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Relaticle\CustomFields\Filament\Management\Schemas;
 
 use Closure;
+use Filament\Actions\Action;
 use Filament\Forms\Components\Checkbox;
 use Filament\Forms\Components\ColorPicker;
 use Filament\Forms\Components\Hidden;
@@ -14,6 +15,7 @@ use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
+use Filament\Notifications\Notification;
 use Filament\Schemas\Components\Component;
 use Filament\Schemas\Components\Fieldset;
 use Filament\Schemas\Components\Grid;
@@ -22,6 +24,7 @@ use Filament\Schemas\Components\Tabs;
 use Filament\Schemas\Components\Tabs\Tab;
 use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Components\Utilities\Set;
+use Filament\Support\Enums\Width;
 use Filament\Support\Icons\Heroicon;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Arr;
@@ -46,6 +49,7 @@ use Relaticle\CustomFields\Models\CustomField;
 use Relaticle\CustomFields\Models\CustomFieldRelationship;
 use Relaticle\CustomFields\Models\CustomFieldSection;
 use Relaticle\CustomFields\Services\TenantContextService;
+use Relaticle\CustomFields\Support\OptionNameParser;
 use Relaticle\CustomFields\Support\ViewFlavor;
 
 final class FieldForm implements FormInterface
@@ -180,6 +184,149 @@ final class FieldForm implements FormInterface
                         $set('code', Str::of($state)->slug('_')->toString());
                     }),
             ]);
+    }
+
+    /**
+     * A vocabulary is pasted, not clicked in one option at a time. The rows are appended
+     * through the repeater's own state so tenant stamping and sort_order keep working, which
+     * is why nothing here writes an option model.
+     */
+    private static function pasteOptionsAction(): Action
+    {
+        return Action::make('pasteOptions')
+            ->label(__('custom-fields::custom-fields.field.form.options.paste'))
+            ->icon(Heroicon::OutlinedClipboardDocumentList)
+            ->link()
+            ->modalHeading(__('custom-fields::custom-fields.field.form.options.paste_modal_heading'))
+            ->modalSubmitActionLabel(__('custom-fields::custom-fields.field.form.options.paste_submit'))
+            ->modalWidth(Width::Large)
+            ->schema([
+                Textarea::make('names')
+                    ->label(__('custom-fields::custom-fields.field.form.options.paste_names'))
+                    ->helperText(__('custom-fields::custom-fields.field.form.options.paste_names_help', [
+                        'max' => OptionNameParser::MAX_NAMES,
+                    ]))
+                    ->rows(10)
+                    ->required(),
+            ])
+            ->action(function (array $data, Repeater $component): void {
+                $items = self::optionItems($component);
+
+                $parsed = OptionNameParser::parse(
+                    is_string($data['names'] ?? null) ? $data['names'] : null,
+                    array_map(fn (array $item): mixed => $item['name'] ?? null, $items),
+                );
+
+                self::appendOptionNames($component, $parsed['names']);
+
+                $body = __('custom-fields::custom-fields.field.form.options.pasted', [
+                    'added' => count($parsed['names']),
+                    'duplicates' => $parsed['duplicates'],
+                ]);
+
+                if ($parsed['truncated']) {
+                    $body .= '. '.__('custom-fields::custom-fields.field.form.options.pasted_capped', [
+                        'max' => OptionNameParser::MAX_NAMES,
+                    ]);
+                }
+
+                Notification::make()
+                    ->success()
+                    ->title(__('custom-fields::custom-fields.field.form.options.paste_modal_heading'))
+                    ->body($body)
+                    ->send();
+            });
+    }
+
+    /**
+     * @return array<int|string, array<string, mixed>>
+     */
+    private static function optionItems(Repeater $component): array
+    {
+        $items = [];
+
+        foreach (Arr::wrap($component->getRawState()) as $key => $item) {
+            $items[$key] = is_array($item) ? $item : [];
+        }
+
+        return $items;
+    }
+
+    /**
+     * Mirrors the repeater's own add action: a key per row, then the child schema fills it.
+     *
+     * @param  list<string>  $names
+     */
+    private static function appendOptionNames(Repeater $component, array $names): void
+    {
+        if ($names === []) {
+            return;
+        }
+
+        // defaultItems(1) opens a fresh field on a blank row, and a pasted list would leave it
+        // behind to fail the required rule on a row nobody typed.
+        $items = array_filter(
+            self::optionItems($component),
+            fn (array $item): bool => filled($item['name'] ?? null),
+        );
+
+        $filled = [];
+
+        foreach ($names as $name) {
+            $uuid = $component->generateUuid();
+
+            if ($uuid === null) {
+                $items[] = [];
+                $filled[array_key_last($items)] = $name;
+
+                continue;
+            }
+
+            $items[$uuid] = [];
+            $filled[$uuid] = $name;
+        }
+
+        $component->rawState($items);
+
+        foreach ($filled as $key => $name) {
+            $component->getChildSchema((string) $key)?->fill(['name' => $name]);
+        }
+
+        $component->callAfterStateUpdated();
+    }
+
+    /**
+     * The entity the field links to. Both ends of a definition are locked once it exists, so
+     * the select is read-only from the first save on.
+     */
+    private static function targetEntitySelect(): Select
+    {
+        return Select::make('relationship.target_entity_type')
+            ->label(__('custom-fields::custom-fields.field.form.record.target'))
+            ->hintIcon(Heroicon::OutlinedQuestionMarkCircle, tooltip: __('custom-fields::custom-fields.field.form.record.target_help'))
+            ->options(Entities::getLookupOptions())
+            ->default((Entities::asLookupSources()->first()?->getAlias()) ?? '')
+            ->disabled(fn (?CustomField $record): bool => (bool) $record?->exists)
+            ->required()
+            ->live();
+    }
+
+    /**
+     * A field that stops holding many records closes the edges that no longer fit, so the
+     * narrowing is confirmed before it is saved. Each face reads the cardinality off its own
+     * control, which is a toggle on one and a select on the other.
+     *
+     * @param  Closure(Get): ?RelationshipCardinality  $cardinality
+     */
+    private static function keepFirstConfirmation(Closure $cardinality): Checkbox
+    {
+        return Checkbox::make('relationship.keep_first')
+            ->label(__('custom-fields::custom-fields.field.form.record.keep_first'))
+            ->helperText(__('custom-fields::custom-fields.field.form.record.keep_first_help'))
+            ->columnSpanFull()
+            ->accepted()
+            ->default(false)
+            ->visible(fn (Get $get, ?CustomField $record): bool => self::narrowsCardinality($record, $cardinality($get)));
     }
 
     /**
@@ -516,6 +663,7 @@ final class FieldForm implements FormInterface
             })
             ->hiddenLabel()
             ->defaultItems(1)
+            ->hintAction(self::pasteOptionsAction())
             ->addActionLabel(
                 __('custom-fields::custom-fields.field.form.options.add')
             )
