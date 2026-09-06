@@ -154,6 +154,25 @@ describe('record chips', function (): void {
             ->and($withActor[0])->toStartWith('Linked by ');
     });
 
+    it('reads a host source the package has no words for as itself', function (): void {
+        registerChipEntity();
+        $definition = relatedPostsField();
+
+        $target = Post::factory()->create(['title' => 'Aurora Labs']);
+        $host = Post::factory()->create([
+            'custom_fields' => [$definition->fromField->code => [$target->getKey()]],
+        ]);
+
+        CustomFieldLink::query()->update(['source' => 'webhook', 'created_by_type' => null, 'created_by_id' => null]);
+        $host->load('outgoingLinks.createdBy');
+
+        $provenance = array_values(app(RecordChips::class)->provenance($host, $definition->fromField));
+
+        expect($provenance)->toHaveCount(1)
+            ->and($provenance[0])->toContain('webhook')
+            ->and($provenance[0])->not->toContain('custom-fields::');
+    });
+
     it('says a record is not linked rather than leaving the chip row blank', function (): void {
         registerChipEntity();
         relatedPostsField();
@@ -233,6 +252,52 @@ describe('record picker', function (): void {
 
         livewire(EditPost::class, ['record' => Post::factory()->create()->getRouteKey()])
             ->assertDontSee('Create a new');
+    });
+
+    it('reads the overflow as a sentence, not as a raw plural string, in both flavors', function (string $flavor): void {
+        config()->set('custom-fields.ui.flavor', $flavor);
+        registerChipEntity();
+        $definition = relatedPostsField();
+
+        $targets = Post::factory()->count(4)->create();
+        $host = Post::factory()->create([
+            'custom_fields' => [$definition->fromField->code => $targets->pluck('id')->all()],
+        ]);
+
+        // The trigger picks its form in the browser, so the server render is asserted on the
+        // two forms it picks between: the raw pluralized string must never reach the client.
+        $html = livewire(EditPost::class, ['record' => $host->getRouteKey()])->html();
+
+        // The labels reach the client as escaped JSON, so the assertion reads the same bytes
+        // the browser parses.
+        $quote = '\u0022';
+
+        expect($html)
+            ->toContain('overflowLabels')
+            ->toContain($quote.'one'.$quote.':'.$quote.':count more'.$quote)
+            ->toContain($quote.'many'.$quote.':'.$quote.':count more'.$quote)
+            ->toContain($quote.'one'.$quote.':'.$quote.':count record linked'.$quote)
+            ->toContain($quote.'many'.$quote.':'.$quote.':count records linked'.$quote)
+            ->not->toContain('{1} :count more|[2,*] :count more')
+            ->not->toContain('{1} :count record linked|');
+
+        expect(trans_choice('custom-fields::custom-fields.record.more_records', 3, ['count' => 3]))->toBe('3 more')
+            ->and(trans_choice('custom-fields::custom-fields.record.announce_count', 3, ['count' => 3]))->toBe('3 records linked');
+    })->with(['polished', 'native']);
+
+    it('reads the chip overflow as a sentence for three hidden records', function (): void {
+        registerChipEntity();
+        $definition = relatedPostsField();
+
+        $targets = Post::factory()->count(4)->create();
+        Post::factory()->create([
+            'custom_fields' => [$definition->fromField->code => $targets->pluck('id')->all()],
+        ]);
+
+        livewire(ListPosts::class)
+            ->assertSeeHtml('fi-cf-record-chips-overflow')
+            ->assertSee('3 more')
+            ->assertDontSee('{1} :count more');
     });
 
     it('reorders the links to the order the chips were left in', function (): void {
@@ -372,6 +437,61 @@ describe('the one-to-one steal', function (): void {
             ->assertHasFormErrors(['custom_fields.'.$definition->fromField->code]);
 
         expect(CustomFieldLink::query()->whereNull('active_until')->count())->toBe(1);
+    });
+
+    it('asks again for a second conflicting record after one has been confirmed', function (): void {
+        registerChipEntity();
+        $definition = relatedPostsField(RelationshipCardinality::OneToOne);
+
+        [$first, $second] = Post::factory()->count(2)->create(['title' => 'Target']);
+
+        Post::factory()->create(['custom_fields' => [$definition->fromField->code => [$first->getKey()]]]);
+        Post::factory()->create(['custom_fields' => [$definition->fromField->code => [$second->getKey()]]]);
+
+        $taker = Post::factory()->create();
+        $guard = app(CardinalityGuard::class);
+
+        // Confirming the first candidate is not an answer about the second: the guard is asked
+        // per candidate, and still refuses the one nobody confirmed.
+        expect($guard->violations($definition, CustomFieldRelationship::DIRECTION_FROM, $taker->getKey(), [$first->getKey()], replace: true))
+            ->toBeEmpty()
+            ->and($guard->violations($definition, CustomFieldRelationship::DIRECTION_FROM, $taker->getKey(), [$second->getKey()]))
+            ->toHaveCount(1);
+    });
+
+    it('sends a flat id list when the payload no longer holds the confirmed record', function (): void {
+        registerChipEntity();
+        $definition = relatedPostsField(RelationshipCardinality::ManyToMany);
+
+        [$confirmed, $free] = Post::factory()->count(2)->create();
+        $host = Post::factory()->create([
+            'custom_fields' => [
+                $definition->fromField->code => ['ids' => [$confirmed->getKey()], 'replace' => true],
+            ],
+        ]);
+
+        livewire(EditPost::class, ['record' => $host->getRouteKey()])
+            ->set('data.custom_fields.'.$definition->fromField->code, [$free->getKey()])
+            ->call('save')
+            ->assertHasNoFormErrors();
+
+        expect($host->fresh()->getCustomFieldValue($definition->fromField->fresh()))->toBe([$free->getKey()]);
+    });
+
+    it('carries the confirmation back into the form after a failed round trip', function (): void {
+        registerChipEntity();
+        $definition = relatedPostsField(RelationshipCardinality::OneToOne);
+
+        $target = Post::factory()->create();
+        $host = Post::factory()->create([
+            'custom_fields' => [
+                $definition->fromField->code => ['ids' => [$target->getKey()], 'replace' => true],
+            ],
+        ]);
+
+        livewire(EditPost::class, ['record' => $host->getRouteKey()])
+            ->assertSeeHtml('confirmedStealId')
+            ->assertSeeHtml((string) $target->getKey());
     });
 
     it('moves the record once the confirmation travels with the ids', function (): void {

@@ -486,6 +486,7 @@ return [
         'no_results' => 'No records found',
         'announce_selected' => 'selected',
         'announce_deselected' => 'deselected',
+        'announce_count' => '{1} :count record linked|[2,*] :count records linked',
         'none_available' => 'No records available',
         'short_search' => 'Type at least :count characters to search',
         'create_new' => 'Create a new :entity',

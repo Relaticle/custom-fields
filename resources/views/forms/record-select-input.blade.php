@@ -1,4 +1,6 @@
 @php
+    use Illuminate\Support\Arr;
+
     $fieldWrapperView = $getFieldWrapperView();
     $isDisabled = $isDisabled();
     $statePath = $getStatePath();
@@ -17,8 +19,20 @@
 
     // A confirmed move travels as a map, and survives a failed validation round trip.
     $state = $getState() ?? [];
-    $replaceConfirmed = is_array($state) && ($state['replace'] ?? false) === true;
+    $confirmedStealId = is_array($state) && ($state['replace'] ?? false) === true
+        ? (string) (Arr::first($state['ids'] ?? []) ?? '')
+        : null;
     $selectedIds = array_filter(is_array($state) ? ($state['ids'] ?? $state) : []);
+    // A pluralized key cannot be read by __(), so both forms are chosen server-side and the
+    // client picks between them by count.
+    $overflowLabels = [
+        'one' => trans_choice('custom-fields::custom-fields.record.more_records', 1, ['count' => ':count']),
+        'many' => trans_choice('custom-fields::custom-fields.record.more_records', 2, ['count' => ':count']),
+    ];
+    $countLabels = [
+        'one' => trans_choice('custom-fields::custom-fields.record.announce_count', 1, ['count' => ':count']),
+        'many' => trans_choice('custom-fields::custom-fields.record.announce_count', 2, ['count' => ':count']),
+    ];
     $initialRecords = $getRecordsByIds($selectedIds);
     $initialOptions = $getInitialOptions();
     $pickerState = view('custom-fields::forms.partials.record-select-state', [
@@ -34,7 +48,9 @@
         'minSearchLength' => $minSearchLength,
         'shortSearchMessage' => $shortSearchMessage,
         'checksHolderConflicts' => $checksHolderConflicts,
-        'replaceConfirmed' => $replaceConfirmed,
+        'confirmedStealId' => $confirmedStealId,
+        'overflowLabels' => $overflowLabels,
+        'countLabels' => $countLabels,
     ])->render();
 @endphp
 
@@ -175,7 +191,7 @@
                             <template x-if="hiddenCount > 0">
                                 <span
                                     class="text-xs text-gray-500 dark:text-gray-400"
-                                    x-text="@js(__('custom-fields::custom-fields.record.more_records', ['count' => ':count'])).replace(':count', hiddenCount)"
+                                    x-text="countLabel(overflowLabels, hiddenCount)"
                                 ></span>
                             </template>
                         </div>

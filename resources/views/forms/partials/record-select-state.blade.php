@@ -15,7 +15,9 @@
     maxVisibleValues: @js($maxVisiblePills),
     minSearchLength: @js($minSearchLength),
     checksHolderConflicts: @js($checksHolderConflicts),
-    replaceConfirmed: @js($replaceConfirmed),
+    overflowLabels: @js($overflowLabels),
+    countLabels: @js($countLabels),
+    confirmedStealId: @js($confirmedStealId),
     pendingSteal: null,
     selectedSnapshot: [],
     activeIndex: -1,
@@ -81,8 +83,22 @@
         return Array.isArray(this.state?.ids) ? this.state.ids : [];
     },
 
+    // The confirmation belongs to one candidate, so the map form travels only while that
+    // record is actually in the payload: a later unrelated write must not carry a replace
+    // the user never agreed to.
     commit(ids) {
-        this.state = this.replaceConfirmed ? { ids: ids, replace: true } : ids;
+        const replaces = this.confirmedStealId !== null && ids.includes(this.confirmedStealId);
+
+        if (this.confirmedStealId !== null && ! replaces) {
+            this.confirmedStealId = null;
+        }
+
+        this.state = replaces ? { ids: ids, replace: true } : ids;
+    },
+
+    // A count the reader can act on, in the plural form the locale picked server-side.
+    countLabel(labels, count) {
+        return (count === 1 ? labels.one : labels.many).replace(':count', count);
     },
 
     get activeDescendant() {
@@ -203,7 +219,7 @@
     // A record already held by someone else is confirmed before the writer resolves it, and
     // the sentence shown is the one the writer would have refused with.
     async holderConflictFor(recordId) {
-        if (!this.checksHolderConflicts || this.replaceConfirmed) {
+        if (!this.checksHolderConflicts || this.confirmedStealId === recordId) {
             return null;
         }
 
@@ -223,7 +239,7 @@
 
         if (!pending) return;
 
-        this.replaceConfirmed = true;
+        this.confirmedStealId = pending.record.id;
         this.pendingSteal = null;
 
         await this.selectRecord(pending.record);
@@ -394,7 +410,7 @@
             const action = wasSelected ? @js(__('custom-fields::custom-fields.record.announce_deselected')) : @js(__('custom-fields::custom-fields.record.announce_selected'));
             let message = record.label + ' ' + action;
             if (this.allowMultiple) {
-                message += '. ' + this.ids.length;
+                message += '. ' + this.countLabel(this.countLabels, this.ids.length);
             }
             this.$refs.announcer.textContent = message;
         }
@@ -446,6 +462,10 @@
     },
 
     removeRecord(recordId) {
+        if (this.confirmedStealId === recordId) {
+            this.confirmedStealId = null;
+        }
+
         this.commit(this.ids.filter(id => id !== recordId));
     }
 }

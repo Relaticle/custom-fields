@@ -6,6 +6,7 @@ namespace Relaticle\CustomFields\Filament\Integration\Support;
 
 use Filament\Models\Contracts\HasName;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Lang;
 use InvalidArgumentException;
 use Relaticle\CustomFields\Data\AvatarConfiguration;
 use Relaticle\CustomFields\Data\EntityConfigurationData;
@@ -161,9 +162,20 @@ final readonly class RecordChips
         }
 
         return __('custom-fields::custom-fields.relationships.provenance.by_source', [
-            'source' => __('custom-fields::custom-fields.relationships.sources.'.$link->source),
+            'source' => $this->sourceLabel($link->source),
             'time' => $when,
         ]);
+    }
+
+    /**
+     * A host writes its own source strings onto the ledger, so an unknown one reads as itself
+     * rather than as the lang key that has no translation.
+     */
+    private function sourceLabel(string $source): string
+    {
+        $key = 'custom-fields::custom-fields.relationships.sources.'.$source;
+
+        return Lang::has($key) ? __($key) : $source;
     }
 
     private function actorName(CustomFieldLink $link): ?string
