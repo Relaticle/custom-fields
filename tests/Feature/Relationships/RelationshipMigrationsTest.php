@@ -12,13 +12,19 @@ $definitionsMigration = fn (): Migration => require dirname(__DIR__, 3).'/databa
 $linksMigration = fn (): Migration => require dirname(__DIR__, 3).'/database/migrations/create_relationship_links_table.php';
 
 it('points the partial index at the prefixed table', function () use ($linksMigration): void {
-    Schema::getConnection()->setTablePrefix('pfx_');
+    $connection = Schema::getConnection();
+    $original = $connection->getTablePrefix();
+    $connection->setTablePrefix('pfx_');
 
-    $statement = collect(DB::pretend(function () use ($linksMigration): void {
-        $linksMigration()->up();
-    }))
-        ->pluck('query')
-        ->first(fn (string $query): bool => str_contains($query, 'cf_links_active_edge_unique'));
+    try {
+        $statement = collect(DB::pretend(function () use ($linksMigration): void {
+            $linksMigration()->up();
+        }))
+            ->pluck('query')
+            ->first(fn (string $query): bool => str_contains($query, 'cf_links_active_edge_unique'));
+    } finally {
+        $connection->setTablePrefix($original);
+    }
 
     expect($statement)->toContain('pfx_custom_field_links');
 })->skip(
