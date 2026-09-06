@@ -143,9 +143,18 @@ final class FieldForm implements FormInterface
                     ->label(__('custom-fields::custom-fields.field.form.allow_multiple'))
                     ->hintIcon(Heroicon::OutlinedQuestionMarkCircle, tooltip: __('custom-fields::custom-fields.field.form.allow_multiple_help'))
                     ->default(false),
-                self::keepFirstConfirmation(fn (Get $get): RelationshipCardinality => $get('relationship.allow_multiple') === true
-                    ? RelationshipCardinality::ManyToMany
-                    : RelationshipCardinality::ManyToOne),
+                // The toggle answers for this field's own end, so the cardinality it asks
+                // for keeps whatever the other end already holds.
+                self::keepFirstConfirmation(function (Get $get, ?CustomField $record): ?RelationshipCardinality {
+                    $definition = $record?->relationshipDefinition();
+
+                    if (! $record instanceof CustomField || ! $definition instanceof CustomFieldRelationship) {
+                        return null;
+                    }
+
+                    return $definition->orientCardinality($record, $definition->cardinality)
+                        ->fromSideHolds($get('relationship.allow_multiple') === true);
+                }),
             ]);
     }
 
@@ -356,7 +365,7 @@ final class FieldForm implements FormInterface
      * narrowing is confirmed before it is saved. Each face reads the cardinality off its own
      * control, which is a toggle on one and a select on the other.
      *
-     * @param  Closure(Get): ?RelationshipCardinality  $cardinality
+     * @param  Closure(Get, ?CustomField): ?RelationshipCardinality  $cardinality
      */
     private static function keepFirstConfirmation(Closure $cardinality): Checkbox
     {
@@ -366,7 +375,7 @@ final class FieldForm implements FormInterface
             ->columnSpanFull()
             ->accepted()
             ->default(false)
-            ->visible(fn (Get $get, ?CustomField $record): bool => self::narrowsCardinality($record, $cardinality($get)));
+            ->visible(fn (Get $get, ?CustomField $record): bool => self::narrowsCardinality($record, $cardinality($get, $record)));
     }
 
     /**
@@ -416,7 +425,7 @@ final class FieldForm implements FormInterface
                     && filled($get('relationship.paired_field_name'))
                     && $get('relationship.is_symmetric') !== true
                     && self::sectionOptions($get('relationship.target_entity_type')) !== []),
-            self::keepFirstConfirmation(fn (Get $get): ?RelationshipCardinality => RelationshipCardinality::tryFrom((string) $get('relationship.cardinality'))),
+            self::keepFirstConfirmation(fn (Get $get, ?CustomField $record): ?RelationshipCardinality => RelationshipCardinality::tryFrom((string) $get('relationship.cardinality'))),
         ];
     }
 

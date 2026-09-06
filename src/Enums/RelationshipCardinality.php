@@ -40,6 +40,21 @@ enum RelationshipCardinality: string implements HasLabel
     }
 
     /**
+     * The same relationship with the from record holding one target or many, leaving the to
+     * side where it is. A face that asks only how many records its own field holds answers
+     * for one end, so the other end's constraint has to survive the answer.
+     */
+    public function fromSideHolds(bool $many): self
+    {
+        return match (true) {
+            $many && $this->toSideIsSingle() => self::OneToMany,
+            $many => self::ManyToMany,
+            $this->toSideIsSingle() => self::OneToOne,
+            default => self::ManyToOne,
+        };
+    }
+
+    /**
      * Whether moving to the given cardinality takes an end from many records to one, which
      * closes the edges that no longer fit.
      */

@@ -129,7 +129,10 @@ trait ManagesCustomFields
 
             app(UpdateRelationshipDefinition::class)->execute(
                 $definition,
-                $definition->orientCardinality($field, RelationshipCardinality::from((string) $relationship['cardinality'])),
+                $definition->orientCardinality($field, $this->resolvedCardinality(
+                    $relationship,
+                    $definition->orientCardinality($field, $definition->cardinality),
+                )),
                 keepFirst: ($relationship['keep_first'] ?? false) === true,
             );
         });
@@ -186,16 +189,31 @@ trait ManagesCustomFields
             return null;
         }
 
-        // The one-way face asks how many records the field holds and never shows a
-        // cardinality, so the answer is translated here, where both faces meet the
-        // definition services.
-        if (array_key_exists('allow_multiple', $relationship) && blank($relationship['cardinality'] ?? null)) {
-            $relationship['cardinality'] = ($relationship['allow_multiple'] === true
-                ? RelationshipCardinality::ManyToMany
-                : RelationshipCardinality::ManyToOne)->value;
+        return filled($relationship['cardinality'] ?? null) || array_key_exists('allow_multiple', $relationship)
+            ? $relationship
+            : null;
+    }
+
+    /**
+     * The cardinality the submitted configuration asks for, as the field's own end reads it.
+     *
+     * The paired face names it outright. The one-way face asks only how many records this
+     * field holds, which is one end of the answer: the other end keeps the constraint it
+     * already had, or a save that merely renamed the field would free the end the move
+     * confirmation is read from.
+     *
+     * @param  array<string, mixed>  $relationship
+     * @param  ?RelationshipCardinality  $current  what the field holds today, as its own end
+     *                                             reads it; a field being created holds nothing
+     */
+    private function resolvedCardinality(array $relationship, ?RelationshipCardinality $current): RelationshipCardinality
+    {
+        if (filled($relationship['cardinality'] ?? null)) {
+            return RelationshipCardinality::from((string) $relationship['cardinality']);
         }
 
-        return filled($relationship['cardinality'] ?? null) ? $relationship : null;
+        return ($current ?? RelationshipCardinality::ManyToOne)
+            ->fromSideHolds(($relationship['allow_multiple'] ?? false) === true);
     }
 
     /**
@@ -212,7 +230,7 @@ trait ManagesCustomFields
             code: CodeGenerator::generateUniqueRelationshipCode($field->code),
             fromEntityType: $fromEntityType,
             toEntityType: $toEntityType,
-            cardinality: RelationshipCardinality::from((string) $relationship['cardinality']),
+            cardinality: $this->resolvedCardinality($relationship, null),
             isSymmetric: $isSymmetric,
             fromField: new FieldSlotData(name: $field->name, fieldId: $field->getKey()),
             toField: $isSymmetric || $pairedName === ''

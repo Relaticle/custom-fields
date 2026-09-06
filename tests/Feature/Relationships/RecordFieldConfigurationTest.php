@@ -176,6 +176,45 @@ describe('the record face', function (): void {
             ->and(CustomFieldLink::query()->whereNotNull('active_until')->count())->toBe(1);
     });
 
+    it('keeps the far end where it is when a save only renames the field', function (string $cardinality): void {
+        $definition = oneWayComments($this->postSection, RelationshipCardinality::from($cardinality));
+
+        livewire(ManageCustomField::class, ['field' => $definition->fromField])
+            ->mountAction('edit')
+            ->set('mountedActions.0.data.name', 'Renamed')
+            ->callMountedAction()
+            ->assertHasNoActionErrors();
+
+        expect($definition->refresh()->cardinality->value)->toBe($cardinality)
+            ->and($definition->fromField->name)->toBe('Renamed');
+    })->with([
+        RelationshipCardinality::OneToOne->value,
+        RelationshipCardinality::OneToMany->value,
+        RelationshipCardinality::ManyToOne->value,
+        RelationshipCardinality::ManyToMany->value,
+    ]);
+
+    it('holds many records without freeing the end that holds one', function (): void {
+        $definition = oneWayComments($this->postSection, RelationshipCardinality::OneToOne);
+
+        livewire(ManageCustomField::class, ['field' => $definition->fromField])
+            ->mountAction('edit')
+            ->set('mountedActions.0.data.relationship.allow_multiple', true)
+            ->callMountedAction()
+            ->assertHasNoActionErrors();
+
+        expect($definition->refresh()->cardinality)->toBe(RelationshipCardinality::OneToMany);
+
+        livewire(ManageCustomField::class, ['field' => $definition->fromField->fresh()])
+            ->mountAction('edit')
+            ->set('mountedActions.0.data.relationship.allow_multiple', false)
+            ->set('mountedActions.0.data.relationship.keep_first', true)
+            ->callMountedAction()
+            ->assertHasNoActionErrors();
+
+        expect($definition->refresh()->cardinality)->toBe(RelationshipCardinality::OneToOne);
+    });
+
     it('keeps every record when the field goes on holding many', function (): void {
         $definition = oneWayComments($this->postSection, RelationshipCardinality::ManyToMany);
         $field = $definition->fromField;
