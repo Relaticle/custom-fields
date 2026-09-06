@@ -58,6 +58,28 @@ it('rejects directionFor on an unrelated field', function (): void {
     $definition->directionFor($stranger);
 })->throws(InvalidArgumentException::class);
 
+it('matches no definition for a field that has never been saved', function (): void {
+    $section = CustomFieldSection::factory()->create();
+
+    CustomFieldRelationship::factory()->create(['from_field_id' => null, 'to_field_id' => null]);
+
+    $field = CustomField::factory()->make(['type' => 'record', 'custom_field_section_id' => $section->id]);
+
+    expect($field->relationshipDefinition())->toBeNull();
+
+    $field->save();
+
+    $definition = CustomFieldRelationship::factory()->create(['to_field_id' => $field->id]);
+
+    expect($field->relationshipDefinition()?->id)->toBe($definition->id);
+});
+
+it('rejects directionFor on a field that has never been saved', function (): void {
+    $definition = CustomFieldRelationship::factory()->create(['from_field_id' => null, 'to_field_id' => null]);
+
+    $definition->directionFor(CustomField::factory()->make(['type' => 'record']));
+})->throws(InvalidArgumentException::class);
+
 it('resolves the definition model through the swap registry', function (): void {
     expect(CustomFields::relationshipModel())->toBe(CustomFieldRelationship::class)
         ->and(CustomFields::newRelationshipModel())->toBeInstanceOf(CustomFieldRelationship::class)

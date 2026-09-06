@@ -85,15 +85,21 @@ class CustomFieldRelationship extends Model
      */
     public function directionFor(CustomField $field): string
     {
-        if ($field->getKey() === $this->from_field_id) {
-            return self::DIRECTION_FROM;
+        $key = $field->getKey();
+
+        // An empty slot is null on both sides, so a keyless field would match the from slot
+        // of every one-way definition.
+        if ($key !== null) {
+            if ($key === $this->from_field_id) {
+                return self::DIRECTION_FROM;
+            }
+
+            if ($key === $this->to_field_id) {
+                return self::DIRECTION_TO;
+            }
         }
 
-        if ($field->getKey() === $this->to_field_id) {
-            return self::DIRECTION_TO;
-        }
-
-        throw new InvalidArgumentException(sprintf('Field [%s] does not belong to relationship [%s].', $field->getKey(), $this->code));
+        throw new InvalidArgumentException(sprintf('Field [%s] does not belong to relationship [%s].', $key ?? 'unsaved', $this->code));
     }
 
     public function isHeadless(): bool

@@ -53,7 +53,10 @@ return new class extends Migration
         // The only driver switch in this package: a partial unique index is the duplicate-edge
         // wall, and the MySQL family has none. There the writer alone enforces it (spec 1.2).
         if (in_array(DB::getDriverName(), ['pgsql', 'sqlite'], true)) {
-            DB::statement(sprintf('CREATE UNIQUE INDEX cf_links_active_edge_unique ON %s (relationship_id, from_entity_type, from_entity_id, to_entity_type, to_entity_id) WHERE active_until IS NULL', $links));
+            DB::statement(sprintf(
+                'CREATE UNIQUE INDEX cf_links_active_edge_unique ON %s (relationship_id, from_entity_type, from_entity_id, to_entity_type, to_entity_id) WHERE active_until IS NULL',
+                Schema::getConnection()->getSchemaGrammar()->wrapTable($links),
+            ));
         }
     }
 };

@@ -178,11 +178,19 @@ class CustomField extends Model
      */
     public function relationshipDefinition(): ?CustomFieldRelationship
     {
+        $key = $this->getKey();
+
+        // An unsaved field owns no slot, and its null key would read as whereNull and match
+        // every one-way definition. Returning before once() keeps nothing memoised for it.
+        if ($key === null) {
+            return null;
+        }
+
         return once(fn (): ?CustomFieldRelationship => CustomFields::newRelationshipModel()
             ->newQuery()
             ->where(fn (Builder $query): Builder => $query
-                ->where('from_field_id', $this->getKey())
-                ->orWhere('to_field_id', $this->getKey()))
+                ->where('from_field_id', $key)
+                ->orWhere('to_field_id', $key))
             ->first());
     }
 

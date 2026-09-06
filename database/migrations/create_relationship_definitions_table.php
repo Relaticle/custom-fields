@@ -5,6 +5,7 @@ declare(strict_types=1);
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
+use Relaticle\CustomFields\CustomFields;
 use Relaticle\CustomFields\Enums\CustomFieldsFeature;
 use Relaticle\CustomFields\FeatureSystem\FeatureManager;
 use Relaticle\CustomFields\Support\KeyType;
@@ -35,16 +36,20 @@ return new class extends Migration
             $table->string('to_entity_type');
             $table->string('cardinality');
 
-            KeyType::foreign($table, 'from_field_id')
+            // Slot keys follow the swapped CustomField model, not database.key_type: a host can
+            // run ULID custom fields while the tables added in 4.0 stay on bigint.
+            $customFields = config('custom-fields.database.table_names.custom_fields');
+
+            $table->foreignIdFor(CustomFields::customFieldModel(), 'from_field_id')
                 ->nullable()
                 ->unique()
-                ->constrained(config('custom-fields.database.table_names.custom_fields'))
+                ->constrained($customFields)
                 ->nullOnDelete();
 
-            KeyType::foreign($table, 'to_field_id')
+            $table->foreignIdFor(CustomFields::customFieldModel(), 'to_field_id')
                 ->nullable()
                 ->unique()
-                ->constrained(config('custom-fields.database.table_names.custom_fields'))
+                ->constrained($customFields)
                 ->nullOnDelete();
 
             $table->boolean('is_symmetric')->default(false);
