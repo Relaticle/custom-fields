@@ -7,6 +7,7 @@ use Relaticle\CustomFields\Data\CustomFieldOptionSettingsData;
 use Relaticle\CustomFields\Data\FieldSlotData;
 use Relaticle\CustomFields\Data\RelationshipDefinitionData;
 use Relaticle\CustomFields\Enums\RelationshipCardinality;
+use Relaticle\CustomFields\FieldTypeSystem\Definitions\RelationshipFieldType;
 use Relaticle\CustomFields\Livewire\ManageCustomField;
 use Relaticle\CustomFields\Livewire\ManageCustomFieldSection;
 use Relaticle\CustomFields\Livewire\ManageFieldsTable;
@@ -1011,8 +1012,8 @@ function pairedCommentAuthorship(CustomFieldSection $postSection, CustomFieldSec
         fromEntityType: Post::class,
         toEntityType: Comment::class,
         cardinality: RelationshipCardinality::ManyToOne,
-        fromField: new FieldSlotData(name: 'Lead Comment', sectionId: $postSection->getKey()),
-        toField: new FieldSlotData(name: 'Leads For', sectionId: $commentSection->getKey()),
+        fromField: new FieldSlotData(name: 'Lead Comment', sectionId: $postSection->getKey(), type: RelationshipFieldType::KEY),
+        toField: new FieldSlotData(name: 'Leads For', sectionId: $commentSection->getKey(), type: RelationshipFieldType::KEY),
     ));
 }
 
@@ -1058,7 +1059,7 @@ describe('Record field configuration', function (): void {
             ->callAction('createField', [
                 'name' => 'Related Comment',
                 'code' => 'related_comment',
-                'type' => 'record',
+                'type' => RelationshipFieldType::KEY,
                 'entity_type' => Post::class,
                 'relationship' => [
                     'target_entity_type' => Comment::class,
@@ -1130,7 +1131,7 @@ describe('Record field configuration', function (): void {
             ->callAction('createField', [
                 'name' => 'Related Comment',
                 'code' => 'related_comment',
-                'type' => 'record',
+                'type' => RelationshipFieldType::KEY,
                 'entity_type' => Post::class,
                 'relationship' => [
                     'target_entity_type' => Comment::class,
@@ -1154,7 +1155,7 @@ describe('Record field configuration', function (): void {
             'entityType' => Post::class,
         ])
             ->mountAction('createField')
-            ->set('mountedActions.0.data.type', 'record')
+            ->set('mountedActions.0.data.type', RelationshipFieldType::KEY)
             ->set('mountedActions.0.data.entity_type', 'ghost_entity')
             ->set('mountedActions.0.data.relationship.target_entity_type', 'other_ghost_entity')
             ->assertSchemaComponentHidden('relationship.is_symmetric');
@@ -1209,7 +1210,7 @@ describe('Record field configuration', function (): void {
 
         livewire(ManageCustomField::class, ['field' => $field])
             ->mountAction('edit')
-            ->set('mountedActions.0.data.relationship.cardinality', RelationshipCardinality::ManyToOne->value)
+            ->set('mountedActions.0.data.relationship.allow_multiple', false)
             ->set('mountedActions.0.data.relationship.keep_first', true)
             ->callMountedAction()
             ->assertHasNoActionErrors();

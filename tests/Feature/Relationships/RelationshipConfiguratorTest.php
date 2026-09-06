@@ -11,6 +11,7 @@ use Relaticle\CustomFields\Data\FieldSlotData;
 use Relaticle\CustomFields\Data\RelationshipDefinitionData;
 use Relaticle\CustomFields\Enums\RelationshipCardinality;
 use Relaticle\CustomFields\Facades\Entities;
+use Relaticle\CustomFields\FieldTypeSystem\Definitions\RelationshipFieldType;
 use Relaticle\CustomFields\Filament\Management\Forms\Components\RelationshipConfigurator;
 use Relaticle\CustomFields\Livewire\ManageCustomField;
 use Relaticle\CustomFields\Livewire\ManageCustomFieldSection;
@@ -26,14 +27,14 @@ beforeEach(function (): void {
     $this->commentSection = CustomFieldSection::factory()->forEntityType(Comment::class)->create();
 });
 
-function mountRecordField(CustomFieldSection $section, ?string $targetEntityType = Comment::class): Testable
+function mountRelationshipField(CustomFieldSection $section, ?string $targetEntityType = Comment::class): Testable
 {
     $component = livewire(ManageCustomFieldSection::class, [
         'section' => $section,
         'entityType' => Post::class,
     ])
         ->mountAction('createField')
-        ->set('mountedActions.0.data.type', 'record')
+        ->set('mountedActions.0.data.type', RelationshipFieldType::KEY)
         ->set('mountedActions.0.data.name', 'Related Comment')
         ->set('mountedActions.0.data.code', 'related_comment');
 
@@ -53,7 +54,7 @@ describe('flavors', function (): void {
     it('frames the record configuration in the polished configurator', function (): void {
         config()->set('custom-fields.ui.flavor', 'polished');
 
-        $configurator = mountedConfigurator(mountRecordField($this->postSection));
+        $configurator = mountedConfigurator(mountRelationshipField($this->postSection));
 
         expect($configurator)->not->toBeNull()
             ->and(array_keys($configurator->getConfiguredFields()))->toBe([
@@ -66,7 +67,7 @@ describe('flavors', function (): void {
     it('keeps the stock fieldset in the native flavor', function (): void {
         config()->set('custom-fields.ui.flavor_overrides', ['relationship-configurator' => 'native']);
 
-        $component = mountRecordField($this->postSection);
+        $component = mountRelationshipField($this->postSection);
 
         expect(mountedConfigurator($component))->toBeNull();
 
@@ -77,7 +78,7 @@ describe('flavors', function (): void {
     it('stores the same definition whichever flavor collected it', function (string $flavor): void {
         config()->set('custom-fields.ui.flavor', $flavor);
 
-        mountRecordField($this->postSection)
+        mountRelationshipField($this->postSection)
             ->set('mountedActions.0.data.relationship.cardinality', RelationshipCardinality::ManyToMany->value)
             ->callMountedAction()
             ->assertHasNoActionErrors();
@@ -91,13 +92,13 @@ describe('flavors', function (): void {
 });
 
 describe('create defaults', function (): void {
-    it('opens the record configuration on a target and a cardinality', function (): void {
+    it('opens the relationship configuration on a target and a cardinality', function (): void {
         $component = livewire(ManageCustomFieldSection::class, [
             'section' => $this->postSection,
             'entityType' => Post::class,
         ])
             ->mountAction('createField')
-            ->set('mountedActions.0.data.type', 'record');
+            ->set('mountedActions.0.data.type', RelationshipFieldType::KEY);
 
         expect($component->get('mountedActions.0.data.entity_type'))->toBe(Post::class)
             ->and($component->get('mountedActions.0.data.relationship.target_entity_type'))->toBe(Post::class)
@@ -111,7 +112,7 @@ describe('create defaults', function (): void {
             'entityType' => Post::class,
         ])
             ->mountAction('createField')
-            ->set('mountedActions.0.data.type', 'record')
+            ->set('mountedActions.0.data.type', RelationshipFieldType::KEY)
             ->set('mountedActions.0.data.name', 'Related Post')
             ->set('mountedActions.0.data.code', 'related_post')
             ->callMountedAction()
@@ -131,7 +132,7 @@ describe('the cardinality sentence', function (): void {
     beforeEach(fn () => config()->set('custom-fields.ui.flavor', 'polished'));
 
     it('names both ends in the words the cardinality means', function (string $cardinality, string $sentence): void {
-        $component = mountRecordField($this->postSection)
+        $component = mountRelationshipField($this->postSection)
             ->set('mountedActions.0.data.relationship.cardinality', $cardinality);
 
         expect(mountedConfigurator($component)?->getCardinalitySentence())->toBe($sentence);
@@ -143,14 +144,14 @@ describe('the cardinality sentence', function (): void {
     ]);
 
     it('has no sentence to read until both ends are chosen', function (): void {
-        $component = mountRecordField($this->postSection, targetEntityType: null)
+        $component = mountRelationshipField($this->postSection, targetEntityType: null)
             ->set('mountedActions.0.data.relationship.cardinality', RelationshipCardinality::ManyToOne->value);
 
         expect(mountedConfigurator($component)?->getCardinalitySentence())->toBeNull();
     });
 
     it('mirrors the field name from the shared grid rather than asking for it twice', function (): void {
-        $configurator = mountedConfigurator(mountRecordField($this->postSection));
+        $configurator = mountedConfigurator(mountRelationshipField($this->postSection));
 
         expect($configurator?->getFieldName())->toBe('Related Comment')
             ->and($configurator?->getFieldNameStatePath())->toBe('mountedActions.0.data.name');
@@ -192,7 +193,7 @@ describe('polished markup', function (): void {
         view()->share('errors', new ViewErrorBag);
 
         $configurator = mountedConfigurator(
-            mountRecordField($this->postSection)
+            mountRelationshipField($this->postSection)
                 ->set('mountedActions.0.data.relationship.cardinality', RelationshipCardinality::ManyToOne->value)
         );
 
@@ -229,7 +230,7 @@ describe('polished markup', function (): void {
 
 describe('submission', function (): void {
     it('stores the definition the sentence describes', function (string $cardinality): void {
-        mountRecordField($this->postSection)
+        mountRelationshipField($this->postSection)
             ->set('mountedActions.0.data.relationship.cardinality', $cardinality)
             ->callMountedAction()
             ->assertHasNoActionErrors();
@@ -246,7 +247,7 @@ describe('submission', function (): void {
     ]);
 
     it('adds the paired field the related-entity card names', function (): void {
-        mountRecordField($this->postSection)
+        mountRelationshipField($this->postSection)
             ->set('mountedActions.0.data.relationship.cardinality', RelationshipCardinality::ManyToMany->value)
             ->set('mountedActions.0.data.relationship.paired_field_name', 'Related Post')
             ->set('mountedActions.0.data.relationship.paired_section_id', $this->commentSection->getKey())
@@ -260,7 +261,7 @@ describe('submission', function (): void {
     });
 
     it('collapses to one field when the toggle makes the relationship symmetric', function (): void {
-        mountRecordField($this->postSection, targetEntityType: Post::class)
+        mountRelationshipField($this->postSection, targetEntityType: Post::class)
             ->set('mountedActions.0.data.relationship.is_symmetric', true)
             ->set('mountedActions.0.data.relationship.cardinality', RelationshipCardinality::ManyToMany->value)
             ->assertSchemaComponentHidden('relationship.paired_field_name')
@@ -275,7 +276,7 @@ describe('submission', function (): void {
     });
 
     it('reports a record configuration with nowhere to point', function (): void {
-        mountRecordField($this->postSection, targetEntityType: null)
+        mountRelationshipField($this->postSection, targetEntityType: null)
             ->set('mountedActions.0.data.relationship.cardinality', RelationshipCardinality::ManyToOne->value)
             ->callMountedAction()
             ->assertHasActionErrors(['relationship.target_entity_type' => 'required']);
@@ -284,7 +285,7 @@ describe('submission', function (): void {
     });
 
     it('asks for a cardinality before it writes a definition', function (): void {
-        mountRecordField($this->postSection)
+        mountRelationshipField($this->postSection)
             ->set('mountedActions.0.data.relationship.cardinality')
             ->callMountedAction()
             ->assertHasActionErrors(['relationship.cardinality' => 'required']);
@@ -298,7 +299,7 @@ describe('submission', function (): void {
             'code' => 'related_comment',
         ]);
 
-        mountRecordField($this->postSection)
+        mountRelationshipField($this->postSection)
             ->set('mountedActions.0.data.relationship.cardinality', RelationshipCardinality::ManyToOne->value)
             ->callMountedAction()
             ->assertHasActionErrors(['code' => 'unique']);
@@ -371,6 +372,6 @@ function manyToManyComments(CustomFieldSection $section): CustomFieldRelationshi
         fromEntityType: Post::class,
         toEntityType: Comment::class,
         cardinality: RelationshipCardinality::ManyToMany,
-        fromField: new FieldSlotData(name: 'Related Comment', sectionId: $section->getKey()),
+        fromField: new FieldSlotData(name: 'Related Comment', sectionId: $section->getKey(), type: RelationshipFieldType::KEY),
     ));
 }

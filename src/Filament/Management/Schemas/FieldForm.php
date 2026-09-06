@@ -19,6 +19,7 @@ use Filament\Notifications\Notification;
 use Filament\Schemas\Components\Component;
 use Filament\Schemas\Components\Fieldset;
 use Filament\Schemas\Components\Grid;
+use Filament\Schemas\Components\Group;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Tabs;
 use Filament\Schemas\Components\Tabs\Tab;
@@ -109,11 +110,50 @@ final class FieldForm implements FormInterface
     }
 
     /**
-     * The record type's configuration: where the field points, how many records each end
-     * holds, and the field rendering the other end. It is one relationship definition, so it
-     * is collected here and submitted through the definition services, never as columns.
+     * Both link types configure a relationship definition, and they ask for different things:
+     * a record field points one way, so it asks where and how many; a relationship field owns
+     * both ends, so it gets the configurator. Only one frame is ever visible.
      */
-    private static function recordConfiguration(): Component
+    private static function recordConfiguration(): Group
+    {
+        return Group::make()
+            ->columnSpanFull()
+            ->schema([
+                self::oneWayConfiguration(),
+                self::pairedConfiguration(),
+            ]);
+    }
+
+    /**
+     * The record type's configuration, unchanged since 3.x: the entity it links to, locked
+     * once the field exists, and whether it holds more than one record. Cardinality carries
+     * the answer, so the toggle is what the user reads and the definition is what it writes.
+     */
+    private static function oneWayConfiguration(): Fieldset
+    {
+        return Fieldset::make(__('custom-fields::custom-fields.field.form.record.label'))
+            ->columns(2)
+            ->columnSpanFull()
+            ->visible(fn (Get $get): bool => self::isOneWayRecordField($get('type')))
+            ->schema([
+                self::targetEntitySelect(),
+                Toggle::make('relationship.allow_multiple')
+                    ->inline()
+                    ->live()
+                    ->label(__('custom-fields::custom-fields.field.form.allow_multiple'))
+                    ->hintIcon(Heroicon::OutlinedQuestionMarkCircle, tooltip: __('custom-fields::custom-fields.field.form.allow_multiple_help'))
+                    ->default(false),
+                self::keepFirstConfirmation(fn (Get $get): RelationshipCardinality => $get('relationship.allow_multiple') === true
+                    ? RelationshipCardinality::ManyToMany
+                    : RelationshipCardinality::ManyToOne),
+            ]);
+    }
+
+    /**
+     * The relationship type's configuration: where the field points, how many records each
+     * end holds, and the field rendering the other end.
+     */
+    private static function pairedConfiguration(): Component
     {
         $view = ViewFlavor::view(UiSurface::RelationshipConfigurator);
         $components = self::recordConfigurationComponents();
@@ -124,14 +164,14 @@ final class FieldForm implements FormInterface
             return Fieldset::make(__('custom-fields::custom-fields.field.form.record.label'))
                 ->columns(2)
                 ->columnSpanFull()
-                ->visible(fn (Get $get): bool => self::isRelationshipField($get('type')))
+                ->visible(fn (Get $get): bool => self::isPairedField($get('type')))
                 ->schema($components);
         }
 
         return RelationshipConfigurator::make()
             ->view($view)
             ->columnSpanFull()
-            ->visible(fn (Get $get): bool => self::isRelationshipField($get('type')))
+            ->visible(fn (Get $get): bool => self::isPairedField($get('type')))
             ->schema($components);
     }
 
@@ -335,14 +375,7 @@ final class FieldForm implements FormInterface
     private static function recordConfigurationComponents(): array
     {
         return [
-            Select::make('relationship.target_entity_type')
-                ->label(__('custom-fields::custom-fields.field.form.record.target'))
-                ->hintIcon(Heroicon::OutlinedQuestionMarkCircle, tooltip: __('custom-fields::custom-fields.field.form.record.target_help'))
-                ->options(Entities::getLookupOptions())
-                ->default((Entities::asLookupSources()->first()?->getAlias()) ?? '')
-                ->disabled(fn (?CustomField $record): bool => (bool) $record?->exists)
-                ->required()
-                ->live(),
+            self::targetEntitySelect(),
             Select::make('relationship.cardinality')
                 ->label(__('custom-fields::custom-fields.field.form.record.cardinality'))
                 ->hintIcon(Heroicon::OutlinedQuestionMarkCircle, tooltip: __('custom-fields::custom-fields.field.form.record.cardinality_help'))
@@ -383,13 +416,7 @@ final class FieldForm implements FormInterface
                     && filled($get('relationship.paired_field_name'))
                     && $get('relationship.is_symmetric') !== true
                     && self::sectionOptions($get('relationship.target_entity_type')) !== []),
-            Checkbox::make('relationship.keep_first')
-                ->label(__('custom-fields::custom-fields.field.form.record.keep_first'))
-                ->helperText(__('custom-fields::custom-fields.field.form.record.keep_first_help'))
-                ->columnSpanFull()
-                ->accepted()
-                ->default(false)
-                ->visible(fn (Get $get, ?CustomField $record): bool => self::narrowsCardinality($record, $get('relationship.cardinality'))),
+            self::keepFirstConfirmation(fn (Get $get): ?RelationshipCardinality => RelationshipCardinality::tryFrom((string) $get('relationship.cardinality'))),
         ];
     }
 
@@ -425,6 +452,7 @@ final class FieldForm implements FormInterface
         return [
             'target_entity_type' => $field->targetEntityType(),
             'cardinality' => $definition->orientCardinality($field, $definition->cardinality)->value,
+            'allow_multiple' => $field->allowsMultipleRecords(),
             'is_symmetric' => $definition->is_symmetric,
             'paired_field_name' => $partner?->name,
         ];
@@ -437,6 +465,24 @@ final class FieldForm implements FormInterface
         }
 
         return CustomFieldsType::getFieldType($type)?->requiresRelationship === true;
+    }
+
+    /**
+     * The one-way record type: it links records like the paired type does, and configures
+     * neither a second field nor a cardinality of its own.
+     */
+    private static function isOneWayRecordField(mixed $type): bool
+    {
+        return self::isRelationshipField($type) && ! self::isPairedField($type);
+    }
+
+    private static function isPairedField(mixed $type): bool
+    {
+        if (! is_string($type) || $type === '') {
+            return false;
+        }
+
+        return CustomFieldsType::getFieldType($type)?->supportsPairing === true;
     }
 
     /**
@@ -497,16 +543,15 @@ final class FieldForm implements FormInterface
         return $options;
     }
 
-    private static function narrowsCardinality(?CustomField $record, mixed $cardinality): bool
+    private static function narrowsCardinality(?CustomField $record, ?RelationshipCardinality $target): bool
     {
-        if (! $record instanceof CustomField || ! $record->exists || ! is_string($cardinality)) {
+        if (! $record instanceof CustomField || ! $record->exists || ! $target instanceof RelationshipCardinality) {
             return false;
         }
 
         $definition = $record->relationshipDefinition();
-        $target = RelationshipCardinality::tryFrom($cardinality);
 
-        if (! $definition instanceof CustomFieldRelationship || ! $target instanceof RelationshipCardinality) {
+        if (! $definition instanceof CustomFieldRelationship) {
             return false;
         }
 

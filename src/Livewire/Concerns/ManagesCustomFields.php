@@ -182,9 +182,20 @@ trait ManagesCustomFields
 
         unset($data['relationship']);
 
-        return is_array($relationship) && filled($relationship['cardinality'] ?? null)
-            ? $relationship
-            : null;
+        if (! is_array($relationship)) {
+            return null;
+        }
+
+        // The one-way face asks how many records the field holds and never shows a
+        // cardinality, so the answer is translated here, where both faces meet the
+        // definition services.
+        if (array_key_exists('allow_multiple', $relationship) && blank($relationship['cardinality'] ?? null)) {
+            $relationship['cardinality'] = ($relationship['allow_multiple'] === true
+                ? RelationshipCardinality::ManyToMany
+                : RelationshipCardinality::ManyToOne)->value;
+        }
+
+        return filled($relationship['cardinality'] ?? null) ? $relationship : null;
     }
 
     /**
