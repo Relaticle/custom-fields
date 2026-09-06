@@ -3,6 +3,8 @@
 declare(strict_types=1);
 
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Events\QueryExecuted;
+use Illuminate\Database\UniqueConstraintViolationException;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Validation\ValidationException;
@@ -14,6 +16,7 @@ use Relaticle\CustomFields\Events\RelationshipLinkCreated;
 use Relaticle\CustomFields\Models\CustomField;
 use Relaticle\CustomFields\Models\CustomFieldLink;
 use Relaticle\CustomFields\Models\CustomFieldRelationship;
+use Relaticle\CustomFields\Models\CustomFieldSection;
 use Relaticle\CustomFields\Services\Relationships\CreateRelationshipDefinition;
 use Relaticle\CustomFields\Services\Relationships\LinkWriter;
 use Relaticle\CustomFields\Tests\Fixtures\Models\Post;
@@ -252,26 +255,32 @@ it('refuses a record from the wrong end of the definition', function (): void {
 })->throws(InvalidArgumentException::class);
 
 it('translates a lost race into a validation error', function (): void {
-    $definition = makeAuthorship();
+    $definition = makeAuthorship(RelationshipCardinality::ManyToMany);
     $post = Post::factory()->create();
-    [$a, $b] = User::factory()->count(2)->create();
+    $user = User::factory()->create();
 
-    app(LinkWriter::class)->apply($post, $definition->fromField, [$a->getKey()]);
+    $raced = false;
 
-    Event::listen(RelationshipLinkClosed::class, function () use ($definition, $post, $b): void {
+    CustomFieldLink::creating(function () use (&$raced, $definition, $post, $user): void {
+        if ($raced) {
+            return;
+        }
+
+        $raced = true;
+
         CustomFieldLink::factory()->create([
             'relationship_id' => $definition->getKey(),
             'from_entity_type' => $post->getMorphClass(),
             'from_entity_id' => $post->getKey(),
-            'to_entity_type' => $b->getMorphClass(),
-            'to_entity_id' => $b->getKey(),
+            'to_entity_type' => $user->getMorphClass(),
+            'to_entity_id' => $user->getKey(),
         ]);
     });
 
-    $apply = fn (): mixed => app(LinkWriter::class)->apply($post, $definition->fromField, [$b->getKey()]);
+    $apply = fn (): mixed => app(LinkWriter::class)->apply($post, $definition->fromField, [$user->getKey()]);
 
     expect($apply)->toThrow(ValidationException::class)
-        ->and(CustomFieldLink::query()->active()->sole()->to_entity_id)->toEqual($a->getKey());
+        ->and(CustomFieldLink::query()->count())->toBe(0);
 })->skip(
     fn (): bool => DB::connection()->getDriverName() === 'mysql',
     'The MySQL family has no partial index, so there is no constraint to race against.',
@@ -294,4 +303,128 @@ it('copies the tenant of the definition onto every edge', function (): void {
 })->skip(
     fn (): bool => DB::connection()->getDriverName() === 'mysql',
     'MySQL commits DDL implicitly, so the added tenant columns would outlive the test transaction.',
+);
+
+it('holds its events until the surrounding transaction commits', function (): void {
+    $definition = makeAuthorship();
+    $post = Post::factory()->create();
+    $user = User::factory()->create();
+
+    $heard = [];
+    Event::listen(RelationshipLinkCreated::class, function () use (&$heard): void {
+        $heard[] = 'created';
+    });
+
+    try {
+        DB::transaction(function () use ($definition, $post, $user): void {
+            app(LinkWriter::class)->apply($post, $definition->fromField, [$user->getKey()]);
+
+            throw new RuntimeException('the caller failed after the links were written');
+        });
+    } catch (RuntimeException) {
+        //
+    }
+
+    expect($heard)->toBe([])
+        ->and(CustomFieldLink::query()->count())->toBe(0);
+
+    DB::transaction(function () use ($definition, $post, $user): void {
+        app(LinkWriter::class)->apply($post, $definition->fromField, [$user->getKey()]);
+    });
+
+    expect($heard)->toBe(['created'])
+        ->and(CustomFieldLink::query()->active()->count())->toBe(1);
+});
+
+it('rethrows a unique violation that is not the edge index', function (): void {
+    $definition = makeAuthorship();
+    $post = Post::factory()->create();
+    $user = User::factory()->create();
+    $section = sectionForEntity('acme_reports');
+
+    CustomFieldLink::created(function () use ($section): void {
+        CustomFieldSection::factory()->create([
+            'entity_type' => $section->entity_type,
+            'code' => $section->code,
+        ]);
+    });
+
+    app(LinkWriter::class)->apply($post, $definition->fromField, [$user->getKey()]);
+})->throws(UniqueConstraintViolationException::class);
+
+it('applies one to many from both ends', function (): void {
+    $definition = makeAuthorship(RelationshipCardinality::OneToMany);
+    [$postA, $postB] = Post::factory()->count(2)->create();
+    [$userA, $userB] = User::factory()->count(2)->create();
+
+    app(LinkWriter::class)->apply($postA, $definition->fromField, [$userA->getKey(), $userB->getKey()]);
+
+    expect(CustomFieldLink::query()->active()->count())->toBe(2);
+
+    app(LinkWriter::class)->apply($userB, $definition->toField, [$postB->getKey()]);
+
+    $active = CustomFieldLink::query()->active()->get();
+
+    expect($active)->toHaveCount(2)
+        ->and(CustomFieldLink::query()->count())->toBe(3)
+        ->and($active->firstWhere('to_entity_id', $userB->getKey())->from_entity_id)->toEqual($postB->getKey());
+});
+
+it('applies many to one from the to end', function (): void {
+    $definition = makeAuthorship();
+    [$postA, $postB] = Post::factory()->count(2)->create();
+    [$userA, $userB] = User::factory()->count(2)->create();
+
+    app(LinkWriter::class)->apply($userA, $definition->toField, [$postA->getKey(), $postB->getKey()]);
+
+    expect(CustomFieldLink::query()->active()->count())->toBe(2);
+
+    app(LinkWriter::class)->apply($userB, $definition->toField, [$postB->getKey()]);
+
+    expect(CustomFieldLink::query()->active()->count())->toBe(2)
+        ->and(CustomFieldLink::query()->count())->toBe(3)
+        ->and(CustomFieldLink::query()->active()->where('from_entity_id', $postB->getKey())->sole()->to_entity_id)
+        ->toEqual($userB->getKey());
+});
+
+it('replaces a taken one to one end from the to side and keeps the closed edge', function (): void {
+    $definition = makeAuthorship(RelationshipCardinality::OneToOne);
+    $post = Post::factory()->create();
+    [$userA, $userB] = User::factory()->count(2)->create();
+
+    app(LinkWriter::class)->apply($post, $definition->fromField, [$userA->getKey()]);
+    app(LinkWriter::class)->apply($userB, $definition->toField, [$post->getKey()]);
+
+    $closed = CustomFieldLink::query()->whereNotNull('active_until')->sole();
+
+    expect(CustomFieldLink::query()->active()->sole()->to_entity_id)->toEqual($userB->getKey())
+        ->and($closed->to_entity_id)->toEqual($userA->getKey())
+        ->and($closed->active_until)->not->toBeNull();
+});
+
+it('locks the definition row for every cardinality that constrains an end', function (RelationshipCardinality $cardinality, bool $locks): void {
+    $definition = makeAuthorship($cardinality);
+    $post = Post::factory()->create();
+    $user = User::factory()->create();
+
+    $statements = [];
+    DB::listen(function (QueryExecuted $query) use (&$statements): void {
+        $statements[] = strtolower($query->sql);
+    });
+
+    app(LinkWriter::class)->apply($post, $definition->fromField, [$user->getKey()]);
+
+    $definitions = config('custom-fields.database.table_names.custom_field_relationships');
+    $locked = array_filter($statements, fn (string $sql): bool => str_contains($sql, $definitions)
+        && str_contains($sql, 'for update'));
+
+    expect($locked !== [])->toBe($locks);
+})->with([
+    'one to one' => [RelationshipCardinality::OneToOne, true],
+    'one to many' => [RelationshipCardinality::OneToMany, true],
+    'many to one' => [RelationshipCardinality::ManyToOne, true],
+    'many to many' => [RelationshipCardinality::ManyToMany, false],
+])->skip(
+    fn (): bool => DB::connection()->getDriverName() === 'sqlite',
+    'SQLite compiles no lock clause, so there is no statement to assert on.',
 );

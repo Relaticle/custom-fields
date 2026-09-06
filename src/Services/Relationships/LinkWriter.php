@@ -18,10 +18,12 @@ use Relaticle\CustomFields\Enums\CustomFieldsFeature;
 use Relaticle\CustomFields\Enums\RelationshipCardinality;
 use Relaticle\CustomFields\Events\RelationshipLinkClosed;
 use Relaticle\CustomFields\Events\RelationshipLinkCreated;
+use Relaticle\CustomFields\Exceptions\RelationshipDefinitionDoesNotExistException;
 use Relaticle\CustomFields\FeatureSystem\FeatureManager;
 use Relaticle\CustomFields\Models\CustomField;
 use Relaticle\CustomFields\Models\CustomFieldLink;
 use Relaticle\CustomFields\Models\CustomFieldRelationship;
+use Relaticle\CustomFields\Models\Scopes\TenantScope;
 use RuntimeException;
 
 final readonly class LinkWriter
@@ -45,9 +47,20 @@ final readonly class LinkWriter
 
         try {
             DB::transaction(function () use ($record, $definition, $field, $targetIds, $source): void {
-                $this->diff($record, $definition, $field, $targetIds, $source);
+                $events = $this->diff($record, $definition, $field, $targetIds, $source);
+
+                // A rolled back write never happened, so its listeners must never hear about it.
+                DB::afterCommit(static function () use ($events): void {
+                    foreach ($events as $event) {
+                        event($event);
+                    }
+                });
             });
-        } catch (UniqueConstraintViolationException) {
+        } catch (UniqueConstraintViolationException $uniqueConstraintViolationException) {
+            if (! $this->isDuplicateActiveEdge($uniqueConstraintViolationException)) {
+                throw $uniqueConstraintViolationException;
+            }
+
             // Another writer took the edge between our read and our insert.
             throw ValidationException::withMessages([
                 $field->getFieldName() => __('custom-fields::custom-fields.relationships.errors.conflict'),
@@ -56,9 +69,25 @@ final readonly class LinkWriter
     }
 
     /**
-     * @param  array<int, int|string>  $targetIds
+     * Only the duplicate-edge index becomes a field error. Anything else a listener or a host
+     * hook violated inside the transaction stays the exception it was. Postgres names the
+     * index; SQLite names the columns, so there the statement's table identifies it, the edge
+     * ledger carrying no second unique key.
      */
-    private function diff(Model $record, CustomFieldRelationship $definition, CustomField $field, array $targetIds, string $source): void
+    private function isDuplicateActiveEdge(UniqueConstraintViolationException $exception): bool
+    {
+        if (str_contains(strtolower($exception->getMessage()), CustomFieldLink::ACTIVE_EDGE_INDEX)) {
+            return true;
+        }
+
+        return str_contains(strtolower($exception->getSql()), strtolower(CustomFields::newLinkModel()->getTable()));
+    }
+
+    /**
+     * @param  array<int, int|string>  $targetIds
+     * @return array<int, RelationshipLinkClosed|RelationshipLinkCreated>
+     */
+    private function diff(Model $record, CustomFieldRelationship $definition, CustomField $field, array $targetIds, string $source): array
     {
         $definition = $this->lock($definition);
 
@@ -76,9 +105,11 @@ final readonly class LinkWriter
         $actor = $this->actorResolver->resolve();
         $current = $this->activeLinksFor($definition, $record->getMorphClass(), (string) $record->getKey(), $direction)->get();
 
+        $events = [];
+
         foreach ($current as $link) {
             if (! in_array($this->otherEndId($link, $record), $targets, true)) {
-                $this->close($link, $now);
+                $events[] = $this->close($link, $now);
             }
         }
 
@@ -92,29 +123,48 @@ final readonly class LinkWriter
                 continue;
             }
 
-            $this->closeDisplaced($definition, $record, $direction, $targetId, $now);
-
-            event(new RelationshipLinkCreated(
-                $this->insert($definition, $record, $direction, $targetId, $index, $now, $actor, $source)
-            ));
+            $events = [
+                ...$events,
+                ...$this->closeDisplaced($definition, $record, $direction, $targetId, $now),
+                new RelationshipLinkCreated($this->insert($definition, $record, $direction, $targetId, $index, $now, $actor, $source)),
+            ];
         }
+
+        return $events;
     }
 
     /**
      * Per-end exclusivity cannot be a static index, so writers serialize on the definition row,
-     * which always exists. Many to many needs no lock: the duplicate-edge index is enough.
+     * which always exists. The stored row decides, never the memoised one, and many to many
+     * skips the lock: there the duplicate-edge index is the whole wall (spec 1.2).
      */
     private function lock(CustomFieldRelationship $definition): CustomFieldRelationship
     {
-        if ($definition->cardinality === RelationshipCardinality::ManyToMany) {
-            return $definition;
+        $stored = $this->findDefinition($definition->getKey(), locked: false);
+
+        if ($stored->cardinality === RelationshipCardinality::ManyToMany) {
+            return $stored;
         }
 
-        return CustomFields::newRelationshipModel()
+        return $this->findDefinition($definition->getKey(), locked: true);
+    }
+
+    /**
+     * The key is the identity, so the read drops the tenant scope: a definition reached from a
+     * cross-tenant context must lock or fail, never fall back to an unlocked copy.
+     */
+    private function findDefinition(int|string $key, bool $locked): CustomFieldRelationship
+    {
+        $query = CustomFields::newRelationshipModel()
             ->newQuery()
-            ->whereKey($definition->getKey())
-            ->lockForUpdate()
-            ->first() ?? $definition;
+            ->withoutGlobalScope(TenantScope::class)
+            ->whereKey($key);
+
+        if ($locked) {
+            $query->lockForUpdate();
+        }
+
+        return $query->first() ?? throw RelationshipDefinitionDoesNotExistException::whenLinking($key);
     }
 
     private function assertRecordSitsOnEnd(Model $record, CustomFieldRelationship $definition, string $direction): void
@@ -233,21 +283,23 @@ final readonly class LinkWriter
     /**
      * A record landing in a taken single end replaces what is there: the displaced edge is
      * closed, never deleted, so the history keeps it.
+     *
+     * @return array<int, RelationshipLinkClosed>
      */
-    private function closeDisplaced(CustomFieldRelationship $definition, Model $record, string $direction, string $targetId, Carbon $now): void
+    private function closeDisplaced(CustomFieldRelationship $definition, Model $record, string $direction, string $targetId, Carbon $now): array
     {
         $cardinality = $definition->cardinality;
         $targetType = $this->targetEntityType($definition, $direction);
 
         if ($definition->is_symmetric) {
             if (! $cardinality->fromSideIsSingle()) {
-                return;
+                return [];
             }
 
-            $this->closeAll($this->activeLinksFor($definition, $record->getMorphClass(), (string) $record->getKey(), $direction), $now);
-            $this->closeAll($this->activeLinksFor($definition, $targetType, $targetId, $direction), $now);
-
-            return;
+            return [
+                ...$this->closeAll($this->activeLinksFor($definition, $record->getMorphClass(), (string) $record->getKey(), $direction), $now),
+                ...$this->closeAll($this->activeLinksFor($definition, $targetType, $targetId, $direction), $now),
+            ];
         }
 
         $recordEndIsSingle = $direction === CustomFieldRelationship::DIRECTION_FROM
@@ -258,30 +310,42 @@ final readonly class LinkWriter
             ? $cardinality->toSideIsSingle()
             : $cardinality->fromSideIsSingle();
 
+        $events = [];
+
         if ($recordEndIsSingle) {
-            $this->closeAll($this->activeLinksFor($definition, $record->getMorphClass(), (string) $record->getKey(), $direction), $now);
+            $events = $this->closeAll($this->activeLinksFor($definition, $record->getMorphClass(), (string) $record->getKey(), $direction), $now);
         }
 
         if ($targetEndIsSingle) {
-            $this->closeAll($this->activeLinksFor($definition, $targetType, $targetId, $this->opposite($direction)), $now);
+            return [
+                ...$events,
+                ...$this->closeAll($this->activeLinksFor($definition, $targetType, $targetId, $this->opposite($direction)), $now),
+            ];
         }
+
+        return $events;
     }
 
     /**
      * @param  Builder<CustomFieldLink>  $query
+     * @return array<int, RelationshipLinkClosed>
      */
-    private function closeAll(Builder $query, Carbon $now): void
+    private function closeAll(Builder $query, Carbon $now): array
     {
+        $events = [];
+
         foreach ($query->get() as $link) {
-            $this->close($link, $now);
+            $events[] = $this->close($link, $now);
         }
+
+        return $events;
     }
 
-    private function close(CustomFieldLink $link, Carbon $now): void
+    private function close(CustomFieldLink $link, Carbon $now): RelationshipLinkClosed
     {
         $link->close($now);
 
-        event(new RelationshipLinkClosed($link));
+        return new RelationshipLinkClosed($link);
     }
 
     private function reorder(CustomFieldLink $link, int $index): void

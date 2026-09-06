@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 use Relaticle\CustomFields\Enums\CustomFieldsFeature;
 use Relaticle\CustomFields\FeatureSystem\FeatureManager;
+use Relaticle\CustomFields\Models\CustomFieldLink;
 use Relaticle\CustomFields\Support\KeyType;
 
 return new class extends Migration
@@ -54,7 +55,8 @@ return new class extends Migration
         // wall, and the MySQL family has none. There the writer alone enforces it (spec 1.2).
         if (in_array(DB::getDriverName(), ['pgsql', 'sqlite'], true)) {
             DB::statement(sprintf(
-                'CREATE UNIQUE INDEX cf_links_active_edge_unique ON %s (relationship_id, from_entity_type, from_entity_id, to_entity_type, to_entity_id) WHERE active_until IS NULL',
+                'CREATE UNIQUE INDEX %s ON %s (relationship_id, from_entity_type, from_entity_id, to_entity_type, to_entity_id) WHERE active_until IS NULL',
+                CustomFieldLink::ACTIVE_EDGE_INDEX,
                 Schema::getConnection()->getSchemaGrammar()->wrapTable($links),
             ));
         }

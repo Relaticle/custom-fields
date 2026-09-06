@@ -37,6 +37,11 @@ class CustomFieldLink extends Model
     /** @use HasFactory<CustomFieldLinkFactory> */
     use HasFactory;
 
+    /**
+     * The partial unique index the writer translates into a friendly conflict error.
+     */
+    public const string ACTIVE_EDGE_INDEX = 'cf_links_active_edge_unique';
+
     public const string SOURCE_USER = 'user';
 
     public const string SOURCE_IMPORT = 'import';
