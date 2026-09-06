@@ -8,7 +8,7 @@ use Illuminate\Contracts\View\View;
 use Livewire\Component;
 use Relaticle\CustomFields\Enums\CustomFieldWidth;
 
-class ManageCustomFieldWidth extends Component
+final class ManageCustomFieldWidth extends Component
 {
     /**
      * @var int

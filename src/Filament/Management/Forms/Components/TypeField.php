@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\Cache;
 use Relaticle\CustomFields\Data\FieldTypeData;
 use Relaticle\CustomFields\Facades\CustomFieldsType;
 
-class TypeField extends Select
+final class TypeField extends Select
 {
     /**
      * Set up the component with a custom configuration.

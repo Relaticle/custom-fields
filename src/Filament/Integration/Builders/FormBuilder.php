@@ -7,7 +7,6 @@ declare(strict_types=1);
 
 namespace Relaticle\CustomFields\Filament\Integration\Builders;
 
-use Filament\Schemas\Components\Grid;
 use Illuminate\Support\Collection;
 use Relaticle\CustomFields\Enums\CustomFieldsFeature;
 use Relaticle\CustomFields\FeatureSystem\FeatureManager;
@@ -17,11 +16,11 @@ use Relaticle\CustomFields\Models\CustomField;
 use Relaticle\CustomFields\Models\CustomFieldSection;
 use Relaticle\CustomFields\Services\Visibility\CoreVisibilityLogicService;
 
-class FormBuilder extends BaseBuilder
+final class FormBuilder extends BaseBuilder
 {
     private ?bool $withoutSections = null;
 
-    public function build(): Grid
+    public function build(): FormContainer
     {
         $container = FormContainer::make()
             ->forModel($this->explicitModel ?? null)

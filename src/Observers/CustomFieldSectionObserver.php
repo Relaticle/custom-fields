@@ -6,7 +6,7 @@ namespace Relaticle\CustomFields\Observers;
 
 use Relaticle\CustomFields\Models\CustomFieldSection;
 
-class CustomFieldSectionObserver
+final class CustomFieldSectionObserver
 {
     public function deleted(CustomFieldSection $customFieldSection): void
     {

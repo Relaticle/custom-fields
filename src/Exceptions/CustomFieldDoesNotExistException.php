@@ -6,7 +6,7 @@ namespace Relaticle\CustomFields\Exceptions;
 
 use Exception;
 
-class CustomFieldDoesNotExistException extends Exception
+final class CustomFieldDoesNotExistException extends Exception
 {
     public static function whenUpdating(string $code): self
     {

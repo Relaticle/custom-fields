@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Scope;
 
-class SortOrderScope implements Scope
+final class SortOrderScope implements Scope
 {
     /**
      * @param  Builder<covariant Model>  $builder

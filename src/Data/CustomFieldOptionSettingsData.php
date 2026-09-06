@@ -9,7 +9,7 @@ use Spatie\LaravelData\Data;
 use Spatie\LaravelData\Mappers\SnakeCaseMapper;
 
 #[MapName(SnakeCaseMapper::class)]
-class CustomFieldOptionSettingsData extends Data
+final class CustomFieldOptionSettingsData extends Data
 {
     public function __construct(
         public ?string $color = null,

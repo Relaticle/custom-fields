@@ -9,17 +9,31 @@ use Illuminate\Database\Eloquent\Attributes\ScopedBy;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Database\Eloquent\Model;
 use Livewire\Component;
+use Relaticle\CustomFields\Console\Commands\Upgrade\UpgradeStep;
 use Relaticle\CustomFields\Contracts\FieldTypeDefinitionInterface;
 use Relaticle\CustomFields\Contracts\FormComponentInterface;
+use Relaticle\CustomFields\CustomFieldsPlugin;
+use Relaticle\CustomFields\FieldTypeSystem\BaseFieldType;
+use Relaticle\CustomFields\Filament\Integration\Builders\BaseBuilder;
+use Relaticle\CustomFields\Filament\Integration\Components\Tables\Columns\DateTimeColumn;
+use Relaticle\CustomFields\Filament\Integration\Components\Tables\Columns\IconColumn;
+use Relaticle\CustomFields\Filament\Integration\Factories\AbstractComponentFactory;
+use Relaticle\CustomFields\Filament\Integration\Migrations\CustomFieldsMigration;
+use Relaticle\CustomFields\Filament\Management\Pages\CustomFieldsManagementPage;
+use Relaticle\CustomFields\Filament\Management\Schemas\FormInterface;
+use Relaticle\CustomFields\Filament\Management\Schemas\SectionFormInterface;
 use Relaticle\CustomFields\Models\Concerns\UsesCustomFields;
 use Relaticle\CustomFields\Models\Contracts\HasCustomFields;
 use Relaticle\CustomFields\Models\CustomField;
 use Relaticle\CustomFields\Models\CustomFieldOption;
 use Relaticle\CustomFields\Models\CustomFieldSection;
 use Relaticle\CustomFields\Models\CustomFieldValue;
+use Relaticle\CustomFields\Models\Scopes\ActivableScope;
+use Relaticle\CustomFields\QueryBuilders\CustomFieldQueryBuilder;
 use Relaticle\CustomFields\Tests\Fixtures\Models\Post;
 use Relaticle\CustomFields\Tests\Fixtures\Resources\Posts\PostResource;
 use Relaticle\CustomFields\Tests\TestCase;
+use Relaticle\CustomFields\Validation\Capabilities\AbstractDateCapability;
 use Spatie\LaravelData\Data;
 
 test('configurable models are only instantiated via CustomFields facade', function (string $model, string $pattern, string $facade, array $allowedFiles): void {
@@ -178,6 +192,44 @@ arch('Strict types are declared')
     ->expect('Relaticle\CustomFields')
     ->toUseStrictTypes()
     ->ignoring(['config', 'lang']);
+
+// The ignored list is the extension-point contract documented in
+// docs/content/2.essentials/8.extending.md. Opening a class means adding it there too.
+arch('Classes are final outside the documented extension points')
+    ->expect('Relaticle\CustomFields')
+    ->toBeFinal()
+    ->ignoring([
+        'Relaticle\CustomFields\Concerns',
+        UpgradeStep::class,
+        'Relaticle\CustomFields\Contracts',
+        CustomFieldsPlugin::class,
+        'Relaticle\CustomFields\Enums',
+        BaseFieldType::class,
+        'Relaticle\CustomFields\FieldTypeSystem\Definitions',
+        'Relaticle\CustomFields\Filament\Integration\Base',
+        BaseBuilder::class,
+        'Relaticle\CustomFields\Filament\Integration\Components\Forms\MultiValueInput',
+        'Relaticle\CustomFields\Filament\Integration\Components\Forms\PhoneInput',
+        'Relaticle\CustomFields\Filament\Integration\Components\Forms\RecordSelectInput',
+        DateTimeColumn::class,
+        IconColumn::class,
+        'Relaticle\CustomFields\Filament\Integration\Concerns',
+        AbstractComponentFactory::class,
+        'Relaticle\CustomFields\Filament\Integration\Factories\Concerns',
+        CustomFieldsMigration::class,
+        CustomFieldsManagementPage::class,
+        FormInterface::class,
+        SectionFormInterface::class,
+        'Relaticle\CustomFields\Jobs\Concerns',
+        'Relaticle\CustomFields\Livewire\Concerns',
+        'Relaticle\CustomFields\Models\Concerns',
+        'Relaticle\CustomFields\Models\Contracts',
+        CustomField::class,
+        ActivableScope::class,
+        'Relaticle\CustomFields\Providers',
+        CustomFieldQueryBuilder::class,
+        AbstractDateCapability::class,
+    ]);
 
 arch('All test classes follow naming conventions')
     ->expect('Relaticle\CustomFields\Tests')

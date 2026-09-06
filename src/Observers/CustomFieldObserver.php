@@ -8,7 +8,7 @@ use Relaticle\CustomFields\Models\CustomField;
 use Relaticle\CustomFields\Services\Visibility\BackendVisibilityService;
 use RuntimeException;
 
-class CustomFieldObserver
+final class CustomFieldObserver
 {
     /**
      * Prevent modification of protected attributes on system-defined fields.

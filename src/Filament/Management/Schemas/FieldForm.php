@@ -37,7 +37,7 @@ use Relaticle\CustomFields\Models\CustomField;
 use Relaticle\CustomFields\Models\CustomFieldSection;
 use Relaticle\CustomFields\Services\TenantContextService;
 
-class FieldForm implements FormInterface
+final class FieldForm implements FormInterface
 {
     /** @var ?Closure(?CustomFieldSection): ?Closure */
     private static ?Closure $uniqueNameRuleModifierResolver = null;

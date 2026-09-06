@@ -16,7 +16,7 @@ use Spatie\LaravelData\Data;
  * Schema builder for defining field type capabilities and behaviors.
  * Provides a chainable API for configuring field type features.
  */
-class FieldSchema
+final class FieldSchema
 {
     private FieldDataType $dataType;
 
@@ -62,7 +62,7 @@ class FieldSchema
 
     private bool $supportsUniqueConstraint = false;
 
-    protected bool $withoutUserOptions = false;
+    private bool $withoutUserOptions = false;
 
     private bool $requiresLookupType = false;
 

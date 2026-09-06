@@ -8,7 +8,7 @@ use Relaticle\CustomFields\Contracts\ValueResolverInterface;
 use Relaticle\CustomFields\Models\Contracts\HasCustomFields;
 use Relaticle\CustomFields\Models\CustomField;
 
-readonly class ValueResolver implements ValueResolverInterface
+final readonly class ValueResolver implements ValueResolverInterface
 {
     public function __construct(
         private LookupMultiValueResolver $multiValueResolver,

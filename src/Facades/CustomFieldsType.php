@@ -14,7 +14,7 @@ use Relaticle\CustomFields\FieldTypeSystem\FieldManager;
  *
  * @see FieldManager
  */
-class CustomFieldsType extends Facade
+final class CustomFieldsType extends Facade
 {
     protected static function getFacadeAccessor(): string
     {
@@ -26,7 +26,7 @@ class CustomFieldsType extends Facade
      */
     public static function register(array|Closure $fieldTypes): void
     {
-        static::resolved(function (FieldManager $fieldTypeManager) use ($fieldTypes): void {
+        self::resolved(function (FieldManager $fieldTypeManager) use ($fieldTypes): void {
             $fieldTypeManager->register($fieldTypes);
         });
     }
