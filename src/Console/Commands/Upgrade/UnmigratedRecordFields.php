@@ -38,6 +38,44 @@ final readonly class UnmigratedRecordFields
     }
 
     /**
+     * Record fields whose target is still only on the retiring column. Values do not come
+     * into it: a field that holds none has a target the drop would erase just the same, and
+     * the migration step gives it a definition. A field with no target loses nothing, so it
+     * never blocks the drop.
+     *
+     * @return array<int, string> field codes, across every tenant
+     */
+    public function withoutDefinition(): array
+    {
+        $codes = [];
+
+        foreach ($this->recordFields() as $field) {
+            if ($this->definitionFor($field) instanceof CustomFieldRelationship) {
+                continue;
+            }
+
+            if (blank($this->legacyTargetEntityType($field))) {
+                continue;
+            }
+
+            $codes[] = $field->code;
+        }
+
+        return $codes;
+    }
+
+    /**
+     * The column is read raw: the model stopped declaring it, and on a host that has already
+     * migrated it is gone.
+     */
+    public function legacyTargetEntityType(CustomField $field): string
+    {
+        $target = $field->getRawOriginal('lookup_type');
+
+        return is_string($target) ? $target : '';
+    }
+
+    /**
      * A closed edge counts as migrated: the id reached the ledger and was unlinked there,
      * which is not the same as never having arrived, and re-inserting it would resurrect a
      * link the user removed.

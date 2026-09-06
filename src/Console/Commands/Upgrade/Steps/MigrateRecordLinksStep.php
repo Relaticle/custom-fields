@@ -66,7 +66,7 @@ final class MigrateRecordLinksStep implements UpgradeStep
 
             $definition = $this->records->definitionFor($field);
 
-            if (! $definition instanceof CustomFieldRelationship && blank($this->legacyTargetEntityType($field))) {
+            if (! $definition instanceof CustomFieldRelationship && blank($this->records->legacyTargetEntityType($field))) {
                 // A field that never stored a link has nothing to lose by having no target,
                 // so only one holding values stops the upgrade.
                 if (! $this->records->values($field)->exists()) {
@@ -159,7 +159,7 @@ final class MigrateRecordLinksStep implements UpgradeStep
         $skipped = 0;
         $targetType = $definition instanceof CustomFieldRelationship
             ? $definition->to_entity_type
-            : $this->legacyTargetEntityType($field);
+            : $this->records->legacyTargetEntityType($field);
 
         $this->records->values($field)->chunkById(self::CHUNK_SIZE, function (EloquentCollection $values) use ($definition, $targetType, &$counted, &$skipped): void {
             $ledger = $definition instanceof CustomFieldRelationship ? $this->records->ledgerTargets($definition, $values) : [];
@@ -252,7 +252,7 @@ final class MigrateRecordLinksStep implements UpgradeStep
         $attributes = [
             'code' => $this->availableCode($field),
             'from_entity_type' => $field->entity_type,
-            'to_entity_type' => $this->legacyTargetEntityType($field),
+            'to_entity_type' => $this->records->legacyTargetEntityType($field),
             'cardinality' => $field->settings->allow_multiple
                 ? RelationshipCardinality::ManyToMany
                 : RelationshipCardinality::ManyToOne,
@@ -267,17 +267,6 @@ final class MigrateRecordLinksStep implements UpgradeStep
         }
 
         return CustomFields::newRelationshipModel()->newQuery()->create($attributes);
-    }
-
-    /**
-     * A host runs this before the migration that drops lookup_type, so the column is read
-     * raw: the model no longer knows about it, and on an upgraded host it is simply gone.
-     */
-    private function legacyTargetEntityType(CustomField $field): string
-    {
-        $target = $field->getRawOriginal('lookup_type');
-
-        return is_string($target) ? $target : '';
     }
 
     /**

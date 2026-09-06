@@ -488,3 +488,40 @@ it('keeps one definition code per tenant when two tenants share a field code', f
     expect($definitions->pluck('code')->all())->toBe(['owner', 'owner'])
         ->and($definitions->pluck('tenant_id')->all())->toBe([1, 2]);
 })->skip(commitsSchemaChanges(...), 'MySQL commits DDL implicitly, so the added tenant columns would outlive the test transaction.');
+
+it('gives a legacy record field with no values a definition of its own', function (): void {
+    $field = legacyRecordField();
+
+    $this->artisan('custom-fields:upgrade', ['--force' => true])->assertSuccessful();
+
+    $definition = CustomFieldRelationship::query()->sole();
+
+    expect($definition->from_field_id)->toEqual($field->getKey())
+        ->and($definition->to_entity_type)->toBe((new Post)->getMorphClass())
+        ->and(CustomFieldLink::query()->count())->toBe(0);
+})->skip(commitsSchemaChanges(...), 'MySQL commits DDL implicitly, so restoring the dropped lookup_type column would end the test transaction.');
+
+it('refuses to drop the lookup column while a valueless record field still has no definition', function (): void {
+    $field = legacyRecordField();
+
+    $migration = require __DIR__.'/../../../database/migrations/drop_custom_fields_lookup_type.php';
+
+    expect(fn () => $migration->up())->toThrow(RuntimeException::class, $field->code);
+
+    $this->artisan('custom-fields:upgrade', ['--force' => true])->assertSuccessful();
+
+    $migration->up();
+
+    expect(Schema::hasColumn((string) config('custom-fields.database.table_names.custom_fields'), 'lookup_type'))->toBeFalse()
+        ->and($field->fresh()->targetEntityType())->toBe((new Post)->getMorphClass());
+})->skip(commitsSchemaChanges(...), 'MySQL commits DDL implicitly, so restoring the dropped lookup_type column would end the test transaction.');
+
+it('drops the lookup column when a record field without a definition has no target either', function (): void {
+    restoreLookupTypeColumn();
+    recordField();
+
+    $migration = require __DIR__.'/../../../database/migrations/drop_custom_fields_lookup_type.php';
+    $migration->up();
+
+    expect(Schema::hasColumn((string) config('custom-fields.database.table_names.custom_fields'), 'lookup_type'))->toBeFalse();
+})->skip(commitsSchemaChanges(...), 'MySQL commits DDL implicitly, so restoring the dropped lookup_type column would end the test transaction.');

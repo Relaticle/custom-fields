@@ -43,14 +43,14 @@ return new class extends Migration
 
     private function assertRecordLinksAreMigrated(): void
     {
-        $codes = app(UnmigratedRecordFields::class)->codes();
+        $codes = app(UnmigratedRecordFields::class)->withoutDefinition();
 
         if ($codes === []) {
             return;
         }
 
         throw new RuntimeException(sprintf(
-            'Cannot drop custom_fields.lookup_type: %s still store record links in json_value with no relationship definition. Run `php artisan custom-fields:upgrade` (step %s) first, then migrate again.',
+            'Cannot drop custom_fields.lookup_type: %s point at another entity through that column with no relationship definition to hold it. Run `php artisan custom-fields:upgrade` (step %s) first, then migrate again.',
             implode(', ', $codes),
             UpgradeCommand::STEP_MIGRATE_RECORD_LINKS,
         ));
