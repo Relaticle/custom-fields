@@ -443,6 +443,13 @@ return [
         'empty_state_label' => 'Select record...',
     ],
 
+    'relationships' => [
+        'errors' => [
+            'unknown_target' => 'One or more of the selected records could not be found.',
+            'conflict' => 'This link conflicts with a concurrent change. Reload and try again.',
+        ],
+    ],
+
     'enums' => [
         'avatar_shape' => [
             'circle' => 'Circle',
