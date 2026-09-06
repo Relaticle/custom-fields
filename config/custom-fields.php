@@ -79,7 +79,8 @@ return [
             CustomFieldsFeature::FIELD_OPTION_CATEGORIES,
             // New at 4.0: while off, the two relationship migrations and the lookup_type
             // drop never run, so no relationship storage exists. It does not change how a
-            // record field that already has a definition is read, written, or deleted.
+            // record field that already has a definition reads, writes, and deletes its
+            // links either way.
             CustomFieldsFeature::SYSTEM_RELATIONSHIPS,
         )
         ->disable(
