@@ -27,6 +27,7 @@ use Illuminate\Support\Str;
 use Illuminate\Validation\Rules\Unique;
 use Relaticle\CustomFields\Contracts\ValidationCapabilityInterface;
 use Relaticle\CustomFields\CustomFields;
+use Relaticle\CustomFields\Data\CustomFieldOptionSettingsData;
 use Relaticle\CustomFields\Enums\CustomFieldsFeature;
 use Relaticle\CustomFields\Enums\DescriptionPosition;
 use Relaticle\CustomFields\Enums\FieldDataType;
@@ -260,6 +261,19 @@ final class FieldForm implements FormInterface
                 if (FeatureManager::isEnabled(CustomFieldsFeature::SYSTEM_MULTI_TENANCY)) {
                     $data[config('custom-fields.database.column_names.tenant_foreign_key')] = TenantContextService::getCurrentTenantId();
                 }
+
+                return $data;
+            })
+            ->mutateRelationshipDataBeforeSaveUsing(function (array $data, Model $record): array {
+                // A hidden column is never dehydrated, so a submitted item carries only the
+                // settings the editor showed and would rewrite the row without the rest.
+                $stored = $record->getAttribute('settings');
+                $submitted = $data['settings'] ?? null;
+
+                $data['settings'] = [
+                    ...($stored instanceof CustomFieldOptionSettingsData ? $stored->toArray() : []),
+                    ...(is_array($submitted) ? $submitted : []),
+                ];
 
                 return $data;
             });

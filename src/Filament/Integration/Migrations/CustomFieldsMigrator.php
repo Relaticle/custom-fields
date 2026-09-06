@@ -13,6 +13,7 @@ use Relaticle\CustomFields\Data\CustomFieldData;
 use Relaticle\CustomFields\Data\CustomFieldOptionSettingsData;
 use Relaticle\CustomFields\Data\CustomFieldSectionData;
 use Relaticle\CustomFields\Enums\CustomFieldsFeature;
+use Relaticle\CustomFields\Enums\FieldDataType;
 use Relaticle\CustomFields\Exceptions\CustomFieldAlreadyExistsException;
 use Relaticle\CustomFields\Exceptions\CustomFieldDoesNotExistException;
 use Relaticle\CustomFields\Exceptions\FieldTypeNotOptionableException;
@@ -292,9 +293,7 @@ final class CustomFieldsMigrator
                     ];
 
                     if (is_array($value)) {
-                        if (! isset($value['name']) || ! is_string($value['name'])) {
-                            throw new InvalidArgumentException('An option array must carry a name.');
-                        }
+                        $this->assertOptionIsSettable($value);
 
                         $data['name'] = $value['name'];
                         $data['settings'] = CustomFieldOptionSettingsData::from(Arr::except($value, 'name'));
@@ -329,6 +328,39 @@ final class CustomFieldsMigrator
                 )
             )
             ->exists();
+    }
+
+    /**
+     * @param  array<mixed, mixed>  $option
+     */
+    private function assertOptionIsSettable(array $option): void
+    {
+        $code = $this->customFieldData->code;
+
+        if (! isset($option['name']) || ! is_string($option['name'])) {
+            throw new InvalidArgumentException(sprintf('Every option array on [%s] must carry a name.', $code));
+        }
+
+        $unknownKeys = array_diff(
+            array_keys($option),
+            ['name', ...array_keys(CustomFieldOptionSettingsData::empty())],
+        );
+
+        if ($unknownKeys !== []) {
+            throw new InvalidArgumentException(
+                sprintf('Option [%s] on [%s] carries unknown keys: ', $option['name'], $code).implode(', ', $unknownKeys).'.'
+            );
+        }
+
+        if (! isset($option['category'])) {
+            return;
+        }
+
+        if (CustomFieldsType::getFieldType($this->customFieldData->type)?->dataType !== FieldDataType::SINGLE_CHOICE) {
+            throw new InvalidArgumentException(
+                sprintf('Option [%s] carries a category, but [%s] is not a single-choice field.', $option['name'], $code)
+            );
+        }
     }
 
     private function isCustomFieldTypeOptionable(): bool

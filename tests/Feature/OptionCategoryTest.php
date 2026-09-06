@@ -3,10 +3,12 @@
 declare(strict_types=1);
 
 use Filament\Forms\Components\Repeater;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 use Relaticle\CustomFields\CustomFields;
 use Relaticle\CustomFields\Data\CustomFieldData;
 use Relaticle\CustomFields\Data\CustomFieldOptionSettingsData;
+use Relaticle\CustomFields\Data\CustomFieldSectionData;
 use Relaticle\CustomFields\Enums\CustomFieldsFeature;
 use Relaticle\CustomFields\Enums\OptionCategory;
 use Relaticle\CustomFields\FeatureSystem\FeatureConfigurator;
@@ -139,16 +141,39 @@ it('filters options by category through the query builder', function (): void {
         ->and(CustomFields::newOptionModel()->query()->whereCategory(OptionCategory::Unstarted)->count())->toBe(0);
 });
 
-function enableOptionCategoriesFeature(): void
+function configureOptionFeatures(bool $categories = false, bool $colors = false): void
 {
-    config(['custom-fields.features' => FeatureConfigurator::configure()->enable(
+    $configurator = FeatureConfigurator::configure()->enable(
         CustomFieldsFeature::FIELD_CONDITIONAL_VISIBILITY,
         CustomFieldsFeature::UI_TABLE_COLUMNS,
         CustomFieldsFeature::UI_TABLE_FILTERS,
         CustomFieldsFeature::SYSTEM_MANAGEMENT_INTERFACE,
         CustomFieldsFeature::SYSTEM_SECTIONS,
-        CustomFieldsFeature::FIELD_OPTION_CATEGORIES,
-    )]);
+    );
+
+    if ($categories) {
+        $configurator = $configurator->enable(CustomFieldsFeature::FIELD_OPTION_CATEGORIES);
+    }
+
+    if ($colors) {
+        $configurator = $configurator->enable(CustomFieldsFeature::FIELD_OPTION_COLORS);
+    }
+
+    config(['custom-fields.features' => $configurator]);
+}
+
+function renameFirstOption(CustomField $field, string $name): void
+{
+    $page = livewire(ManageCustomField::class, ['field' => $field])
+        ->mountAction('edit')
+        ->assertActionMounted('edit');
+
+    $component = $page->instance();
+    $itemKey = array_key_first($component->{$component->getMountedActionSchemaName()}->getRawState()['options']);
+
+    $page->set('mountedActions.0.data.options.'.$itemKey.'.name', $name)
+        ->callMountedAction()
+        ->assertHasNoActionErrors();
 }
 
 /**
@@ -176,7 +201,7 @@ function mountedOptionsRepeater(CustomField $field): array
 }
 
 it('offers a category column on a single-choice field', function (): void {
-    enableOptionCategoriesFeature();
+    configureOptionFeatures(categories: true);
 
     $field = CustomField::factory()->ofType('select')->withOptions(['Discovery', 'Closed Won'])->create();
 
@@ -187,7 +212,7 @@ it('offers a category column on a single-choice field', function (): void {
 });
 
 it('offers no category column on a multi-choice field', function (): void {
-    enableOptionCategoriesFeature();
+    configureOptionFeatures(categories: true);
 
     $field = CustomField::factory()->ofType('multi-select')->withOptions(['Discovery', 'Closed Won'])->create();
 
@@ -207,7 +232,7 @@ it('offers no category column while the feature flag is off', function (): void 
 });
 
 it('saves a category chosen in the field editor', function (): void {
-    enableOptionCategoriesFeature();
+    configureOptionFeatures(categories: true);
 
     $section = CustomFieldSection::factory()->forEntityType(User::class)->create();
 
@@ -234,7 +259,7 @@ it('saves a category chosen in the field editor', function (): void {
 });
 
 it('clears a category back to none in the field editor', function (): void {
-    enableOptionCategoriesFeature();
+    configureOptionFeatures(categories: true);
 
     $field = CustomField::factory()->ofType('select')->create();
     $option = $field->options()->create([
@@ -293,4 +318,119 @@ it('rejects a migrator option array without a name', function (): void {
     expect(fn (): CustomField => $migrator->create())->toThrow(InvalidArgumentException::class);
 
     expect(CustomFields::newOptionModel()->query()->count())->toBe(0);
+});
+
+it('keeps a stored category when the flag is off and the option is renamed', function (): void {
+    configureOptionFeatures(categories: true, colors: true);
+
+    $field = CustomField::factory()->ofType('select')->withOptions(['Closed Won'])->create();
+    $option = $field->options()->first();
+    $option->update(['settings' => ['color' => '#16a34a', 'category' => 'completed']]);
+
+    configureOptionFeatures(colors: true);
+
+    renameFirstOption($field->fresh(), 'Won');
+
+    expect($option->fresh()->name)->toBe('Won')
+        ->and($option->fresh()->settings->category)->toBe(OptionCategory::Completed);
+});
+
+it('keeps a stored color when option colors are hidden and the option is renamed', function (): void {
+    configureOptionFeatures(categories: true, colors: true);
+
+    $field = CustomField::factory()->ofType('select')->withOptions(['Closed Won'])->create();
+    $option = $field->options()->first();
+    $option->update(['settings' => ['color' => '#16a34a', 'category' => 'completed']]);
+
+    configureOptionFeatures(categories: true);
+
+    renameFirstOption($field->fresh(), 'Won');
+
+    expect($option->fresh()->settings->color)->toBe('#16a34a')
+        ->and($option->fresh()->settings->category)->toBe(OptionCategory::Completed);
+});
+
+it('keeps stored option settings when a multi-choice option is renamed', function (): void {
+    configureOptionFeatures(categories: true, colors: true);
+
+    $field = CustomField::factory()->ofType('multi-select')->withOptions(['Closed Won'])->create();
+    $option = $field->options()->first();
+    $option->update(['settings' => ['color' => '#16a34a', 'category' => 'completed']]);
+
+    renameFirstOption($field->fresh(), 'Won');
+
+    expect($option->fresh()->settings->color)->toBe('#16a34a')
+        ->and($option->fresh()->settings->category)->toBe(OptionCategory::Completed);
+});
+
+it('rejects a migrator category on a field that is not single choice', function (): void {
+    $migrator = app(CustomFieldsMigrator::class)->new(
+        model: User::class,
+        fieldData: new CustomFieldData(
+            name: 'Tags',
+            code: 'tags',
+            type: 'multi-select',
+        ),
+    )->options([['name' => 'Closed Won', 'category' => OptionCategory::Completed]]);
+
+    expect(fn (): CustomField => $migrator->create())->toThrow(InvalidArgumentException::class);
+
+    expect(CustomFields::newOptionModel()->query()->count())->toBe(0);
+});
+
+it('rejects an unknown key in a migrator option array', function (): void {
+    $migrator = app(CustomFieldsMigrator::class)->new(
+        model: User::class,
+        fieldData: new CustomFieldData(
+            name: 'Stage',
+            code: 'stage',
+            type: 'select',
+        ),
+    )->options([['name' => 'Closed Won', 'categorie' => 'completed']]);
+
+    expect(fn (): CustomField => $migrator->create())->toThrow(InvalidArgumentException::class);
+
+    expect(CustomFields::newOptionModel()->query()->count())->toBe(0);
+});
+
+it('reads a category from the loaded options relation without querying again', function (): void {
+    $field = selectFieldForCategories();
+    $field->options()->createMany([
+        ['name' => 'Discovery', 'sort_order' => 1],
+        ['name' => 'Closed Won', 'sort_order' => 2, 'settings' => ['category' => 'completed']],
+    ]);
+
+    $loaded = CustomField::query()->withoutGlobalScopes()->with('options')->findOrFail($field->getKey());
+
+    DB::enableQueryLog();
+    $completed = $loaded->optionsInCategory(OptionCategory::Completed);
+    DB::disableQueryLog();
+
+    expect($completed->pluck('name')->all())->toBe(['Closed Won'])
+        ->and($completed->modelKeys())->toHaveCount(1)
+        ->and(DB::getQueryLog())->toBeEmpty();
+});
+
+it('applies categories when the migrator updates an existing field', function (): void {
+    app(CustomFieldsMigrator::class)->new(
+        model: User::class,
+        fieldData: new CustomFieldData(
+            name: 'Stage',
+            code: 'stage',
+            type: 'select',
+            section: new CustomFieldSectionData(name: 'Pipeline', code: 'pipeline'),
+        ),
+    )->options(['Discovery', 'Closed Won'])->create();
+
+    app(CustomFieldsMigrator::class)
+        ->find(User::class, 'stage')
+        ->options([
+            'Discovery',
+            ['name' => 'Closed Won', 'category' => OptionCategory::Completed],
+        ])
+        ->update(['name' => 'Stage']);
+
+    $field = CustomField::query()->withoutGlobalScopes()->where('code', 'stage')->firstOrFail();
+
+    expect($field->options->pluck('settings.category')->all())->toBe([null, OptionCategory::Completed]);
 });
