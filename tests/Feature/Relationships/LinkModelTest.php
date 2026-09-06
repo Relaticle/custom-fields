@@ -48,7 +48,7 @@ it('refuses a duplicate active edge at the database level', function (): void {
 })
     ->throws(QueryException::class)
     ->skip(
-        fn (): bool => DB::connection()->getDriverName() === 'mysql',
+        fn (): bool => ! in_array(DB::connection()->getDriverName(), ['pgsql', 'sqlite'], true),
         'The MySQL family has no partial index, so the writer is the only wall there.',
     );
 
