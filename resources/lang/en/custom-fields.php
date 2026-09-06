@@ -447,6 +447,8 @@ return [
         'errors' => [
             'unknown_target' => 'One or more of the selected records could not be found.',
             'conflict' => 'This link conflicts with a concurrent change. Reload and try again.',
+            'single_value' => 'This relationship holds a single record.',
+            'already_linked' => ':record is already linked to :holder. Confirm the replacement to move it.',
         ],
     ],
 

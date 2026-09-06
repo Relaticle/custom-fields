@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Relaticle\CustomFields\Models\Concerns;
 
 use Filament\Facades\Filament;
-use Illuminate\Contracts\Support\Arrayable;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection as EloquentCollection;
 use Illuminate\Database\Eloquent\Model;
@@ -13,6 +12,7 @@ use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Crypt;
 use Relaticle\CustomFields\CustomFields;
+use Relaticle\CustomFields\Data\RecordLinkPayload;
 use Relaticle\CustomFields\Enums\CustomFieldsFeature;
 use Relaticle\CustomFields\FeatureSystem\FeatureManager;
 use Relaticle\CustomFields\Models\Contracts\HasCustomFields;
@@ -230,7 +230,9 @@ trait UsesCustomFields
     public function saveCustomFieldValue(CustomField $customField, mixed $value, ?Model $tenant = null): void
     {
         if ($customField->relationshipDefinition() instanceof CustomFieldRelationship) {
-            app(LinkWriter::class)->apply($this, $customField, $this->linkTargetIds($value));
+            $payload = RecordLinkPayload::fromValue($value);
+
+            app(LinkWriter::class)->apply($this, $customField, $payload->ids, replace: $payload->replace);
 
             return;
         }
@@ -250,26 +252,6 @@ trait UsesCustomFields
         $customFieldValue = $customFieldValue->firstOrNew($data);
         $customFieldValue->setValue($value);
         $customFieldValue->save();
-    }
-
-    /**
-     * An empty payload is a real value that closes every edge, so only null and blank ids
-     * fall away here.
-     *
-     * @return array<int, int|string>
-     */
-    private function linkTargetIds(mixed $value): array
-    {
-        if ($value instanceof Arrayable) {
-            $value = $value->toArray();
-        }
-
-        $ids = is_array($value) ? $value : [$value];
-
-        return array_values(array_filter(
-            $ids,
-            static fn (mixed $id): bool => is_int($id) || (is_string($id) && $id !== ''),
-        ));
     }
 
     /**

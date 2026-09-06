@@ -119,6 +119,19 @@ class CustomFieldRelationship extends Model
             : $this->directionFor($field);
     }
 
+    /**
+     * Writes always name one end: a symmetric edge is stored from the canonical side, so
+     * both of its slots write as the from end.
+     *
+     * @return self::DIRECTION_FROM|self::DIRECTION_TO
+     */
+    public function writeDirectionFor(CustomField $field): string
+    {
+        return $this->is_symmetric
+            ? self::DIRECTION_FROM
+            : $this->directionFor($field);
+    }
+
     public function isHeadless(): bool
     {
         return $this->from_field_id === null && $this->to_field_id === null;

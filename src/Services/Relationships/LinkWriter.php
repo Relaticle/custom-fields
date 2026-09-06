@@ -28,16 +28,20 @@ use RuntimeException;
 
 final readonly class LinkWriter
 {
-    public function __construct(private LinkActorResolverInterface $actorResolver) {}
+    public function __construct(
+        private LinkActorResolverInterface $actorResolver,
+        private CardinalityGuard $cardinality,
+    ) {}
 
     /**
      * Apply the ordered payload of one record field as the record's active edges.
      *
      * @param  array<int, int|string>  $targetIds
+     * @param  bool  $replace  The caller confirmed taking a record from the holder of a single end.
      *
      * @throws ValidationException
      */
-    public function apply(Model $record, CustomField $field, array $targetIds, string $source = CustomFieldLink::SOURCE_USER): void
+    public function apply(Model $record, CustomField $field, array $targetIds, string $source = CustomFieldLink::SOURCE_USER, bool $replace = false): void
     {
         $definition = $field->relationshipDefinition();
 
@@ -46,8 +50,8 @@ final readonly class LinkWriter
         }
 
         try {
-            DB::transaction(function () use ($record, $definition, $field, $targetIds, $source): void {
-                $events = $this->diff($record, $definition, $field, $targetIds, $source);
+            DB::transaction(function () use ($record, $definition, $field, $targetIds, $source, $replace): void {
+                $events = $this->diff($record, $definition, $field, $targetIds, $source, $replace);
 
                 // A rolled back write never happened, so its listeners must never hear about it.
                 DB::afterCommit(static function () use ($events): void {
@@ -87,19 +91,18 @@ final readonly class LinkWriter
      * @param  array<int, int|string>  $targetIds
      * @return array<int, RelationshipLinkClosed|RelationshipLinkCreated>
      */
-    private function diff(Model $record, CustomFieldRelationship $definition, CustomField $field, array $targetIds, string $source): array
+    private function diff(Model $record, CustomFieldRelationship $definition, CustomField $field, array $targetIds, string $source, bool $replace): array
     {
         $definition = $this->lock($definition);
 
-        $direction = $definition->is_symmetric
-            ? CustomFieldRelationship::DIRECTION_FROM
-            : $definition->directionFor($field);
+        $direction = $definition->writeDirectionFor($field);
 
         $this->assertRecordSitsOnEnd($record, $definition, $direction);
 
         $targets = $this->normalize($targetIds);
 
         $this->assertTargetsExist($definition, $field, $direction, $targets);
+        $this->assertCardinality($definition, $field, $direction, $record, $targets, $replace);
 
         $now = now();
         $actor = $this->actorResolver->resolve();
@@ -165,6 +168,26 @@ final readonly class LinkWriter
         }
 
         return $query->first() ?? throw RelationshipDefinitionDoesNotExistException::whenLinking($key);
+    }
+
+    /**
+     * The definition is locked by now, so what the guard reads is what the write would
+     * displace. The validation layer says the same thing earlier, where a caller can still
+     * confirm the replacement.
+     *
+     * @param  array<int, string>  $targets
+     *
+     * @throws ValidationException
+     */
+    private function assertCardinality(CustomFieldRelationship $definition, CustomField $field, string $direction, Model $record, array $targets, bool $replace): void
+    {
+        $violations = $this->cardinality->violations($definition, $direction, $record->getKey(), $targets, $replace);
+
+        if ($violations === []) {
+            return;
+        }
+
+        throw ValidationException::withMessages([$field->getFieldName() => $violations]);
     }
 
     private function assertRecordSitsOnEnd(Model $record, CustomFieldRelationship $definition, string $direction): void

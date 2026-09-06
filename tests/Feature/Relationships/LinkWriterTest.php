@@ -125,13 +125,13 @@ it('leaves the many end alone when only the other end is single', function (): v
     expect(CustomFieldLink::query()->active()->count())->toBe(2);
 });
 
-it('steals a taken one to one end and closes the displaced edge', function (): void {
+it('takes a taken one to one end on confirmation and closes the displaced edge', function (): void {
     $definition = makeAuthorship(RelationshipCardinality::OneToOne);
     [$postA, $postB] = Post::factory()->count(2)->create();
     $user = User::factory()->create();
 
     app(LinkWriter::class)->apply($postA, $definition->fromField, [$user->getKey()]);
-    app(LinkWriter::class)->apply($postB, $definition->fromField, [$user->getKey()]);
+    app(LinkWriter::class)->apply($postB, $definition->fromField, [$user->getKey()], replace: true);
 
     $active = CustomFieldLink::query()->active()->get();
 
@@ -156,12 +156,12 @@ it('canonicalizes a symmetric edge to one row read from both records', function 
         ->toEqualCanonicalizing([(string) $a->getKey(), (string) $b->getKey()]);
 });
 
-it('steals a taken symmetric end from either side', function (): void {
+it('takes a taken symmetric end from either side on confirmation', function (): void {
     $definition = makeSpouse();
     [$a, $b, $c] = User::factory()->count(3)->create();
 
     app(LinkWriter::class)->apply($a, $definition->fromField, [$b->getKey()]);
-    app(LinkWriter::class)->apply($c, $definition->fromField, [$b->getKey()]);
+    app(LinkWriter::class)->apply($c, $definition->fromField, [$b->getKey()], replace: true);
 
     expect(CustomFieldLink::query()->active()->count())->toBe(1)
         ->and(CustomFieldLink::query()->count())->toBe(2);
@@ -379,7 +379,7 @@ it('applies many to one from the to end', function (): void {
 
     expect(CustomFieldLink::query()->active()->count())->toBe(2);
 
-    app(LinkWriter::class)->apply($userB, $definition->toField, [$postB->getKey()]);
+    app(LinkWriter::class)->apply($userB, $definition->toField, [$postB->getKey()], replace: true);
 
     expect(CustomFieldLink::query()->active()->count())->toBe(2)
         ->and(CustomFieldLink::query()->count())->toBe(3)
@@ -393,7 +393,7 @@ it('replaces a taken one to one end from the to side and keeps the closed edge',
     [$userA, $userB] = User::factory()->count(2)->create();
 
     app(LinkWriter::class)->apply($post, $definition->fromField, [$userA->getKey()]);
-    app(LinkWriter::class)->apply($userB, $definition->toField, [$post->getKey()]);
+    app(LinkWriter::class)->apply($userB, $definition->toField, [$post->getKey()], replace: true);
 
     $closed = CustomFieldLink::query()->whereNotNull('active_until')->sole();
 
