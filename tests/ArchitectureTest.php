@@ -372,3 +372,81 @@ test('every Action::make() in src/Livewire has a translated ->label()', function
 
     expect($violations)->toBeEmpty(implode(PHP_EOL, $violations));
 });
+
+/**
+ * Two classes in one file compile only while the parent of the first is already loaded:
+ * autoloading it cold makes PHP resolve a return type declared before the class carrying
+ * it, and the process dies with "Could not check compatibility".
+ */
+test('every source file declares exactly one type, named after the file', function (): void {
+    $srcPath = dirname(__DIR__).'/src';
+    $violations = [];
+
+    $iterator = new RecursiveIteratorIterator(
+        new RecursiveDirectoryIterator($srcPath, FilesystemIterator::SKIP_DOTS),
+    );
+
+    foreach ($iterator as $file) {
+        if ($file->getExtension() !== 'php') {
+            continue;
+        }
+
+        $declared = declaredTypeNames($file->getPathname());
+        $relativePath = str_replace($srcPath.'/', '', $file->getPathname());
+
+        if (count($declared) !== 1) {
+            $violations[] = $relativePath.' declares '.($declared === [] ? 'no type' : implode(', ', $declared));
+
+            continue;
+        }
+
+        if ($declared[0] !== $file->getBasename('.php')) {
+            $violations[] = $relativePath.' declares '.$declared[0];
+        }
+    }
+
+    expect($violations)->toBeEmpty(implode(PHP_EOL, $violations));
+});
+
+/**
+ * @return array<int, string>
+ */
+function declaredTypeNames(string $path): array
+{
+    $tokens = token_get_all((string) file_get_contents($path));
+    $names = [];
+
+    foreach ($tokens as $index => $token) {
+        if (! is_array($token)) {
+            continue;
+        }
+
+        if (! in_array($token[0], [T_CLASS, T_INTERFACE, T_TRAIT, T_ENUM], true)) {
+            continue;
+        }
+
+        $twoBack = $tokens[$index - 2] ?? null;
+        $previous = $tokens[$index - 1] ?? null;
+
+        // `new class` declares nothing importable, and `Foo::class` is not a declaration.
+        if (is_array($twoBack) && $twoBack[0] === T_NEW) {
+            continue;
+        }
+
+        if (is_array($previous) && $previous[0] === T_DOUBLE_COLON) {
+            continue;
+        }
+
+        $next = $index + 1;
+
+        while (isset($tokens[$next]) && is_array($tokens[$next]) && in_array($tokens[$next][0], [T_WHITESPACE, T_COMMENT, T_DOC_COMMENT], true)) {
+            $next++;
+        }
+
+        if (isset($tokens[$next]) && is_array($tokens[$next]) && $tokens[$next][0] === T_STRING) {
+            $names[] = $tokens[$next][1];
+        }
+    }
+
+    return $names;
+}
