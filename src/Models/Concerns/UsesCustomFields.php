@@ -20,6 +20,7 @@ use Relaticle\CustomFields\Models\CustomField;
 use Relaticle\CustomFields\Models\CustomFieldLink;
 use Relaticle\CustomFields\Models\CustomFieldRelationship;
 use Relaticle\CustomFields\Models\CustomFieldValue;
+use Relaticle\CustomFields\Models\Scopes\TenantScope;
 use Relaticle\CustomFields\QueryBuilders\CustomFieldQueryBuilder;
 use Relaticle\CustomFields\Services\Relationships\LinkReader;
 use Relaticle\CustomFields\Services\Relationships\LinkWriter;
@@ -86,6 +87,7 @@ trait UsesCustomFields
             }
 
             $model->customFieldValues()->delete();
+            $model->deleteCustomFieldLinks();
         });
     }
 
@@ -172,6 +174,32 @@ trait UsesCustomFields
     public function incomingLinks(): MorphMany
     {
         return $this->morphMany(CustomFields::linkModel(), 'to_entity');
+    }
+
+    /**
+     * A record that is really gone leaves no edge behind, in either direction and not in
+     * history either: one delete per end, each on its own reverse index. A soft delete
+     * never reaches this, so a restored record finds its links where it left them.
+     *
+     * The tenant scope is dropped because the record is already identified, and no context
+     * a delete happens in may strand an edge.
+     */
+    protected function deleteCustomFieldLinks(): void
+    {
+        if (! FeatureManager::isEnabled(CustomFieldsFeature::SYSTEM_RELATIONSHIPS)) {
+            return;
+        }
+
+        $ends = [CustomFieldRelationship::DIRECTION_FROM, CustomFieldRelationship::DIRECTION_TO];
+
+        foreach ($ends as $end) {
+            CustomFields::newLinkModel()
+                ->newQuery()
+                ->withoutGlobalScope(TenantScope::class)
+                ->where($end.'_entity_type', $this->getMorphClass())
+                ->where($end.'_entity_id', $this->getKey())
+                ->delete();
+        }
     }
 
     /**

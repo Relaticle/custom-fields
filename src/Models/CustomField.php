@@ -257,9 +257,23 @@ class CustomField extends Model
         return $this->system_defined === true;
     }
 
+    /**
+     * A relationship slot keeps no value row, so what stands in the way of deleting it is
+     * an active edge on its definition.
+     */
     public function hasValues(): bool
     {
-        return $this->values()->exists();
+        $definition = $this->relationshipDefinition();
+
+        if (! $definition instanceof CustomFieldRelationship) {
+            return $this->values()->exists();
+        }
+
+        return CustomFields::newLinkModel()
+            ->newQuery()
+            ->where('relationship_id', $definition->getKey())
+            ->whereNull('active_until')
+            ->exists();
     }
 
     /**

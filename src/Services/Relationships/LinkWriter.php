@@ -100,13 +100,18 @@ final readonly class LinkWriter
         $this->assertRecordSitsOnEnd($record, $definition, $direction);
 
         $targets = $this->normalize($targetIds);
+        $current = $this->activeLinksFor($definition, $record->getMorphClass(), (string) $record->getKey(), $direction)->get();
 
-        $this->assertTargetsExist($definition, $field, $direction, $targets);
+        // An edge the payload keeps is never touched (spec 2.1), so only the ids being added
+        // are held to reachability: a target soft-deleted after it was linked would otherwise
+        // make its own record unsaveable.
+        $added = array_values(array_diff($targets, $current->map(fn (CustomFieldLink $link): string => $this->otherEndId($link, $record))->all()));
+
+        $this->assertTargetsExist($definition, $field, $direction, $added);
         $this->assertCardinality($definition, $field, $direction, $record, $targets, $replace);
 
         $now = now();
         $actor = $this->actorResolver->resolve();
-        $current = $this->activeLinksFor($definition, $record->getMorphClass(), (string) $record->getKey(), $direction)->get();
 
         $events = [];
 
