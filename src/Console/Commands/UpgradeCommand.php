@@ -6,6 +6,8 @@ namespace Relaticle\CustomFields\Console\Commands;
 
 use Illuminate\Console\Command;
 use Relaticle\CustomFields\Console\Commands\Upgrade\Steps\ClearCachesStep;
+use Relaticle\CustomFields\Console\Commands\Upgrade\Steps\MigrateRecordLinksStep;
+use Relaticle\CustomFields\Console\Commands\Upgrade\Steps\PurgeMigratedRecordValuesStep;
 use Relaticle\CustomFields\Console\Commands\Upgrade\Steps\ValidateSchemaStep;
 use Relaticle\CustomFields\Console\Commands\Upgrade\UpgradeStep;
 use Relaticle\CustomFields\Console\Commands\Upgrade\UpgradeStepResult;
@@ -16,14 +18,21 @@ final class UpgradeCommand extends Command
     protected $signature = 'custom-fields:upgrade
                             {--dry-run : Show what would be migrated without making changes}
                             {--force : Run without confirmation prompts}
-                            {--skip= : Skip specific steps (comma-separated: validate-schema,clear-caches)}';
+                            {--purge : Also delete the record values the links step has migrated}
+                            {--skip= : Skip specific steps (comma-separated: validate-schema,migrate-record-links,purge-record-values,clear-caches)}';
 
     /** @var string */
     protected $description = 'Run the registered custom-fields upgrade steps';
 
+    public const string STEP_MIGRATE_RECORD_LINKS = 'migrate-record-links';
+
+    public const string STEP_PURGE_RECORD_VALUES = 'purge-record-values';
+
     /** @var array<string, class-string<UpgradeStep>> */
     private const STEPS = [
         'validate-schema' => ValidateSchemaStep::class,
+        self::STEP_MIGRATE_RECORD_LINKS => MigrateRecordLinksStep::class,
+        self::STEP_PURGE_RECORD_VALUES => PurgeMigratedRecordValuesStep::class,
         'clear-caches' => ClearCachesStep::class,
     ];
 
@@ -55,7 +64,7 @@ final class UpgradeCommand extends Command
             return self::SUCCESS;
         }
 
-        $results = $this->runSteps($isDryRun, $stepsToSkip);
+        $results = $this->runSteps($isDryRun);
         $this->displaySummary($results, $isDryRun);
 
         return $this->hasErrors($results) ? self::FAILURE : self::SUCCESS;
@@ -67,6 +76,19 @@ final class UpgradeCommand extends Command
         $this->line('<fg=cyan>Custom Fields Upgrade</>');
         $this->line(str_repeat('=', 40));
         $this->newLine();
+    }
+
+    /**
+     * Whether a step runs in this invocation. The purge is opt-in: it deletes the store the
+     * migration was copied from, so nothing but --purge may start it.
+     */
+    public function willRun(string $step): bool
+    {
+        if ($step === self::STEP_PURGE_RECORD_VALUES && ! $this->option('purge')) {
+            return false;
+        }
+
+        return ! in_array($step, $this->getSkippedSteps(), true);
     }
 
     /**
@@ -88,17 +110,17 @@ final class UpgradeCommand extends Command
     }
 
     /**
-     * @param  list<string>  $stepsToSkip
      * @return array<string, UpgradeStepResult>
      */
-    private function runSteps(bool $isDryRun, array $stepsToSkip): array
+    private function runSteps(bool $isDryRun): array
     {
         $results = [];
         $stepNumber = 1;
-        $totalSteps = count(self::STEPS) - count($stepsToSkip);
+        $steps = array_filter(self::STEPS, fn (string $stepClass, string $key): bool => $this->willRun($key), ARRAY_FILTER_USE_BOTH);
+        $totalSteps = count($steps);
 
         foreach (self::STEPS as $key => $stepClass) {
-            if (in_array($key, $stepsToSkip, true)) {
+            if (! array_key_exists($key, $steps)) {
                 $this->line(sprintf('<comment>Skipping: %s</comment>', $key));
                 $this->newLine();
 

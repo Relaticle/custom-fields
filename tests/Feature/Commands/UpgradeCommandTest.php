@@ -9,19 +9,31 @@ beforeEach(function (): void {
     $this->actingAs($this->user);
 });
 
-it('runs validate-schema and clear-caches in dry-run mode without errors', function (): void {
+it('runs every default step in dry-run mode without errors', function (): void {
     $this->artisan('custom-fields:upgrade', ['--dry-run' => true])
-        ->expectsOutputToContain('Step 1/2: Validate Schema')
-        ->expectsOutputToContain('Step 2/2: Clear Caches')
+        ->expectsOutputToContain('Step 1/3: Validate Schema')
+        ->expectsOutputToContain('Step 2/3: Migrate Record Links')
+        ->expectsOutputToContain('Step 3/3: Clear Caches')
         ->expectsOutput('DRY RUN COMPLETE - No changes were made')
         ->assertSuccessful();
 });
 
-it('runs validate-schema and clear-caches when forced', function (): void {
+it('runs every default step when forced', function (): void {
     $this->artisan('custom-fields:upgrade', ['--force' => true])
-        ->expectsOutputToContain('Step 1/2: Validate Schema')
-        ->expectsOutputToContain('Step 2/2: Clear Caches')
+        ->expectsOutputToContain('Step 1/3: Validate Schema')
+        ->expectsOutputToContain('Step 2/3: Migrate Record Links')
+        ->expectsOutputToContain('Step 3/3: Clear Caches')
         ->expectsOutput('UPGRADE COMPLETE')
+        ->assertSuccessful();
+});
+
+it('runs the purge only when it is asked for', function (): void {
+    $this->artisan('custom-fields:upgrade', ['--force' => true])
+        ->expectsOutputToContain('Skipping: purge-record-values')
+        ->assertSuccessful();
+
+    $this->artisan('custom-fields:upgrade', ['--force' => true, '--purge' => true])
+        ->expectsOutputToContain('Step 3/4: Purge Migrated Record Values')
         ->assertSuccessful();
 });
 
@@ -40,7 +52,7 @@ it('fails with a clear error when --skip names an unknown step', function (): vo
         '--skip' => 'not-a-real-step',
     ])
         ->expectsOutputToContain('Unknown --skip value(s): not-a-real-step.')
-        ->expectsOutput('Valid steps: validate-schema, clear-caches.')
+        ->expectsOutput('Valid steps: validate-schema, migrate-record-links, purge-record-values, clear-caches.')
         ->assertFailed();
 });
 
@@ -67,6 +79,6 @@ it('does not undercount total steps when --skip repeats the same value', functio
         '--force' => true,
         '--skip' => 'clear-caches,clear-caches',
     ])
-        ->expectsOutputToContain('Step 1/1: Validate Schema')
+        ->expectsOutputToContain('Step 1/2: Validate Schema')
         ->assertSuccessful();
 });
