@@ -77,6 +77,8 @@ return [
             'options' => [
                 'label' => 'Options',
                 'add' => 'Add Option',
+                'category' => 'Category',
+                'category_placeholder' => 'Category',
             ],
             'add_field' => 'Add Field',
             'search_placeholder' => 'Search fields...',

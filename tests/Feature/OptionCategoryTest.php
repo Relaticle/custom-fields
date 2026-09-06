@@ -2,11 +2,18 @@
 
 declare(strict_types=1);
 
+use Filament\Forms\Components\Repeater;
 use Illuminate\Validation\ValidationException;
 use Relaticle\CustomFields\CustomFields;
 use Relaticle\CustomFields\Data\CustomFieldOptionSettingsData;
+use Relaticle\CustomFields\Enums\CustomFieldsFeature;
 use Relaticle\CustomFields\Enums\OptionCategory;
+use Relaticle\CustomFields\FeatureSystem\FeatureConfigurator;
+use Relaticle\CustomFields\Livewire\ManageCustomField;
+use Relaticle\CustomFields\Livewire\ManageCustomFieldSection;
 use Relaticle\CustomFields\Models\CustomField;
+use Relaticle\CustomFields\Models\CustomFieldSection;
+use Relaticle\CustomFields\Tests\Fixtures\Models\User;
 use Spatie\LaravelData\Exceptions\CannotCastEnum;
 
 dataset('option categories', fn (): array => array_map(
@@ -128,4 +135,122 @@ it('filters options by category through the query builder', function (): void {
     expect($completed->pluck('name')->all())->toEqualCanonicalizing(['Closed Won', 'Won Back'])
         ->and(CustomFields::newOptionModel()->query()->whereCategory(OptionCategory::Cancelled)->count())->toBe(1)
         ->and(CustomFields::newOptionModel()->query()->whereCategory(OptionCategory::Unstarted)->count())->toBe(0);
+});
+
+function enableOptionCategoriesFeature(): void
+{
+    config(['custom-fields.features' => FeatureConfigurator::configure()->enable(
+        CustomFieldsFeature::FIELD_CONDITIONAL_VISIBILITY,
+        CustomFieldsFeature::UI_TABLE_COLUMNS,
+        CustomFieldsFeature::UI_TABLE_FILTERS,
+        CustomFieldsFeature::SYSTEM_MANAGEMENT_INTERFACE,
+        CustomFieldsFeature::SYSTEM_SECTIONS,
+        CustomFieldsFeature::FIELD_OPTION_CATEGORIES,
+    )]);
+}
+
+/**
+ * @return array{repeater: Repeater, categorySelects: list<string>}
+ */
+function mountedOptionsRepeater(CustomField $field): array
+{
+    $page = livewire(ManageCustomField::class, ['field' => $field])
+        ->mountAction('edit')
+        ->assertActionMounted('edit');
+
+    $component = $page->instance();
+    $schema = $component->{$component->getMountedActionSchemaName()};
+
+    /** @var Repeater $repeater */
+    $repeater = $schema->getFlatComponents(withHidden: true)['options'];
+
+    $categorySelects = collect($schema->getFlatComponents())
+        ->keys()
+        ->filter(fn (string $key): bool => str_ends_with($key, 'settings.category'))
+        ->values()
+        ->all();
+
+    return ['repeater' => $repeater, 'categorySelects' => $categorySelects];
+}
+
+it('offers a category column on a single-choice field', function (): void {
+    enableOptionCategoriesFeature();
+
+    $field = CustomField::factory()->ofType('select')->withOptions(['Discovery', 'Closed Won'])->create();
+
+    $mounted = mountedOptionsRepeater($field);
+
+    expect($mounted['repeater']->getTableColumns())->toHaveCount(3)
+        ->and($mounted['categorySelects'])->toHaveCount(2);
+});
+
+it('offers no category column on a multi-choice field', function (): void {
+    enableOptionCategoriesFeature();
+
+    $field = CustomField::factory()->ofType('multi-select')->withOptions(['Discovery', 'Closed Won'])->create();
+
+    $mounted = mountedOptionsRepeater($field);
+
+    expect($mounted['repeater']->getTableColumns())->toHaveCount(2)
+        ->and($mounted['categorySelects'])->toBeEmpty();
+});
+
+it('offers no category column while the feature flag is off', function (): void {
+    $field = CustomField::factory()->ofType('select')->withOptions(['Discovery', 'Closed Won'])->create();
+
+    $mounted = mountedOptionsRepeater($field);
+
+    expect($mounted['repeater']->getTableColumns())->toHaveCount(2)
+        ->and($mounted['categorySelects'])->toBeEmpty();
+});
+
+it('saves a category chosen in the field editor', function (): void {
+    enableOptionCategoriesFeature();
+
+    $section = CustomFieldSection::factory()->forEntityType(User::class)->create();
+
+    livewire(ManageCustomFieldSection::class, [
+        'section' => $section,
+        'entityType' => User::class,
+    ])
+        ->callAction('createField', [
+            'name' => 'Stage',
+            'code' => 'stage',
+            'type' => 'select',
+            'entity_type' => User::class,
+            'options' => [
+                ['name' => 'Discovery', 'settings' => ['category' => 'started']],
+                ['name' => 'Closed Won', 'settings' => ['category' => 'completed']],
+            ],
+        ])
+        ->assertHasNoActionErrors();
+
+    $field = CustomField::query()->withoutGlobalScopes()->where('code', 'stage')->firstOrFail();
+
+    expect($field->options->pluck('settings.category')->all())
+        ->toBe([OptionCategory::Started, OptionCategory::Completed]);
+});
+
+it('clears a category back to none in the field editor', function (): void {
+    enableOptionCategoriesFeature();
+
+    $field = CustomField::factory()->ofType('select')->create();
+    $option = $field->options()->create([
+        'name' => 'Closed Won',
+        'sort_order' => 1,
+        'settings' => ['category' => 'completed'],
+    ]);
+
+    $page = livewire(ManageCustomField::class, ['field' => $field])
+        ->mountAction('edit')
+        ->assertActionMounted('edit');
+
+    $component = $page->instance();
+    $itemKey = array_key_first($component->{$component->getMountedActionSchemaName()}->getRawState()['options']);
+
+    $page->set('mountedActions.0.data.options.'.$itemKey.'.settings.category', null)
+        ->callMountedAction()
+        ->assertHasNoActionErrors();
+
+    expect($option->fresh()->settings->category)->toBeNull();
 });

@@ -74,6 +74,9 @@ return [
             // Sections stay full width too, with one exception: a preset migration that
             // passed a width stored it even while this was off, and it now applies.
             CustomFieldsFeature::UI_SECTION_WIDTH_CONTROL,
+            // New at 4.0: adds a category column to single-choice options; every option
+            // starts uncategorised, so nothing reads differently until one is set.
+            CustomFieldsFeature::FIELD_OPTION_CATEGORIES,
         )
         ->disable(
             // Would take the code away from whoever creates the field, and codes are the

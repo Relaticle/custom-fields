@@ -29,6 +29,8 @@ use Relaticle\CustomFields\Contracts\ValidationCapabilityInterface;
 use Relaticle\CustomFields\CustomFields;
 use Relaticle\CustomFields\Enums\CustomFieldsFeature;
 use Relaticle\CustomFields\Enums\DescriptionPosition;
+use Relaticle\CustomFields\Enums\FieldDataType;
+use Relaticle\CustomFields\Enums\OptionCategory;
 use Relaticle\CustomFields\Facades\CustomFieldsType;
 use Relaticle\CustomFields\Facades\Entities;
 use Relaticle\CustomFields\FeatureSystem\FeatureManager;
@@ -103,6 +105,23 @@ final class FieldForm implements FormInterface
     }
 
     /**
+     * The options repeater pairs each table column with the schema component in the same
+     * position, so the category header and the category select answer one question.
+     */
+    private static function showsOptionCategories(mixed $type): bool
+    {
+        if (! FeatureManager::isEnabled(CustomFieldsFeature::FIELD_OPTION_CATEGORIES)) {
+            return false;
+        }
+
+        if (! is_string($type) || $type === '') {
+            return false;
+        }
+
+        return CustomFieldsType::getFieldType($type)?->dataType === FieldDataType::SINGLE_CHOICE;
+    }
+
+    /**
      * Get type-specific settings schema components.
      *
      * @return array<int, Component>
@@ -169,9 +188,14 @@ final class FieldForm implements FormInterface
         $uniqueCodeRuleModifier = self::resolveUniqueCodeRuleModifier($section);
 
         $optionsRepeater = Repeater::make('options')
-            ->table([
+            ->table(fn (Get $get): array => [
                 TableColumn::make('Color')->width('150px')->hiddenHeaderLabel(),
                 TableColumn::make('Name')->hiddenHeaderLabel(),
+                ...(self::showsOptionCategories($get('type')) ? [
+                    TableColumn::make(__('custom-fields::custom-fields.field.form.options.category'))
+                        ->width('200px')
+                        ->hiddenHeaderLabel(),
+                ] : []),
             ])
             ->schema([
                 ColorPicker::make('settings.color')
@@ -204,6 +228,10 @@ final class FieldForm implements FormInterface
                             }
                         },
                     ]),
+                Select::make('settings.category')
+                    ->options(OptionCategory::class)
+                    ->placeholder(__('custom-fields::custom-fields.field.form.options.category_placeholder'))
+                    ->visible(fn (Get $get): bool => self::showsOptionCategories($get('../../type'))),
             ])
             ->columns(12)
             ->columnSpanFull()

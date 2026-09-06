@@ -76,6 +76,10 @@ it('has translation key', function (string $key): void {
     'date_constraint.reference_field',
     'date_constraint.date',
 
+    // field.form.options.*
+    'field.form.options.category',
+    'field.form.options.category_placeholder',
+
     // field.actions.* (ManageCustomField row actions)
     'field.actions.activate',
     'field.actions.deactivate',

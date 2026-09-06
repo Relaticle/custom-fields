@@ -208,6 +208,7 @@ use Relaticle\CustomFields\FeatureSystem\FeatureConfigurator;
 | `FIELD_CONDITIONAL_VISIBILITY` | Show/hide fields based on other field values |
 | `FIELD_ENCRYPTION` | Encrypt sensitive field values |
 | `FIELD_OPTION_COLORS` | Color badges for select/checkbox options |
+| `FIELD_OPTION_CATEGORIES` | Workflow category on single-choice options |
 | `FIELD_VALIDATION_RULES` | Enable validation rule configuration |
 | `UI_TABLE_COLUMNS` | Show custom fields as table columns |
 | `UI_TABLE_FILTERS` | Enable filtering by custom fields |

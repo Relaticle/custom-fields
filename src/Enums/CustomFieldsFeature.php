@@ -14,6 +14,7 @@ enum CustomFieldsFeature: string
     case FIELD_CONDITIONAL_VISIBILITY = 'field_conditional_visibility';
     case FIELD_ENCRYPTION = 'field_encryption';
     case FIELD_OPTION_COLORS = 'field_option_colors';
+    case FIELD_OPTION_CATEGORIES = 'field_option_categories';
     case FIELD_CODE_AUTO_GENERATE = 'field_code_auto_generate';
     case FIELD_MULTI_VALUE = 'field_multi_value';
     case FIELD_UNIQUE_VALUE = 'field_unique_value';
