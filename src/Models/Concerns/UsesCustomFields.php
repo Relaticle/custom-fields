@@ -90,6 +90,35 @@ trait UsesCustomFields
     }
 
     /**
+     * The saved hook writes custom fields after the record row is already written, and a
+     * rejected link throws there, so a pending payload puts the whole save in one
+     * transaction (a savepoint when the host already opened one).
+     *
+     * @param  array<string, mixed>  $options
+     */
+    public function save(array $options = []): bool
+    {
+        if (! $this->hasPendingCustomFields()) {
+            return parent::save($options);
+        }
+
+        return (bool) $this->getConnection()->transaction(fn (): bool => parent::save($options));
+    }
+
+    /**
+     * A payload reaches save() either as an attribute or, when it came through the
+     * constructor, already parked in the temporary store.
+     */
+    protected function hasPendingCustomFields(): bool
+    {
+        if (isset($this->custom_fields) && is_array($this->custom_fields)) {
+            return true;
+        }
+
+        return isset(self::$tempCustomFields[spl_object_id($this)]);
+    }
+
+    /**
      * Handle the custom fields before saving the model.
      */
     protected function handleCustomFields(): void

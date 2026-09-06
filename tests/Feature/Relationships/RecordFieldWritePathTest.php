@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\ValidationException;
 use Relaticle\CustomFields\Data\FieldSlotData;
 use Relaticle\CustomFields\Data\RelationshipDefinitionData;
 use Relaticle\CustomFields\Enums\CustomFieldsFeature;
@@ -142,3 +143,32 @@ it('stamps the definition tenant on links written through the trait', function (
     fn (): bool => DB::connection()->getDriverName() === 'mysql',
     'MySQL commits DDL implicitly, so the added tenant columns would outlive the test transaction.',
 );
+
+it('rolls the new record back when a link target is rejected', function (): void {
+    $definition = writePathAuthorship();
+
+    $before = Post::query()->count();
+
+    expect(fn (): Post => Post::factory()->create([
+        'custom_fields' => [$definition->fromField->code => [999999]],
+    ]))->toThrow(ValidationException::class);
+
+    expect(Post::query()->count())->toBe($before)
+        ->and(CustomFieldLink::query()->count())->toBe(0);
+});
+
+it('rolls an update back when a link target is rejected', function (): void {
+    $definition = writePathAuthorship();
+    $code = $definition->fromField->code;
+    $user = User::factory()->create();
+
+    $post = Post::factory()->create(['custom_fields' => [$code => [$user->getKey()]], 'title' => 'Kept']);
+
+    expect(fn (): bool => $post->update([
+        'title' => 'Rolled back',
+        'custom_fields' => [$code => [999999]],
+    ]))->toThrow(ValidationException::class);
+
+    expect($post->fresh()->title)->toBe('Kept')
+        ->and(activeTargetIds())->toBe([$user->getKey()]);
+});
