@@ -5,10 +5,10 @@ declare(strict_types=1);
 namespace Relaticle\CustomFields\Console\Commands\Upgrade\Steps;
 
 use Illuminate\Console\Command;
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection as EloquentCollection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
+use Relaticle\CustomFields\Console\Commands\Upgrade\UnmigratedRecordFields;
 use Relaticle\CustomFields\Console\Commands\Upgrade\UpgradeStep;
 use Relaticle\CustomFields\Console\Commands\Upgrade\UpgradeStepResult;
 use Relaticle\CustomFields\CustomFields;
@@ -28,6 +28,8 @@ use Relaticle\CustomFields\Models\CustomFieldValue;
 final class MigrateRecordLinksStep implements UpgradeStep
 {
     private const int CHUNK_SIZE = 500;
+
+    public function __construct(private readonly UnmigratedRecordFields $records) {}
 
     public function name(): string
     {
@@ -57,10 +59,10 @@ final class MigrateRecordLinksStep implements UpgradeStep
         $failed = 0;
         $warnings = [];
 
-        foreach ($this->recordFields() as $field) {
+        foreach ($this->records->recordFields() as $field) {
             $command->line(sprintf('  Migrating record field <fg=white>%s</>...', $field->code));
 
-            $definition = $this->definitionFor($field);
+            $definition = $this->records->definitionFor($field);
 
             if (! $definition instanceof CustomFieldRelationship && blank($this->legacyTargetEntityType($field))) {
                 $failed++;
@@ -102,17 +104,17 @@ final class MigrateRecordLinksStep implements UpgradeStep
             $definition ??= $this->createDefinition($field);
             $created = 0;
 
-            $this->values($field)->chunkById(self::CHUNK_SIZE, function (EloquentCollection $values) use ($definition, $field, &$created): void {
-                $linked = $this->linkedTargets($definition, $values);
+            $this->records->values($field)->chunkById(self::CHUNK_SIZE, function (EloquentCollection $values) use ($definition, $field, &$created): void {
+                $ledger = $this->records->ledgerTargets($definition, $values);
 
                 foreach ($values as $value) {
-                    foreach ($this->targets($value) as $index => $targetId) {
-                        if (in_array($targetId, $linked[(string) $value->entity_id] ?? [], true)) {
+                    foreach ($this->records->targets($value) as $index => $targetId) {
+                        if (in_array($targetId, $ledger[(string) $value->entity_id] ?? [], true)) {
                             continue;
                         }
 
                         $this->insert($definition, $field, $value, $targetId, $index);
-                        $linked[(string) $value->entity_id][] = $targetId;
+                        $ledger[(string) $value->entity_id][] = $targetId;
                         $created++;
                     }
                 }
@@ -126,12 +128,12 @@ final class MigrateRecordLinksStep implements UpgradeStep
     {
         $counted = 0;
 
-        $this->values($field)->chunkById(self::CHUNK_SIZE, function (EloquentCollection $values) use ($definition, &$counted): void {
-            $linked = $definition instanceof CustomFieldRelationship ? $this->linkedTargets($definition, $values) : [];
+        $this->records->values($field)->chunkById(self::CHUNK_SIZE, function (EloquentCollection $values) use ($definition, &$counted): void {
+            $ledger = $definition instanceof CustomFieldRelationship ? $this->records->ledgerTargets($definition, $values) : [];
 
             foreach ($values as $value) {
-                foreach ($this->targets($value) as $targetId) {
-                    if (in_array($targetId, $linked[(string) $value->entity_id] ?? [], true)) {
+                foreach ($this->records->targets($value) as $targetId) {
+                    if (in_array($targetId, $ledger[(string) $value->entity_id] ?? [], true)) {
                         continue;
                     }
 
@@ -141,44 +143,6 @@ final class MigrateRecordLinksStep implements UpgradeStep
         });
 
         return $counted;
-    }
-
-    /**
-     * The edges a record already holds on this definition, so a rerun writes nothing twice.
-     *
-     * @param  EloquentCollection<int, CustomFieldValue>  $values
-     * @return array<string, array<int, string>>
-     */
-    private function linkedTargets(CustomFieldRelationship $definition, EloquentCollection $values): array
-    {
-        $links = CustomFields::newLinkModel()
-            ->newQuery()
-            ->withoutGlobalScopes()
-            ->where('relationship_id', $definition->getKey())
-            ->whereNull('active_until')
-            ->whereIn('from_entity_id', $values->pluck('entity_id')->all())
-            ->get();
-
-        $linked = [];
-
-        foreach ($links as $link) {
-            $linked[(string) $link->from_entity_id][] = (string) $link->to_entity_id;
-        }
-
-        return $linked;
-    }
-
-    /**
-     * @return array<int, string>
-     */
-    private function targets(CustomFieldValue $value): array
-    {
-        $ids = $value->json_value?->all() ?? [];
-
-        return array_values(array_unique(array_map(
-            static fn (mixed $id): string => (string) $id,
-            array_filter($ids, static fn (mixed $id): bool => is_int($id) || (is_string($id) && $id !== '')),
-        )));
     }
 
     private function insert(CustomFieldRelationship $definition, CustomField $field, CustomFieldValue $value, string $targetId, int $index): void
@@ -263,42 +227,6 @@ final class MigrateRecordLinksStep implements UpgradeStep
             ->withoutGlobalScopes()
             ->where('code', $code)
             ->exists();
-    }
-
-    private function definitionFor(CustomField $field): ?CustomFieldRelationship
-    {
-        return CustomFields::newRelationshipModel()
-            ->newQuery()
-            ->withoutGlobalScopes()
-            ->where(fn (Builder $query): Builder => $query
-                ->where('from_field_id', $field->getKey())
-                ->orWhere('to_field_id', $field->getKey()))
-            ->first();
-    }
-
-    /**
-     * @return EloquentCollection<int, CustomField>
-     */
-    private function recordFields(): EloquentCollection
-    {
-        return CustomFields::newCustomFieldModel()
-            ->newQuery()
-            ->withoutGlobalScopes()
-            ->where('type', 'record')
-            ->orderBy('id')
-            ->get();
-    }
-
-    /**
-     * @return Builder<CustomFieldValue>
-     */
-    private function values(CustomField $field): Builder
-    {
-        return CustomFields::newValueModel()
-            ->newQuery()
-            ->withoutGlobalScopes()
-            ->where('custom_field_id', $field->getKey())
-            ->whereNotNull('json_value');
     }
 
     private function table(string $key): string

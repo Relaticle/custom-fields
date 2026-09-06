@@ -4,83 +4,153 @@ declare(strict_types=1);
 
 namespace Relaticle\CustomFields\Console\Commands\Upgrade;
 
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection as EloquentCollection;
 use Illuminate\Support\Facades\Schema;
 use Relaticle\CustomFields\CustomFields;
 use Relaticle\CustomFields\Models\CustomField;
 use Relaticle\CustomFields\Models\CustomFieldRelationship;
+use Relaticle\CustomFields\Models\CustomFieldValue;
 
 /**
- * Record fields whose links still live in json_value with no definition to read them from.
- * The upgrade gate, the migration step, and the purge step all ask the same question.
+ * The legacy record store read against the edge ledger. A field is unmigrated while one of
+ * its json_value ids has no row on its definition, which is the only question the gate, the
+ * migration, and the purge ever ask, so all three ask it here.
  */
 final readonly class UnmigratedRecordFields
 {
+    private const int CHUNK_SIZE = 500;
+
     /**
      * @return array<int, string> field codes, across every tenant
      */
     public function codes(): array
     {
-        $fields = $this->recordFieldsWithoutDefinition();
+        $codes = [];
 
-        if ($fields === []) {
-            return [];
+        foreach ($this->recordFields() as $field) {
+            if ($this->hasMissingTargets($field)) {
+                $codes[] = $field->code;
+            }
         }
 
-        $withValues = CustomFields::newValueModel()
-            ->newQuery()
-            ->withoutGlobalScopes()
-            ->whereIn('custom_field_id', array_keys($fields))
-            ->whereNotNull('json_value')
-            ->distinct()
-            ->pluck('custom_field_id')
-            ->map(static fn (mixed $key): string => (string) $key)
-            ->all();
-
-        return array_values(array_intersect_key($fields, array_flip($withValues)));
+        return $codes;
     }
 
     /**
-     * @return array<string, string> field key => field code
+     * A closed edge counts as migrated: the id reached the ledger and was unlinked there,
+     * which is not the same as never having arrived, and re-inserting it would resurrect a
+     * link the user removed.
      */
-    private function recordFieldsWithoutDefinition(): array
+    public function hasMissingTargets(CustomField $field): bool
     {
-        $fieldsTable = (string) config('custom-fields.database.table_names.custom_fields');
-        $valuesTable = (string) config('custom-fields.database.table_names.custom_field_values');
+        $definition = $this->definitionFor($field);
+        $missing = false;
 
-        if (! Schema::hasTable($fieldsTable) || ! Schema::hasTable($valuesTable)) {
-            return [];
-        }
+        $this->values($field)->chunkById(self::CHUNK_SIZE, function (EloquentCollection $values) use ($definition, &$missing): bool {
+            $ledger = $definition instanceof CustomFieldRelationship
+                ? $this->ledgerTargets($definition, $values)
+                : [];
 
-        $slotFieldIds = $this->slotFieldIds();
+            foreach ($values as $value) {
+                foreach ($this->targets($value) as $targetId) {
+                    if (in_array($targetId, $ledger[(string) $value->entity_id] ?? [], true)) {
+                        continue;
+                    }
 
-        return CustomFields::newCustomFieldModel()
+                    $missing = true;
+
+                    return false;
+                }
+            }
+
+            return true;
+        });
+
+        return $missing;
+    }
+
+    /**
+     * Every id these records already hold on the definition, open or closed.
+     *
+     * @param  EloquentCollection<int, CustomFieldValue>  $values
+     * @return array<string, array<int, string>>
+     */
+    public function ledgerTargets(CustomFieldRelationship $definition, EloquentCollection $values): array
+    {
+        $links = CustomFields::newLinkModel()
             ->newQuery()
             ->withoutGlobalScopes()
-            ->where('type', 'record')
-            ->get()
-            ->reject(fn (CustomField $field): bool => in_array((string) $field->getKey(), $slotFieldIds, true))
-            ->mapWithKeys(fn (CustomField $field): array => [(string) $field->getKey() => $field->code])
-            ->all();
+            ->where('relationship_id', $definition->getKey())
+            ->whereIn('from_entity_id', $values->pluck('entity_id')->all())
+            ->get();
+
+        $ledger = [];
+
+        foreach ($links as $link) {
+            $ledger[(string) $link->from_entity_id][] = (string) $link->to_entity_id;
+        }
+
+        return $ledger;
     }
 
     /**
      * @return array<int, string>
      */
-    private function slotFieldIds(): array
+    public function targets(CustomFieldValue $value): array
     {
-        $definitions = (string) config('custom-fields.database.table_names.custom_field_relationships');
+        $ids = $value->json_value?->all() ?? [];
 
-        if (! Schema::hasTable($definitions)) {
-            return [];
+        return array_values(array_unique(array_map(
+            static fn (mixed $id): string => (string) $id,
+            array_filter($ids, static fn (mixed $id): bool => is_int($id) || (is_string($id) && $id !== '')),
+        )));
+    }
+
+    public function definitionFor(CustomField $field): ?CustomFieldRelationship
+    {
+        if (! Schema::hasTable((string) config('custom-fields.database.table_names.custom_field_relationships'))) {
+            return null;
         }
 
         return CustomFields::newRelationshipModel()
             ->newQuery()
             ->withoutGlobalScopes()
-            ->get(['from_field_id', 'to_field_id'])
-            ->flatMap(static fn (CustomFieldRelationship $definition): array => [$definition->from_field_id, $definition->to_field_id])
-            ->filter()
-            ->map(static fn (mixed $key): string => (string) $key)
-            ->all();
+            ->where(fn (Builder $query): Builder => $query
+                ->where('from_field_id', $field->getKey())
+                ->orWhere('to_field_id', $field->getKey()))
+            ->first();
+    }
+
+    /**
+     * @return EloquentCollection<int, CustomField>
+     */
+    public function recordFields(): EloquentCollection
+    {
+        $fields = (string) config('custom-fields.database.table_names.custom_fields');
+        $values = (string) config('custom-fields.database.table_names.custom_field_values');
+
+        if (! Schema::hasTable($fields) || ! Schema::hasTable($values)) {
+            return CustomFields::newCustomFieldModel()->newCollection();
+        }
+
+        return CustomFields::newCustomFieldModel()
+            ->newQuery()
+            ->withoutGlobalScopes()
+            ->where('type', 'record')
+            ->orderBy('id')
+            ->get();
+    }
+
+    /**
+     * @return Builder<CustomFieldValue>
+     */
+    public function values(CustomField $field): Builder
+    {
+        return CustomFields::newValueModel()
+            ->newQuery()
+            ->withoutGlobalScopes()
+            ->where('custom_field_id', $field->getKey())
+            ->whereNotNull('json_value');
     }
 }

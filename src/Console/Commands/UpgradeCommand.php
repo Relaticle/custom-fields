@@ -138,6 +138,16 @@ final class UpgradeCommand extends Command
             $this->displayStepResult($result);
             $this->newLine();
 
+            // Every later step reads what an earlier one wrote, and the purge deletes the
+            // store the migration copies from, so a failure ends the run rather than
+            // handing the next step a state it was told not to trust.
+            if (! $result->success) {
+                $this->line(sprintf('<error>Stopping: %s failed.</error>', $key));
+                $this->newLine();
+
+                break;
+            }
+
             $stepNumber++;
         }
 

@@ -66,6 +66,19 @@ function restoreLookupTypeColumn(): void
     });
 }
 
+function definitionForField(CustomField $field, string $code, RelationshipCardinality $cardinality = RelationshipCardinality::ManyToMany): CustomFieldRelationship
+{
+    return CustomFieldRelationship::query()->create([
+        'code' => $code,
+        'from_entity_type' => (new Post)->getMorphClass(),
+        'to_entity_type' => (new Post)->getMorphClass(),
+        'cardinality' => $cardinality,
+        'is_symmetric' => false,
+        'from_field_id' => $field->getKey(),
+        'to_field_id' => null,
+    ]);
+}
+
 function commitsSchemaChanges(): bool
 {
     return DB::connection()->getDriverName() === 'mysql';
@@ -232,7 +245,7 @@ it('deletes nothing in a dry-run purge', function (): void {
     expect(CustomFieldValue::query()->where('custom_field_id', $field->getKey())->count())->toBe(1);
 })->skip(commitsSchemaChanges(...), 'MySQL commits DDL implicitly, so restoring the dropped lookup_type column would end the test transaction.');
 
-it('refuses to purge while a record field still has no definition', function (): void {
+it('stops at the gate before a purge that would delete unmigrated values', function (): void {
     $field = recordField();
     $target = Post::factory()->create();
     Post::factory()->create(['custom_fields' => [$field->code => [$target->getKey()]]]);
@@ -242,7 +255,72 @@ it('refuses to purge while a record field still has no definition', function ():
         '--purge' => true,
         '--skip' => 'migrate-record-links',
     ])
+        ->expectsOutputToContain('record links still in json_value')
+        ->doesntExpectOutputToContain('Purging value rows')
+        ->assertFailed();
+
+    expect(CustomFieldValue::query()->where('custom_field_id', $field->getKey())->count())->toBe(1)
+        ->and(CustomFieldLink::query()->count())->toBe(0);
+});
+
+it('refuses to purge values the ledger does not hold even when the gate is skipped', function (): void {
+    $field = recordField();
+    $target = Post::factory()->create();
+    Post::factory()->create(['custom_fields' => [$field->code => [$target->getKey()]]]);
+
+    definitionForField($field, 'hand_defined');
+
+    $this->artisan('custom-fields:upgrade', [
+        '--force' => true,
+        '--purge' => true,
+        '--skip' => 'migrate-record-links,validate-schema',
+    ])
         ->expectsOutputToContain('run the Migrate Record Links step first')
+        ->assertFailed();
+
+    expect(CustomFieldValue::query()->where('custom_field_id', $field->getKey())->count())->toBe(1);
+});
+
+it('leaves an unlinked record unlinked across a rerun', function (RelationshipCardinality $cardinality): void {
+    $field = recordField();
+    $target = Post::factory()->create();
+    $post = Post::factory()->create(['custom_fields' => [$field->code => [$target->getKey()]]]);
+
+    definitionForField($field, 'rerun_related', $cardinality);
+
+    $this->artisan('custom-fields:upgrade', ['--force' => true])->assertSuccessful();
+
+    expect(CustomFieldLink::query()->active()->count())->toBe(1);
+
+    $post->update(['custom_fields' => [$field->code => []]]);
+
+    $this->artisan('custom-fields:upgrade', ['--force' => true])->assertSuccessful();
+
+    expect(CustomFieldLink::query()->active()->count())->toBe(0)
+        ->and(CustomFieldLink::query()->count())->toBe(1);
+})->with([
+    'many to many' => RelationshipCardinality::ManyToMany,
+    'many to one' => RelationshipCardinality::ManyToOne,
+]);
+
+it('stops before the purge when the migration fails', function (): void {
+    $field = recordField();
+    $target = Post::factory()->create();
+    Post::factory()->create(['custom_fields' => [$field->code => [$target->getKey()]]]);
+
+    CustomFieldRelationship::query()->create([
+        'code' => 'far_end_related',
+        'from_entity_type' => (new Post)->getMorphClass(),
+        'to_entity_type' => (new Post)->getMorphClass(),
+        'cardinality' => RelationshipCardinality::ManyToMany,
+        'is_symmetric' => false,
+        'from_field_id' => null,
+        'to_field_id' => $field->getKey(),
+    ]);
+
+    $this->artisan('custom-fields:upgrade', ['--force' => true, '--purge' => true])
+        ->expectsOutputToContain('Stopping: migrate-record-links failed.')
+        ->doesntExpectOutputToContain('Purging value rows')
         ->assertFailed();
 
     expect(CustomFieldValue::query()->where('custom_field_id', $field->getKey())->count())->toBe(1);
