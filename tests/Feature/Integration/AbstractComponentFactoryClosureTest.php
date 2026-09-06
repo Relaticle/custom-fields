@@ -13,8 +13,6 @@ use Relaticle\CustomFields\Models\CustomField;
 use Relaticle\CustomFields\Models\CustomFieldSection;
 use Relaticle\CustomFields\Tests\Fixtures\Models\Post;
 
-// Exposes the protected createComponent() so the test can drive it directly,
-// exactly as a future factory reusing AbstractComponentFactory would.
 class ClosureProbeFactory extends AbstractComponentFactory
 {
     public function probe(CustomField $customField): object
@@ -55,5 +53,5 @@ it('raises a clear error instead of a TypeError when createComponent() receives 
 
     $factory = app(ClosureProbeFactory::class);
 
-    expect(fn () => $factory->probe($field))->toThrow(InvalidArgumentException::class);
+    expect(fn () => $factory->probe($field))->toThrow(InvalidArgumentException::class, 'resolved to a Closure');
 });

@@ -10,13 +10,11 @@ use Filament\Panel;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Collection;
 use Relaticle\CustomFields\Tests\Database\Factories\UserFactory;
-use Relaticle\CustomFields\Tests\Models\Team;
 
 class User extends Authenticatable implements FilamentUser, HasTenants, MustVerifyEmail
 {
@@ -40,11 +38,6 @@ class User extends Authenticatable implements FilamentUser, HasTenants, MustVeri
         return $this->hasMany(Post::class, 'author_id');
     }
 
-    public function teams(): BelongsToMany
-    {
-        return $this->belongsToMany(Team::class);
-    }
-
     protected static function newFactory()
     {
         return UserFactory::new();
@@ -57,6 +50,6 @@ class User extends Authenticatable implements FilamentUser, HasTenants, MustVeri
 
     public function getTenants(Panel $panel): array|Collection
     {
-        return Team::all();
+        return collect();
     }
 }
