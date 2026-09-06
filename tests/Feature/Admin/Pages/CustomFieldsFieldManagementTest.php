@@ -2,12 +2,21 @@
 
 declare(strict_types=1);
 
+use Illuminate\Support\Facades\DB;
 use Relaticle\CustomFields\CustomFields;
 use Relaticle\CustomFields\Data\CustomFieldOptionSettingsData;
+use Relaticle\CustomFields\Data\FieldSlotData;
+use Relaticle\CustomFields\Data\RelationshipDefinitionData;
+use Relaticle\CustomFields\Enums\RelationshipCardinality;
 use Relaticle\CustomFields\Livewire\ManageCustomField;
 use Relaticle\CustomFields\Livewire\ManageCustomFieldSection;
+use Relaticle\CustomFields\Livewire\ManageFieldsTable;
 use Relaticle\CustomFields\Models\CustomField;
+use Relaticle\CustomFields\Models\CustomFieldLink;
+use Relaticle\CustomFields\Models\CustomFieldRelationship;
 use Relaticle\CustomFields\Models\CustomFieldSection;
+use Relaticle\CustomFields\Services\Relationships\CreateRelationshipDefinition;
+use Relaticle\CustomFields\Tests\Fixtures\Models\Comment;
 use Relaticle\CustomFields\Tests\Fixtures\Models\Post;
 use Relaticle\CustomFields\Tests\Fixtures\Models\User;
 
@@ -969,5 +978,161 @@ describe('ManageCustomField - Code Stability On Rename', function (): void {
         expect($field->refresh())
             ->code->toBe('hmis_id')
             ->name->toBe('HMIS ID (Q/A testing added)');
+    });
+});
+
+describe('ManageFieldsTable - Field Management', function (): void {
+    it('edits a select field without duplicating its stored options', function (): void {
+        $section = CustomFieldSection::factory()->forEntityType(Post::class)->create();
+
+        $field = CustomField::factory()
+            ->ofType('select')
+            ->withOptions(['Option 1', 'Option 2'])
+            ->create([
+                'custom_field_section_id' => $section->getKey(),
+                'entity_type' => Post::class,
+            ]);
+
+        livewire(ManageFieldsTable::class, ['entityType' => Post::class])
+            ->mountAction('editField', ['fieldId' => $field->getKey()])
+            ->assertActionDataSet(['name' => $field->name])
+            ->set('mountedActions.0.data.name', 'Renamed Field')
+            ->callMountedAction()
+            ->assertHasNoActionErrors();
+
+        expect($field->refresh()->name)->toBe('Renamed Field')
+            ->and($field->options()->pluck('name')->all())->toBe(['Option 1', 'Option 2']);
+    });
+});
+
+describe('Record field configuration', function (): void {
+    beforeEach(function (): void {
+        $this->postSection = CustomFieldSection::factory()->forEntityType(Post::class)->create();
+        $this->commentSection = CustomFieldSection::factory()->forEntityType(Comment::class)->create();
+    });
+
+    it('creates a one-way record field on a definition of its own', function (): void {
+        livewire(ManageCustomFieldSection::class, [
+            'section' => $this->postSection,
+            'entityType' => Post::class,
+        ])
+            ->callAction('createField', [
+                'name' => 'Related Comment',
+                'code' => 'related_comment',
+                'type' => 'record',
+                'entity_type' => Post::class,
+                'relationship' => [
+                    'target_entity_type' => Comment::class,
+                    'cardinality' => RelationshipCardinality::ManyToOne->value,
+                ],
+            ])
+            ->assertHasNoActionErrors();
+
+        $definition = CustomFieldRelationship::query()->sole();
+
+        expect($definition->from_entity_type)->toBe(Post::class)
+            ->and($definition->to_entity_type)->toBe(Comment::class)
+            ->and($definition->cardinality)->toBe(RelationshipCardinality::ManyToOne)
+            ->and($definition->is_symmetric)->toBeFalse()
+            ->and($definition->fromField->code)->toBe('related_comment')
+            ->and($definition->to_field_id)->toBeNull()
+            ->and(CustomField::query()->count())->toBe(1)
+            ->and(DB::table('custom_fields')->value('lookup_type'))->toBeNull();
+    });
+
+    it('creates the paired field on the target entity when it is named', function (): void {
+        livewire(ManageCustomFieldSection::class, [
+            'section' => $this->postSection,
+            'entityType' => Post::class,
+        ])
+            ->callAction('createField', [
+                'name' => 'Related Comment',
+                'code' => 'related_comment',
+                'type' => 'record',
+                'entity_type' => Post::class,
+                'relationship' => [
+                    'target_entity_type' => Comment::class,
+                    'cardinality' => RelationshipCardinality::ManyToMany->value,
+                    'paired_field_name' => 'Related Post',
+                    'paired_section_id' => $this->commentSection->getKey(),
+                ],
+            ])
+            ->assertHasNoActionErrors();
+
+        $definition = CustomFieldRelationship::query()->sole();
+
+        expect(CustomField::query()->count())->toBe(2)
+            ->and($definition->fromField->code)->toBe('related_comment')
+            ->and($definition->toField->name)->toBe('Related Post')
+            ->and($definition->toField->entity_type)->toBe(Comment::class)
+            ->and($definition->toField->custom_field_section_id)->toBe($this->commentSection->getKey())
+            ->and(DB::table('custom_fields')->whereNotNull('lookup_type')->count())->toBe(0);
+    });
+
+    it('loads the definition into the edit form and keeps the ends where they are', function (): void {
+        $definition = app(CreateRelationshipDefinition::class)->execute(new RelationshipDefinitionData(
+            code: 'related_comment',
+            fromEntityType: Post::class,
+            toEntityType: Comment::class,
+            cardinality: RelationshipCardinality::ManyToMany,
+            fromField: new FieldSlotData(name: 'Related Comment', sectionId: $this->postSection->getKey()),
+        ));
+
+        livewire(ManageCustomField::class, ['field' => $definition->fromField])
+            ->mountAction('edit')
+            ->assertActionDataSet([
+                'relationship.target_entity_type' => Comment::class,
+                'relationship.cardinality' => RelationshipCardinality::ManyToMany->value,
+                'relationship.is_symmetric' => false,
+            ])
+            ->set('mountedActions.0.data.relationship.target_entity_type', Post::class)
+            ->callMountedAction()
+            ->assertHasNoActionErrors();
+
+        expect($definition->refresh()->to_entity_type)->toBe(Comment::class);
+    });
+
+    it('gives a duplicated record field a definition of its own', function (): void {
+        $definition = app(CreateRelationshipDefinition::class)->execute(new RelationshipDefinitionData(
+            code: 'related_comment',
+            fromEntityType: Post::class,
+            toEntityType: Comment::class,
+            cardinality: RelationshipCardinality::ManyToMany,
+            fromField: new FieldSlotData(name: 'Related Comment', sectionId: $this->postSection->getKey()),
+        ));
+
+        livewire(ManageCustomField::class, ['field' => $definition->fromField])
+            ->callAction('duplicate');
+
+        $copy = CustomField::query()->whereKeyNot($definition->from_field_id)->sole();
+
+        expect(CustomFieldRelationship::query()->count())->toBe(2)
+            ->and($copy->targetEntityType())->toBe(Comment::class)
+            ->and($copy->relationshipDefinition()->cardinality)->toBe(RelationshipCardinality::ManyToMany);
+    });
+
+    it('narrows the cardinality on confirmation, keeping the first linked record', function (): void {
+        $definition = app(CreateRelationshipDefinition::class)->execute(new RelationshipDefinitionData(
+            code: 'related_comment',
+            fromEntityType: Post::class,
+            toEntityType: Comment::class,
+            cardinality: RelationshipCardinality::ManyToMany,
+            fromField: new FieldSlotData(name: 'Related Comment', sectionId: $this->postSection->getKey()),
+        ));
+
+        $field = $definition->fromField;
+        [$first, $second] = Comment::factory()->count(2)->create();
+        $post = Post::factory()->create(['custom_fields' => [$field->code => [$first->getKey(), $second->getKey()]]]);
+
+        livewire(ManageCustomField::class, ['field' => $field])
+            ->mountAction('edit')
+            ->set('mountedActions.0.data.relationship.cardinality', RelationshipCardinality::ManyToOne->value)
+            ->set('mountedActions.0.data.relationship.keep_first', true)
+            ->callMountedAction()
+            ->assertHasNoActionErrors();
+
+        expect($definition->refresh()->cardinality)->toBe(RelationshipCardinality::ManyToOne)
+            ->and($post->fresh()->getCustomFieldValue($field->fresh()))->toBe([$first->getKey()])
+            ->and(CustomFieldLink::query()->whereNotNull('active_until')->count())->toBe(1);
     });
 });

@@ -25,6 +25,19 @@ enum RelationshipCardinality: string implements HasLabel
         return in_array($this, [self::OneToOne, self::OneToMany], true);
     }
 
+    /**
+     * Whether moving to the given cardinality takes an end from many records to one, which
+     * closes the edges that no longer fit.
+     */
+    public function narrows(self $to): bool
+    {
+        if (! $this->fromSideIsSingle() && $to->fromSideIsSingle()) {
+            return true;
+        }
+
+        return ! $this->toSideIsSingle() && $to->toSideIsSingle();
+    }
+
     public function getLabel(): string
     {
         return match ($this) {

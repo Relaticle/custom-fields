@@ -21,7 +21,7 @@ use Relaticle\CustomFields\CustomFields;
 use Relaticle\CustomFields\CustomFieldsPlugin;
 use Relaticle\CustomFields\Filament\Management\Schemas\FieldForm;
 use Relaticle\CustomFields\Filament\Management\Schemas\SectionForm;
-use Relaticle\CustomFields\Livewire\Concerns\CreatesCustomFields;
+use Relaticle\CustomFields\Livewire\Concerns\ManagesCustomFields;
 use Relaticle\CustomFields\Livewire\Concerns\ManagesFields;
 use Relaticle\CustomFields\Models\CustomField;
 use Relaticle\CustomFields\Models\CustomFieldSection;
@@ -29,9 +29,9 @@ use Relaticle\CustomFields\Models\Scopes\SortOrderScope;
 
 final class ManageCustomFieldSection extends Component implements HasActions, HasForms
 {
-    use CreatesCustomFields;
     use InteractsWithActions;
     use InteractsWithForms;
+    use ManagesCustomFields;
     use ManagesFields;
 
     /** @var ?Closure(CustomFieldSection): ?Closure */
@@ -204,7 +204,7 @@ final class ManageCustomFieldSection extends Component implements HasActions, Ha
             ->schema(FieldForm::schema(withOptionsRelationship: false, section: $this->section))
             ->fillForm(['entity_type' => $this->entityType])
             ->mutateDataUsing(fn (array $data): array => $this->mutateFieldData($data, $this->entityType, $this->section->getKey()))
-            ->action(fn (array $data) => $this->storeField($data))
+            ->action(fn (array $data): CustomField => $this->storeField($data))
             ->modalWidth(Width::ScreenLarge)
             ->slideOver();
     }

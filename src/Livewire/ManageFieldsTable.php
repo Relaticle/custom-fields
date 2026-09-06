@@ -20,7 +20,7 @@ use Livewire\Attributes\On;
 use Livewire\Component;
 use Relaticle\CustomFields\CustomFields;
 use Relaticle\CustomFields\Filament\Management\Schemas\FieldForm;
-use Relaticle\CustomFields\Livewire\Concerns\CreatesCustomFields;
+use Relaticle\CustomFields\Livewire\Concerns\ManagesCustomFields;
 use Relaticle\CustomFields\Models\CustomField;
 
 /**
@@ -31,9 +31,9 @@ use Relaticle\CustomFields\Models\CustomField;
  */
 final class ManageFieldsTable extends Component implements HasActions, HasForms
 {
-    use CreatesCustomFields;
     use InteractsWithActions;
     use InteractsWithForms;
+    use ManagesCustomFields;
 
     public string $entityType;
 
@@ -107,13 +107,9 @@ final class ManageFieldsTable extends Component implements HasActions, HasForms
             ->model(CustomFields::customFieldModel())
             ->record(fn (array $arguments): ?CustomField => $this->findField($arguments['fieldId']))
             ->schema(FieldForm::schema(withOptionsRelationship: true))
-            ->fillForm(fn (CustomField $record): array => $record->toArray())
+            ->fillForm(fn (CustomField $record): array => $this->fieldFormState($record))
             ->action(function (array $data, CustomField $record): void {
-                if (isset($data['settings'])) {
-                    $data['settings'] = array_merge($record->settings->toArray(), $data['settings']);
-                }
-
-                $record->update($data);
+                $this->updateField($record, $data);
                 $this->resetFieldsCache();
             })
             ->modalWidth(Width::ScreenLarge)

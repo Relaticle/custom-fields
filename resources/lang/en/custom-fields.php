@@ -71,8 +71,20 @@ return [
             'visibility_settings' => 'Visibility',
             'data_settings' => 'Data Handling',
             'appearance_settings' => 'Appearance',
-            'lookup_type' => [
-                'label' => 'Lookup Type',
+            'record' => [
+                'label' => 'Related Records',
+                'target' => 'Related Entity',
+                'target_help' => 'The entity whose records this field links to. It cannot be changed once the field exists.',
+                'cardinality' => 'How Many Records',
+                'cardinality_help' => 'How many records each side of the relationship can hold.',
+                'is_symmetric' => 'Same Field Both Ways',
+                'is_symmetric_help' => 'One field read from both ends, for relationships that mean the same thing in either direction.',
+                'paired_field_name' => 'Field on the Related Entity',
+                'paired_field_name_help' => 'Adds a field on the related entity that shows the other end of the same link. Leave it empty for a one-way field.',
+                'paired_section' => 'Section for That Field',
+                'paired_section_help' => 'The section the paired field is added to.',
+                'keep_first' => 'Keep only the first linked record',
+                'keep_first_help' => 'This field now holds a single record. The first record each side already links to is kept and the rest are unlinked.',
             ],
             'options' => [
                 'label' => 'Options',
@@ -449,6 +461,7 @@ return [
             'conflict' => 'This link conflicts with a concurrent change. Reload and try again.',
             'single_value' => 'This relationship holds a single record.',
             'already_linked' => ':record is already linked to :holder. Confirm the replacement to move it.',
+            'keep_first_required' => 'This relationship holds several records. Confirm keeping the first one to narrow it.',
         ],
     ],
 

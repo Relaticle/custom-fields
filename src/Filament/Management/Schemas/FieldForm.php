@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Relaticle\CustomFields\Filament\Management\Schemas;
 
 use Closure;
+use Filament\Forms\Components\Checkbox;
 use Filament\Forms\Components\ColorPicker;
 use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Repeater;
@@ -32,12 +33,14 @@ use Relaticle\CustomFields\Enums\CustomFieldsFeature;
 use Relaticle\CustomFields\Enums\DescriptionPosition;
 use Relaticle\CustomFields\Enums\FieldDataType;
 use Relaticle\CustomFields\Enums\OptionCategory;
+use Relaticle\CustomFields\Enums\RelationshipCardinality;
 use Relaticle\CustomFields\Facades\CustomFieldsType;
 use Relaticle\CustomFields\Facades\Entities;
 use Relaticle\CustomFields\FeatureSystem\FeatureManager;
 use Relaticle\CustomFields\Filament\Management\Forms\Components\TypeField;
 use Relaticle\CustomFields\Filament\Management\Forms\Components\VisibilityComponent;
 use Relaticle\CustomFields\Models\CustomField;
+use Relaticle\CustomFields\Models\CustomFieldRelationship;
 use Relaticle\CustomFields\Models\CustomFieldSection;
 use Relaticle\CustomFields\Services\TenantContextService;
 
@@ -95,6 +98,176 @@ final class FieldForm implements FormInterface
         }
 
         return null;
+    }
+
+    /**
+     * The record type's configuration: where the field points, how many records each end
+     * holds, and the field rendering the other end. It is one relationship definition, so it
+     * is collected here and submitted through the definition services, never as columns.
+     */
+    private static function recordConfiguration(): Fieldset
+    {
+        return Fieldset::make(__('custom-fields::custom-fields.field.form.record.label'))
+            ->columns(2)
+            ->columnSpanFull()
+            ->visible(fn (Get $get): bool => self::isRelationshipField($get('type')))
+            ->schema([
+                Select::make('relationship.target_entity_type')
+                    ->label(__('custom-fields::custom-fields.field.form.record.target'))
+                    ->hintIcon(Heroicon::OutlinedQuestionMarkCircle, tooltip: __('custom-fields::custom-fields.field.form.record.target_help'))
+                    ->options(Entities::getLookupOptions())
+                    ->default((Entities::asLookupSources()->first()?->getAlias()) ?? '')
+                    ->disabled(fn (?CustomField $record): bool => (bool) $record?->exists)
+                    ->required()
+                    ->live(),
+                Select::make('relationship.cardinality')
+                    ->label(__('custom-fields::custom-fields.field.form.record.cardinality'))
+                    ->hintIcon(Heroicon::OutlinedQuestionMarkCircle, tooltip: __('custom-fields::custom-fields.field.form.record.cardinality_help'))
+                    ->options(fn (Get $get): array => self::cardinalityOptions($get('relationship.is_symmetric') === true))
+                    ->default(RelationshipCardinality::ManyToOne->value)
+                    ->required()
+                    ->live(),
+                Toggle::make('relationship.is_symmetric')
+                    ->inline()
+                    ->live()
+                    ->label(__('custom-fields::custom-fields.field.form.record.is_symmetric'))
+                    ->hintIcon(Heroicon::OutlinedQuestionMarkCircle, tooltip: __('custom-fields::custom-fields.field.form.record.is_symmetric_help'))
+                    ->visible(fn (Get $get, ?CustomField $record): bool => $record?->exists !== true
+                        && self::endsMatch($get('entity_type'), $get('relationship.target_entity_type')))
+                    ->default(false),
+                TextInput::make('relationship.paired_field_name')
+                    ->label(__('custom-fields::custom-fields.field.form.record.paired_field_name'))
+                    ->hintIcon(Heroicon::OutlinedQuestionMarkCircle, tooltip: __('custom-fields::custom-fields.field.form.record.paired_field_name_help'))
+                    ->maxLength(50)
+                    ->live(onBlur: true)
+                    ->disabled(fn (?CustomField $record): bool => (bool) $record?->exists)
+                    ->visible(fn (Get $get, ?CustomField $record): bool => $record?->exists === true
+                        ? filled($get('relationship.paired_field_name'))
+                        : $get('relationship.is_symmetric') !== true),
+                Select::make('relationship.paired_section_id')
+                    ->label(__('custom-fields::custom-fields.field.form.record.paired_section'))
+                    ->hintIcon(Heroicon::OutlinedQuestionMarkCircle, tooltip: __('custom-fields::custom-fields.field.form.record.paired_section_help'))
+                    ->options(fn (Get $get): array => self::sectionOptions($get('relationship.target_entity_type')))
+                    ->required()
+                    ->visible(fn (Get $get, ?CustomField $record): bool => FeatureManager::isEnabled(CustomFieldsFeature::SYSTEM_SECTIONS)
+                        && $record?->exists !== true
+                        && filled($get('relationship.paired_field_name'))
+                        && $get('relationship.is_symmetric') !== true),
+                Checkbox::make('relationship.keep_first')
+                    ->label(__('custom-fields::custom-fields.field.form.record.keep_first'))
+                    ->helperText(__('custom-fields::custom-fields.field.form.record.keep_first_help'))
+                    ->columnSpanFull()
+                    ->accepted()
+                    ->default(false)
+                    ->visible(fn (Get $get, ?CustomField $record): bool => self::narrowsCardinality($record, $get('relationship.cardinality'))),
+            ]);
+    }
+
+    /**
+     * The state the record configuration is filled from: an existing field reads its own
+     * definition, from whichever end it renders.
+     *
+     * @return array<string, mixed>|null
+     */
+    public static function relationshipState(CustomField $field): ?array
+    {
+        $definition = $field->relationshipDefinition();
+
+        if (! $definition instanceof CustomFieldRelationship) {
+            return null;
+        }
+
+        $partner = match (true) {
+            $definition->is_symmetric => null,
+            $definition->directionFor($field) === CustomFieldRelationship::DIRECTION_FROM => $definition->toField,
+            default => $definition->fromField,
+        };
+
+        return [
+            'target_entity_type' => $field->targetEntityType(),
+            'cardinality' => $definition->cardinality->value,
+            'is_symmetric' => $definition->is_symmetric,
+            'paired_field_name' => $partner?->name,
+        ];
+    }
+
+    private static function isRelationshipField(mixed $type): bool
+    {
+        if (! is_string($type) || $type === '') {
+            return false;
+        }
+
+        return CustomFieldsType::getFieldType($type)?->requiresRelationship === true;
+    }
+
+    /**
+     * A symmetric relationship reads one field from both ends, so a cardinality that
+     * constrains only one of them cannot describe it.
+     *
+     * @return array<string, string>
+     */
+    private static function cardinalityOptions(bool $isSymmetric): array
+    {
+        $cases = $isSymmetric
+            ? [RelationshipCardinality::OneToOne, RelationshipCardinality::ManyToMany]
+            : RelationshipCardinality::cases();
+
+        $options = [];
+
+        foreach ($cases as $case) {
+            $options[$case->value] = $case->getLabel();
+        }
+
+        return $options;
+    }
+
+    private static function endsMatch(mixed $entityType, mixed $targetEntityType): bool
+    {
+        if (! is_string($entityType) || ! is_string($targetEntityType) || $entityType === '' || $targetEntityType === '') {
+            return false;
+        }
+
+        return Entities::getEntity($entityType)?->getAlias() === (Entities::getEntity($targetEntityType)?->getAlias());
+    }
+
+    /**
+     * The sections of the entity the paired field lands on. Sections are what the activable
+     * scope reads, so a paired field without one would never render.
+     *
+     * @return array<string, string>
+     */
+    private static function sectionOptions(mixed $entityType): array
+    {
+        if (! is_string($entityType) || $entityType === '') {
+            return [];
+        }
+
+        $entity = Entities::getEntity($entityType);
+        $candidates = array_values(array_unique(array_filter([$entityType, $entity?->getAlias(), $entity?->getModelClass()])));
+
+        $options = [];
+
+        foreach (CustomFields::newSectionModel()->newQuery()->whereIn('entity_type', $candidates)->orderBy('sort_order')->get() as $section) {
+            $options[(string) $section->getKey()] = (string) $section->name;
+        }
+
+        return $options;
+    }
+
+    private static function narrowsCardinality(?CustomField $record, mixed $cardinality): bool
+    {
+        if (! $record instanceof CustomField || ! $record->exists || ! is_string($cardinality)) {
+            return false;
+        }
+
+        $definition = $record->relationshipDefinition();
+        $target = RelationshipCardinality::tryFrom($cardinality);
+
+        if (! $definition instanceof CustomFieldRelationship || ! $target instanceof RelationshipCardinality) {
+            return false;
+        }
+
+        return $definition->cardinality->narrows($target);
     }
 
     /**
@@ -597,16 +770,7 @@ final class FieldForm implements FormInterface
 
         ];
 
-        $generalSchema[] = Select::make('lookup_type')
-            ->label(__('custom-fields::custom-fields.field.form.lookup_type.label'))
-            ->visible(
-                fn (Get $get): bool => $get('type') !== null
-                    && CustomFieldsType::getFieldType($get('type'))?->requiresRelationship === true
-            )
-            ->disabled(fn (?CustomField $record): bool => (bool) $record?->exists)
-            ->options(Entities::getLookupOptions())
-            ->default((Entities::asLookupSources()->first()?->getAlias()) ?? '')
-            ->required();
+        $generalSchema[] = self::recordConfiguration();
 
         $generalSchema[] = $optionsRepeater;
 
