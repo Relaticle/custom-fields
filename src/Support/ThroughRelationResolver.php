@@ -95,26 +95,42 @@ final readonly class ThroughRelationResolver
     {
         $instance = $this->resolve($query->getModel(), $relation);
 
+        $keys = $instance->getRelationExistenceQuery(
+            $instance->getRelated()->newQueryWithoutRelationships(),
+            $query,
+        );
+
+        // The order has to see the rows the cell sees: the related model's global scopes and
+        // whatever the relation body constrains, which is what whereHas() merges as well.
+        $keys->mergeConstraintsFrom($instance->getQuery());
+
         $values = $customField->values();
-        $entityId = $values->getRelated()->qualifyColumn('entity_id');
 
-        $values->select($customField->getValueColumn())->limit(1);
+        $values
+            ->select($customField->getValueColumn())
+            ->whereIn(
+                $values->getRelated()->qualifyColumn('entity_id'),
+                // A self relation aliases the inner table, and only the returned builder
+                // knows the alias, so the key column is chosen after the correlation.
+                $keys->select($keys->getModel()->getQualifiedKeyName()),
+            )
+            ->limit(1);
 
-        if ($instance instanceof BelongsTo) {
-            // The foreign key sits on the row table already, so the value correlates without a hop.
-            $values->whereColumn($entityId, $instance->getQualifiedForeignKeyName());
-        } else {
-            // A self relation aliases the inner table, and only the returned builder knows
-            // the alias, so the key column is chosen after the correlation is built.
-            $keys = $instance->getRelationExistenceQuery(
-                $instance->getRelated()->newQueryWithoutRelationships(),
-                $query,
-            );
+        $value = $values->getQuery();
+        $sql = sprintf('(%s)', $value->toSql());
 
-            $values->whereIn($entityId, $keys->select($keys->getModel()->getQualifiedKeyName()));
-        }
+        // Rows with no related record, or none the relation admits, sort last in both
+        // directions. The leading term says so without a NULLS LAST clause, which the MySQL
+        // family does not have.
+        return $query->orderByRaw(
+            sprintf('%s is null asc, %s %s', $sql, $sql, $this->sortDirection($direction)),
+            [...$value->getBindings(), ...$value->getBindings()],
+        );
+    }
 
-        return $query->orderBy($values->getQuery(), $direction);
+    private function sortDirection(string $direction): string
+    {
+        return strtolower($direction) === 'desc' ? 'desc' : 'asc';
     }
 
     /**
@@ -126,8 +142,10 @@ final readonly class ThroughRelationResolver
             return null;
         }
 
+        // Built the way an existence query is built: without the parent-key constraint, so the
+        // relation body's own wheres are all that travels with it.
         /** @var Relation<Model, Model, ?Model>|mixed $instance */
-        $instance = $model->{$relation}();
+        $instance = Relation::noConstraints(fn (): mixed => $model->{$relation}());
 
         return $instance instanceof Relation ? $instance : null;
     }

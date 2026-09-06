@@ -24,6 +24,24 @@ afterEach(function (): void {
     ThroughTable::$configureUsing = null;
 });
 
+/**
+ * Every row key a sorted through table renders, in the order it renders them.
+ *
+ * @return array<int, int>
+ */
+function throughTableOrder(string $direction): array
+{
+    $records = throughTable(Comment::class, Post::class, 'post')
+        ->sortTable('custom_fields.category', $direction)
+        ->instance()
+        ->getTableRecords();
+
+    return $records
+        ->map(fn (Comment $comment): int => (int) $comment->getKey())
+        ->values()
+        ->all();
+}
+
 function commentOnPostWith(CustomField $field, string $value): Comment
 {
     $post = Post::factory()->create();
@@ -176,4 +194,58 @@ it('shows a record field through a relation but leaves it unsortable', function 
         ->assertCanSeeTableRecords([$comment])
         ->assertTableColumnExists('custom_fields.'.$code, fn (Column $column): bool => ! $column->isSortable())
         ->assertSee('Linked Post');
+});
+
+it('sorts rows whose related record is missing or trashed last in both directions', function (): void {
+    $field = throughTextField(Post::class, 'category', 'Category');
+
+    $alpha = commentOnPostWith($field, 'Alpha');
+    $bravo = commentOnPostWith($field, 'Bravo');
+
+    $trashedPost = Post::factory()->create();
+    $trashedPost->saveCustomFieldValue($field, 'Aaa Trashed');
+
+    $onTrashed = Comment::factory()->create(['post_id' => $trashedPost->getKey()]);
+    $trashedPost->delete();
+
+    $orphan = Comment::factory()->create(['post_id' => Post::query()->withTrashed()->max('id') + 1000]);
+
+    throughTable(Comment::class, Post::class, 'post')
+        ->assertTableColumnStateSet('custom_fields.category', null, $onTrashed)
+        ->assertTableColumnStateSet('custom_fields.category', null, $orphan);
+
+    $unrelated = [(int) $onTrashed->getKey(), (int) $orphan->getKey()];
+
+    $ascending = throughTableOrder('asc');
+    $descending = throughTableOrder('desc');
+
+    expect(array_slice($ascending, 0, 2))->toBe([(int) $alpha->getKey(), (int) $bravo->getKey()])
+        ->and(array_slice($ascending, 2))->toEqualCanonicalizing($unrelated)
+        ->and(array_slice($descending, 0, 2))->toBe([(int) $bravo->getKey(), (int) $alpha->getKey()])
+        ->and(array_slice($descending, 2))->toEqualCanonicalizing($unrelated);
+});
+
+it('sorts through a constrained has-one by the child the relation admits', function (): void {
+    $field = throughTextField(Post::class, 'category', 'Category');
+
+    $authors = collect(['Bravo', 'Alpha', 'Charlie'])->map(function (string $value) use ($field): User {
+        $author = User::factory()->create();
+
+        Post::factory()->create(['author_id' => $author->getKey(), 'is_published' => false])
+            ->saveCustomFieldValue($field, 'Zzz Draft');
+
+        Post::factory()->create(['author_id' => $author->getKey(), 'is_published' => true])
+            ->saveCustomFieldValue($field, $value);
+
+        return $author;
+    });
+
+    [$bravo, $alpha, $charlie] = $authors->all();
+    $keys = $authors->map(fn (User $author): int => (int) $author->getKey())->all();
+
+    throughTable(fn (): Builder => User::query()->whereKey($keys), Post::class, 'publishedPost')
+        ->sortTable('custom_fields.category', 'asc')
+        ->assertCanSeeTableRecords([$alpha, $bravo, $charlie], inOrder: true)
+        ->sortTable('custom_fields.category', 'desc')
+        ->assertCanSeeTableRecords([$charlie, $bravo, $alpha], inOrder: true);
 });
