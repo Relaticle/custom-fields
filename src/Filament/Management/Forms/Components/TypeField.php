@@ -6,8 +6,11 @@ namespace Relaticle\CustomFields\Filament\Management\Forms\Components;
 
 use Filament\Forms\Components\Select;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Lang;
 use Relaticle\CustomFields\Data\FieldTypeData;
+use Relaticle\CustomFields\Enums\UiSurface;
 use Relaticle\CustomFields\Facades\CustomFieldsType;
+use Relaticle\CustomFields\Support\ViewFlavor;
 
 final class TypeField extends Select
 {
@@ -17,6 +20,8 @@ final class TypeField extends Select
     protected function setUp(): void
     {
         parent::setUp();
+
+        $this->view(ViewFlavor::view(UiSurface::TypePicker) ?? $this->view);
 
         $this->native(false)
             ->allowHtml()
@@ -28,6 +33,40 @@ final class TypeField extends Select
             ->searchingMessage(__('custom-fields::custom-fields.common.searching'))
             ->getSearchResultsUsing(fn (string $search): array => $this->getSearchResults($search))
             ->options(fn (): array => $this->getAllFormattedOptions());
+    }
+
+    /**
+     * Every field type as the grid draws it: what it is called, what it looks like, and one
+     * line saying what it is for. A type a host registered without a description keeps its
+     * label rather than showing an empty line.
+     *
+     * @return array<int, array{key: string, label: string, icon: string, description: ?string}>
+     */
+    public function getTypeChoices(): array
+    {
+        $choices = [];
+
+        foreach (CustomFieldsType::toCollection() as $data) {
+            $choices[] = [
+                'key' => $data->key,
+                'label' => $data->label,
+                'icon' => $data->icon,
+                'description' => $this->description($data),
+            ];
+        }
+
+        return $choices;
+    }
+
+    /**
+     * Type keys are hyphenated and lang keys are not, the same way the type labels already
+     * resolve, so a description is found under the key its label uses.
+     */
+    private function description(FieldTypeData $data): ?string
+    {
+        $key = 'custom-fields::custom-fields.field_type_descriptions.'.str_replace('-', '_', $data->key);
+
+        return Lang::has($key) ? __($key) : null;
     }
 
     /**

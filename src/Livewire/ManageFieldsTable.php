@@ -20,9 +20,11 @@ use Livewire\Attributes\On;
 use Livewire\Component;
 use Relaticle\CustomFields\CustomFields;
 use Relaticle\CustomFields\Enums\UiSurface;
+use Relaticle\CustomFields\Facades\Entities;
 use Relaticle\CustomFields\Filament\Management\Schemas\FieldForm;
 use Relaticle\CustomFields\Livewire\Concerns\ManagesCustomFields;
 use Relaticle\CustomFields\Models\CustomField;
+use Relaticle\CustomFields\Support\RelationshipTables;
 use Relaticle\CustomFields\Support\ViewFlavor;
 
 /**
@@ -56,6 +58,69 @@ final class ManageFieldsTable extends Component implements HasActions, HasForms
     }
 
     /**
+     * The relationship each record field in this table belongs to, resolved in one query so a
+     * table full of record fields does not ask the ledger once per row. A pair whose other end
+     * is on this same entity carries the partner, which is what connects the two rows.
+     *
+     * @return array<int|string, array{definition: string, partner_id: ?string, partner_name: ?string, entity: ?string, symmetric: bool}>
+     */
+    #[Computed]
+    public function relationshipPairs(): array
+    {
+        if (! RelationshipTables::exist()) {
+            return [];
+        }
+
+        $fields = $this->activeFields()
+            ->concat($this->inactiveFields())
+            ->filter(fn (CustomField $field): bool => $field->type === 'record')
+            ->keyBy(fn (CustomField $field): string => (string) $field->getKey());
+
+        if ($fields->isEmpty()) {
+            return [];
+        }
+
+        $keys = $fields->map(fn (CustomField $field): int|string => $field->getKey())->values()->all();
+
+        $definitions = CustomFields::newRelationshipModel()
+            ->newQuery()
+            ->with(['fromField', 'toField'])
+            ->where(function (Builder $query) use ($keys): void {
+                $query->whereIn('from_field_id', $keys)->orWhereIn('to_field_id', $keys);
+            })
+            ->get();
+
+        $pairs = [];
+
+        foreach ($definitions as $definition) {
+            $ends = [
+                [$definition->from_field_id, $definition->toField, $definition->to_entity_type],
+                [$definition->to_field_id, $definition->fromField, $definition->from_entity_type],
+            ];
+
+            foreach ($ends as [$fieldId, $partner, $entityType]) {
+                if ($fieldId === null || ! $fields->has((string) $fieldId)) {
+                    continue;
+                }
+
+                $partnerIsVisible = ! $definition->is_symmetric
+                    && $partner instanceof CustomField
+                    && $fields->has((string) $partner->getKey());
+
+                $pairs[(string) $fieldId] = [
+                    'definition' => (string) $definition->getKey(),
+                    'partner_id' => $partnerIsVisible ? (string) $partner->getKey() : null,
+                    'partner_name' => $definition->is_symmetric ? null : $partner?->name,
+                    'entity' => Entities::getEntity($entityType)?->getLabelSingular(),
+                    'symmetric' => $definition->is_symmetric,
+                ];
+            }
+        }
+
+        return $pairs;
+    }
+
+    /**
      * @return Builder<CustomField>
      */
     private function getFieldsQuery(): Builder
@@ -78,7 +143,7 @@ final class ManageFieldsTable extends Component implements HasActions, HasForms
 
     private function resetFieldsCache(): void
     {
-        unset($this->activeFields, $this->inactiveFields);
+        unset($this->activeFields, $this->inactiveFields, $this->relationshipPairs);
     }
 
     /**

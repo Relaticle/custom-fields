@@ -101,6 +101,11 @@ return [
                     'many_to_many' => 'Many :source link to many :target.',
                 ],
             ],
+            'pair' => [
+                'paired' => 'Paired with :field on :entity',
+                'symmetric' => 'Read from both ends on :entity',
+                'one_way' => 'One way to :entity',
+            ],
             'options' => [
                 'label' => 'Options',
                 'add' => 'Add Option',
@@ -415,6 +420,7 @@ return [
         'fields_no_sections' => [
             'heading' => 'No custom fields yet',
             'description' => 'Click the button below to add your first custom field.',
+            'education' => 'A custom field adds a column of your own to every record of this entity: a status, a renewal date, a link to another record. It shows up in the form, the table and the API straight away.',
             'icon' => 'heroicon-o-squares-plus',
         ],
         'search_no_results' => [
@@ -438,6 +444,7 @@ return [
         'add' => 'Add',
         'click_to_add' => 'Click to add',
         'searching' => 'Searching...',
+        'reorder' => 'Drag to reorder',
     ],
 
     'email' => [
@@ -650,6 +657,38 @@ return [
         'markdown_editor' => 'Markdown Editor',
         'select' => 'Select',
         'tags_input' => 'Tags Input',
+    ],
+
+    'field_type_descriptions' => [
+        'toggle' => 'A single on or off switch.',
+        'toggle_buttons' => 'One choice, shown as buttons side by side.',
+        'number' => 'A number, whole or decimal.',
+        'record' => 'A link to one or more records of another entity.',
+        'file_upload' => 'One or more uploaded files.',
+        'multi_select' => 'Several choices from a list you define.',
+        'checkbox_list' => 'Several choices, all shown at once.',
+        'color_picker' => 'A colour, picked or typed as a hex value.',
+        'checkbox' => 'A single box to tick.',
+        'date' => 'A calendar date.',
+        'radio' => 'One choice, all options visible.',
+        'link' => 'A web address, shown as a link.',
+        'text' => 'A single line of text.',
+        'date_time' => 'A date with a time of day.',
+        'rich_editor' => 'Formatted text with headings, lists and links.',
+        'currency' => 'An amount of money in a chosen currency.',
+        'phone' => 'A phone number, validated by country.',
+        'email' => 'An email address.',
+        'textarea' => 'Several lines of plain text.',
+        'markdown_editor' => 'Text written in markdown.',
+        'select' => 'One choice from a list you define.',
+        'tags_input' => 'Free-form tags, typed one at a time.',
+    ],
+
+    'field_type_picker' => [
+        'search_placeholder' => 'Search field types...',
+        'no_results' => 'No field type matches that search.',
+        'selected' => 'Selected',
+        'locked' => 'A field keeps the type it was created with.',
     ],
 
     'currency' => [
