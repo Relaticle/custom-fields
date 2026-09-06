@@ -6,6 +6,8 @@ namespace Relaticle\CustomFields\Console\Commands\Upgrade\Steps;
 
 use Illuminate\Console\Command;
 use Illuminate\Database\Eloquent\Collection as EloquentCollection;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 use Relaticle\CustomFields\Console\Commands\Upgrade\UnmigratedRecordFields;
@@ -65,9 +67,18 @@ final class MigrateRecordLinksStep implements UpgradeStep
             $definition = $this->records->definitionFor($field);
 
             if (! $definition instanceof CustomFieldRelationship && blank($this->legacyTargetEntityType($field))) {
+                // A field that never stored a link has nothing to lose by having no target,
+                // so only one holding values stops the upgrade.
+                if (! $this->records->values($field)->exists()) {
+                    $warnings[] = sprintf("Field '%s' has no lookup type and no values, so there is nothing to migrate", $field->code);
+                    $command->line(sprintf('  <comment>○</comment> %s: no lookup type and no values, skipped', $field->code));
+
+                    continue;
+                }
+
                 $failed++;
-                $warnings[] = sprintf("Field '%s' has no lookup type, so it has no relationship to define", $field->code);
-                $command->line(sprintf('  <comment>○</comment> %s: no lookup type, skipped', $field->code));
+                $warnings[] = sprintf("Field '%s' holds values but has no lookup type, so its target is unknown", $field->code);
+                $command->line(sprintf('  <error>✗</error> %s: values with no lookup type', $field->code));
 
                 continue;
             }
@@ -82,12 +93,19 @@ final class MigrateRecordLinksStep implements UpgradeStep
                 continue;
             }
 
+            $dangling = 0;
+
             $links = $dryRun
-                ? $this->countLinks($field, $definition)
-                : $this->migrate($field, $definition);
+                ? $this->countLinks($field, $definition, $dangling)
+                : $this->migrate($field, $definition, $dangling);
 
             $created += $links;
             $command->line(sprintf('  <info>✓</info> %s: %d link(s)%s', $field->code, $links, $dryRun ? ' would be created' : ' created'));
+
+            if ($dangling > 0) {
+                $warnings[] = sprintf("Field '%s': %d id(s) point at rows that no longer exist and were skipped", $field->code, $dangling);
+                $command->line(sprintf('  <comment>○</comment> %s: %d id(s) point at missing rows, skipped', $field->code, $dangling));
+            }
         }
 
         return new UpgradeStepResult(
@@ -98,18 +116,27 @@ final class MigrateRecordLinksStep implements UpgradeStep
         );
     }
 
-    private function migrate(CustomField $field, ?CustomFieldRelationship $definition): int
+    private function migrate(CustomField $field, ?CustomFieldRelationship $definition, int &$dangling): int
     {
-        return (int) DB::transaction(function () use ($field, $definition): int {
-            $definition ??= $this->createDefinition($field);
-            $created = 0;
+        $created = 0;
+        $skipped = 0;
 
-            $this->records->values($field)->chunkById(self::CHUNK_SIZE, function (EloquentCollection $values) use ($definition, $field, &$created): void {
+        DB::transaction(function () use ($field, $definition, &$created, &$skipped): void {
+            $definition ??= $this->createDefinition($field);
+
+            $this->records->values($field)->chunkById(self::CHUNK_SIZE, function (EloquentCollection $values) use ($definition, $field, &$created, &$skipped): void {
                 $ledger = $this->records->ledgerTargets($definition, $values);
+                $reachable = $this->reachableTargets($definition->to_entity_type, $values);
 
                 foreach ($values as $value) {
                     foreach ($this->records->targets($value) as $index => $targetId) {
                         if (in_array($targetId, $ledger[(string) $value->entity_id] ?? [], true)) {
+                            continue;
+                        }
+
+                        if (! in_array($targetId, $reachable, true)) {
+                            $skipped++;
+
                             continue;
                         }
 
@@ -119,21 +146,34 @@ final class MigrateRecordLinksStep implements UpgradeStep
                     }
                 }
             });
-
-            return $created;
         });
+
+        $dangling += $skipped;
+
+        return $created;
     }
 
-    private function countLinks(CustomField $field, ?CustomFieldRelationship $definition): int
+    private function countLinks(CustomField $field, ?CustomFieldRelationship $definition, int &$dangling): int
     {
         $counted = 0;
+        $skipped = 0;
+        $targetType = $definition instanceof CustomFieldRelationship
+            ? $definition->to_entity_type
+            : $this->legacyTargetEntityType($field);
 
-        $this->records->values($field)->chunkById(self::CHUNK_SIZE, function (EloquentCollection $values) use ($definition, &$counted): void {
+        $this->records->values($field)->chunkById(self::CHUNK_SIZE, function (EloquentCollection $values) use ($definition, $targetType, &$counted, &$skipped): void {
             $ledger = $definition instanceof CustomFieldRelationship ? $this->records->ledgerTargets($definition, $values) : [];
+            $reachable = $this->reachableTargets($targetType, $values);
 
             foreach ($values as $value) {
                 foreach ($this->records->targets($value) as $targetId) {
                     if (in_array($targetId, $ledger[(string) $value->entity_id] ?? [], true)) {
+                        continue;
+                    }
+
+                    if (! in_array($targetId, $reachable, true)) {
+                        $skipped++;
+
                         continue;
                     }
 
@@ -142,7 +182,44 @@ final class MigrateRecordLinksStep implements UpgradeStep
             }
         });
 
+        $dangling += $skipped;
+
         return $counted;
+    }
+
+    /**
+     * A legacy array can still name a row somebody deleted outright, and an edge to nothing
+     * is the dangling reference the ledger exists to end. Global scopes come off the target
+     * query: one run migrates every tenant, and a soft-deleted end keeps its edges.
+     *
+     * @param  EloquentCollection<int, CustomFieldValue>  $values
+     * @return array<int, string>
+     */
+    private function reachableTargets(string $entityType, EloquentCollection $values): array
+    {
+        $ids = array_values(array_unique(array_merge(...array_map(
+            fn (CustomFieldValue $value): array => $this->records->targets($value),
+            $values->all(),
+        ) ?: [[]])));
+
+        if ($ids === []) {
+            return [];
+        }
+
+        $entityClass = Relation::getMorphedModel($entityType) ?? $entityType;
+
+        if (! class_exists($entityClass) || ! is_subclass_of($entityClass, Model::class)) {
+            return [];
+        }
+
+        $target = new $entityClass;
+
+        return $target->newQuery()
+            ->withoutGlobalScopes()
+            ->whereKey($ids)
+            ->pluck($target->getKeyName())
+            ->map(static fn (mixed $key): string => (string) $key)
+            ->all();
     }
 
     private function insert(CustomFieldRelationship $definition, CustomField $field, CustomFieldValue $value, string $targetId, int $index): void
@@ -173,7 +250,7 @@ final class MigrateRecordLinksStep implements UpgradeStep
     private function createDefinition(CustomField $field): CustomFieldRelationship
     {
         $attributes = [
-            'code' => $this->availableCode($field->code),
+            'code' => $this->availableCode($field),
             'from_entity_type' => $field->entity_type,
             'to_entity_type' => $this->legacyTargetEntityType($field),
             'cardinality' => $field->settings->allow_multiple
@@ -204,29 +281,42 @@ final class MigrateRecordLinksStep implements UpgradeStep
     }
 
     /**
-     * Field codes are unique per entity type, definition codes per tenant, so the same code
-     * can arrive twice from two entities.
+     * Field codes are unique per entity type and definition codes per tenant, so the same
+     * code can arrive twice from two entities of one tenant, and every tenant may hold its
+     * own copy of it.
      */
-    private function availableCode(string $code): string
+    private function availableCode(CustomField $field): string
     {
-        $candidate = $code;
+        $candidate = $field->code;
         $suffix = 1;
 
-        while ($this->codeIsTaken($candidate)) {
-            $candidate = sprintf('%s_%d', $code, $suffix);
+        while ($this->codeIsTaken($candidate, $field)) {
+            $candidate = sprintf('%s_%d', $field->code, $suffix);
             $suffix++;
         }
 
         return $candidate;
     }
 
-    private function codeIsTaken(string $code): bool
+    private function codeIsTaken(string $code, CustomField $field): bool
     {
-        return CustomFields::newRelationshipModel()
+        $query = CustomFields::newRelationshipModel()
             ->newQuery()
             ->withoutGlobalScopes()
-            ->where('code', $code)
-            ->exists();
+            ->where('code', $code);
+
+        if (! FeatureManager::isEnabled(CustomFieldsFeature::SYSTEM_MULTI_TENANCY)) {
+            return $query->exists();
+        }
+
+        $tenantKey = (string) config('custom-fields.database.column_names.tenant_foreign_key');
+        $tenantId = $field->{$tenantKey};
+
+        if ($tenantId === null) {
+            return $query->whereNull($tenantKey)->exists();
+        }
+
+        return $query->where($tenantKey, $tenantId)->exists();
     }
 
     private function table(string $key): string

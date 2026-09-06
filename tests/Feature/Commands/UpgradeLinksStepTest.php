@@ -411,3 +411,80 @@ it('refuses to drop the lookup column while a record field still has no definiti
     expect(fn () => $migration->up())->toThrow(RuntimeException::class, $field->code)
         ->and(Schema::hasColumn((string) config('custom-fields.database.table_names.custom_fields'), 'lookup_type'))->toBeTrue();
 })->skip(commitsSchemaChanges(...), 'MySQL commits DDL implicitly, so restoring the dropped lookup_type column would end the test transaction.');
+
+it('skips an id whose record is gone and reports it', function (): void {
+    $field = recordField();
+    [$kept, $gone] = Post::factory()->count(2)->create();
+    Post::factory()->create(['custom_fields' => [$field->code => [$kept->getKey(), $gone->getKey()]]]);
+
+    definitionForField($field, 'dangling_related');
+    $gone->forceDelete();
+
+    $this->artisan('custom-fields:upgrade', ['--force' => true])
+        ->expectsOutputToContain('1 id(s) point at missing rows, skipped')
+        ->assertSuccessful();
+
+    expect(CustomFieldLink::query()->active()->pluck('to_entity_id')->map(intval(...))->all())->toBe([$kept->getKey()]);
+});
+
+it('migrates an end that is only soft deleted', function (): void {
+    $field = recordField();
+    $trashed = Post::factory()->create();
+    Post::factory()->create(['custom_fields' => [$field->code => [$trashed->getKey()]]]);
+
+    definitionForField($field, 'trashed_related');
+    $trashed->delete();
+
+    $this->artisan('custom-fields:upgrade', ['--force' => true])
+        ->doesntExpectOutputToContain('point at missing rows')
+        ->assertSuccessful();
+
+    expect(CustomFieldLink::query()->active()->count())->toBe(1);
+});
+
+it('skips a record field that has neither a target nor values', function (): void {
+    $field = recordField();
+
+    $this->artisan('custom-fields:upgrade', ['--force' => true])
+        ->expectsOutputToContain('no lookup type and no values, skipped')
+        ->assertSuccessful();
+
+    expect(CustomFieldRelationship::query()->count())->toBe(0)
+        ->and($field->fresh())->not->toBeNull();
+});
+
+it('fails on a record field holding values with no target', function (): void {
+    $field = recordField();
+    $target = Post::factory()->create();
+    Post::factory()->create(['custom_fields' => [$field->code => [$target->getKey()]]]);
+
+    $this->artisan('custom-fields:upgrade', ['--force' => true])
+        ->expectsOutputToContain('values with no lookup type')
+        ->assertFailed();
+
+    expect(CustomFieldLink::query()->count())->toBe(0);
+});
+
+it('keeps one definition code per tenant when two tenants share a field code', function (): void {
+    useTenantSchema(1);
+
+    $first = legacyRecordField(code: 'owner');
+    $firstTarget = Post::factory()->create();
+    Post::factory()->create(['custom_fields' => [$first->code => [$firstTarget->getKey()]]]);
+
+    TenantContextService::setTenantId(2);
+
+    $second = legacyRecordField(code: 'owner');
+    $secondTarget = Post::factory()->create();
+    Post::factory()->create(['custom_fields' => [$second->code => [$secondTarget->getKey()]]]);
+
+    $this->artisan('custom-fields:upgrade', ['--force' => true])->assertSuccessful();
+
+    $definitions = CustomFieldRelationship::query()
+        ->withoutGlobalScopes()
+        ->orderBy('tenant_id')
+        ->get();
+
+    expect($definitions->pluck('code')->all())->toBe(['owner', 'owner'])
+        ->and($definitions->pluck('tenant_id')->all())->toBe([1, 2]);
+})->skip(commitsSchemaChanges(...), 'MySQL commits DDL implicitly, so the added tenant columns would outlive the test transaction.');

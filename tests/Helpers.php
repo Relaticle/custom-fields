@@ -130,6 +130,14 @@ function useTenantSchema(int|string $tenantId): void
         });
     }
 
+    // The definitions migration keys code per tenant when the flag is on at migrate time, so
+    // the rebuilt schema has to say the same: without it every tenant would share one
+    // namespace of relationship codes.
+    Schema::table(config('custom-fields.database.table_names.custom_field_relationships'), function (Blueprint $blueprint) use ($tenantKey): void {
+        $blueprint->dropUnique(['code']);
+        $blueprint->unique(['code', $tenantKey]);
+    });
+
     // Eloquent caches each model's column listing statically to decide what is guardable, and
     // an earlier test in this process cached these tables without their tenant column. The
     // global afterEach in Pest.php clears it again for whatever runs next.
