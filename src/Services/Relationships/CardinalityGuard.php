@@ -76,7 +76,7 @@ final readonly class CardinalityGuard
         $holders = [];
 
         foreach ($links as $link) {
-            [$targetId, $holderId] = $this->ends($link, $targets);
+            [$targetId, $holderId] = $this->ends($link, $definition, $direction, $targets);
 
             if ($targetId === null) {
                 continue;
@@ -93,11 +93,24 @@ final readonly class CardinalityGuard
     }
 
     /**
+     * A directional edge is read by end: two entity types share one id space often enough
+     * that finding the target by value would name the wrong pair. Only a symmetric edge,
+     * canonicalized by value, has to be read that way.
+     *
      * @param  array<int, string>  $targets
      * @return array{0: ?string, 1: int|string}
      */
-    private function ends(CustomFieldLink $link, array $targets): array
+    private function ends(CustomFieldLink $link, CustomFieldRelationship $definition, string $direction, array $targets): array
     {
+        if (! $definition->is_symmetric) {
+            $targetId = (string) $link->{$this->opposite($direction).'_entity_id'};
+
+            return [
+                in_array($targetId, $targets, true) ? $targetId : null,
+                $link->{$direction.'_entity_id'},
+            ];
+        }
+
         $fromId = (string) $link->from_entity_id;
         $toId = (string) $link->to_entity_id;
 

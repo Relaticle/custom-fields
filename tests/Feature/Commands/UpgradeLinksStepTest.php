@@ -125,6 +125,28 @@ it('migrates the values a field with a definition still holds', function (): voi
         ->and($leftover->fresh()->getCustomFieldValue($field->fresh()))->toBe([$second->getKey()]);
 });
 
+it('refuses to migrate a field that reads the far end of its definition', function (): void {
+    $field = legacyRecordField();
+    $target = Post::factory()->create();
+    Post::factory()->create(['custom_fields' => [$field->code => [$target->getKey()]]]);
+
+    CustomFieldRelationship::query()->create([
+        'code' => 'reversed_related',
+        'from_entity_type' => (new Post)->getMorphClass(),
+        'to_entity_type' => (new Post)->getMorphClass(),
+        'cardinality' => RelationshipCardinality::ManyToMany,
+        'is_symmetric' => false,
+        'from_field_id' => null,
+        'to_field_id' => $field->getKey(),
+    ]);
+
+    $this->artisan('custom-fields:upgrade', ['--force' => true])
+        ->expectsOutputToContain('reads the to end of reversed_related, skipped')
+        ->assertFailed();
+
+    expect(CustomFieldLink::query()->count())->toBe(0);
+});
+
 it('keeps the migrated value rows until the purge is asked for', function (): void {
     $field = legacyRecordField();
     $target = Post::factory()->create();

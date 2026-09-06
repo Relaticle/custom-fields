@@ -70,6 +70,16 @@ final class MigrateRecordLinksStep implements UpgradeStep
                 continue;
             }
 
+            // Legacy values are always written from the record that holds the field, so a
+            // field reading the far end of its definition would migrate to reversed edges.
+            if ($definition instanceof CustomFieldRelationship && (string) $definition->from_field_id !== (string) $field->getKey()) {
+                $failed++;
+                $warnings[] = sprintf("Field '%s' reads the to end of relationship '%s', so its value rows need migrating by hand", $field->code, $definition->code);
+                $command->line(sprintf('  <comment>○</comment> %s: reads the to end of %s, skipped', $field->code, $definition->code));
+
+                continue;
+            }
+
             $links = $dryRun
                 ? $this->countLinks($field, $definition)
                 : $this->migrate($field, $definition);

@@ -10,7 +10,9 @@ use Relaticle\CustomFields\Enums\RelationshipCardinality;
 use Relaticle\CustomFields\Models\CustomFieldLink;
 use Relaticle\CustomFields\Models\CustomFieldRelationship;
 use Relaticle\CustomFields\Services\Relationships\CreateRelationshipDefinition;
+use Relaticle\CustomFields\Services\Relationships\LinkWriter;
 use Relaticle\CustomFields\Tests\Fixtures\Models\Post;
+use Relaticle\CustomFields\Tests\Fixtures\Models\User;
 use Relaticle\CustomFields\Tests\Fixtures\Resources\Posts\Pages\EditPost;
 
 function cardinalityPairing(RelationshipCardinality $cardinality, bool $symmetric = false): CustomFieldRelationship
@@ -27,6 +29,20 @@ function cardinalityPairing(RelationshipCardinality $cardinality, bool $symmetri
         isSymmetric: $symmetric,
         fromField: new FieldSlotData(name: 'Owned Post', sectionId: $section->getKey()),
         toField: $symmetric ? null : new FieldSlotData(name: 'Owning Post', sectionId: $section->getKey()),
+    ));
+}
+
+function cardinalityAuthorship(): CustomFieldRelationship
+{
+    registerPostLookupEntity();
+
+    return app(CreateRelationshipDefinition::class)->execute(new RelationshipDefinitionData(
+        code: 'cardinality_authorship',
+        fromEntityType: (new Post)->getMorphClass(),
+        toEntityType: (new User)->getMorphClass(),
+        cardinality: RelationshipCardinality::ManyToOne,
+        fromField: new FieldSlotData(name: 'Author', sectionId: sectionForEntity((new Post)->getMorphClass())->getKey()),
+        toField: new FieldSlotData(name: 'Posts', sectionId: sectionForEntity((new User)->getMorphClass())->getKey()),
     ));
 }
 
@@ -206,6 +222,26 @@ it('drops the rejected payload instead of retrying it on the next save', functio
     expect($errors)->toBe(['This relationship holds a single record.'])
         ->and($post->fresh()->title)->toBe('Retried')
         ->and(CustomFieldLink::query()->count())->toBe(0);
+});
+
+it('names the holder by end, not by an id two entity types share', function (): void {
+    $definition = cardinalityAuthorship();
+
+    [$holder, $writer] = User::factory()->count(2)->create();
+
+    $posts = Post::factory()->count((int) $holder->getKey() + 1)->create();
+    $taken = $posts->first();
+    $decoy = $posts->firstWhere('id', $holder->getKey());
+
+    $taken->update(['title' => 'Taken Post']);
+    $decoy->update(['title' => 'Decoy Post']);
+
+    app(LinkWriter::class)->apply($taken, $definition->fromField, [$holder->getKey()]);
+
+    $errors = cardinalityErrors(fn (): mixed => app(LinkWriter::class)
+        ->apply($writer, $definition->toField, [$decoy->getKey(), $taken->getKey()]));
+
+    expect($errors)->toBe([sprintf('Taken Post is already linked to %s. Confirm the replacement to move it.', $holder->getKey())]);
 });
 
 it('reports the single-record message through the panel form', function (): void {
