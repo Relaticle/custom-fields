@@ -7,6 +7,7 @@ namespace Relaticle\CustomFields\Observers;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\DB;
 use Relaticle\CustomFields\CustomFields;
+use Relaticle\CustomFields\Facades\CustomFieldsType;
 use Relaticle\CustomFields\Models\CustomField;
 use Relaticle\CustomFields\Models\CustomFieldRelationship;
 use Relaticle\CustomFields\Models\Scopes\TenantScope;
@@ -19,6 +20,10 @@ final class CustomFieldObserver
 {
     /**
      * Prevent modification of protected attributes on system-defined fields.
+     *
+     * A type change is allowed only when the old and new types share the same storage
+     * representation (e.g. select to status): the row keeps its options and values, only
+     * how they are interpreted changes.
      */
     public function updating(CustomField $customField): void
     {
@@ -26,9 +31,21 @@ final class CustomFieldObserver
             return;
         }
 
-        if ($customField->isDirty(['name', 'code', 'type'])) {
+        if ($customField->isDirty(['name', 'code'])) {
             throw new RuntimeException('Cannot modify name, code, or type of system-defined fields.');
         }
+
+        if ($customField->isDirty('type') && ! $this->isStorageCompatibleTypeChange($customField)) {
+            throw new RuntimeException('Cannot modify name, code, or type of system-defined fields.');
+        }
+    }
+
+    private function isStorageCompatibleTypeChange(CustomField $customField): bool
+    {
+        $originalDataType = CustomFieldsType::getFieldType($customField->getOriginal('type'))?->dataType;
+        $newDataType = CustomFieldsType::getFieldType($customField->type)?->dataType;
+
+        return $originalDataType !== null && $originalDataType === $newDataType;
     }
 
     /**

@@ -464,3 +464,41 @@ it('keeps the options, their ids and a stored value when a select becomes a stat
         ->and($converted->optionsInCategory(OptionCategory::Completed)->pluck('name')->all())->toBe(['Closed Won'])
         ->and(mountedOptionsRepeater($converted)['categorySelects'])->toHaveCount(2);
 });
+
+it('lets a system-defined select become a status field through the migrator recipe', function (): void {
+    app(CustomFieldsMigrator::class)->new(
+        model: Post::class,
+        fieldData: new CustomFieldData(
+            name: 'Stage',
+            code: 'stage',
+            type: 'select',
+            section: new CustomFieldSectionData(name: 'Pipeline', code: 'pipeline'),
+            systemDefined: true,
+        ),
+    )->options(['Discovery', 'Closed Won'])->create();
+
+    $field = CustomField::query()->withoutGlobalScopes()->where('code', 'stage')->firstOrFail();
+    $optionIds = $field->options()->orderBy('sort_order')->pluck('id')->all();
+    $closedWon = $field->options()->where('name', 'Closed Won')->sole();
+
+    $post = Post::factory()->create();
+    $post->saveCustomFieldValue($field, (string) $closedWon->getKey());
+
+    app(CustomFieldsMigrator::class)->find(Post::class, 'stage')->update(['type' => StatusFieldType::KEY]);
+
+    $converted = CustomField::query()->withoutGlobalScopes()->where('code', 'stage')->firstOrFail();
+
+    expect($converted->type)->toBe(StatusFieldType::KEY)
+        ->and($converted->system_defined)->toBeTrue()
+        ->and($converted->options()->orderBy('sort_order')->pluck('id')->all())->toEqual($optionIds)
+        ->and($post->fresh()->getCustomFieldValue($converted))->toEqual($closedWon->getKey());
+});
+
+it('still refuses to turn a system-defined select into a text field', function (): void {
+    $field = CustomField::factory()->ofType('select')->systemDefined()->withOptions(['Discovery'])->create();
+
+    expect(fn () => $field->update(['type' => 'text']))
+        ->toThrow(RuntimeException::class, 'Cannot modify name, code, or type of system-defined fields.');
+
+    expect($field->fresh()->type)->toBe('select');
+});
