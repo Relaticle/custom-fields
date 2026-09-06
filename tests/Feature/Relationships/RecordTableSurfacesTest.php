@@ -6,9 +6,12 @@ use Relaticle\CustomFields\Data\CustomFieldSettingsData;
 use Relaticle\CustomFields\Data\FieldSlotData;
 use Relaticle\CustomFields\Data\RelationshipDefinitionData;
 use Relaticle\CustomFields\Enums\RelationshipCardinality;
+use Relaticle\CustomFields\Models\CustomFieldLink;
 use Relaticle\CustomFields\Models\CustomFieldRelationship;
+use Relaticle\CustomFields\Models\CustomFieldValue;
 use Relaticle\CustomFields\Services\Relationships\CreateRelationshipDefinition;
 use Relaticle\CustomFields\Tests\Fixtures\Models\Post;
+use Relaticle\CustomFields\Tests\Fixtures\Resources\Posts\Pages\EditPost;
 use Relaticle\CustomFields\Tests\Fixtures\Resources\Posts\Pages\ListPosts;
 
 function tableSurfaceDefinition(RelationshipCardinality $cardinality): CustomFieldRelationship
@@ -97,4 +100,28 @@ it('searches posts by the linked record title', function (): void {
         ->searchTable('findable')
         ->assertCanSeeTableRecords([$match])
         ->assertCanNotSeeTableRecords([$miss, $other]);
+});
+
+it('hydrates and saves a record field through the panel form', function (): void {
+    $definition = tableSurfaceDefinition(RelationshipCardinality::ManyToOne);
+    $code = $definition->fromField->code;
+
+    $first = Post::factory()->create(['title' => 'First Target']);
+    $second = Post::factory()->create(['title' => 'Second Target']);
+    $post = Post::factory()->create(['custom_fields' => [$code => [$first->getKey()]]]);
+
+    livewire(EditPost::class, ['record' => $post->getRouteKey()])
+        ->assertFormSet(['custom_fields' => [$code => [$first->getKey()]]])
+        ->fillForm([
+            'title' => $post->title,
+            'author_id' => $post->author_id,
+            'rating' => $post->rating,
+            'custom_fields' => [$code => [$second->getKey()]],
+        ])
+        ->call('save')
+        ->assertHasNoFormErrors();
+
+    expect($post->refresh()->getCustomFieldValue($definition->fromField))->toBe([$second->getKey()])
+        ->and(CustomFieldLink::query()->active()->count())->toBe(1)
+        ->and(CustomFieldValue::query()->where('custom_field_id', $definition->from_field_id)->count())->toBe(0);
 });

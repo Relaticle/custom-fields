@@ -191,6 +191,12 @@ class CustomField extends Model
             return null;
         }
 
+        // Only record fields are ever slots, and every save asks each field in turn, so the
+        // rest never pay for a definition lookup.
+        if ($this->type !== 'record') {
+            return null;
+        }
+
         return once(fn (): ?CustomFieldRelationship => CustomFields::newRelationshipModel()
             ->newQuery()
             ->where(fn (Builder $query): Builder => $query
