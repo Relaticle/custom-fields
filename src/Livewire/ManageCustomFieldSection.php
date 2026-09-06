@@ -25,6 +25,7 @@ use Relaticle\CustomFields\Livewire\Concerns\CreatesCustomFields;
 use Relaticle\CustomFields\Livewire\Concerns\ManagesFields;
 use Relaticle\CustomFields\Models\CustomField;
 use Relaticle\CustomFields\Models\CustomFieldSection;
+use Relaticle\CustomFields\Models\Scopes\SortOrderScope;
 
 final class ManageCustomFieldSection extends Component implements HasActions, HasForms
 {
@@ -87,6 +88,7 @@ final class ManageCustomFieldSection extends Component implements HasActions, Ha
     private function fieldsHaveDuplicateCode(CustomField $model, array $fieldIds): bool
     {
         return $model->query()
+            ->withoutGlobalScope(SortOrderScope::class)
             ->withDeactivated()
             ->whereIn($model->getKeyName(), $fieldIds)
             ->select('code')

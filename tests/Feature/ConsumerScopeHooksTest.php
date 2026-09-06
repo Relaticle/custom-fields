@@ -469,7 +469,7 @@ describe('BaseBuilder onlySections() scope on a sections-disabled install', func
 
         collect(Schema::getIndexes('custom_fields'))
             ->filter(fn (array $index): bool => in_array('custom_field_section_id', $index['columns'], true))
-            ->each(fn (array $index) => DB::statement(sprintf('DROP INDEX "%s"', $index['name'])));
+            ->each(fn (array $index) => Schema::table('custom_fields', fn (Blueprint $table) => $table->dropUnique($index['name'])));
 
         Schema::table('custom_fields', fn (Blueprint $table) => $table->dropColumn('custom_field_section_id'));
     });

@@ -10,9 +10,10 @@ use Illuminate\Support\Facades\Schema;
 /**
  * loadMigrationsFrom() (see tests/TestCase.php) already ran this migration's up() once
  * during suite bootstrap, so every test here starts from the wide (post-up) index state.
- * RefreshDatabase wraps each test in a DB transaction, and SQLite's DDL is transactional,
- * so schema changes made in one test — including index drops/adds — never leak into the
- * next; each test is free to call up() as many times as it needs.
+ * RefreshDatabase wraps each test in a DB transaction. SQLite and Postgres DDL is
+ * transactional, so index drops/adds made in one test never leak into the next there.
+ * MySQL commits DDL immediately, so a leak is possible, but up() is idempotent regardless
+ * of starting state, so every test still ends in the state it asserts on all three drivers.
  */
 beforeEach(function (): void {
     $this->migration = require __DIR__.'/../../database/migrations/relax_custom_fields_unique_key.php';

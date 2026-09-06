@@ -107,13 +107,7 @@ class TestCase extends BaseTestCase
             __DIR__.'/../resources/views',
         ]);
 
-        // Database configuration
-        config()->set('database.default', 'testing');
-        config()->set('database.connections.testing', [
-            'driver' => 'sqlite',
-            'database' => ':memory:',
-            'prefix' => '',
-        ]);
+        $this->configureDatabaseConnection();
 
         // Authentication configuration for testing
         config()->set('auth.providers.users.model', User::class);
@@ -147,6 +141,48 @@ class TestCase extends BaseTestCase
         config()->set('data.throw_when_max_depth_reached', false);
         config()->set('data.max_transformation_depth');
         config()->set('data.validation_strategy', 'only_requests');
+    }
+
+    /**
+     * Configure the `testing` connection from DB_CONNECTION (default sqlite in-memory).
+     * pgsql/mysql read DB_HOST/DB_PORT/DB_DATABASE/DB_USERNAME/DB_PASSWORD, set via real
+     * env vars or a phpunit.xml <env> block.
+     */
+    private function configureDatabaseConnection(): void
+    {
+        $driver = env('DB_CONNECTION', 'sqlite');
+
+        config()->set('database.default', 'testing');
+
+        config()->set('database.connections.testing', match ($driver) {
+            'pgsql' => [
+                'driver' => 'pgsql',
+                'host' => env('DB_HOST', '127.0.0.1'),
+                'port' => env('DB_PORT', '5432'),
+                'database' => env('DB_DATABASE', 'custom_fields_test'),
+                'username' => env('DB_USERNAME', 'root'),
+                'password' => env('DB_PASSWORD', ''),
+                'charset' => 'utf8',
+                'prefix' => '',
+                'search_path' => 'public',
+            ],
+            'mysql' => [
+                'driver' => 'mysql',
+                'host' => env('DB_HOST', '127.0.0.1'),
+                'port' => env('DB_PORT', '3306'),
+                'database' => env('DB_DATABASE', 'custom_fields_test'),
+                'username' => env('DB_USERNAME', 'root'),
+                'password' => env('DB_PASSWORD', ''),
+                'charset' => 'utf8mb4',
+                'collation' => 'utf8mb4_unicode_ci',
+                'prefix' => '',
+            ],
+            default => [
+                'driver' => 'sqlite',
+                'database' => ':memory:',
+                'prefix' => '',
+            ],
+        });
     }
 
     protected function defineDatabaseMigrations(): void
