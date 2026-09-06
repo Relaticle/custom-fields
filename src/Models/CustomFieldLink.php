@@ -91,11 +91,15 @@ class CustomFieldLink extends Model
     }
 
     /**
+     * The relation name has to be the method name: an eager load initialises the relation
+     * under that name, and morphTo would otherwise fill a differently named one, leaving
+     * every eager-loaded end null while lazy access works.
+     *
      * @return MorphTo<Model, $this>
      */
     public function fromEntity(): MorphTo
     {
-        return $this->morphTo('from_entity');
+        return $this->morphTo(__FUNCTION__, 'from_entity_type', 'from_entity_id');
     }
 
     /**
@@ -103,7 +107,7 @@ class CustomFieldLink extends Model
      */
     public function toEntity(): MorphTo
     {
-        return $this->morphTo('to_entity');
+        return $this->morphTo(__FUNCTION__, 'to_entity_type', 'to_entity_id');
     }
 
     /**
@@ -111,9 +115,6 @@ class CustomFieldLink extends Model
      */
     public function createdBy(): MorphTo
     {
-        // The relation name has to be the method name: an eager load initialises the relation
-        // under that name, and morphTo would otherwise fill a differently named one, leaving
-        // every eager-loaded actor null while lazy access works.
         return $this->morphTo(__FUNCTION__, 'created_by_type', 'created_by_id');
     }
 

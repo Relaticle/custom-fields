@@ -36,9 +36,7 @@ function mountRecordField(CustomFieldSection $section, ?string $targetEntityType
         ->set('mountedActions.0.data.name', 'Related Comment')
         ->set('mountedActions.0.data.code', 'related_comment');
 
-    return $targetEntityType === null
-        ? $component
-        : $component->set('mountedActions.0.data.relationship.target_entity_type', $targetEntityType);
+    return $component->set('mountedActions.0.data.relationship.target_entity_type', $targetEntityType);
 }
 
 function mountedConfigurator(Testable $component): ?RelationshipConfigurator
@@ -87,6 +85,41 @@ describe('flavors', function (): void {
             ->and($definition->from_entity_type)->toBe(Post::class)
             ->and($definition->to_entity_type)->toBe(Comment::class);
     })->with(['polished', 'native']);
+});
+
+describe('create defaults', function (): void {
+    it('opens the record configuration on a target and a cardinality', function (): void {
+        $component = livewire(ManageCustomFieldSection::class, [
+            'section' => $this->postSection,
+            'entityType' => Post::class,
+        ])
+            ->mountAction('createField')
+            ->set('mountedActions.0.data.type', 'record');
+
+        expect($component->get('mountedActions.0.data.entity_type'))->toBe(Post::class)
+            ->and($component->get('mountedActions.0.data.relationship.target_entity_type'))->toBe(Post::class)
+            ->and($component->get('mountedActions.0.data.relationship.cardinality'))
+            ->toBe(RelationshipCardinality::ManyToOne->value);
+    });
+
+    it('writes the definition those defaults describe without a second choice', function (): void {
+        livewire(ManageCustomFieldSection::class, [
+            'section' => $this->postSection,
+            'entityType' => Post::class,
+        ])
+            ->mountAction('createField')
+            ->set('mountedActions.0.data.type', 'record')
+            ->set('mountedActions.0.data.name', 'Related Post')
+            ->set('mountedActions.0.data.code', 'related_post')
+            ->callMountedAction()
+            ->assertHasNoActionErrors();
+
+        $definition = CustomFieldRelationship::query()->sole();
+
+        expect($definition->cardinality)->toBe(RelationshipCardinality::ManyToOne)
+            ->and($definition->from_entity_type)->toBe(Post::class)
+            ->and($definition->to_entity_type)->toBe(Post::class);
+    });
 });
 
 describe('the cardinality sentence', function (): void {
@@ -243,6 +276,7 @@ describe('submission', function (): void {
 
     it('asks for a cardinality before it writes a definition', function (): void {
         mountRecordField($this->postSection)
+            ->set('mountedActions.0.data.relationship.cardinality')
             ->callMountedAction()
             ->assertHasActionErrors(['relationship.cardinality' => 'required']);
 

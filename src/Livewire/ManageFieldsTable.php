@@ -256,8 +256,7 @@ final class ManageFieldsTable extends Component implements HasActions, HasForms
                 'class' => 'flex justify-center items-center rounded-lg border-gray-300 hover:border-gray-400 border-dashed',
             ])
             ->model(CustomFields::customFieldModel())
-            ->schema(FieldForm::schema(withOptionsRelationship: false))
-            ->fillForm(['entity_type' => $this->entityType])
+            ->schema(FieldForm::schema(withOptionsRelationship: false, entityType: $this->entityType))
             ->mutateDataUsing(fn (array $data): array => $this->mutateFieldData($data, $this->entityType))
             ->action(function (array $data): void {
                 $this->storeField($data);

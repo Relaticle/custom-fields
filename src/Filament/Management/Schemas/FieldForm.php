@@ -448,9 +448,12 @@ final class FieldForm implements FormInterface
     }
 
     /**
+     * A create action that fills the form hydrates that state instead of the schema's own
+     * defaults, so the entity type arrives here rather than through fillForm().
+     *
      * @return array<int, Component>
      */
-    public static function schema(bool $withOptionsRelationship = true, ?CustomFieldSection $section = null): array
+    public static function schema(bool $withOptionsRelationship = true, ?CustomFieldSection $section = null, ?string $entityType = null): array
     {
         $uniqueNameRuleModifier = self::resolveUniqueNameRuleModifier($section);
         $uniqueCodeRuleModifier = self::resolveUniqueCodeRuleModifier($section);
@@ -557,7 +560,7 @@ final class FieldForm implements FormInterface
         $generalSchema = [
             Hidden::make('entity_type')
                 ->default(
-                    fn () => request(
+                    fn (): mixed => $entityType ?? request(
                         'entityType',
                         (Entities::withCustomFields()->first()?->getAlias()) ?? ''
                     )

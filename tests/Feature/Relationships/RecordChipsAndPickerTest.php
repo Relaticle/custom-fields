@@ -11,7 +11,11 @@ use Relaticle\CustomFields\EntitySystem\EntityManager;
 use Relaticle\CustomFields\EntitySystem\EntityModel;
 use Relaticle\CustomFields\Enums\EntityFeature;
 use Relaticle\CustomFields\Enums\RelationshipCardinality;
+use Relaticle\CustomFields\Enums\VisibilityLogic;
+use Relaticle\CustomFields\Enums\VisibilityMode;
+use Relaticle\CustomFields\Enums\VisibilityOperator;
 use Relaticle\CustomFields\Filament\Integration\Support\RecordChips;
+use Relaticle\CustomFields\Models\CustomField;
 use Relaticle\CustomFields\Models\CustomFieldLink;
 use Relaticle\CustomFields\Models\CustomFieldRelationship;
 use Relaticle\CustomFields\Services\Relationships\CardinalityGuard;
@@ -247,6 +251,65 @@ describe('record picker', function (): void {
 
         expect($host->fresh()->getCustomFieldValue($definition->fromField->fresh()))
             ->toBe([$second->getKey(), $first->getKey()]);
+    });
+
+    it('unlinks the last record the field was holding', function (): void {
+        registerChipEntity();
+        $definition = relatedPostsField();
+
+        $target = Post::factory()->create();
+        $host = Post::factory()->create([
+            'custom_fields' => [$definition->fromField->code => [$target->getKey()]],
+        ]);
+
+        livewire(EditPost::class, ['record' => $host->getRouteKey()])
+            ->set('data.custom_fields.'.$definition->fromField->code, [])
+            ->call('save')
+            ->assertHasNoFormErrors();
+
+        expect($host->fresh()->getCustomFieldValue($definition->fromField->fresh()))->toBe([])
+            ->and(CustomFieldLink::query()->active()->count())->toBe(0)
+            ->and(CustomFieldLink::query()->whereNotNull('active_until')->count())->toBe(1);
+    });
+
+    it('leaves the links of a field the conditions hide where they are', function (): void {
+        registerChipEntity();
+        $definition = relatedPostsField();
+
+        CustomField::factory()->ofType('text')->create([
+            'custom_field_section_id' => $definition->fromField->custom_field_section_id,
+            'entity_type' => Post::class,
+            'name' => 'Stage',
+            'code' => 'stage',
+        ]);
+
+        $definition->fromField->update([
+            'settings' => [
+                'visibility' => [
+                    'mode' => VisibilityMode::SHOW_WHEN,
+                    'logic' => VisibilityLogic::ALL,
+                    'conditions' => [[
+                        'field_code' => 'stage',
+                        'operator' => VisibilityOperator::EQUALS,
+                        'value' => 'open',
+                    ]],
+                ],
+            ],
+        ]);
+
+        $target = Post::factory()->create();
+        $host = Post::factory()->create([
+            'custom_fields' => [$definition->fromField->code => [$target->getKey()]],
+        ]);
+
+        livewire(EditPost::class, ['record' => $host->getRouteKey()])
+            ->set('data.custom_fields.stage', 'closed')
+            ->set('data.custom_fields.'.$definition->fromField->code, [])
+            ->call('save')
+            ->assertHasNoFormErrors();
+
+        expect($host->fresh()->getCustomFieldValue($definition->fromField->fresh()))
+            ->toBe([$target->getKey()]);
     });
 
     it('unlinks a record when its chip is taken off the field', function (): void {

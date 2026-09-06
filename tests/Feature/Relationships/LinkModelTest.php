@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\DB;
 use Relaticle\CustomFields\CustomFields;
 use Relaticle\CustomFields\Models\CustomFieldLink;
 use Relaticle\CustomFields\Models\CustomFieldRelationship;
+use Relaticle\CustomFields\Tests\Fixtures\Models\Post;
 
 it('persists an active edge and closes it without deleting', function (): void {
     $definition = CustomFieldRelationship::factory()->create();
@@ -77,6 +78,37 @@ it('keeps a closed edge queryable as history', function (): void {
     expect(CustomFieldLink::query()->whereNotNull('active_until')->count())->toBe(1)
         ->and($link->refresh()->active_until?->toDateTimeString())->toBe($closedAt->toDateTimeString())
         ->and($link->active_from)->not->toBeNull();
+});
+
+it('eager loads both ends under the names they are read from', function (): void {
+    $definition = CustomFieldRelationship::factory()->create();
+    $from = Post::factory()->create();
+    $to = Post::factory()->create();
+
+    CustomFieldLink::factory()->create([
+        'relationship_id' => $definition->id,
+        'from_entity_type' => $from->getMorphClass(),
+        'from_entity_id' => $from->getKey(),
+        'to_entity_type' => $to->getMorphClass(),
+        'to_entity_id' => $to->getKey(),
+    ]);
+
+    $link = CustomFieldLink::query()->with(['fromEntity', 'toEntity'])->sole();
+
+    DB::flushQueryLog();
+    DB::enableQueryLog();
+
+    $ends = [$link->fromEntity, $link->toEntity];
+
+    $queries = DB::getQueryLog();
+    DB::disableQueryLog();
+    DB::flushQueryLog();
+
+    expect($link->relationLoaded('fromEntity'))->toBeTrue()
+        ->and($link->relationLoaded('toEntity'))->toBeTrue()
+        ->and($ends[0])->toBeSameModel($from)
+        ->and($ends[1])->toBeSameModel($to)
+        ->and($queries)->toBeEmpty();
 });
 
 it('resolves the link model through the swap registry', function (): void {

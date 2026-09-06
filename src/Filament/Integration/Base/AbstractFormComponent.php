@@ -109,10 +109,14 @@ abstract readonly class AbstractFormComponent implements FormComponentInterface
                     )
                 )
             )
+            // Empty is a value: a field the user cleared has to reach the writer, or a
+            // relationship could never lose its last record. Only a field the conditions hide
+            // says nothing, so visibility decides, never emptiness.
             ->dehydrated(
-                fn (mixed $state): bool => ! FeatureManager::isEnabled(CustomFieldsFeature::FIELD_CONDITIONAL_VISIBILITY) ||
+                fn (Get $get, mixed $state): bool => ! FeatureManager::isEnabled(CustomFieldsFeature::FIELD_CONDITIONAL_VISIBILITY) ||
                     $this->coreVisibilityLogic->shouldAlwaysSave($customField) ||
-                    filled($state)
+                    filled($state) ||
+                    $this->isVisibleForValidation($customField, $allFields, $get)
             )
             ->when(
                 $this->validationService->isRequired($customField) && $customField->typeData->dataType->isBoolean(),
