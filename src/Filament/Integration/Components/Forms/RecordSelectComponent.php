@@ -7,6 +7,7 @@ namespace Relaticle\CustomFields\Filament\Integration\Components\Forms;
 use Relaticle\CustomFields\Filament\Integration\Base\AbstractFormComponent;
 use Relaticle\CustomFields\Filament\Integration\Components\Forms\RecordSelectInput\RecordSelectInputComponent;
 use Relaticle\CustomFields\Models\CustomField;
+use Relaticle\CustomFields\Models\CustomFieldRelationship;
 
 final readonly class RecordSelectComponent extends AbstractFormComponent
 {
@@ -23,6 +24,20 @@ final readonly class RecordSelectComponent extends AbstractFormComponent
             ->maxValues($maxValues)
             ->placeholder(__('custom-fields::custom-fields.record.search_placeholder'))
             ->addLabel(__('custom-fields::custom-fields.record.add_record_placeholder'))
-            ->rules(['array', 'max:'.$maxValues]);
+            ->rules($this->valueRules($customField, $maxValues));
+    }
+
+    /**
+     * Cardinality caps a relationship slot, and says so in words the user can act on, so a
+     * count rule beside it would report one mistake twice. A field with no definition still
+     * needs one.
+     *
+     * @return array<int, string>
+     */
+    private function valueRules(CustomField $customField, int $maxValues): array
+    {
+        return $customField->relationshipDefinition() instanceof CustomFieldRelationship
+            ? ['array']
+            : ['array', 'max:'.$maxValues];
     }
 }

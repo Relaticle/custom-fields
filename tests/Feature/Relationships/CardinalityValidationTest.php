@@ -264,6 +264,26 @@ it('reports the single-record message through the panel form', function (): void
     expect(CustomFieldLink::query()->count())->toBe(0);
 });
 
+it('reports a single-side overflow once through the panel form', function (): void {
+    $definition = cardinalityPairing(RelationshipCardinality::ManyToOne);
+    $code = $definition->fromField->code;
+
+    [$first, $second] = Post::factory()->count(2)->create();
+    $post = Post::factory()->create();
+
+    $form = livewire(EditPost::class, ['record' => $post->getRouteKey()])
+        ->fillForm([
+            'title' => $post->title,
+            'author_id' => $post->author_id,
+            'rating' => $post->rating,
+            'custom_fields' => [$code => [$first->getKey(), $second->getKey()]],
+        ])
+        ->call('save');
+
+    expect($form->instance()->getErrorBag()->get('data.custom_fields.'.$code))
+        ->toBe(['This relationship holds a single record.']);
+});
+
 it('reports the holder message through the panel form', function (): void {
     $definition = cardinalityPairing(RelationshipCardinality::OneToOne);
     $code = $definition->fromField->code;

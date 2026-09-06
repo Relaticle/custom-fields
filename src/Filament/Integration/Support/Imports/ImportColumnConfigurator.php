@@ -10,6 +10,7 @@ namespace Relaticle\CustomFields\Filament\Integration\Support\Imports;
 use Carbon\CarbonImmutable;
 use Closure;
 use Filament\Actions\Imports\ImportColumn;
+use Illuminate\Database\Eloquent\Model;
 use InvalidArgumentException;
 use Relaticle\CustomFields\CustomFields;
 use Relaticle\CustomFields\Data\EntityConfigurationData;
@@ -533,10 +534,13 @@ final class ImportColumnConfigurator
      */
     private function finalize(ImportColumn $column, CustomField $customField): ImportColumn
     {
-        $column->rules([
+        // The row's record is resolved before its data is validated, so a rule that has to
+        // know which record is being updated (a unique value, a taken relationship end) is
+        // told, instead of reading every existing value as a stranger's.
+        $column->rules(fn (?Model $record): array => [
             'bail',
             new RejectsUnresolvedValue,
-            ...app(ValidationService::class)->getValidationRules($customField),
+            ...app(ValidationService::class)->getValidationRules($customField, $record?->getKey()),
         ]);
 
         $column->fillRecordUsing(function (mixed $state, mixed $record) use ($customField): void {
