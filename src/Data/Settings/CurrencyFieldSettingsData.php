@@ -18,6 +18,9 @@ final class CurrencyFieldSettingsData extends Data
         public int $decimalPlaces = 2,
     ) {}
 
+    /**
+     * @param  array<string, mixed>  $additional
+     */
     public static function fromAdditional(array $additional): self
     {
         $code = $additional['currency_code'] ?? 'USD';

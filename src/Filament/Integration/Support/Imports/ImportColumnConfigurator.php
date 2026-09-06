@@ -189,6 +189,9 @@ final class ImportColumnConfigurator
 
     /**
      * Resolve multiple lookup values.
+     *
+     * @param  array<int, mixed>  $values
+     * @return array<int, mixed>|UnresolvedValue
      */
     private function resolveLookupValues(CustomField $customField, array $values): array|UnresolvedValue
     {
@@ -282,6 +285,10 @@ final class ImportColumnConfigurator
         return CustomFields::optionModelUsesStringKeys() ? (string) $key : $key;
     }
 
+    /**
+     * @param  array<int, mixed>  $values
+     * @return array<int, mixed>|UnresolvedValue
+     */
     private function resolveChoiceValues(CustomField $customField, array $values): array|UnresolvedValue
     {
         $foundIds = [];

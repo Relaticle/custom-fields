@@ -2,7 +2,7 @@ includes:
     - vendor/larastan/larastan/extension.neon
 
 parameters:
-    level: 5
+    level: 6
     treatPhpDocTypesAsCertain: false
     # nullsafe.neverNull inference differs between larastan versions (e.g. 3.9 vs 3.10), so some
     # defensive `@phpstan-ignore nullsafe.neverNull` annotations are "unmatched" on newer larastan

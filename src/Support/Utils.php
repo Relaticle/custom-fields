@@ -57,7 +57,7 @@ final class Utils
      *
      * @param  object  $object  The object instance
      * @param  string  $method  The method name to invoke
-     * @param  array  $parameters  The parameters to pass to the method
+     * @param  array<int, mixed>  $parameters  The parameters to pass to the method
      * @return mixed The method's return value
      *
      * @throws ReflectionException

@@ -22,14 +22,17 @@ final class EntityManager
 
     private const int CACHE_TTL = 3600; // 1 hour
 
+    /** @var array<int, array<mixed>|Closure> */
     private array $entities = [];
 
+    /** @var ?array<string, EntityConfigurationData> */
     private ?array $cachedEntities = null;
 
     private ?EntityDiscovery $discovery = null;
 
     private bool $discoveryEnabled = false;
 
+    /** @var array<int, Closure> */
     private array $resolvingCallbacks = [];
 
     public function __construct(
@@ -38,6 +41,8 @@ final class EntityManager
 
     /**
      * Register entities
+     *
+     * @param  array<mixed>|Closure  $entities
      */
     public function register(array|Closure $entities): static
     {
@@ -79,6 +84,8 @@ final class EntityManager
 
     /**
      * Enable automatic discovery of entities
+     *
+     * @param  array<int, string>  $paths
      */
     public function enableDiscovery(array $paths = []): static
     {
@@ -143,6 +150,8 @@ final class EntityManager
 
     /**
      * Build the entity cache
+     *
+     * @return array<string, EntityConfigurationData>
      */
     private function buildEntityCache(): array
     {
@@ -177,6 +186,9 @@ final class EntityManager
 
     /**
      * Resolve entities from various input types
+     *
+     * @param  array<mixed>|Closure  $entities
+     * @return array<int, EntityConfigurationData>
      */
     private function resolveEntities(array|Closure $entities): array
     {

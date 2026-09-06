@@ -18,7 +18,6 @@ use Livewire\Attributes\Url;
 use Override;
 use Relaticle\CustomFields\CustomFields as CustomFieldsModel;
 use Relaticle\CustomFields\CustomFieldsPlugin;
-use Relaticle\CustomFields\Data\EntityConfigurationData;
 use Relaticle\CustomFields\Enums\CustomFieldSectionType;
 use Relaticle\CustomFields\Enums\CustomFieldsFeature;
 use Relaticle\CustomFields\Facades\Entities;
@@ -60,6 +59,9 @@ class CustomFieldsManagementPage extends Page
         return ! FeatureManager::isEnabled(CustomFieldsFeature::SYSTEM_SECTIONS);
     }
 
+    /**
+     * @return Collection<int, CustomFieldSection>
+     */
     #[Computed]
     public function sections(): Collection
     {
@@ -108,14 +110,13 @@ class CustomFieldsManagementPage extends Page
         return $entity?->getIcon() ?? 'heroicon-o-document';
     }
 
+    /**
+     * @return Collection<string, string>
+     */
     #[Computed]
     public function entityTypes(): Collection
     {
-        return Entities::globallyManaged()
-            ->sortedByPriority()
-            ->mapWithKeys(fn (EntityConfigurationData $entity): array => [
-                $entity->getAlias() => $entity->getLabelPlural(),
-            ]);
+        return collect(Entities::globallyManaged()->sortedByPriority()->toOptions());
     }
 
     /**
@@ -178,6 +179,9 @@ class CustomFieldsManagementPage extends Page
         }
     }
 
+    /**
+     * @param  array<string, mixed>  $data
+     */
     private function storeSection(array $data): CustomFieldSection
     {
         if (FeatureManager::isEnabled(CustomFieldsFeature::SYSTEM_MULTI_TENANCY)) {

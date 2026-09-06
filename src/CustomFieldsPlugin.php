@@ -83,6 +83,9 @@ class CustomFieldsPlugin implements Plugin
         return $plugin;
     }
 
+    /**
+     * @param  array<mixed>|Closure  $fieldTypes
+     */
     public function registerFieldTypes(array|Closure $fieldTypes): static
     {
         CustomFieldsType::register($fieldTypes);

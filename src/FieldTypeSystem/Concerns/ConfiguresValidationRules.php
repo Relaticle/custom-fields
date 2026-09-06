@@ -10,8 +10,10 @@ use Relaticle\CustomFields\Enums\FieldDataType;
 
 trait ConfiguresValidationRules
 {
+    /** @var array<int, string> */
     private array $defaultValidationRules = [];
 
+    /** @var array<int, string> */
     private array $defaultItemValidationRules = [];
 
     /** @var array<int, class-string<ValidationCapabilityInterface>> */
@@ -69,6 +71,8 @@ trait ConfiguresValidationRules
 
     /**
      * Get the default validation rules (always applied)
+     *
+     * @return array<int, string>
      */
     public function getDefaultValidationRules(): array
     {

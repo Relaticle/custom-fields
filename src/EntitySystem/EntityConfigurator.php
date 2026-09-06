@@ -15,16 +15,20 @@ final class EntityConfigurator
 {
     private bool $autoDiscover = true;
 
+    /** @var array<int, string> */
     private array $discoveryPaths;
 
+    /** @var array<int, string> */
     private array $discoveryNamespaces = ['App\\Models'];
 
+    /** @var array<int, string> */
     private array $excludedModels = [];
 
     private bool $cacheEnabled = true;
 
     private int $cacheTtl = 3600;
 
+    /** @var array<int, array<string, mixed>> */
     private array $entityModels = [];
 
     private function __construct()
@@ -53,6 +57,8 @@ final class EntityConfigurator
 
     /**
      * Set paths to discover entities from
+     *
+     * @param  string|array<int, string>  $paths
      */
     public function discover(string|array $paths): self
     {
@@ -63,6 +69,8 @@ final class EntityConfigurator
 
     /**
      * Set namespaces to discover entities from
+     *
+     * @param  array<int, string>  $namespaces
      */
     public function namespaces(array $namespaces): self
     {
@@ -73,6 +81,8 @@ final class EntityConfigurator
 
     /**
      * Only include specific models (disables auto-discovery of others)
+     *
+     * @param  array<int, string|array<string, mixed>>  $models
      */
     public function include(array $models): self
     {
@@ -95,6 +105,8 @@ final class EntityConfigurator
 
     /**
      * Exclude specific models from discovery and configuration
+     *
+     * @param  array<int, string>  $models
      */
     public function exclude(array $models): self
     {
@@ -116,6 +128,8 @@ final class EntityConfigurator
 
     /**
      * Configure specific entity models with custom settings
+     *
+     * @param  array<int, array<string, mixed>>  $entityModels
      */
     public function models(array $entityModels): self
     {
@@ -141,6 +155,8 @@ final class EntityConfigurator
      *
      * Resolves aliases lazily - if alias is null, we call getMorphClass() at runtime
      * when the morph map has been registered via Relation::enforceMorphMap().
+     *
+     * @return array<string, array<string, mixed>>
      */
     private function buildEntitiesArray(): array
     {
@@ -172,6 +188,8 @@ final class EntityConfigurator
 
     /**
      * Get discovery paths
+     *
+     * @return array<int, string>
      */
     public function getDiscoveryPaths(): array
     {
@@ -180,6 +198,8 @@ final class EntityConfigurator
 
     /**
      * Get discovery namespaces
+     *
+     * @return array<int, string>
      */
     public function getDiscoveryNamespaces(): array
     {
@@ -188,6 +208,8 @@ final class EntityConfigurator
 
     /**
      * Get excluded models
+     *
+     * @return array<int, string>
      */
     public function getExcludedModels(): array
     {
@@ -212,6 +234,8 @@ final class EntityConfigurator
 
     /**
      * Get entities array
+     *
+     * @return array<string, array<string, mixed>>
      */
     public function getEntities(): array
     {
@@ -220,6 +244,8 @@ final class EntityConfigurator
 
     /**
      * Restore the configurator from var_export
+     *
+     * @param  array<string, mixed>  $properties
      */
     public static function __set_state(array $properties): self
     {

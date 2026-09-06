@@ -8,6 +8,8 @@ declare(strict_types=1);
 namespace Relaticle\CustomFields\Filament\Integration\Builders;
 
 use Closure;
+use Filament\Tables\Columns\Column;
+use Filament\Tables\Filters\BaseFilter;
 use Illuminate\Support\Collection;
 use Relaticle\CustomFields\Enums\CustomFieldsFeature;
 use Relaticle\CustomFields\FeatureSystem\FeatureManager;
@@ -18,6 +20,9 @@ use Relaticle\CustomFields\Services\Visibility\BackendVisibilityService;
 
 final class TableBuilder extends BaseBuilder
 {
+    /**
+     * @return Collection<int, Column>
+     */
     public function columns(): Collection
     {
         if (! FeatureManager::isEnabled(CustomFieldsFeature::UI_TABLE_COLUMNS)) {
@@ -62,6 +67,9 @@ final class TableBuilder extends BaseBuilder
             ->values();
     }
 
+    /**
+     * @return Collection<int, BaseFilter>
+     */
     public function filters(): Collection
     {
         if (! FeatureManager::isEnabled(CustomFieldsFeature::UI_TABLE_FILTERS)) {

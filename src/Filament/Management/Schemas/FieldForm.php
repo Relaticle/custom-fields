@@ -22,6 +22,7 @@ use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Components\Utilities\Set;
 use Filament\Support\Icons\Heroicon;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rules\Unique;
 use Relaticle\CustomFields\Contracts\ValidationCapabilityInterface;
@@ -191,7 +192,7 @@ final class FieldForm implements FormInterface
                                 return;
                             }
 
-                            $hasDuplicate = collect($get('../../options') ?? [])
+                            $hasDuplicate = collect(Arr::wrap($get('../../options')))
                                 ->pluck('name')
                                 ->filter()
                                 ->map(fn (string $name): string => mb_strtolower($name))

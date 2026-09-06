@@ -73,6 +73,9 @@ final class RecordColumnView extends Column
         return $this->multiple;
     }
 
+    /**
+     * @return array<int, array{name: mixed, avatarUrl: ?string, avatarShape: string, url: ?string}>
+     */
     public function getRecords(Model $record): array
     {
         if (! $record instanceof HasCustomFields || ! $this->customField instanceof CustomField) {
@@ -98,6 +101,9 @@ final class RecordColumnView extends Column
         })->toArray();
     }
 
+    /**
+     * @return array{name: mixed, avatarUrl: ?string, avatarShape: string, url: ?string}
+     */
     private function formatRecord(Model $record): array
     {
         $name = $record->getAttribute($this->titleAttribute) ?? '';

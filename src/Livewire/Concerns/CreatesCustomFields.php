@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Relaticle\CustomFields\Livewire\Concerns;
 
+use Illuminate\Support\Arr;
 use Relaticle\CustomFields\CustomFields;
 use Relaticle\CustomFields\Enums\CustomFieldsFeature;
 use Relaticle\CustomFields\FeatureSystem\FeatureManager;
@@ -13,6 +14,10 @@ use Relaticle\CustomFields\Support\CodeGenerator;
 
 trait CreatesCustomFields
 {
+    /**
+     * @param  array<string, mixed>  $data
+     * @return array<string, mixed>
+     */
     protected function mutateFieldData(array $data, string $entityType, int|string|null $sectionId = null): array
     {
         if (FeatureManager::isEnabled(CustomFieldsFeature::SYSTEM_MULTI_TENANCY)) {
@@ -35,11 +40,14 @@ trait CreatesCustomFields
         return $result;
     }
 
+    /**
+     * @param  array<string, mixed>  $data
+     */
     protected function storeField(array $data): void
     {
         $data = DateConstraintField::sanitizeValidationRules($data);
 
-        $options = collect($data['options'] ?? [])
+        $options = collect(Arr::wrap($data['options'] ?? []))
             ->filter()
             ->values()
             ->map(function (array $option, int $index): array {

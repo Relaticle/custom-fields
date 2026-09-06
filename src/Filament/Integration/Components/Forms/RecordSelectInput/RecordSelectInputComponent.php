@@ -179,7 +179,7 @@ class RecordSelectInputComponent extends Field implements HasNestedRecursiveVali
     /**
      * Prepare entity query with common attributes.
      *
-     * @return array{entity: EntityConfigurationData, model: Model, query: Builder, keyName: string, titleAttribute: string, avatarConfig: ?AvatarConfiguration}|null
+     * @return array{entity: EntityConfigurationData, model: Model, query: Builder<Model>, keyName: string, titleAttribute: string, avatarConfig: ?AvatarConfiguration}|null
      */
     private function prepareEntityQuery(): ?array
     {
@@ -216,6 +216,10 @@ class RecordSelectInputComponent extends Field implements HasNestedRecursiveVali
      * resolved without a schema query: a runtime Schema::hasColumn() call would be
      * a per-request round trip. The one exception is the documented 'updated_at',
      * which falls back to the key on a model that opts out of timestamps.
+     */
+    /**
+     * @param  Builder<Model>  $query
+     * @return Builder<Model>
      */
     private function applyLookupOrder(Builder $query, Model $model): Builder
     {
@@ -340,6 +344,7 @@ class RecordSelectInputComponent extends Field implements HasNestedRecursiveVali
     /**
      * Format records for JavaScript consumption.
      *
+     * @param  iterable<Model>  $records
      * @return array<string, array{id: string, label: string, avatar: ?string, avatarShape: string}>
      */
     private function formatRecordsForJs(

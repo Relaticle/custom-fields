@@ -124,6 +124,8 @@ final class EntityServiceProvider extends ServiceProvider
 
     /**
      * Get entity configuration from the builder
+     *
+     * @return array<string, mixed>
      */
     private function getEntityConfig(): array
     {

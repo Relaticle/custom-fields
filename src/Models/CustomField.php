@@ -37,7 +37,7 @@ use Relaticle\CustomFields\QueryBuilders\CustomFieldQueryBuilder;
  * @property string $type
  * @property string $entity_type
  * @property ?string $lookup_type
- * @property Collection $validation_rules
+ * @property Collection<int, string> $validation_rules
  * @property CustomFieldSettingsData $settings
  * @property int $sort_order
  * @property bool $active
@@ -156,6 +156,9 @@ class CustomField extends Model
             ->orderBy('sort_order');
     }
 
+    /**
+     * @return Attribute<?FieldTypeData, never>
+     */
     public function typeData(): Attribute
     {
         return Attribute::make(

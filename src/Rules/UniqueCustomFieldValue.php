@@ -14,6 +14,7 @@ use Relaticle\CustomFields\Enums\CustomFieldsFeature;
 use Relaticle\CustomFields\FeatureSystem\FeatureManager;
 use Relaticle\CustomFields\FieldTypeSystem\FieldManager;
 use Relaticle\CustomFields\Models\CustomField;
+use Relaticle\CustomFields\Models\CustomFieldValue;
 use Relaticle\CustomFields\Services\TenantContextService;
 
 final class UniqueCustomFieldValue implements ValidationRule
@@ -92,6 +93,9 @@ final class UniqueCustomFieldValue implements ValidationRule
             ->all();
     }
 
+    /**
+     * @return Builder<CustomFieldValue>
+     */
     private function baseQuery(): Builder
     {
         $valueModel = CustomFields::newValueModel();

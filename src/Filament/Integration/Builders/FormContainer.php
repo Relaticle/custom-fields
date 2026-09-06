@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Relaticle\CustomFields\Filament\Integration\Builders;
 
+use Filament\Schemas\Components\Component;
 use Filament\Schemas\Components\Grid;
 use Illuminate\Database\Eloquent\Model;
 use Relaticle\CustomFields\Enums\CustomFieldsFeature;
@@ -13,8 +14,10 @@ final class FormContainer extends Grid
 {
     private Model|string|null $explicitModel = null;
 
+    /** @var array<int, string> */
     private array $except = [];
 
+    /** @var array<int, string> */
     private array $only = [];
 
     /** @var array<int, int> */
@@ -43,6 +46,9 @@ final class FormContainer extends Grid
         return $this;
     }
 
+    /**
+     * @param  array<int, string>  $fieldCodes
+     */
     public function except(array $fieldCodes): static
     {
         $this->except = $fieldCodes;
@@ -50,6 +56,9 @@ final class FormContainer extends Grid
         return $this;
     }
 
+    /**
+     * @param  array<int, string>  $fieldCodes
+     */
     public function only(array $fieldCodes): static
     {
         $this->only = $fieldCodes;
@@ -74,6 +83,9 @@ final class FormContainer extends Grid
         return $this;
     }
 
+    /**
+     * @return array<int, Component>
+     */
     private function generateSchema(): array
     {
         // Inline priority: explicit ?? record ?? model class

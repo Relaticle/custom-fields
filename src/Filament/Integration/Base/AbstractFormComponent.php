@@ -72,6 +72,10 @@ abstract readonly class AbstractFormComponent implements FormComponentInterface
         return $this->configure($field, $customField, $allFields, $dependentFieldCodes, $record);
     }
 
+    /**
+     * @param  Collection<int, CustomField>  $allFields
+     * @param  array<int, string>  $dependentFieldCodes
+     */
     protected function configure(
         Field $field,
         CustomField $customField,
@@ -306,6 +310,9 @@ abstract readonly class AbstractFormComponent implements FormComponentInterface
         return true;
     }
 
+    /**
+     * @param  Collection<int, CustomField>  $allFields
+     */
     private function applyVisibility(
         Field $field,
         CustomField $customField,
@@ -344,6 +351,8 @@ abstract readonly class AbstractFormComponent implements FormComponentInterface
 
     /**
      * Apply settings dynamically to any Filament component
+     *
+     * @param  array<string, mixed>  $settings
      */
     protected function applySettingsToComponent(Field $component, array $settings): Field
     {

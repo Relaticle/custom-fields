@@ -11,6 +11,7 @@ use Relaticle\CustomFields\Enums\CustomFieldsFeature;
  */
 final class FeatureConfigurator
 {
+    /** @var array<string, bool> */
     private array $features = [];
 
     private function __construct()
@@ -60,6 +61,8 @@ final class FeatureConfigurator
 
     /**
      * Restore the configurator from var_export
+     *
+     * @param  array<string, mixed>  $properties
      */
     public static function __set_state(array $properties): self
     {

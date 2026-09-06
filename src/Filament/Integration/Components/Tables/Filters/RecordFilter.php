@@ -122,6 +122,7 @@ final class RecordFilter extends AbstractTableFilter
     }
 
     /**
+     * @param  iterable<Model>  $records
      * @return array<string, string>
      */
     private function formatOptionsWithAvatars(

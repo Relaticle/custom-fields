@@ -79,6 +79,8 @@ class CustomFieldOption extends Model
 
     /**
      * Handle decryption of option name based on parent field settings
+     *
+     * @return Attribute<?string, never>
      */
     protected function name(): Attribute
     {

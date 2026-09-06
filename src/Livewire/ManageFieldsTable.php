@@ -78,6 +78,9 @@ final class ManageFieldsTable extends Component implements HasActions, HasForms
         unset($this->activeFields, $this->inactiveFields);
     }
 
+    /**
+     * @param  array<int, int|string>  $order
+     */
     public function updateFieldsOrder(array $order): void
     {
         foreach ($order as $index => $id) {

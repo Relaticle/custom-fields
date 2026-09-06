@@ -59,6 +59,9 @@ final class RecordEntry extends AbstractInfolistEntry
             });
     }
 
+    /**
+     * @return array{name: mixed, avatarUrl: ?string, avatarShape: string, url: ?string}
+     */
     private function formatRecord(
         Model $record,
         ?AvatarConfiguration $avatarConfig,

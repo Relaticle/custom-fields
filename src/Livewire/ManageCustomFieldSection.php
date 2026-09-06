@@ -44,6 +44,9 @@ final class ManageCustomFieldSection extends Component implements HasActions, Ha
         self::$uniqueRuleModifierResolver = $callback;
     }
 
+    /**
+     * @param  array<int, int|string>  $fields
+     */
     public function updateFieldsOrder(int|string $sectionId, array $fields): void
     {
         $model = CustomFields::newCustomFieldModel();
