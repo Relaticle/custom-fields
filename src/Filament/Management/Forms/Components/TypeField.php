@@ -52,7 +52,15 @@ final class TypeField extends Select
     {
         $choices = [];
 
-        foreach (CustomFieldsType::toCollection() as $data) {
+        // The grid draws the Select's own options, not the registry: a consumer that narrows
+        // ->options() or disables one with ->disableOptionWhen() has to narrow both flavors.
+        foreach (array_keys($this->getEnabledOptions()) as $key) {
+            $data = CustomFieldsType::getFieldType((string) $key);
+
+            if (! $data instanceof FieldTypeData) {
+                continue;
+            }
+
             $choices[] = [
                 'key' => $data->key,
                 'label' => $data->label,

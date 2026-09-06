@@ -2,6 +2,8 @@
 
 declare(strict_types=1);
 
+use Closure;
+use Filament\Schemas\Schema;
 use Illuminate\Support\Facades\DB;
 use Livewire\Features\SupportTesting\Testable;
 use Relaticle\CustomFields\Data\FieldSlotData;
@@ -90,32 +92,44 @@ describe('the attribute table', function (): void {
             ->assertSeeHtml('wire:target="search"');
     });
 
-    it('reads the relationship pairs in one query however many record fields there are', function (): void {
+    it('reads the relationship pairs in a fixed number of queries however many fields there are', function (): void {
         $section = sectionForEntity(Post::class);
 
-        foreach (['first', 'second', 'third'] as $index => $code) {
-            app(CreateRelationshipDefinition::class)->execute(new RelationshipDefinitionData(
-                code: 'pair_'.$code,
-                fromEntityType: Post::class,
-                toEntityType: Post::class,
-                cardinality: RelationshipCardinality::ManyToMany,
-                fromField: new FieldSlotData(name: 'Pair '.$index, sectionId: $section->getKey()),
-            ));
-        }
+        $created = 0;
 
-        $component = postFieldsTable();
+        $pairQueries = function (int $count) use ($section, &$created): int {
+            while ($created < $count) {
+                app(CreateRelationshipDefinition::class)->execute(new RelationshipDefinitionData(
+                    code: 'pair_'.$created,
+                    fromEntityType: Post::class,
+                    toEntityType: Post::class,
+                    cardinality: RelationshipCardinality::ManyToMany,
+                    fromField: new FieldSlotData(name: 'Pair '.$created, sectionId: $section->getKey()),
+                ));
 
-        expect($component->instance()->relationshipPairs())->toHaveCount(3);
+                $created++;
+            }
 
-        $queries = 0;
-        DB::listen(function () use (&$queries): void {
-            $queries++;
-        });
+            $component = postFieldsTable()->instance();
 
-        unset($component->instance()->relationshipPairs);
-        $component->instance()->relationshipPairs();
+            DB::flushQueryLog();
+            DB::enableQueryLog();
 
-        expect($queries)->toBeLessThanOrEqual(4);
+            try {
+                unset($component->relationshipPairs);
+
+                expect($component->relationshipPairs())->toHaveCount($count);
+
+                return count(DB::getQueryLog());
+            } finally {
+                DB::disableQueryLog();
+                DB::flushQueryLog();
+            }
+        };
+
+        // The two field lists, the definitions, and one eager load for the populated slot.
+        expect($pairQueries(2))->toBe(4)
+            ->and($pairQueries(4))->toBe(4);
     });
 
     it('keeps the pre-redesign table in the native flavor', function (): void {
@@ -131,7 +145,7 @@ describe('the attribute table', function (): void {
 
 describe('the type picker', function (): void {
     it('describes every field type the package ships', function (): void {
-        $choices = TypeField::make('type')->getTypeChoices();
+        $choices = containerisedTypeField()->getTypeChoices();
 
         expect($choices)->not->toBeEmpty();
 
@@ -143,15 +157,19 @@ describe('the type picker', function (): void {
         expect($missing)->toBeEmpty(implode(', ', array_column($missing, 'key')));
     });
 
-    it('renders the grid with a search box, icons and descriptions', function (): void {
-        $choices = TypeField::make('type')->getTypeChoices();
+    it('offers only the types the consumer left on the field, in both flavors', function (string $flavor): void {
+        config()->set('custom-fields.ui.flavor', $flavor);
 
-        $html = view('custom-fields::flavors.polished.partials.type-picker-grid', [
-            'choices' => $choices,
-            'isDisabled' => false,
-            'label' => 'Type',
-            'stateBinding' => "\$entangle('data.type')",
-        ])->render();
+        $field = containerisedTypeField(fn (TypeField $field): TypeField => $field
+            ->options(['text' => 'Text', 'number' => 'Number', 'record' => 'Record'])
+            ->disableOptionWhen(fn (string $value): bool => $value === 'record'));
+
+        expect(array_column($field->getTypeChoices(), 'key'))->toBe(['text', 'number'])
+            ->and(array_keys($field->getEnabledOptions()))->toBe(['text', 'number']);
+    })->with(['polished', 'native']);
+
+    it('renders the grid with a search box, icons and descriptions', function (): void {
+        $html = renderTypePickerGrid(containerisedTypeField()->getTypeChoices());
 
         expect($html)
             ->toContain('data-surface="type-picker"')
@@ -162,15 +180,49 @@ describe('the type picker', function (): void {
     });
 
     it('says the type is locked rather than offering a grid on an existing field', function (): void {
-        $html = view('custom-fields::flavors.polished.partials.type-picker-grid', [
-            'choices' => TypeField::make('type')->getTypeChoices(),
-            'isDisabled' => true,
-            'label' => 'Type',
-            'stateBinding' => "\$entangle('data.type')",
-        ])->render();
+        $html = renderTypePickerGrid(containerisedTypeField()->getTypeChoices(), isDisabled: true);
 
         expect($html)
             ->toContain('A field keeps the type it was created with.')
             ->not->toContain('Search field types');
     });
 });
+
+/**
+ * A TypeField reads its options through the schema it belongs to, so it is built inside one.
+ *
+ * @param  ?Closure(TypeField): TypeField  $configure
+ */
+function containerisedTypeField(?Closure $configure = null): TypeField
+{
+    $field = TypeField::make('type');
+
+    if ($configure instanceof Closure) {
+        $field = $configure($field);
+    }
+
+    $schema = Schema::make(livewire(ManageFieldsTable::class, ['entityType' => Post::class])->instance())
+        ->statePath('data')
+        ->components([$field]);
+
+    // Filament containerises a component when the schema first resolves it, not when it is
+    // handed over, so the field is read back from the schema rather than from the variable.
+    $containerised = $schema->getComponent(fn (mixed $component): bool => $component instanceof TypeField, withHidden: true);
+
+    expect($containerised)->toBeInstanceOf(TypeField::class);
+
+    return $containerised;
+}
+
+/**
+ * @param  array<int, array{key: string, label: string, icon: string, description: ?string}>  $choices
+ */
+function renderTypePickerGrid(array $choices, bool $isDisabled = false): string
+{
+    return view('custom-fields::flavors.polished.partials.type-picker-grid', [
+        'choices' => $choices,
+        'isDisabled' => $isDisabled,
+        'label' => 'Type',
+        'stateBinding' => "\$entangle('data.type')",
+    ])->render();
+}

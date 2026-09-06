@@ -21,6 +21,7 @@ use Livewire\Component;
 use Relaticle\CustomFields\CustomFields;
 use Relaticle\CustomFields\Enums\UiSurface;
 use Relaticle\CustomFields\Facades\Entities;
+use Relaticle\CustomFields\FieldTypeSystem\Definitions\RecordFieldType;
 use Relaticle\CustomFields\Filament\Management\Schemas\FieldForm;
 use Relaticle\CustomFields\Livewire\Concerns\ManagesCustomFields;
 use Relaticle\CustomFields\Models\CustomField;
@@ -58,9 +59,11 @@ final class ManageFieldsTable extends Component implements HasActions, HasForms
     }
 
     /**
-     * The relationship each record field in this table belongs to, resolved in one query so a
-     * table full of record fields does not ask the ledger once per row. A pair whose other end
-     * is on this same entity carries the partner, which is what connects the two rows.
+     * The relationship each record field in this table belongs to, resolved in a fixed number
+     * of queries (the definitions plus one eager load per slot) rather than once per row. The
+     * partner is read through the relation so it keeps the tenant and activable scopes a
+     * hand-rolled subselect would drop. A pair whose other end is on this same entity carries
+     * the partner id, which is what connects the two rows.
      *
      * @return array<int|string, array{definition: string, partner_id: ?string, partner_name: ?string, entity: ?string, symmetric: bool}>
      */
@@ -73,7 +76,7 @@ final class ManageFieldsTable extends Component implements HasActions, HasForms
 
         $fields = $this->activeFields()
             ->concat($this->inactiveFields())
-            ->filter(fn (CustomField $field): bool => $field->type === 'record')
+            ->filter(fn (CustomField $field): bool => $field->type === RecordFieldType::KEY)
             ->keyBy(fn (CustomField $field): string => (string) $field->getKey());
 
         if ($fields->isEmpty()) {
