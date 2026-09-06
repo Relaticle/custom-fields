@@ -229,8 +229,8 @@ trait UsesCustomFields
     /**
      * The feature flag gates the relationship migrations, not what a record does once they
      * have run: a host that turns it off afterward still has edges to delete and load.
-     * Schema never changes mid-process, so the introspection query is worth memoising once
-     * per boot rather than once per delete or per page of records.
+     * Schema never changes mid-request, so each host model is worth memoising once instead
+     * of once per delete or per page of records.
      */
     private static function relationshipLinksTableExists(): bool
     {
