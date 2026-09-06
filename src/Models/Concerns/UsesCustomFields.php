@@ -264,7 +264,7 @@ trait UsesCustomFields
 
     public function saveCustomFieldValue(CustomField $customField, mixed $value, ?Model $tenant = null): void
     {
-        if ($customField->relationshipDefinition() instanceof CustomFieldRelationship) {
+        if ($this->writesLinksFor($customField)) {
             $payload = RecordLinkPayload::fromValue($value);
 
             app(LinkWriter::class)->apply($this, $customField, $payload->ids, replace: $payload->replace);
@@ -287,6 +287,16 @@ trait UsesCustomFields
         $customFieldValue = $customFieldValue->firstOrNew($data);
         $customFieldValue->setValue($value);
         $customFieldValue->save();
+    }
+
+    /**
+     * The feature flag is the write fork: a host that turns it off keeps writing record
+     * values the way 3.x did, even where the definitions it once migrated still resolve.
+     */
+    protected function writesLinksFor(CustomField $customField): bool
+    {
+        return FeatureManager::isEnabled(CustomFieldsFeature::SYSTEM_RELATIONSHIPS)
+            && $customField->relationshipDefinition() instanceof CustomFieldRelationship;
     }
 
     /**
@@ -319,8 +329,7 @@ trait UsesCustomFields
         $this->customFields()->each(function (CustomField $customField) use ($customFields, $tenant): void {
             // A relationship has no row to overwrite with null: an absent key means the
             // payload said nothing about those edges, so they stay as they are.
-            if (! array_key_exists($customField->code, $customFields)
-                && $customField->relationshipDefinition() instanceof CustomFieldRelationship) {
+            if (! array_key_exists($customField->code, $customFields) && $this->writesLinksFor($customField)) {
                 return;
             }
 

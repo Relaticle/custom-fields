@@ -10,7 +10,9 @@ use Relaticle\CustomFields\Facades\Entities;
 use Relaticle\CustomFields\Filament\Integration\Base\AbstractTableColumn;
 use Relaticle\CustomFields\Filament\Integration\Concerns\Tables\ConfiguresColumnLabel;
 use Relaticle\CustomFields\Models\CustomField;
+use Relaticle\CustomFields\Models\CustomFieldRelationship;
 use Relaticle\CustomFields\QueryBuilders\RecordLinkQuery;
+use Relaticle\CustomFields\Services\Relationships\MissingRelationshipDefinitions;
 
 final class RecordColumn extends AbstractTableColumn
 {
@@ -27,8 +29,19 @@ final class RecordColumn extends AbstractTableColumn
             ]);
 
         $this->configureLabel($column, $customField);
-        $this->configureSorting($column, $customField);
-        $this->configureSearching($column, $customField);
+
+        $definition = $customField->relationshipDefinition();
+
+        // A column that cannot say where the field points takes itself out of the table
+        // rather than the table out of the page.
+        if (! $definition instanceof CustomFieldRelationship) {
+            app(MissingRelationshipDefinitions::class)->report($customField);
+
+            return $column->hidden();
+        }
+
+        $this->configureSorting($column, $customField, $definition);
+        $this->configureSearching($column, $customField, $definition);
 
         return $column;
     }
@@ -37,9 +50,8 @@ final class RecordColumn extends AbstractTableColumn
      * Sorting joins the target's primary attribute, so an entity the host has not registered
      * leaves the column unsorted rather than ordering by nothing.
      */
-    private function configureSorting(RecordColumnView $column, CustomField $customField): void
+    private function configureSorting(RecordColumnView $column, CustomField $customField, CustomFieldRelationship $definition): void
     {
-        $definition = $customField->relationshipDefinitionOrFail();
         $attribute = $this->primaryAttribute($definition->targetEntityTypeFor($customField));
 
         $column->sortable(
@@ -60,10 +72,8 @@ final class RecordColumn extends AbstractTableColumn
         );
     }
 
-    private function configureSearching(RecordColumnView $column, CustomField $customField): void
+    private function configureSearching(RecordColumnView $column, CustomField $customField, CustomFieldRelationship $definition): void
     {
-        $definition = $customField->relationshipDefinitionOrFail();
-
         $column->searchable(
             condition: $customField->settings->searchable,
             query: fn (Builder $query, string $search): Builder => app(RecordLinkQuery::class)->whereLinkedMatching(

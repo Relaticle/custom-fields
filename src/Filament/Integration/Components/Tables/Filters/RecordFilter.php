@@ -13,8 +13,10 @@ use Relaticle\CustomFields\Data\AvatarConfiguration;
 use Relaticle\CustomFields\Facades\Entities;
 use Relaticle\CustomFields\Filament\Integration\Base\AbstractTableFilter;
 use Relaticle\CustomFields\Models\CustomField;
+use Relaticle\CustomFields\Models\CustomFieldRelationship;
 use Relaticle\CustomFields\QueryBuilders\EntitySearchQuery;
 use Relaticle\CustomFields\QueryBuilders\RecordLinkQuery;
+use Relaticle\CustomFields\Services\Relationships\MissingRelationshipDefinitions;
 use Throwable;
 
 final class RecordFilter extends AbstractTableFilter
@@ -31,7 +33,15 @@ final class RecordFilter extends AbstractTableFilter
             ->native(false)
             ->modifyFormFieldUsing(fn (Select $field): Select => $field->allowHtml());
 
-        $definition = $customField->relationshipDefinitionOrFail();
+        $definition = $customField->relationshipDefinition();
+
+        // Nothing to filter by while the field points nowhere, and a filter that throws here
+        // would take the whole table with it.
+        if (! $definition instanceof CustomFieldRelationship) {
+            app(MissingRelationshipDefinitions::class)->report($customField);
+
+            return $filter->hidden();
+        }
 
         $filter = $this->configureLookup($filter, $definition->targetEntityTypeFor($customField));
 

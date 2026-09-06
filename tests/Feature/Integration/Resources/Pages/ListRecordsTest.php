@@ -4,15 +4,18 @@ declare(strict_types=1);
 
 use Illuminate\Database\Eloquent\Collection as EloquentCollection;
 use Illuminate\Database\Eloquent\Factories\Sequence;
+use Illuminate\Support\Facades\Exceptions;
 use Relaticle\CustomFields\Data\CustomFieldSettingsData;
 use Relaticle\CustomFields\Data\FieldSlotData;
 use Relaticle\CustomFields\Data\RelationshipDefinitionData;
 use Relaticle\CustomFields\Data\VisibilityConditionData;
 use Relaticle\CustomFields\Data\VisibilityData;
+use Relaticle\CustomFields\Enums\CustomFieldsFeature;
 use Relaticle\CustomFields\Enums\RelationshipCardinality;
 use Relaticle\CustomFields\Enums\VisibilityLogic;
 use Relaticle\CustomFields\Enums\VisibilityMode;
 use Relaticle\CustomFields\Enums\VisibilityOperator;
+use Relaticle\CustomFields\Exceptions\RelationshipDefinitionDoesNotExistException;
 use Relaticle\CustomFields\Models\CustomField;
 use Relaticle\CustomFields\Models\CustomFieldSection;
 use Relaticle\CustomFields\Services\Relationships\CreateRelationshipDefinition;
@@ -464,4 +467,57 @@ describe('Record Field Filtering', function (): void {
         'multi-value' => RelationshipCardinality::ManyToMany,
     ]);
 
+});
+
+describe('Record Fields Without a Definition', function (): void {
+    beforeEach(function (): void {
+        $this->section = CustomFieldSection::factory()->create([
+            'name' => 'Post Table Fields',
+            'entity_type' => Post::class,
+            'active' => true,
+        ]);
+    });
+
+    it('lists records through a defined field while the relationships feature is off', function (): void {
+        $definition = app(CreateRelationshipDefinition::class)->execute(new RelationshipDefinitionData(
+            code: 'related_post',
+            fromEntityType: (new Post)->getMorphClass(),
+            toEntityType: (new Post)->getMorphClass(),
+            cardinality: RelationshipCardinality::ManyToMany,
+            fromField: new FieldSlotData(name: 'Related Post', sectionId: $this->section->getKey()),
+        ));
+
+        $target = Post::factory()->create(['title' => 'Linked Target']);
+        $holder = Post::factory()->create(['custom_fields' => [$definition->fromField->code => [$target->getKey()]]]);
+
+        config('custom-fields.features')->disable(CustomFieldsFeature::SYSTEM_RELATIONSHIPS);
+
+        livewire(ListPosts::class)
+            ->assertSuccessful()
+            ->assertCanSeeTableRecords([$holder])
+            ->assertSee('Linked Target');
+    });
+
+    it('lists records with the column skipped when a record field has no definition', function (): void {
+        Exceptions::fake();
+
+        CustomField::factory()->create([
+            'custom_field_section_id' => $this->section->getKey(),
+            'name' => 'Orphaned Record',
+            'code' => 'orphaned_record',
+            'type' => 'record',
+            'entity_type' => Post::class,
+            'settings' => new CustomFieldSettingsData(visible_in_list: true, list_toggleable_hidden: false),
+        ]);
+
+        $post = Post::factory()->create();
+
+        livewire(ListPosts::class)
+            ->assertSuccessful()
+            ->assertCanSeeTableRecords([$post])
+            ->assertDontSee('Orphaned Record');
+
+        Exceptions::assertReported(RelationshipDefinitionDoesNotExistException::class);
+        Exceptions::assertReportedCount(1);
+    });
 });

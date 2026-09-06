@@ -34,6 +34,7 @@ use Relaticle\CustomFields\Providers\ImportsServiceProvider;
 use Relaticle\CustomFields\Providers\ValidationServiceProvider;
 use Relaticle\CustomFields\Services\ModelAttributeDiscoveryService;
 use Relaticle\CustomFields\Services\Relationships\AuthenticatedActorResolver;
+use Relaticle\CustomFields\Services\Relationships\MissingRelationshipDefinitions;
 use Relaticle\CustomFields\Services\TenantContextService;
 use Relaticle\CustomFields\Services\ValueResolver\LookupCache;
 use Relaticle\CustomFields\Services\ValueResolver\ValueResolver;
@@ -59,6 +60,7 @@ final class CustomFieldsServiceProvider extends PackageServiceProvider
         $this->app->singleton(ValueResolverInterface::class, ValueResolver::class);
         $this->app->singleton(LinkActorResolverInterface::class, AuthenticatedActorResolver::class);
         $this->app->scoped(LookupCache::class);
+        $this->app->scoped(MissingRelationshipDefinitions::class);
 
         $this->app->singleton(TenantContextService::class);
         $this->app->singleton(BackendVisibilityService::class);

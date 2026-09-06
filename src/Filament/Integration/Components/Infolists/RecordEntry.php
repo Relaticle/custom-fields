@@ -12,21 +12,27 @@ use Relaticle\CustomFields\Facades\Entities;
 use Relaticle\CustomFields\Filament\Integration\Base\AbstractInfolistEntry;
 use Relaticle\CustomFields\Models\Contracts\HasCustomFields;
 use Relaticle\CustomFields\Models\CustomField;
+use Relaticle\CustomFields\Models\CustomFieldRelationship;
+use Relaticle\CustomFields\Services\Relationships\MissingRelationshipDefinitions;
 
 final class RecordEntry extends AbstractInfolistEntry
 {
     public function make(CustomField $customField, ?Model $record = null): ViewEntry
     {
-        $entityType = $customField->targetEntityType();
+        $definition = $customField->relationshipDefinition();
 
-        if ($entityType === null) {
+        // The entry has nothing to read without a definition, so it leaves the infolist alone.
+        if (! $definition instanceof CustomFieldRelationship) {
+            app(MissingRelationshipDefinitions::class)->report($customField);
+
             return ViewEntry::make($customField->getFieldName())
                 ->label($customField->name)
                 ->view('custom-fields::infolists.record-entry')
-                ->state(['records' => [], 'multiple' => false]);
+                ->state(['records' => [], 'multiple' => false])
+                ->hidden();
         }
 
-        $entity = Entities::getEntity($entityType);
+        $entity = Entities::getEntity($definition->targetEntityTypeFor($customField));
         $isMultiSelect = $customField->allowsMultipleRecords();
 
         return ViewEntry::make($customField->getFieldName())

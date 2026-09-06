@@ -15,6 +15,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Schema;
 use Override;
 use Relaticle\CustomFields\CustomFields;
 use Relaticle\CustomFields\Data\CustomFieldSettingsData;
@@ -186,28 +187,32 @@ class CustomField extends Model
             return null;
         }
 
-        // A host with the flag off never ran the two migrations, so the table is not there.
-        if (! FeatureManager::isEnabled(CustomFieldsFeature::SYSTEM_RELATIONSHIPS)) {
-            return null;
-        }
-
         // Only record fields are ever slots, and every save asks each field in turn, so the
         // rest never pay for a definition lookup.
         if ($this->type !== 'record') {
             return null;
         }
 
-        return once(fn (): ?CustomFieldRelationship => CustomFields::newRelationshipModel()
-            ->newQuery()
-            ->where(fn (Builder $query): Builder => $query
-                ->where('from_field_id', $key)
-                ->orWhere('to_field_id', $key))
-            ->first());
+        return once(function () use ($key): ?CustomFieldRelationship {
+            // The feature flag gates the two migrations and the write fork, not what a field
+            // can read: a host that turns it off after migrating still has definitions to
+            // find, and one that never migrated has no table to look in.
+            if (! Schema::hasTable((string) config('custom-fields.database.table_names.custom_field_relationships'))) {
+                return null;
+            }
+
+            return CustomFields::newRelationshipModel()
+                ->newQuery()
+                ->where(fn (Builder $query): Builder => $query
+                    ->where('from_field_id', $key)
+                    ->orWhere('to_field_id', $key))
+                ->first();
+        });
     }
 
     /**
-     * The definition a record field renders one end of. Every record field has one, so a
-     * surface that reads links asks for it here rather than guessing what a missing one meant.
+     * The definition a record field writes one end of. A write has no sensible answer without
+     * one, so it stops here; the surfaces that only render skip themselves instead.
      */
     public function relationshipDefinitionOrFail(): CustomFieldRelationship
     {
