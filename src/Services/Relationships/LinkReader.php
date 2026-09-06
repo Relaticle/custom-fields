@@ -21,13 +21,26 @@ final readonly class LinkReader
      */
     public function orderedIdsFor(Model $record, CustomFieldRelationship $definition, string $direction): array
     {
-        $ids = $this->links($record, $definition, $direction)
-            ->sortBy(static fn (CustomFieldLink $link): int => $link->sort_order ?? 0)
-            ->map(fn (CustomFieldLink $link): int|string => $this->otherEndId($link, $record, $direction))
-            ->values()
-            ->all();
+        $ids = array_map(
+            fn (CustomFieldLink $link): int|string => $this->otherEndId($link, $record, $direction),
+            $this->orderedLinksFor($record, $definition, $direction),
+        );
 
         return $this->castToTargetKeys($ids, $this->targetEntityType($definition, $direction));
+    }
+
+    /**
+     * The same edges the ids come from, kept whole: provenance lives on the row, so a caller
+     * that wants to say who linked a record and when reads it here rather than re-querying.
+     *
+     * @return array<int, CustomFieldLink>
+     */
+    public function orderedLinksFor(Model $record, CustomFieldRelationship $definition, string $direction): array
+    {
+        return $this->links($record, $definition, $direction)
+            ->sortBy(static fn (CustomFieldLink $link): int => $link->sort_order ?? 0)
+            ->values()
+            ->all();
     }
 
     /**
@@ -120,7 +133,10 @@ final readonly class LinkReader
         };
     }
 
-    private function otherEndId(CustomFieldLink $link, Model $record, string $direction): int|string
+    /**
+     * The record on the far end of an edge, from the point of view of the one that holds it.
+     */
+    public function otherEndId(CustomFieldLink $link, Model $record, string $direction): int|string
     {
         if ($direction === CustomFieldRelationship::DIRECTION_FROM) {
             return $link->to_entity_id;

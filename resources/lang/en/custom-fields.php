@@ -470,6 +470,21 @@ return [
         'search_placeholder' => 'Search records...',
         'add_record_placeholder' => 'Add record...',
         'empty_state_label' => 'Select record...',
+        'no_records' => 'Not linked',
+        'more_records' => '{1} :count more|[2,*] :count more',
+        'search_label' => 'Search records',
+        'select_label' => 'Select records',
+        'clear' => 'Clear selection',
+        'remove' => 'Remove :record',
+        'no_results' => 'No records found',
+        'announce_selected' => 'selected',
+        'announce_deselected' => 'deselected',
+        'none_available' => 'No records available',
+        'short_search' => 'Type at least :count characters to search',
+        'create_new' => 'Create a new :entity',
+        'steal_heading' => 'Move this record?',
+        'steal_confirm' => 'Move it here',
+        'steal_cancel' => 'Leave it where it is',
     ],
 
     'relationships' => [
@@ -479,6 +494,16 @@ return [
             'single_value' => 'This relationship holds a single record.',
             'already_linked' => ':record is already linked to :holder. Confirm the replacement to move it.',
             'keep_first_required' => 'This relationship holds several records. Confirm keeping the first one to narrow it.',
+        ],
+        'provenance' => [
+            'by_actor' => 'Linked by :actor, :time',
+            'by_source' => 'Linked :source, :time',
+        ],
+        'sources' => [
+            'user' => 'by hand',
+            'import' => 'by an import',
+            'migration' => 'by a migration',
+            'ai_inferred' => 'by the assistant',
         ],
     ],
 

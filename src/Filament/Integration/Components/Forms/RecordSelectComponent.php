@@ -21,6 +21,7 @@ final readonly class RecordSelectComponent extends AbstractFormComponent
         $maxValues = $allowMultiple ? self::MAX_MULTIPLE_RECORDS : 1;
 
         $component = RecordSelectInputComponent::make($customField->getFieldName())
+            ->customField($customField)
             ->lookupType($customField->targetEntityType())
             ->allowMultiple($allowMultiple)
             ->maxValues($maxValues)

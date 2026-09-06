@@ -6,11 +6,13 @@ namespace Relaticle\CustomFields\Filament\Integration\Components\Tables\Columns;
 
 use Filament\Tables\Columns\Column;
 use Illuminate\Database\Eloquent\Model;
-use InvalidArgumentException;
-use Relaticle\CustomFields\Data\AvatarConfiguration;
+use Relaticle\CustomFields\Data\EntityConfigurationData;
+use Relaticle\CustomFields\Enums\UiSurface;
 use Relaticle\CustomFields\Facades\Entities;
+use Relaticle\CustomFields\Filament\Integration\Support\RecordChips;
 use Relaticle\CustomFields\Models\Contracts\HasCustomFields;
 use Relaticle\CustomFields\Models\CustomField;
+use Relaticle\CustomFields\Support\ViewFlavor;
 
 /**
  * Custom Filament column that renders records using a blade view.
@@ -23,11 +25,7 @@ final class RecordColumnView extends Column
 
     private bool $multiple = false;
 
-    private mixed $entity = null;
-
-    private ?AvatarConfiguration $avatarConfig = null;
-
-    private ?string $titleAttribute = null;
+    private ?EntityConfigurationData $entity = null;
 
     private ?string $through = null;
 
@@ -50,11 +48,6 @@ final class RecordColumnView extends Column
         if ($entityType !== null) {
             $this->entity = Entities::getEntity($entityType);
             $this->multiple = $customField->allowsMultipleRecords();
-
-            if ($this->entity !== null) {
-                $this->avatarConfig = $this->entity->getAvatarConfiguration();
-                $this->titleAttribute = $this->entity->getPrimaryAttribute();
-            }
         }
 
         return $this;
@@ -65,8 +58,13 @@ final class RecordColumnView extends Column
         return $this->multiple;
     }
 
+    public function getChipsView(): ?string
+    {
+        return ViewFlavor::view(UiSurface::RecordChips);
+    }
+
     /**
-     * @return array<int, array{name: mixed, avatarUrl: ?string, avatarShape: string, url: ?string}>
+     * @return array<int, array{id: string, name: string, avatarUrl: ?string, avatarShape: string, url: ?string, provenance: ?string}>
      */
     public function getRecords(Model $record): array
     {
@@ -77,84 +75,34 @@ final class RecordColumnView extends Column
         }
 
         $value = $subject->getCustomFieldValue($this->customField);
+        $recordIds = match (true) {
+            $value === null => [],
+            is_array($value) => $value,
+            default => [$value],
+        };
 
-        if ($value === null || (is_array($value) && $value === [])) {
-            return [];
-        }
+        $chips = app(RecordChips::class);
 
-        if ($this->entity === null) {
-            return [];
-        }
-
-        $recordIds = is_array($value) ? $value : [$value];
-        $records = $this->entity->newQuery()->whereKey($recordIds)->get()
-            ->sortBy(fn (Model $record): int|false => array_search($record->getKey(), $recordIds, true));
-
-        return $records->map(function (Model $relatedRecord): array {
-            return $this->formatRecord($relatedRecord);
-        })->toArray();
+        return $chips->build($this->entity, $recordIds, $this->provenance($chips, $subject));
     }
 
     /**
-     * @return array{name: mixed, avatarUrl: ?string, avatarShape: string, url: ?string}
+     * A table page reads provenance from the edges it already loaded. Loading the actor here
+     * would be a query per row, so the host eager loads outgoingLinks.createdBy or the chip
+     * says when the link was made without saying who made it.
+     *
+     * @return array<string, string>
      */
-    private function formatRecord(Model $record): array
+    private function provenance(RecordChips $chips, HasCustomFields $subject): array
     {
-        $name = $record->getAttribute($this->titleAttribute) ?? '';
-        $avatarUrl = $this->getAvatarUrl($record);
-        $shapeClass = $this->avatarConfig?->getCssClass() ?? 'rounded-full';
-        $url = $this->getRecordUrl($record);
-
-        return [
-            'name' => $name,
-            'avatarUrl' => $avatarUrl,
-            'avatarShape' => $shapeClass,
-            'url' => $url,
-        ];
-    }
-
-    private function getAvatarUrl(Model $record): ?string
-    {
-        if (! $this->avatarConfig instanceof AvatarConfiguration || ! $this->avatarConfig->hasAttribute()) {
-            return null;
+        if (! $subject instanceof Model || ! $this->customField instanceof CustomField) {
+            return [];
         }
 
-        return $record->getAttribute($this->avatarConfig->attribute);
-    }
-
-    private function getRecordUrl(Model $record): ?string
-    {
-        if ($this->entity === null) {
-            return null;
+        if (! $subject->relationLoaded('outgoingLinks') && ! $subject->relationLoaded('incomingLinks')) {
+            return [];
         }
 
-        $recordPage = $this->entity->getRecordPage();
-
-        if ($recordPage === null) {
-            return null;
-        }
-
-        $resourceClass = $this->entity->getResourceClass();
-
-        if ($resourceClass === null || ! class_exists($resourceClass)) {
-            return null;
-        }
-
-        if (! method_exists($resourceClass, 'getUrl')) {
-            return null;
-        }
-
-        if (! array_key_exists($recordPage, $resourceClass::getPages())) {
-            throw new InvalidArgumentException(sprintf(
-                "Entity '%s' has recordPage '%s' but %s does not define a '%s' page. Available pages: %s.",
-                $this->entity->getLabelSingular(),
-                $recordPage,
-                class_basename($resourceClass),
-                $recordPage,
-                implode(', ', array_keys($resourceClass::getPages())),
-            ));
-        }
-
-        return $resourceClass::getUrl($recordPage, ['record' => $record]);
+        return $chips->provenance($subject, $this->customField);
     }
 }

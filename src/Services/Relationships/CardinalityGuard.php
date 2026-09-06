@@ -164,6 +164,15 @@ final readonly class CardinalityGuard
         return is_scalar($title) && (string) $title !== '' ? (string) $title : (string) $key;
     }
 
+    /**
+     * Whether a record on the given end holds a single record on the other. The picker asks
+     * before it offers to move a record, so the offer and the refusal read the same rule.
+     */
+    public function endHoldsOne(CustomFieldRelationship $definition, string $end): bool
+    {
+        return $this->endIsSingle($definition, $end);
+    }
+
     private function endIsSingle(CustomFieldRelationship $definition, string $end): bool
     {
         return $end === CustomFieldRelationship::DIRECTION_TO

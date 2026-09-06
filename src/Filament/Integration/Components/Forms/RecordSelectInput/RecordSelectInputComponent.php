@@ -16,8 +16,14 @@ use Illuminate\Database\Eloquent\Model;
 use Livewire\Attributes\Renderless;
 use Relaticle\CustomFields\Data\AvatarConfiguration;
 use Relaticle\CustomFields\Data\EntityConfigurationData;
+use Relaticle\CustomFields\Enums\UiSurface;
 use Relaticle\CustomFields\Facades\Entities;
+use Relaticle\CustomFields\Filament\Integration\Support\RecordChips;
+use Relaticle\CustomFields\Models\CustomField;
+use Relaticle\CustomFields\Models\CustomFieldRelationship;
 use Relaticle\CustomFields\QueryBuilders\EntitySearchQuery;
+use Relaticle\CustomFields\Services\Relationships\CardinalityGuard;
+use Relaticle\CustomFields\Support\ViewFlavor;
 
 /**
  * A custom Filament form field for selecting records from other entities
@@ -46,9 +52,13 @@ class RecordSelectInputComponent extends Field implements HasNestedRecursiveVali
 
     protected int|Closure $maxVisiblePills = 3;
 
+    protected ?CustomField $customField = null;
+
     protected function setUp(): void
     {
         parent::setUp();
+
+        $this->view(ViewFlavor::view(UiSurface::RecordPicker) ?? $this->view);
 
         $this->default([]);
 
@@ -72,9 +82,43 @@ class RecordSelectInputComponent extends Field implements HasNestedRecursiveVali
                 return $state !== null ? [$state] : [];
             }
 
-            // Filter out empty values
-            return array_values(array_filter($state, fn (mixed $value): bool => filled($value)));
+            // The map form carries the confirmation the writer needs for a one-to-one steal,
+            // so it travels whole; only its ids are cleaned.
+            if (array_key_exists('ids', $state)) {
+                return [
+                    'ids' => self::filledIds($state['ids']),
+                    'replace' => ($state['replace'] ?? false) === true,
+                ];
+            }
+
+            return self::filledIds($state);
         });
+    }
+
+    /**
+     * @return array<int, mixed>
+     */
+    private static function filledIds(mixed $ids): array
+    {
+        return is_array($ids)
+            ? array_values(array_filter($ids, fn (mixed $value): bool => filled($value)))
+            : [];
+    }
+
+    /**
+     * The field the picker writes, so it can ask the same guard the writer asks before it
+     * offers to move a record away from whoever holds it.
+     */
+    public function customField(?CustomField $customField): static
+    {
+        $this->customField = $customField;
+
+        return $this;
+    }
+
+    public function getCustomField(): ?CustomField
+    {
+        return $this->customField;
     }
 
     public function allowMultiple(bool|Closure $allow = true): static
@@ -245,7 +289,7 @@ class RecordSelectInputComponent extends Field implements HasNestedRecursiveVali
     /**
      * Search for records matching the query.
      *
-     * @return array<string, array{id: string, label: string, avatar: ?string, avatarShape: string}>
+     * @return array<string, array{id: string, label: string, avatar: ?string, avatarShape: string, provenance: ?string}>
      */
     public function searchRecords(string $search): array
     {
@@ -275,7 +319,7 @@ class RecordSelectInputComponent extends Field implements HasNestedRecursiveVali
      * Get records by their IDs.
      *
      * @param  array<string>  $ids
-     * @return array<string, array{id: string, label: string, avatar: ?string, avatarShape: string}>
+     * @return array<string, array{id: string, label: string, avatar: ?string, avatarShape: string, provenance: ?string}>
      */
     public function getRecordsByIds(array $ids): array
     {
@@ -294,13 +338,85 @@ class RecordSelectInputComponent extends Field implements HasNestedRecursiveVali
         $records = $query->whereIn($keyName, $ids)->get()
             ->sortBy(fn (Model $record): int|false => array_search($record->getKey(), $ids, true));
 
-        return $this->formatRecordsForJs($records, $keyName, $titleAttribute, $avatarConfig);
+        return $this->formatRecordsForJs($records, $keyName, $titleAttribute, $avatarConfig, $this->provenance());
+    }
+
+    /**
+     * Where each selected link came from, for the chip's hover. Candidates in the dropdown are
+     * not linked yet, so only the selected records carry it.
+     *
+     * @return array<string, string>
+     */
+    private function provenance(): array
+    {
+        $customField = $this->getCustomField();
+
+        // A component built outside a schema, as the import path does, has no record to read
+        // provenance from and asking for one would fail before it could say so.
+        if (! $customField instanceof CustomField || ! isset($this->container)) {
+            return [];
+        }
+
+        $record = $this->getRecord();
+
+        if (! $record instanceof Model) {
+            return [];
+        }
+
+        $record->loadMissing(['outgoingLinks.createdBy', 'incomingLinks.createdBy']);
+
+        return app(RecordChips::class)->provenance($record, $customField);
+    }
+
+    /**
+     * The page that creates a record of the target entity, or null when the host registered no
+     * resource with one: the picker offers create-new only where it can land somewhere.
+     */
+    public function getCreateUrl(): ?string
+    {
+        $entity = $this->getEntityConfiguration();
+
+        return $entity instanceof EntityConfigurationData
+            ? app(RecordChips::class)->createUrl($entity)
+            : null;
+    }
+
+    /**
+     * Whether taking a record could take it away from another holder. A relationship whose far
+     * end holds many never can, so the picker skips the round trip that asks.
+     */
+    public function checksHolderConflicts(): bool
+    {
+        $customField = $this->getCustomField();
+        $definition = $customField?->relationshipDefinition();
+
+        if (! $customField instanceof CustomField || ! $definition instanceof CustomFieldRelationship) {
+            return false;
+        }
+
+        $write = $definition->writeDirectionFor($customField);
+
+        return app(CardinalityGuard::class)->endHoldsOne(
+            $definition,
+            $write === CustomFieldRelationship::DIRECTION_FROM
+                ? CustomFieldRelationship::DIRECTION_TO
+                : CustomFieldRelationship::DIRECTION_FROM,
+        );
+    }
+
+    public function getCreateLabel(): ?string
+    {
+        $entity = $this->getEntityConfiguration();
+
+        return $entity instanceof EntityConfigurationData
+            ? __('custom-fields::custom-fields.record.create_new', ['entity' => $entity->getLabelSingular()])
+            : null;
     }
 
     /**
      * Get initial options (first 50 records).
      *
-     * @return array<string, array{id: string, label: string, avatar: ?string, avatarShape: string}>
+     * @return array<string, array{id: string, label: string, avatar: ?string, avatarShape: string, provenance: ?string}>
      */
     public function getInitialOptions(): array
     {
@@ -323,13 +439,15 @@ class RecordSelectInputComponent extends Field implements HasNestedRecursiveVali
      * Format records for JavaScript consumption.
      *
      * @param  iterable<Model>  $records
-     * @return array<string, array{id: string, label: string, avatar: ?string, avatarShape: string}>
+     * @param  array<string, string>  $provenance
+     * @return array<string, array{id: string, label: string, avatar: ?string, avatarShape: string, provenance: ?string}>
      */
     private function formatRecordsForJs(
         iterable $records,
         string $keyName,
         string $titleAttribute,
-        ?AvatarConfiguration $avatarConfig
+        ?AvatarConfiguration $avatarConfig,
+        array $provenance = []
     ): array {
         $result = [];
 
@@ -340,6 +458,7 @@ class RecordSelectInputComponent extends Field implements HasNestedRecursiveVali
                 'label' => $record->getAttribute($titleAttribute) ?? '',
                 'avatar' => $this->getAvatarUrl($record, $avatarConfig),
                 'avatarShape' => $avatarConfig?->getCssClass() ?? 'rounded-full',
+                'provenance' => $provenance[$id] ?? null,
             ];
         }
 
@@ -356,10 +475,34 @@ class RecordSelectInputComponent extends Field implements HasNestedRecursiveVali
     }
 
     /**
-     * Search records via Livewire call.
-     * Called from Alpine.js when user types in search box.
+     * What the writer would refuse for one candidate, so the picker can confirm the move
+     * inline instead of failing on save. The guard is the single source of that sentence.
+     */
+    #[ExposedLivewireMethod]
+    #[Renderless]
+    public function holderConflictFor(string $recordId): ?string
+    {
+        $customField = $this->getCustomField();
+        $definition = $customField?->relationshipDefinition();
+
+        if (! $customField instanceof CustomField || ! $definition instanceof CustomFieldRelationship) {
+            return null;
+        }
+
+        $violations = app(CardinalityGuard::class)->violations(
+            $definition,
+            $definition->writeDirectionFor($customField),
+            $this->getRecord()?->getKey(),
+            [$recordId],
+        );
+
+        return $violations[0] ?? null;
+    }
+
+    /**
+     * Search records via Livewire call, from Alpine when the user types in the search box.
      *
-     * @return array<int, array{id: string, label: string, avatar: ?string, avatarShape: string}>
+     * @return array<int, array{id: string, label: string, avatar: ?string, avatarShape: string, provenance: ?string}>
      */
     #[ExposedLivewireMethod]
     #[Renderless]

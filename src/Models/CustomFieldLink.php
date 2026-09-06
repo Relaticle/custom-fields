@@ -111,7 +111,10 @@ class CustomFieldLink extends Model
      */
     public function createdBy(): MorphTo
     {
-        return $this->morphTo('created_by');
+        // The relation name has to be the method name: an eager load initialises the relation
+        // under that name, and morphTo would otherwise fill a differently named one, leaving
+        // every eager-loaded actor null while lazy access works.
+        return $this->morphTo(__FUNCTION__, 'created_by_type', 'created_by_id');
     }
 
     /**
