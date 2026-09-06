@@ -80,7 +80,11 @@ final class UpgradeCommand extends Command
             return [];
         }
 
-        return array_values(array_unique(array_filter(array_map('trim', explode(',', $skipOption)))));
+        $values = array_map('trim', explode(',', $skipOption));
+
+        // Only empty elements are dropped: a bare array_filter() also swallows "0", which
+        // would then reach no step and no unknown-value error either.
+        return array_values(array_unique(array_filter($values, fn (string $value): bool => $value !== '')));
     }
 
     /**

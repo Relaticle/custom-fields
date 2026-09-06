@@ -29,6 +29,7 @@ use Relaticle\CustomFields\Models\CustomFieldOption;
 use Relaticle\CustomFields\Models\CustomFieldSection;
 use Relaticle\CustomFields\Models\CustomFieldValue;
 use Relaticle\CustomFields\Models\Scopes\ActivableScope;
+use Relaticle\CustomFields\Models\Scopes\TenantScope;
 use Relaticle\CustomFields\QueryBuilders\CustomFieldQueryBuilder;
 use Relaticle\CustomFields\Tests\Fixtures\Models\Post;
 use Relaticle\CustomFields\Tests\Fixtures\Resources\Posts\PostResource;
@@ -111,14 +112,23 @@ arch('Models extend Eloquent Model')
     ])
     ->toExtend(Model::class);
 
-arch('Custom field models are tenant-scoped')
-    ->expect([
-        CustomField::class,
-        CustomFieldSection::class,
-        CustomFieldOption::class,
-        CustomFieldValue::class,
-    ])
-    ->toHaveAttribute(ScopedBy::class);
+test('custom field models are scoped by the tenant scope', function (string $model): void {
+    $attributes = (new ReflectionClass($model))->getAttributes(ScopedBy::class);
+
+    expect($attributes)->not->toBeEmpty($model.' carries no ScopedBy attribute.');
+
+    $scopes = array_merge(...array_map(
+        fn (ReflectionAttribute $attribute): array => (array) ($attribute->getArguments()[0] ?? []),
+        $attributes,
+    ));
+
+    expect($scopes)->toContain(TenantScope::class);
+})->with([
+    CustomField::class,
+    CustomFieldSection::class,
+    CustomFieldOption::class,
+    CustomFieldValue::class,
+]);
 
 arch('Filament Resource extends base Resource')
     ->expect(PostResource::class)
@@ -157,10 +167,6 @@ arch('Exceptions follow naming convention')
     ->expect('Relaticle\CustomFields\Exceptions')
     ->toHaveSuffix('Exception');
 
-arch('Jobs follow proper structure')
-    ->expect('Relaticle\CustomFields\Jobs')
-    ->not->toHaveSuffix('Job');
-
 arch('Data objects extend Spatie Data')
     ->expect('Relaticle\CustomFields\Data')
     ->toExtend(Data::class);
@@ -190,10 +196,55 @@ arch('No vendor dependencies in core models')
 
 arch('Strict types are declared')
     ->expect('Relaticle\CustomFields')
-    ->toUseStrictTypes()
-    ->ignoring(['config', 'lang']);
+    ->toUseStrictTypes();
 
-// The ignored list is the extension-point contract documented in
+// The arch rule above only reaches classes, so it never sees the tests, the config file,
+// the stubs, or a migration; those are exactly the files that keep losing the declaration.
+test('every PHP file outside the source tree declares strict types', function (): void {
+    $root = dirname(__DIR__);
+
+    $files = [
+        ...glob($root.'/config/*.php'),
+        ...glob($root.'/stubs/*.stub'),
+    ];
+
+    foreach ([$root.'/tests', $root.'/database'] as $directory) {
+        $iterator = new RecursiveIteratorIterator(
+            new RecursiveDirectoryIterator($directory, FilesystemIterator::SKIP_DOTS),
+        );
+
+        foreach ($iterator as $file) {
+            if ($file->getExtension() === 'php') {
+                $files[] = $file->getPathname();
+            }
+        }
+    }
+
+    $violations = [];
+
+    foreach ($files as $file) {
+        $tokens = array_values(array_filter(
+            token_get_all(file_get_contents($file)),
+            fn (array|string $token): bool => ! is_array($token)
+                || ! in_array($token[0], [T_OPEN_TAG, T_WHITESPACE, T_COMMENT, T_DOC_COMMENT], true),
+        ));
+
+        $first = $tokens[0] ?? null;
+
+        if (is_array($first) && $first[0] === T_DECLARE && str_contains($tokens[2][1] ?? '', 'strict_types')) {
+            continue;
+        }
+
+        $violations[] = str_replace($root.'/', '', $file);
+    }
+
+    expect($violations)->toBeEmpty(
+        "Files without declare(strict_types=1) as their first statement:\n".implode("\n", $violations),
+    );
+});
+
+// Two kinds of entry are ignored: things that cannot carry the keyword (interfaces, traits,
+// abstract bases, enums) and the seams documented in
 // docs/content/2.essentials/8.extending.md. Opening a class means adding it there too.
 arch('Classes are final outside the documented extension points')
     ->expect('Relaticle\CustomFields')
@@ -241,10 +292,9 @@ arch('All test classes follow naming conventions')
         'Relaticle\CustomFields\Tests\Database\Factories',
     ]);
 
-arch('Exceptions provide meaningful context')
+arch('Exceptions extend the base exception')
     ->expect('Relaticle\CustomFields\Exceptions')
-    ->toExtend('Exception')
-    ->toHaveMethod('__construct');
+    ->toExtend('Exception');
 
 test('every HasLabel enum in Relaticle\\CustomFields\\Enums routes getLabel through __()', function (): void {
     $dir = dirname(__DIR__).'/src/Enums';

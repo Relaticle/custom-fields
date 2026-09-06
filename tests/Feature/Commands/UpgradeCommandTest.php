@@ -44,6 +44,15 @@ it('fails with a clear error when --skip names an unknown step', function (): vo
         ->assertFailed();
 });
 
+it('rejects a falsy step name in --skip instead of ignoring it', function (): void {
+    $this->artisan('custom-fields:upgrade', [
+        '--force' => true,
+        '--skip' => '0',
+    ])
+        ->expectsOutputToContain('Unknown --skip value(s): 0.')
+        ->assertFailed();
+});
+
 it('ignores an empty element from a trailing comma in --skip', function (): void {
     $this->artisan('custom-fields:upgrade', [
         '--force' => true,
