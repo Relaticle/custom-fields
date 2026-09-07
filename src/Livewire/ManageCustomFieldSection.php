@@ -24,6 +24,7 @@ use Relaticle\CustomFields\Filament\Management\Schemas\SectionForm;
 use Relaticle\CustomFields\Livewire\Concerns\CreatesCustomFields;
 use Relaticle\CustomFields\Livewire\Concerns\ManagesFields;
 use Relaticle\CustomFields\Models\CustomFieldSection;
+use Relaticle\CustomFields\Support\SettingsMerger;
 
 final class ManageCustomFieldSection extends Component implements HasActions, HasForms
 {
@@ -128,7 +129,17 @@ final class ManageCustomFieldSection extends Component implements HasActions, Ha
             ->record($this->section)
             ->schema($sectionForm->schema())
             ->fillForm($this->section->toArray())
-            ->action(fn (array $data): bool => ! $this->section->hasSystemDefinedFields() && $this->section->update($data))
+            ->action(function (array $data): bool {
+                if ($this->section->hasSystemDefinedFields()) {
+                    return false;
+                }
+
+                if (isset($data['settings'])) {
+                    $data['settings'] = SettingsMerger::merge($this->section->settings->toArray(), $data['settings']);
+                }
+
+                return $this->section->update($data);
+            })
             ->visible(fn (CustomFieldSection $record): bool => ! $record->hasSystemDefinedFields())
             ->modalWidth(CustomFieldsPlugin::get()->getSectionModalWidth());
     }

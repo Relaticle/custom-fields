@@ -19,6 +19,7 @@ use Relaticle\CustomFields\CustomFields;
 use Relaticle\CustomFields\Filament\Management\Forms\Components\DateConstraintField;
 use Relaticle\CustomFields\Filament\Management\Schemas\FieldForm;
 use Relaticle\CustomFields\Models\CustomField;
+use Relaticle\CustomFields\Support\SettingsMerger;
 
 final class ManageCustomField extends Component implements HasActions, HasForms
 {
@@ -58,7 +59,7 @@ final class ManageCustomField extends Component implements HasActions, HasForms
                 $data = DateConstraintField::sanitizeValidationRules($data);
 
                 if (isset($data['settings'])) {
-                    $data['settings'] = array_merge($this->field->settings->toArray(), $data['settings']);
+                    $data['settings'] = SettingsMerger::merge($this->field->settings->toArray(), $data['settings']);
                 }
 
                 $this->field->update($data);
