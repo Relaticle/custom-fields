@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use Filament\Forms\Components\CheckboxList;
+use Filament\Schemas\Components\Component;
 use Relaticle\CustomFields\Filament\Management\Schemas\FieldForm;
 use Relaticle\CustomFields\Livewire\ManageCustomField;
 use Relaticle\CustomFields\Livewire\ManageCustomFieldSection;
@@ -21,10 +22,34 @@ function panelsCheckboxList(): CheckboxList
         ->options(['portal' => 'Portal']);
 }
 
-it('builds the schema unchanged when no extension is registered', function (): void {
-    $before = count(FieldForm::schema());
+/**
+ * @return array<int, string>
+ */
+function generalTabStatePaths(): array
+{
+    $tabs = FieldForm::schema()[0];
 
-    expect($before)->toBeGreaterThan(0);
+    $tabsProperty = new ReflectionProperty($tabs, 'childComponents');
+    $generalTab = $tabsProperty->getValue($tabs)['default'][0];
+
+    $tabProperty = new ReflectionProperty($generalTab, 'childComponents');
+
+    return array_map(
+        fn (Component $component): string => $component->getStatePath(isAbsolute: false) ?? class_basename($component),
+        $tabProperty->getValue($generalTab)['default'],
+    );
+}
+
+it('builds the same general tab whether or not an extension was registered and then flushed', function (): void {
+    $baseline = generalTabStatePaths();
+
+    FieldForm::extendSchemaUsing(fn (array $schema, ?CustomFieldSection $s): array => [...$schema, panelsCheckboxList()]);
+
+    expect(generalTabStatePaths())->toBe([...$baseline, 'settings.additional.hidden_in_panels']);
+
+    FieldForm::flushSchemaExtensions();
+
+    expect(generalTabStatePaths())->toBe($baseline);
 });
 
 it('passes the section to the extension and appends its components', function (): void {
