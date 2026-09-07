@@ -3,6 +3,8 @@
 declare(strict_types=1);
 
 use Filament\Forms\Components\Toggle;
+use Relaticle\CustomFields\Enums\CustomFieldsFeature;
+use Relaticle\CustomFields\FeatureSystem\FeatureConfigurator;
 use Relaticle\CustomFields\Filament\Management\Schemas\SectionForm;
 use Relaticle\CustomFields\Livewire\ManageCustomField;
 use Relaticle\CustomFields\Livewire\ManageCustomFieldSection;
@@ -56,13 +58,16 @@ describe('merge semantics', function (): void {
 
 describe('section edit', function (): void {
     it('keeps an extra bag key that has no form component', function (): void {
+        config()->set('custom-fields.features', FeatureConfigurator::configure()
+            ->enable(CustomFieldsFeature::SYSTEM_SECTIONS, CustomFieldsFeature::SECTION_CONDITIONAL_VISIBILITY));
+
         $section = CustomFieldSection::factory()->forEntityType(Post::class)->create([
             'code' => 'internal',
             'settings' => ['extra' => ['hidden_in_panels' => ['portal']]],
         ]);
 
         livewire(ManageCustomFieldSection::class, ['section' => $section, 'entityType' => Post::class])
-            ->callAction('edit', ['name' => 'Renamed', 'code' => 'internal'])
+            ->callAction('edit', ['name' => 'Renamed', 'code' => 'internal', 'settings' => ['visibility' => ['mode' => 'always_visible']]])
             ->assertHasNoFormErrors();
 
         expect($section->refresh()->settings->extra)->toBe(['hidden_in_panels' => ['portal']]);
