@@ -2,6 +2,8 @@
 
 declare(strict_types=1);
 
+use Filament\Actions\Exports\ExportColumn;
+use Filament\Actions\Imports\ImportColumn;
 use Filament\Tables\Columns\Column;
 use Filament\Tables\Filters\BaseFilter;
 use Illuminate\Support\Collection;
@@ -197,5 +199,45 @@ describe('table builder query efficiency', function (): void {
             DB::disableQueryLog();
             DB::flushQueryLog();
         }
+    });
+});
+
+describe('exporter and importer builders', function (): void {
+    beforeEach(function (): void {
+        seedTwoSections();
+    });
+
+    it('exports every field when no filter is registered', function (): void {
+        $names = CustomFields::exporter()->forModel(Post::class)->columns()
+            ->map(fn (ExportColumn $column): string => $column->getName())->values()->all();
+
+        expect($names)->toBe(['custom_fields.headline', 'custom_fields.featured', 'custom_fields.reviewer_notes', 'custom_fields.cost']);
+    });
+
+    it('drops a filtered field from export columns and reports the exporter kind', function (): void {
+        $kinds = [];
+
+        CustomFieldsRegistry::filterFieldsUsing(function (Collection $fields, FieldResolutionContext $context) use (&$kinds): Collection {
+            $kinds[] = $context->kind;
+
+            return $fields->reject(fn (CustomField $field): bool => $field->code === 'cost');
+        });
+
+        $names = CustomFields::exporter()->forModel(Post::class)->columns()
+            ->map(fn (ExportColumn $column): string => $column->getName())->values()->all();
+
+        expect($names)->toBe(['custom_fields.headline', 'custom_fields.featured', 'custom_fields.reviewer_notes'])
+            ->and($kinds)->not->toBeEmpty()
+            ->and(array_unique($kinds, SORT_REGULAR))->toBe([ResolutionKind::Exporter]);
+    });
+
+    it('leaves importer columns untouched by a field filter', function (): void {
+        CustomFieldsRegistry::filterFieldsUsing(fn (Collection $fields, FieldResolutionContext $context): Collection => $fields
+            ->reject(fn (CustomField $field): bool => $field->code === 'cost'));
+
+        $names = CustomFields::importer()->forModel(Post::class)->columns()
+            ->map(fn (ImportColumn $column): string => $column->getName())->values()->all();
+
+        expect($names)->toContain('custom_fields_cost');
     });
 });
