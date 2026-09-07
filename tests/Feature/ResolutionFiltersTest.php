@@ -10,9 +10,11 @@ use Filament\Tables\Filters\BaseFilter;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Relaticle\CustomFields\CustomFields as CustomFieldsRegistry;
+use Relaticle\CustomFields\Enums\CustomFieldsFeature;
 use Relaticle\CustomFields\Enums\ResolutionKind;
 use Relaticle\CustomFields\Enums\VisibilityOperator;
 use Relaticle\CustomFields\Facades\CustomFields;
+use Relaticle\CustomFields\FeatureSystem\FeatureConfigurator;
 use Relaticle\CustomFields\Filament\Integration\Builders\FieldResolutionContext;
 use Relaticle\CustomFields\Models\CustomField;
 use Relaticle\CustomFields\Models\CustomFieldSection;
@@ -196,6 +198,26 @@ describe('table builder', function (): void {
 
         expect(componentNames(CustomFields::table()->forModel(Post::class)->columns()))
             ->toBe(['custom_fields.headline', 'custom_fields.featured', 'custom_fields.reviewer_notes']);
+    });
+
+    it('keeps getAllFields intact when a filter mutates its input in place', function (): void {
+        config()->set('custom-fields.features', FeatureConfigurator::configure()
+            ->enable(CustomFieldsFeature::UI_TABLE_COLUMNS, CustomFieldsFeature::FIELD_CONDITIONAL_VISIBILITY));
+
+        CustomFieldsRegistry::filterFieldsUsing(function (Collection $fields, FieldResolutionContext $context): Collection {
+            $cost = $fields->search(fn (CustomField $field): bool => $field->code === 'cost');
+            $fields->forget($cost);
+
+            return $fields;
+        });
+
+        $builder = CustomFields::table()->forModel(Post::class);
+        $builder->columns();
+
+        $method = new ReflectionMethod($builder, 'getAllFields');
+
+        expect($method->invoke($builder)->pluck('code')->all())
+            ->toContain('cost');
     });
 });
 

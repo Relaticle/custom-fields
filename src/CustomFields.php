@@ -305,6 +305,8 @@ final class CustomFields
     }
 
     /**
+     * @internal
+     *
      * @return array<int, Closure(Collection<int, CustomField>, FieldResolutionContext): Collection<int, CustomField>>
      */
     public static function fieldFilters(): array
@@ -313,6 +315,8 @@ final class CustomFields
     }
 
     /**
+     * @internal
+     *
      * @return array<int, Closure(Collection<int, CustomFieldSection>, FieldResolutionContext): Collection<int, CustomFieldSection>>
      */
     public static function sectionFilters(): array

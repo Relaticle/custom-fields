@@ -251,6 +251,8 @@ abstract class BaseBuilder
 
         $context = $this->resolutionContext();
 
+        $fields = $fields->values();
+
         foreach ($filters as $filter) {
             $fields = $filter($fields, $context);
         }
@@ -271,6 +273,8 @@ abstract class BaseBuilder
         }
 
         $context = $this->resolutionContext();
+
+        $sections = $sections->values();
 
         foreach ($filters as $filter) {
             $sections = $filter($sections, $context);
