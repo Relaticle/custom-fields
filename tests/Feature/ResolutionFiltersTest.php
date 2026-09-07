@@ -349,6 +349,20 @@ describe('infolist builder', function (): void {
         expect(infolistShape($this->post)['Internal'])->toContain('custom_fields.promo_copy');
     });
 
+    it('gives two same-code fields in different sections their own visibility verdict', function (): void {
+        $public = CustomFieldSection::query()->where('code', 'public')->sole();
+        $internal = CustomFieldSection::query()->where('code', 'internal')->sole();
+
+        CustomField::factory()
+            ->create(['custom_field_section_id' => $public->id, 'entity_type' => Post::class, 'name' => 'Promo Copy', 'code' => 'promo_copy', 'type' => 'text']);
+        CustomField::factory()
+            ->conditionallyVisible('headline', VisibilityOperator::EQUALS->value, 'Sale')
+            ->create(['custom_field_section_id' => $internal->id, 'entity_type' => Post::class, 'name' => 'Promo Copy', 'code' => 'promo_copy', 'type' => 'text']);
+
+        expect(infolistShape($this->post)['Public'])->toContain('custom_fields.promo_copy')
+            ->and(infolistShape($this->post)['Internal'])->not->toContain('custom_fields.promo_copy');
+    });
+
     it('leaves the form builder untouched by a field filter', function (): void {
         CustomFieldsRegistry::filterFieldsUsing(fn (Collection $fields, FieldResolutionContext $context): Collection => $fields
             ->reject(fn (CustomField $field): bool => $field->code === 'cost'));

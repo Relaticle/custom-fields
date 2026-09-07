@@ -60,10 +60,10 @@ final class InfolistBuilder extends BaseBuilder
             ->when($this->visibleWhenFilled, fn (Entry $field): Entry => $field->visible(fn (mixed $state): bool => filled($state)));
 
         $allFields = $this->getAllFields();
-        $visibleCodes = $backendVisibilityService->getVisibleFields($this->model, $allFields)->pluck('code');
+        $visible = $backendVisibilityService->getVisibleFields($this->model, $allFields)->keyBy(fn (CustomField $field): int|string => $field->getKey());
 
         $renderable = fn (Collection $fields): Collection => $fields
-            ->filter(fn (CustomField $field): bool => $visibleCodes->contains($field->code))
+            ->filter(fn (CustomField $field): bool => $visible->has($field->getKey()))
             ->filter(fn (CustomField $field): bool => $field->typeData->infolistEntry !== null)
             ->map($createField);
 
