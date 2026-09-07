@@ -288,10 +288,17 @@ abstract class BaseBuilder
      */
     protected function getResolvedSections(): Collection
     {
-        return $this->applySectionFilters($this->getFilteredSections())
-            ->map(function (CustomFieldSection $section): CustomFieldSection {
+        $sections = $this->applySectionFilters($this->getFilteredSections());
+
+        /** @var array<int, int|string> $keptKeys */
+        $keptKeys = $this->applyFieldFilters($sections->flatMap(fn (CustomFieldSection $section): Collection => $section->fields))
+            ->map(fn (CustomField $field): int|string => $field->getKey())
+            ->all();
+
+        return $sections
+            ->map(function (CustomFieldSection $section) use ($keptKeys): CustomFieldSection {
                 $resolved = clone $section;
-                $resolved->setRelation('fields', $this->applyFieldFilters($section->fields));
+                $resolved->setRelation('fields', $section->fields->filter(fn (CustomField $field): bool => in_array($field->getKey(), $keptKeys, true))->values());
 
                 return $resolved;
             })

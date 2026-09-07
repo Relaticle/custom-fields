@@ -173,6 +173,29 @@ describe('table builder', function (): void {
 
         expect(CustomFields::table()->columns())->toBeEmpty();
     });
+
+    it('hands the field filter the whole entity field set once, not one slice per section', function (): void {
+        $counts = [];
+
+        CustomFieldsRegistry::filterFieldsUsing(function (Collection $fields, FieldResolutionContext $context) use (&$counts): Collection {
+            $counts[] = count($fields);
+
+            return $fields;
+        });
+
+        CustomFields::table()->forModel(Post::class)->columns();
+
+        expect($counts)->toBe([4]);
+    });
+
+    it('lets a field filter reason across sections', function (): void {
+        CustomFieldsRegistry::filterFieldsUsing(fn (Collection $fields, FieldResolutionContext $context): Collection => $fields->contains(fn (CustomField $field): bool => $field->code === 'headline')
+            ? $fields->reject(fn (CustomField $field): bool => $field->code === 'cost')
+            : $fields);
+
+        expect(componentNames(CustomFields::table()->forModel(Post::class)->columns()))
+            ->toBe(['custom_fields.headline', 'custom_fields.featured', 'custom_fields.reviewer_notes']);
+    });
 });
 
 describe('table builder query efficiency', function (): void {
@@ -227,8 +250,7 @@ describe('exporter and importer builders', function (): void {
             ->map(fn (ExportColumn $column): string => $column->getName())->values()->all();
 
         expect($names)->toBe(['custom_fields.headline', 'custom_fields.featured', 'custom_fields.reviewer_notes'])
-            ->and($kinds)->not->toBeEmpty()
-            ->and(array_unique($kinds, SORT_REGULAR))->toBe([ResolutionKind::Exporter]);
+            ->and($kinds)->toBe([ResolutionKind::Exporter]);
     });
 
     it('leaves importer columns untouched by a field filter', function (): void {
