@@ -27,10 +27,14 @@ extension no longer has to reach into the settings array directly.
 
 ### Fixed
 
-- Editing a section or a field through a structural (non-flat) settings submission no
-  longer erases a settings key that has no corresponding form component. The merge is
-  now recursive over associative arrays, so an unrendered key survives an edit while a
-  submitted empty list or null scalar still clears the value it targets.
+- Editing a section no longer erases `settings.extra` keys that have no form component.
+  The wipe happened whenever the form submitted a partial `settings` payload, for
+  example `settings.visibility` with section conditional visibility enabled, because the
+  cast rebuilt the settings object from the partial and dropped the rest.
+- Editing a field no longer erases `settings.additional` keys its form did not render,
+  for example a consumer key on a currency field whose type settings occupy the same
+  bag. The merge now recurses into associative arrays, while a submitted empty list or
+  null still clears the value it targets.
 - The Infolist builder now evaluates conditional visibility against every field for the
   entity type, matching the Form and Table builders. Previously it evaluated a section's
   conditions against only that section's own fields, so a condition depending on a field
