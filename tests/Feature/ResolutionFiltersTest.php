@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use Filament\Actions\Exports\ExportColumn;
 use Filament\Actions\Imports\ImportColumn;
+use Filament\Schemas\Components\Component;
 use Filament\Tables\Columns\Column;
 use Filament\Tables\Filters\BaseFilter;
 use Illuminate\Support\Collection;
@@ -261,5 +262,101 @@ describe('exporter and importer builders', function (): void {
             ->map(fn (ImportColumn $column): string => $column->getName())->values()->all();
 
         expect($names)->toContain('custom_fields_cost');
+    });
+});
+
+/**
+ * @return array<int, string>
+ */
+function infolistFieldNames(Component $section): array
+{
+    $property = new ReflectionProperty($section, 'childComponents');
+
+    return array_map(
+        fn (Component $entry): string => $entry->getName(),
+        $property->getValue($section)['default'] ?? [],
+    );
+}
+
+/**
+ * @return array<string, array<int, string>> section heading => entry names
+ */
+function infolistShape(Post $post): array
+{
+    return CustomFields::infolist()->forModel($post)->values()
+        ->mapWithKeys(fn (Component $section): array => [$section->getHeading() => infolistFieldNames($section)])
+        ->all();
+}
+
+describe('infolist builder', function (): void {
+    beforeEach(function (): void {
+        seedTwoSections();
+        $this->post = Post::factory()->create();
+    });
+
+    it('renders every section and field when no filter is registered', function (): void {
+        expect(infolistShape($this->post))->toBe([
+            'Public' => ['custom_fields.headline', 'custom_fields.featured'],
+            'Internal' => ['custom_fields.reviewer_notes', 'custom_fields.cost'],
+        ]);
+    });
+
+    it('removes a filtered section and its fields', function (): void {
+        CustomFieldsRegistry::filterSectionsUsing(fn (Collection $sections, FieldResolutionContext $context): Collection => $sections
+            ->reject(fn (CustomFieldSection $section): bool => $section->code === 'internal'));
+
+        expect(infolistShape($this->post))->toBe([
+            'Public' => ['custom_fields.headline', 'custom_fields.featured'],
+        ]);
+    });
+
+    it('removes a filtered field and drops a section left empty', function (): void {
+        CustomFieldsRegistry::filterFieldsUsing(fn (Collection $fields, FieldResolutionContext $context): Collection => $fields
+            ->reject(fn (CustomField $field): bool => in_array($field->code, ['reviewer_notes', 'cost'], true)));
+
+        expect(infolistShape($this->post))->toBe([
+            'Public' => ['custom_fields.headline', 'custom_fields.featured'],
+        ]);
+    });
+
+    it('passes the record and the infolist kind in the context', function (): void {
+        $seen = null;
+
+        CustomFieldsRegistry::filterFieldsUsing(function (Collection $fields, FieldResolutionContext $context) use (&$seen): Collection {
+            $seen = $context;
+
+            return $fields;
+        });
+
+        CustomFields::infolist()->forModel($this->post)->values();
+
+        expect($seen->kind)->toBe(ResolutionKind::Infolist)
+            ->and($seen->record?->is($this->post))->toBeTrue();
+    });
+
+    it('keeps a field whose condition depends on a filtered-out field in another section', function (): void {
+        $internal = CustomFieldSection::query()->where('code', 'internal')->sole();
+        CustomField::factory()
+            ->conditionallyVisible('headline', VisibilityOperator::EQUALS->value, 'Sale')
+            ->create(['custom_field_section_id' => $internal->id, 'entity_type' => Post::class, 'name' => 'Promo Copy', 'code' => 'promo_copy', 'type' => 'text']);
+
+        $this->post->saveCustomFieldValue(CustomField::query()->where('code', 'headline')->sole(), 'Sale');
+        $this->post->refresh();
+
+        CustomFieldsRegistry::filterFieldsUsing(fn (Collection $fields, FieldResolutionContext $context): Collection => $fields
+            ->reject(fn (CustomField $field): bool => $field->code === 'headline'));
+
+        expect(infolistShape($this->post)['Internal'])->toContain('custom_fields.promo_copy');
+    });
+
+    it('leaves the form builder untouched by a field filter', function (): void {
+        CustomFieldsRegistry::filterFieldsUsing(fn (Collection $fields, FieldResolutionContext $context): Collection => $fields
+            ->reject(fn (CustomField $field): bool => $field->code === 'cost'));
+
+        $names = CustomFields::form()->forModel($this->post)->values()
+            ->flatMap(fn (Component $section): array => infolistFieldNames($section))
+            ->all();
+
+        expect($names)->toContain('custom_fields.cost');
     });
 });
