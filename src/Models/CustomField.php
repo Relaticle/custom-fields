@@ -208,6 +208,13 @@ class CustomField extends Model
         return 'custom_fields.'.$this->code;
     }
 
+    public function setting(string $key, mixed $default = null): mixed
+    {
+        $additional = $this->settings->additional;
+
+        return array_key_exists($key, $additional) ? $additional[$key] : $default;
+    }
+
     public function getCurrencySettings(): CurrencyFieldSettingsData
     {
         $additional = $this->settings->additional ?? [];

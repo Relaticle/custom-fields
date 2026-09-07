@@ -88,6 +88,13 @@ class CustomFieldSection extends Model
         return $this->hasMany(CustomFields::customFieldModel());
     }
 
+    public function setting(string $key, mixed $default = null): mixed
+    {
+        $extra = $this->settings->extra;
+
+        return array_key_exists($key, $extra) ? $extra[$key] : $default;
+    }
+
     /**
      * @param  Builder<self>  $query
      * @return Builder<self>
