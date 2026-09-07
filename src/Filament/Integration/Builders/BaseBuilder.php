@@ -9,8 +9,10 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;
 use InvalidArgumentException;
+use LogicException;
 use Relaticle\CustomFields\CustomFields;
 use Relaticle\CustomFields\Enums\CustomFieldsFeature;
+use Relaticle\CustomFields\Enums\ResolutionKind;
 use Relaticle\CustomFields\FeatureSystem\FeatureManager;
 use Relaticle\CustomFields\Models\Contracts\HasCustomFields;
 use Relaticle\CustomFields\Models\CustomField;
@@ -31,6 +33,12 @@ abstract class BaseBuilder
 
     /** @var array<int, int> */
     protected array $onlySections = [];
+
+    /** @var Collection<int, CustomFieldSection>|null */
+    private ?Collection $loadedSections = null;
+
+    /** @var Collection<int, CustomField>|null */
+    private ?Collection $loadedFields = null;
 
     public function forSchema(Schema $schema): static
     {
@@ -68,6 +76,9 @@ abstract class BaseBuilder
                 ->orderBy('sort_order');
         }
 
+        $this->loadedSections = null;
+        $this->loadedFields = null;
+
         return $this;
     }
 
@@ -75,12 +86,18 @@ abstract class BaseBuilder
     {
         $this->except = $fieldCodes;
 
+        $this->loadedSections = null;
+        $this->loadedFields = null;
+
         return $this;
     }
 
     public function only(array $fieldCodes): static
     {
         $this->only = $fieldCodes;
+
+        $this->loadedSections = null;
+        $this->loadedFields = null;
 
         return $this;
     }
@@ -106,6 +123,9 @@ abstract class BaseBuilder
     {
         $this->onlySections = $sectionIds;
 
+        $this->loadedSections = null;
+        $this->loadedFields = null;
+
         return $this;
     }
 
@@ -119,30 +139,33 @@ abstract class BaseBuilder
             return collect();
         }
 
-        /** @var Collection<int, CustomFieldSection> $sections */
-        $sections = $this->sections
-            ->when($this->onlySections !== [], fn (Builder $query): Builder => $query->whereIn(
-                $this->sections->getModel()->getQualifiedKeyName(),
-                $this->onlySections
-            ))
-            ->with(['fields' => function (mixed $query): mixed {
-                return $query
-                    ->when($this instanceof TableBuilder, fn (CustomFieldQueryBuilder $q, bool $condition): CustomFieldQueryBuilder => $q->visibleInList())
-                    ->when($this instanceof InfolistBuilder, fn (CustomFieldQueryBuilder $q, bool $condition): CustomFieldQueryBuilder => $q->visibleInView())
-                    ->when($this->only !== [], fn (CustomFieldQueryBuilder $q, bool $condition): CustomFieldQueryBuilder => $q->whereIn('code', $this->only))
-                    ->when($this->except !== [], fn (CustomFieldQueryBuilder $q, bool $condition): CustomFieldQueryBuilder => $q->whereNotIn('code', $this->except))
-                    ->with('options')
-                    ->orderBy('sort_order');
-            }])
-            ->get();
+        return $this->loadedSections ??= (function (): Collection {
+            /** @var Collection<int, CustomFieldSection> $sections */
+            $sections = $this->sections
+                ->when($this->onlySections !== [], fn (Builder $query): Builder => $query->whereIn(
+                    $this->sections->getModel()->getQualifiedKeyName(),
+                    $this->onlySections
+                ))
+                ->with(['fields' => function (mixed $query): mixed {
+                    return $query
+                        ->when($this instanceof TableBuilder, fn (CustomFieldQueryBuilder $q, bool $condition): CustomFieldQueryBuilder => $q->visibleInList())
+                        ->when($this instanceof InfolistBuilder, fn (CustomFieldQueryBuilder $q, bool $condition): CustomFieldQueryBuilder => $q->visibleInView())
+                        ->when($this->only !== [], fn (CustomFieldQueryBuilder $q, bool $condition): CustomFieldQueryBuilder => $q->whereIn('code', $this->only))
+                        ->when($this->except !== [], fn (CustomFieldQueryBuilder $q, bool $condition): CustomFieldQueryBuilder => $q->whereNotIn('code', $this->except))
+                        ->with('options')
+                        ->orderBy('sort_order');
+                }])
+                ->get();
 
-        return $sections
-            ->map(function (CustomFieldSection $section): CustomFieldSection {
-                $section->setRelation('fields', $section->fields->filter(fn (CustomField $field): bool => $field->typeData !== null));
+            return $sections
+                ->map(function (CustomFieldSection $section): CustomFieldSection {
+                    $section->setRelation('fields', $section->fields->filter(fn (CustomField $field): bool => $field->typeData !== null));
 
-                return $section;
-            })
-            ->filter(fn (CustomFieldSection $section) => $section->fields->isNotEmpty());
+                    return $section;
+                })
+                ->filter(fn (CustomFieldSection $section) => $section->fields->isNotEmpty())
+                ->values();
+        })();
     }
 
     /**
@@ -164,7 +187,7 @@ abstract class BaseBuilder
             return collect();
         }
 
-        return CustomFields::newCustomFieldModel()::forMorphEntity($this->model::class)
+        return $this->loadedFields ??= CustomFields::newCustomFieldModel()::forMorphEntity($this->model::class)
             ->when($this instanceof TableBuilder, fn (CustomFieldQueryBuilder $q): CustomFieldQueryBuilder => $q->visibleInList())
             ->when($this instanceof InfolistBuilder, fn (CustomFieldQueryBuilder $q): CustomFieldQueryBuilder => $q->visibleInView())
             ->when($this->only !== [], fn (CustomFieldQueryBuilder $q): CustomFieldQueryBuilder => $q->whereIn('code', $this->only))
@@ -172,7 +195,8 @@ abstract class BaseBuilder
             ->with('options')
             ->orderBy('sort_order')
             ->get()
-            ->filter(fn (CustomField $field): bool => $field->typeData !== null);
+            ->filter(fn (CustomField $field): bool => $field->typeData !== null)
+            ->values();
     }
 
     /**
@@ -188,6 +212,106 @@ abstract class BaseBuilder
         }
 
         return $this->getFilteredSections()->flatMap(
+            fn (CustomFieldSection $section): Collection => $section->fields
+        );
+    }
+
+    protected function resolutionKind(): ResolutionKind
+    {
+        return match (true) {
+            $this instanceof FormBuilder => ResolutionKind::Form,
+            $this instanceof InfolistBuilder => ResolutionKind::Infolist,
+            $this instanceof TableBuilder => ResolutionKind::Table,
+            $this instanceof ExporterBuilder => ResolutionKind::Exporter,
+            $this instanceof ImporterBuilder => ResolutionKind::Importer,
+            default => throw new LogicException('Unhandled builder: '.static::class),
+        };
+    }
+
+    protected function resolutionContext(): FieldResolutionContext
+    {
+        return new FieldResolutionContext(
+            entityType: $this->model::class,
+            kind: $this->resolutionKind(),
+            record: $this->model->exists ? $this->model : null,
+        );
+    }
+
+    /**
+     * @param  Collection<int, CustomField>  $fields
+     * @return Collection<int, CustomField>
+     */
+    protected function applyFieldFilters(Collection $fields): Collection
+    {
+        $filters = CustomFields::fieldFilters();
+
+        if ($filters === [] || $fields->isEmpty()) {
+            return $fields->values();
+        }
+
+        $context = $this->resolutionContext();
+
+        foreach ($filters as $filter) {
+            $fields = $filter($fields, $context);
+        }
+
+        return $fields->values();
+    }
+
+    /**
+     * @param  Collection<int, CustomFieldSection>  $sections
+     * @return Collection<int, CustomFieldSection>
+     */
+    protected function applySectionFilters(Collection $sections): Collection
+    {
+        $filters = CustomFields::sectionFilters();
+
+        if ($filters === [] || $sections->isEmpty()) {
+            return $sections->values();
+        }
+
+        $context = $this->resolutionContext();
+
+        foreach ($filters as $filter) {
+            $sections = $filter($sections, $context);
+        }
+
+        return $sections->values();
+    }
+
+    /**
+     * Sections after consumer filters, each carrying only the fields that survived the field
+     * filters. Sections left with no fields are dropped, so a filtered-out section vanishes
+     * from every builder that renders section containers.
+     *
+     * @return Collection<int, CustomFieldSection>
+     */
+    protected function getResolvedSections(): Collection
+    {
+        return $this->applySectionFilters($this->getFilteredSections())
+            ->map(function (CustomFieldSection $section): CustomFieldSection {
+                $resolved = clone $section;
+                $resolved->setRelation('fields', $this->applyFieldFilters($section->fields));
+
+                return $resolved;
+            })
+            ->filter(fn (CustomFieldSection $section): bool => $section->fields->isNotEmpty())
+            ->values();
+    }
+
+    /**
+     * The fields a builder renders. Conditional visibility must still be evaluated against
+     * getAllFields(), because a removed field can be the input of another field's condition.
+     *
+     * @return Collection<int, CustomField>
+     */
+    protected function getResolvedFields(): Collection
+    {
+        if (! FeatureManager::isEnabled(CustomFieldsFeature::SYSTEM_SECTIONS)) {
+            return $this->applyFieldFilters($this->getFieldsDirectly());
+        }
+
+        return $this->getResolvedSections()->flatMap(
             fn (CustomFieldSection $section): Collection => $section->fields
         );
     }

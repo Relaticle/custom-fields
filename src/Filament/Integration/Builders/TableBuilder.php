@@ -27,10 +27,9 @@ final class TableBuilder extends BaseBuilder
         $fieldColumnFactory = app(FieldColumnFactory::class);
         $backendVisibilityService = app(BackendVisibilityService::class);
 
-        // Get all fields using the most efficient method
         $allFields = $this->getAllFields();
 
-        return $allFields
+        return $this->getResolvedFields()
             ->filter(fn (CustomField $field): bool => $field->typeData->tableColumn !== null)
             ->map(function (CustomField $field) use ($fieldColumnFactory, $backendVisibilityService, $allFields) {
                 $column = $fieldColumnFactory->create($field);
@@ -70,7 +69,7 @@ final class TableBuilder extends BaseBuilder
 
         $fieldFilterFactory = app(FieldFilterFactory::class);
 
-        return $this->getAllFields()
+        return $this->getResolvedFields()
             ->filter(fn (CustomField $field): bool => $field->isFilterable() && $field->typeData->tableFilter !== null)
             ->map(fn (CustomField $field) => $fieldFilterFactory->create($field))
             ->filter()
