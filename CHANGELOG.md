@@ -2,6 +2,40 @@
 
 All notable changes to `custom-fields` will be documented in this file.
 
+## Unreleased
+
+### Resolution filters and a field-form schema seam
+
+A consumer can now hide specific fields or sections from the Table, Infolist and
+Exporter builders without the package knowing why. `CustomFields::filterFieldsUsing()`
+and `CustomFields::filterSectionsUsing()` register a callback that receives a
+`FieldResolutionContext` (entity type, builder kind, and the record when there is one)
+alongside the collection to narrow. Filters do not reach the Form or Importer builder:
+`saveCustomFields()` clears fields absent from its payload, and a filtered form would
+erase hidden values on save. Conditional visibility still evaluates against every field,
+so a field a filter removes can still drive another field's visibility condition. See
+[Extending](/essentials/extending) for the full walkthrough.
+
+`FieldForm::extendSchemaUsing()` mirrors the existing `SectionForm::extendSchemaUsing()`
+hook, letting a consumer append or modify components on the field create/edit form. It
+receives the field's section rather than an entity type, since a field-level extension
+usually needs to look at its section.
+
+`CustomField::setting()` and `CustomFieldSection::setting()` read a consumer-defined key
+out of `settings->additional` / `settings->extra` with a default, so a filter or schema
+extension no longer has to reach into the settings array directly.
+
+### Fixed
+
+- Editing a section or a field through a structural (non-flat) settings submission no
+  longer erases a settings key that has no corresponding form component. The merge is
+  now recursive over associative arrays, so an unrendered key survives an edit while a
+  submitted empty list or null scalar still clears the value it targets.
+- The Infolist builder now evaluates conditional visibility against every field for the
+  entity type, matching the Form and Table builders. Previously it evaluated a section's
+  conditions against only that section's own fields, so a condition depending on a field
+  in another section was silently ignored.
+
 ## v3.9.0 - 2026-08-28
 
 <!-- Release notes generated using configuration in .github/release.yml at 3.x -->
