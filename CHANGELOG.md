@@ -14,7 +14,7 @@ alongside the collection to narrow. Filters do not reach the Form or Importer bu
 `saveCustomFields()` clears fields absent from its payload, and a filtered form would
 erase hidden values on save. Conditional visibility still evaluates against every field,
 so a field a filter removes can still drive another field's visibility condition. See
-[Extending](/essentials/extending) for the full walkthrough.
+[Extending](https://relaticle.github.io/custom-fields/essentials/extending) for the full walkthrough.
 
 `FieldForm::extendSchemaUsing()` mirrors the existing `SectionForm::extendSchemaUsing()`
 hook, letting a consumer append or modify components on the field create/edit form. It
