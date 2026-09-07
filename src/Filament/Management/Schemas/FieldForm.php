@@ -45,6 +45,9 @@ class FieldForm implements FormInterface
     /** @var ?Closure(?CustomFieldSection): ?Closure */
     private static ?Closure $uniqueCodeRuleModifierResolver = null;
 
+    /** @var array<int, Closure(array<int, Component>, ?CustomFieldSection): array<int, Component>> */
+    private static array $schemaExtensions = [];
+
     /**
      * Register a resolver that scopes the field-name uniqueness rule beyond the default
      * entity-type (+ tenant) scope. The resolver receives the section the field belongs to
@@ -73,6 +76,25 @@ class FieldForm implements FormInterface
     public static function resolveUniqueCodeRuleModifierUsing(?Closure $resolver): void
     {
         self::$uniqueCodeRuleModifierResolver = $resolver;
+    }
+
+    /**
+     * Register a callback that can append to or modify the field form's general schema.
+     * Applies to the create and edit field modals in both sectioned and flat management
+     * modes. The callback receives the current schema and the field's section (the create
+     * target, or the edited field's section; null in flat mode). Register once, from a
+     * service provider; extensions persist until flushed.
+     *
+     * @param  Closure(array<int, Component>, ?CustomFieldSection): array<int, Component>  $callback
+     */
+    public static function extendSchemaUsing(Closure $callback): void
+    {
+        self::$schemaExtensions[] = $callback;
+    }
+
+    public static function flushSchemaExtensions(): void
+    {
+        self::$schemaExtensions = [];
     }
 
     private static function resolveUniqueNameRuleModifier(?CustomFieldSection $section): ?Closure
@@ -568,6 +590,10 @@ class FieldForm implements FormInterface
             ->required();
 
         $generalSchema[] = $optionsRepeater;
+
+        foreach (self::$schemaExtensions as $extension) {
+            $generalSchema = $extension($generalSchema, $section);
+        }
 
         // Build additional tabs based on feature flags
         $additionalTabs = [];
