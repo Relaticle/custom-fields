@@ -24,9 +24,10 @@ it('reads a field setting from the additional bag with a default', function (): 
 
 it('reads a section setting from the extra bag with a default', function (): void {
     $section = CustomFieldSection::factory()->forEntityType(Post::class)->create([
-        'settings' => ['extra' => ['hidden_in_panels' => ['portal']]],
+        'settings' => ['extra' => ['hidden_in_panels' => ['portal'], 'nullable_flag' => null]],
     ]);
 
     expect($section->setting('hidden_in_panels'))->toBe(['portal'])
-        ->and($section->setting('missing', false))->toBeFalse();
+        ->and($section->setting('missing', false))->toBeFalse()
+        ->and($section->setting('nullable_flag', 'fallback'))->toBeNull();
 });
