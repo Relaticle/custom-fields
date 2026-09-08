@@ -16,6 +16,7 @@
 - [Import/Export](https://relaticle.github.io/custom-fields/raw/essentials/import-export.md): Learn how to import and export custom field data with import/export actions
 - [Data Model](https://relaticle.github.io/custom-fields/raw/essentials/data-model.md): Understanding the Custom Fields database architecture
 - [Builder Scoping](https://relaticle.github.io/custom-fields/raw/essentials/builder-scoping.md): Scope custom-field resolution to specific sections, and hook into code-uniqueness resolution
+- [Extending](https://relaticle.github.io/custom-fields/raw/essentials/extending.md): Filter which fields and sections a builder resolves, and extend the field form's schema
 - [Support](https://relaticle.github.io/custom-fields/raw/community/support.md): Get help with Custom Fields
 - [Contributing](https://relaticle.github.io/custom-fields/raw/community/contributing.md): How to contribute to Custom Fields
 - [License](https://relaticle.github.io/custom-fields/raw/community/license.md): Dual-licensed under AGPL-3.0 for open source and commercial licenses for private applications
