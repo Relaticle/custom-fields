@@ -23,7 +23,7 @@ usually needs to look at its section.
 
 `CustomField::setting()` and `CustomFieldSection::setting()` read a consumer-defined key
 out of `settings->additional` / `settings->extra` with a default, so a filter or schema
-extension no longer has to reach into the settings array directly.
+extension no longer has to reach into the settings array directly. Both accessors support Laravel's dot notation and preserve stored nulls.
 
 ### Fixed
 
@@ -45,6 +45,10 @@ extension no longer has to reach into the settings array directly.
   weight that would reappear the next time the mode changed.
 - The Infolist builder returns an empty collection again when it was never given a model,
   instead of reaching for the model to evaluate visibility.
+- Infolist conditions use their own section's fields when multiple sections share a field code.
+  Fields from other sections remain available for cross-section conditions.
+- Reusing `onlySections()` replaces the previous scope, including when an empty array clears it.
+- Section filters receive separate field collections, so modifying a collection cannot corrupt subsequent resolution.
 
 ## v3.9.0 - 2026-08-28
 

@@ -282,10 +282,6 @@ final class CustomFields
     }
 
     /**
-     * Register a filter that narrows which fields the Table, Infolist and Exporter builders
-     * render. The unfiltered set still drives conditional visibility. Filters run in
-     * registration order and receive the builder's context.
-     *
      * @param  Closure(Collection<int, CustomField>, FieldResolutionContext): Collection<int, CustomField>  $callback
      */
     public static function filterFieldsUsing(Closure $callback): void
@@ -294,9 +290,6 @@ final class CustomFields
     }
 
     /**
-     * Register a filter that narrows which sections the Infolist builder renders and which
-     * sections contribute fields to the Table and Exporter builders.
-     *
      * @param  Closure(Collection<int, CustomFieldSection>, FieldResolutionContext): Collection<int, CustomFieldSection>  $callback
      */
     public static function filterSectionsUsing(Closure $callback): void

@@ -8,6 +8,7 @@ use Filament\Infolists\Components\Entry;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;
 use Relaticle\CustomFields\Enums\CustomFieldsFeature;
+use Relaticle\CustomFields\Enums\ResolutionKind;
 use Relaticle\CustomFields\FeatureSystem\FeatureManager;
 use Relaticle\CustomFields\Filament\Integration\Factories\FieldInfolistsFactory;
 use Relaticle\CustomFields\Filament\Integration\Factories\SectionInfolistsFactory;
@@ -18,6 +19,8 @@ use Relaticle\CustomFields\Services\Visibility\BackendVisibilityService;
 
 final class InfolistBuilder extends BaseBuilder
 {
+    protected ResolutionKind $resolutionKind = ResolutionKind::Infolist;
+
     private bool $hiddenLabels = false;
 
     private bool $visibleWhenFilled = false;
@@ -61,13 +64,18 @@ final class InfolistBuilder extends BaseBuilder
 
         $allFields = $this->getAllFields();
 
-        // Nothing to render, and the visibility pass below would reach for a model this
-        // builder was never given.
         if ($allFields->isEmpty()) {
             return collect();
         }
 
-        $visible = $backendVisibilityService->getVisibleFields($this->model, $allFields)->keyBy(fn (CustomField $field): int|string => $field->getKey());
+        $fieldsByCode = $allFields->keyBy('code');
+        $visible = $allFields->groupBy('custom_field_section_id')
+            ->flatMap(function (Collection $fields) use ($backendVisibilityService, $fieldsByCode): Collection {
+                $contextFields = $fieldsByCode->replace($fields->keyBy('code'))->values();
+
+                return $fields->filter(fn (CustomField $field): bool => $backendVisibilityService->isFieldVisible($this->model, $field, $contextFields));
+            })
+            ->keyBy(fn (CustomField $field): int|string => $field->getKey());
 
         $renderable = fn (Collection $fields): Collection => $fields
             ->filter(fn (CustomField $field): bool => $visible->has($field->getKey()))

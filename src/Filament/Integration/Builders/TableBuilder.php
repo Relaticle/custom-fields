@@ -10,6 +10,7 @@ namespace Relaticle\CustomFields\Filament\Integration\Builders;
 use Closure;
 use Illuminate\Support\Collection;
 use Relaticle\CustomFields\Enums\CustomFieldsFeature;
+use Relaticle\CustomFields\Enums\ResolutionKind;
 use Relaticle\CustomFields\FeatureSystem\FeatureManager;
 use Relaticle\CustomFields\Filament\Integration\Factories\FieldColumnFactory;
 use Relaticle\CustomFields\Filament\Integration\Factories\FieldFilterFactory;
@@ -18,6 +19,8 @@ use Relaticle\CustomFields\Services\Visibility\BackendVisibilityService;
 
 final class TableBuilder extends BaseBuilder
 {
+    protected ResolutionKind $resolutionKind = ResolutionKind::Table;
+
     public function columns(): Collection
     {
         if (! FeatureManager::isEnabled(CustomFieldsFeature::UI_TABLE_COLUMNS)) {

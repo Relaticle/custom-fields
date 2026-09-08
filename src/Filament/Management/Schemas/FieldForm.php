@@ -79,12 +79,6 @@ class FieldForm implements FormInterface
     }
 
     /**
-     * Register a callback that can append to or modify the field form's general schema.
-     * Applies to the create and edit field modals in both sectioned and flat management
-     * modes. The callback receives the current schema and the field's section (the create
-     * target, or the edited field's section; null in flat mode). Register once, from a
-     * service provider; extensions persist until flushed.
-     *
      * @param  Closure(array<int, Component>, ?CustomFieldSection): array<int, Component>  $callback
      */
     public static function extendSchemaUsing(Closure $callback): void

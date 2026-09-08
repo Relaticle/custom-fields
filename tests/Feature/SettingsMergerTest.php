@@ -2,22 +2,28 @@
 
 declare(strict_types=1);
 
+use Filament\Forms\Components\CheckboxList;
 use Filament\Forms\Components\Toggle;
 use Relaticle\CustomFields\Enums\CustomFieldsFeature;
 use Relaticle\CustomFields\Enums\VisibilityMode;
 use Relaticle\CustomFields\Enums\VisibilityOperator;
 use Relaticle\CustomFields\FeatureSystem\FeatureConfigurator;
+use Relaticle\CustomFields\Filament\Management\Schemas\FieldForm;
 use Relaticle\CustomFields\Filament\Management\Schemas\SectionForm;
 use Relaticle\CustomFields\Livewire\ManageCustomField;
 use Relaticle\CustomFields\Livewire\ManageCustomFieldSection;
+use Relaticle\CustomFields\Livewire\ManageFieldsTable;
 use Relaticle\CustomFields\Models\CustomField;
 use Relaticle\CustomFields\Models\CustomFieldSection;
 use Relaticle\CustomFields\Support\SettingsMerger;
 use Relaticle\CustomFields\Tests\Fixtures\Models\Post;
 
 afterEach(function (): void {
+    FieldForm::flushSchemaExtensions();
     SectionForm::flushSchemaExtensions();
 });
+
+mutates(SettingsMerger::class, ManageCustomField::class, ManageCustomFieldSection::class, ManageFieldsTable::class);
 
 describe('merge semantics', function (): void {
     it('preserves a stored key the submission does not mention', function (): void {
@@ -95,6 +101,43 @@ describe('section edit', function (): void {
 });
 
 describe('field edit', function (): void {
+    it('replaces an extension list and preserves other settings in flat management', function (array $panels): void {
+        config()->set('custom-fields.features', FeatureConfigurator::configure()->disable(CustomFieldsFeature::SYSTEM_SECTIONS));
+
+        $field = CustomField::factory()->ofType('currency')->create([
+            'entity_type' => Post::class,
+            'name' => 'Cost',
+            'code' => 'cost',
+            'settings' => ['additional' => [
+                'currency_code' => 'USD',
+                'hidden_in_panels' => ['portal', 'admin'],
+                'integration_key' => 'accounting',
+            ]],
+        ]);
+
+        FieldForm::extendSchemaUsing(fn (array $schema): array => [
+            ...$schema,
+            CheckboxList::make('settings.additional.hidden_in_panels')
+                ->options(['portal' => 'Portal', 'admin' => 'Admin']),
+        ]);
+
+        livewire(ManageFieldsTable::class, ['entityType' => Post::class])
+            ->mountAction('editField', arguments: ['fieldId' => $field->id])
+            ->setActionData([
+                'name' => 'Annual Cost',
+                'settings' => ['additional' => ['currency_code' => 'EUR']],
+            ])
+            ->set('mountedActions.0.data.settings.additional.hidden_in_panels', $panels)
+            ->callMountedAction()
+            ->assertHasNoActionErrors();
+
+        expect($field->refresh()->name)->toBe('Annual Cost')
+            ->and($field->settings->additional)
+            ->toHaveKey('currency_code', 'EUR')
+            ->toHaveKey('hidden_in_panels', $panels)
+            ->toHaveKey('integration_key', 'accounting');
+    })->with(['shortened' => [['portal']], 'cleared' => [[]]]);
+
     it('clears conditions when the edit switches the field to always visible', function (): void {
         $section = CustomFieldSection::factory()->forEntityType(Post::class)->create(['code' => 'main']);
         CustomField::factory()->create([

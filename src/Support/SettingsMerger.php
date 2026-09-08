@@ -7,9 +7,6 @@ namespace Relaticle\CustomFields\Support;
 final class SettingsMerger
 {
     /**
-     * Recurse into associative arrays so a partial submission cannot erase sibling keys, and
-     * replace everything else so an emptied list or a nulled scalar still clears.
-     *
      * @param  array<string, mixed>  $stored
      * @param  array<string, mixed>  $submitted
      * @return array<string, mixed>

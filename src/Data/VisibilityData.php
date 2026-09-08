@@ -31,8 +31,6 @@ class VisibilityData extends Data
         public ?DataCollection $conditions = null,
         public bool $alwaysSave = false,
     ) {
-        // Conditions only mean something under a conditional mode. Dropping them here keeps a
-        // stored record self-consistent whatever wrote it: a form, an import, or a consumer.
         if (! $this->mode->requiresConditions()) {
             $this->conditions = null;
         }

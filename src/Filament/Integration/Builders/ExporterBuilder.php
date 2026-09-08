@@ -11,6 +11,7 @@ use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Contracts\Container\CircularDependencyException;
 use Illuminate\Support\Collection;
 use Relaticle\CustomFields\Contracts\ValueResolvers;
+use Relaticle\CustomFields\Enums\ResolutionKind;
 use Relaticle\CustomFields\Facades\CustomFieldsType;
 use Relaticle\CustomFields\Filament\Integration\Factories\ExportColumnFactory;
 use Relaticle\CustomFields\Models\CustomField;
@@ -18,6 +19,8 @@ use Relaticle\CustomFields\Services\Visibility\BackendVisibilityService;
 
 final class ExporterBuilder extends BaseBuilder
 {
+    protected ResolutionKind $resolutionKind = ResolutionKind::Exporter;
+
     /**
      * @throws BindingResolutionException
      * @throws CircularDependencyException

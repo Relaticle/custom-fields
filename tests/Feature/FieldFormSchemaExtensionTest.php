@@ -11,6 +11,8 @@ use Relaticle\CustomFields\Models\CustomField;
 use Relaticle\CustomFields\Models\CustomFieldSection;
 use Relaticle\CustomFields\Tests\Fixtures\Models\Post;
 
+mutates(FieldForm::class);
+
 afterEach(function (): void {
     FieldForm::flushSchemaExtensions();
 });
@@ -29,14 +31,11 @@ function generalTabStatePaths(): array
 {
     $tabs = FieldForm::schema()[0];
 
-    $tabsProperty = new ReflectionProperty($tabs, 'childComponents');
-    $generalTab = $tabsProperty->getValue($tabs)['default'][0];
-
-    $tabProperty = new ReflectionProperty($generalTab, 'childComponents');
+    $generalTab = $tabs->getDefaultChildComponents()[0];
 
     return array_map(
         fn (Component $component): string => $component->getStatePath(isAbsolute: false) ?? class_basename($component),
-        $tabProperty->getValue($generalTab)['default'],
+        $generalTab->getDefaultChildComponents(),
     );
 }
 

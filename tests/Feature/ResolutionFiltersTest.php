@@ -15,10 +15,14 @@ use Relaticle\CustomFields\Enums\ResolutionKind;
 use Relaticle\CustomFields\Enums\VisibilityOperator;
 use Relaticle\CustomFields\Facades\CustomFields;
 use Relaticle\CustomFields\FeatureSystem\FeatureConfigurator;
+use Relaticle\CustomFields\Filament\Integration\Builders\BaseBuilder;
 use Relaticle\CustomFields\Filament\Integration\Builders\FieldResolutionContext;
+use Relaticle\CustomFields\Filament\Integration\Builders\InfolistBuilder;
 use Relaticle\CustomFields\Models\CustomField;
 use Relaticle\CustomFields\Models\CustomFieldSection;
 use Relaticle\CustomFields\Tests\Fixtures\Models\Post;
+
+mutates(CustomFieldsRegistry::class, BaseBuilder::class, InfolistBuilder::class);
 
 afterEach(function (): void {
     CustomFieldsRegistry::flushResolutionFilters();
@@ -59,8 +63,6 @@ describe('resolution filter registry', function (): void {
 });
 
 /**
- * Two sections on Post, two text fields each, plus one select field so the table has a filter.
- *
  * @return array{public: CustomFieldSection, internal: CustomFieldSection}
  */
 function seedTwoSections(): array
@@ -200,6 +202,19 @@ describe('table builder', function (): void {
             ->toBe(['custom_fields.headline', 'custom_fields.featured', 'custom_fields.reviewer_notes']);
     });
 
+    it('replaces section constraints when a builder is reused', function (): void {
+        $public = CustomFieldSection::query()->where('code', 'public')->sole();
+        $internal = CustomFieldSection::query()->where('code', 'internal')->sole();
+        $builder = CustomFields::table()->forModel(Post::class)->onlySections([$public->id]);
+
+        expect(componentNames($builder->columns()))->toBe(['custom_fields.headline', 'custom_fields.featured']);
+
+        expect(componentNames($builder->onlySections([$internal->id])->columns()))
+            ->toBe(['custom_fields.reviewer_notes', 'custom_fields.cost']);
+
+        expect(componentNames($builder->onlySections([])->columns()))->toHaveCount(4);
+    });
+
     it('keeps getAllFields intact when a filter mutates its input in place', function (): void {
         config()->set('custom-fields.features', FeatureConfigurator::configure()
             ->enable(CustomFieldsFeature::UI_TABLE_COLUMNS, CustomFieldsFeature::FIELD_CONDITIONAL_VISIBILITY));
@@ -218,6 +233,23 @@ describe('table builder', function (): void {
 
         expect($method->invoke($builder)->pluck('code')->all())
             ->toContain('cost');
+    });
+
+    it('keeps section field collections intact when a filter mutates them', function (): void {
+        CustomFieldsRegistry::filterSectionsUsing(fn (Collection $sections): Collection => $sections
+            ->each(function (CustomFieldSection $section): void {
+                $section->fields->shift();
+            }));
+
+        $builder = CustomFields::table()->forModel(Post::class);
+
+        expect(componentNames($builder->columns()))->toBe(['custom_fields.featured', 'custom_fields.cost'])
+            ->and(componentNames($builder->columns()))->toBe(['custom_fields.featured', 'custom_fields.cost']);
+
+        CustomFieldsRegistry::flushResolutionFilters();
+
+        expect(componentNames($builder->columns()))
+            ->toBe(['custom_fields.headline', 'custom_fields.featured', 'custom_fields.reviewer_notes', 'custom_fields.cost']);
     });
 });
 
@@ -292,11 +324,9 @@ describe('exporter and importer builders', function (): void {
  */
 function infolistFieldNames(Component $section): array
 {
-    $property = new ReflectionProperty($section, 'childComponents');
-
     return array_map(
         fn (Component $entry): string => $entry->getName(),
-        $property->getValue($section)['default'] ?? [],
+        $section->getDefaultChildComponents(),
     );
 }
 
@@ -383,6 +413,35 @@ describe('infolist builder', function (): void {
 
         expect(infolistShape($this->post)['Public'])->toContain('custom_fields.promo_copy')
             ->and(infolistShape($this->post)['Internal'])->not->toContain('custom_fields.promo_copy');
+    });
+
+    it('evaluates duplicate condition codes using the field from the same section', function (): void {
+        foreach (['public' => 'Published', 'internal' => 'Reviewed'] as $sectionCode => $status) {
+            $section = CustomFieldSection::query()->where('code', $sectionCode)->sole();
+            $statusField = CustomField::factory()->create([
+                'custom_field_section_id' => $section->id,
+                'entity_type' => Post::class,
+                'name' => 'Status',
+                'code' => 'status',
+                'type' => 'text',
+            ]);
+            CustomField::factory()
+                ->conditionallyVisible('status', VisibilityOperator::EQUALS->value, $status)
+                ->create([
+                    'custom_field_section_id' => $section->id,
+                    'entity_type' => Post::class,
+                    'name' => 'Summary',
+                    'code' => 'summary',
+                    'type' => 'text',
+                ]);
+
+            $this->post->saveCustomFieldValue($statusField, $status);
+        }
+
+        $this->post->refresh();
+
+        expect(infolistShape($this->post)['Public'])->toContain('custom_fields.summary')
+            ->and(infolistShape($this->post)['Internal'])->toContain('custom_fields.summary');
     });
 
     it('returns no entries from a builder that was never given a model', function (): void {
