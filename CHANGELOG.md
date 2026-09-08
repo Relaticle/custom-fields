@@ -39,6 +39,12 @@ extension no longer has to reach into the settings array directly.
   entity type, matching the Form and Table builders. Previously it evaluated a section's
   conditions against only that section's own fields, so a condition depending on a field
   in another section was silently ignored.
+- `VisibilityData` drops conditions whenever the mode does not use them, so switching a
+  field or section back to Always visible no longer leaves the old conditions sitting in
+  the row. Every reader already gated on the mode, so the stored conditions were dead
+  weight that would reappear the next time the mode changed.
+- The Infolist builder returns an empty collection again when it was never given a model,
+  instead of reaching for the model to evaluate visibility.
 
 ## v3.9.0 - 2026-08-28
 
