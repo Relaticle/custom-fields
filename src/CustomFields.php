@@ -5,10 +5,8 @@ declare(strict_types=1);
 namespace Relaticle\CustomFields;
 
 use Closure;
-use Illuminate\Support\Collection;
 use Relaticle\CustomFields\Enums\ImportDateFormat;
 use Relaticle\CustomFields\Enums\ImportNumberFormat;
-use Relaticle\CustomFields\Filament\Integration\Builders\FieldResolutionContext;
 use Relaticle\CustomFields\Models\CustomField;
 use Relaticle\CustomFields\Models\CustomFieldOption;
 use Relaticle\CustomFields\Models\CustomFieldSection;
@@ -50,16 +48,6 @@ final class CustomFields
      * When null, each component uses its own default format.
      */
     public static ?string $dateTimeDisplayFormat = null;
-
-    /**
-     * @var array<int, Closure(Collection<int, CustomField>, FieldResolutionContext): Collection<int, CustomField>>
-     */
-    private static array $fieldFilters = [];
-
-    /**
-     * @var array<int, Closure(Collection<int, CustomFieldSection>, FieldResolutionContext): Collection<int, CustomFieldSection>>
-     */
-    private static array $sectionFilters = [];
 
     /**
      * Get the name of the custom field model used by the application.
@@ -279,47 +267,5 @@ final class CustomFields
     public static function resolveTenantUsing(Closure $callback): void
     {
         TenantContextService::setTenantResolver($callback);
-    }
-
-    /**
-     * @param  Closure(Collection<int, CustomField>, FieldResolutionContext): Collection<int, CustomField>  $callback
-     */
-    public static function filterFieldsUsing(Closure $callback): void
-    {
-        self::$fieldFilters[] = $callback;
-    }
-
-    /**
-     * @param  Closure(Collection<int, CustomFieldSection>, FieldResolutionContext): Collection<int, CustomFieldSection>  $callback
-     */
-    public static function filterSectionsUsing(Closure $callback): void
-    {
-        self::$sectionFilters[] = $callback;
-    }
-
-    /**
-     * @internal
-     *
-     * @return array<int, Closure(Collection<int, CustomField>, FieldResolutionContext): Collection<int, CustomField>>
-     */
-    public static function fieldFilters(): array
-    {
-        return self::$fieldFilters;
-    }
-
-    /**
-     * @internal
-     *
-     * @return array<int, Closure(Collection<int, CustomFieldSection>, FieldResolutionContext): Collection<int, CustomFieldSection>>
-     */
-    public static function sectionFilters(): array
-    {
-        return self::$sectionFilters;
-    }
-
-    public static function flushResolutionFilters(): void
-    {
-        self::$fieldFilters = [];
-        self::$sectionFilters = [];
     }
 }

@@ -8,8 +8,8 @@ use Filament\Infolists\Components\Entry;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;
 use Relaticle\CustomFields\Enums\CustomFieldsFeature;
-use Relaticle\CustomFields\Enums\ResolutionKind;
 use Relaticle\CustomFields\FeatureSystem\FeatureManager;
+use Relaticle\CustomFields\Filament\Integration\Builders\Concerns\ResolvesFields;
 use Relaticle\CustomFields\Filament\Integration\Factories\FieldInfolistsFactory;
 use Relaticle\CustomFields\Filament\Integration\Factories\SectionInfolistsFactory;
 use Relaticle\CustomFields\Models\Contracts\HasCustomFields;
@@ -19,7 +19,7 @@ use Relaticle\CustomFields\Services\Visibility\BackendVisibilityService;
 
 final class InfolistBuilder extends BaseBuilder
 {
-    protected ResolutionKind $resolutionKind = ResolutionKind::Infolist;
+    use ResolvesFields;
 
     private bool $hiddenLabels = false;
 
@@ -30,6 +30,7 @@ final class InfolistBuilder extends BaseBuilder
     public function build(): InfolistContainer
     {
         $container = InfolistContainer::make()
+            ->builder($this)
             ->forModel($this->explicitModel ?? null)
             ->hiddenLabels($this->hiddenLabels)
             ->visibleWhenFilled($this->visibleWhenFilled)
@@ -85,7 +86,7 @@ final class InfolistBuilder extends BaseBuilder
         $sectionsDisabled = ! FeatureManager::isEnabled(CustomFieldsFeature::SYSTEM_SECTIONS);
 
         if ($this->withoutSections || $sectionsDisabled) {
-            return $renderable($this->getResolvedFields())->filter();
+            return $renderable($this->getFields())->filter();
         }
 
         // Section-level conditional visibility is evaluated server-side per record, mirroring
@@ -93,7 +94,7 @@ final class InfolistBuilder extends BaseBuilder
         // whenever it has any visible field, ignoring the section's own visibility condition.
         $sectionConditionalVisibilityEnabled = FeatureManager::isEnabled(CustomFieldsFeature::SECTION_CONDITIONAL_VISIBILITY);
 
-        return $this->getResolvedSections()
+        return $this->getSections()
             ->map(function (CustomFieldSection $section) use ($sectionInfolistsFactory, $renderable, $backendVisibilityService, $sectionConditionalVisibilityEnabled, $allFields) {
                 if (
                     $sectionConditionalVisibilityEnabled

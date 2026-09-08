@@ -10,8 +10,8 @@ namespace Relaticle\CustomFields\Filament\Integration\Builders;
 use Closure;
 use Illuminate\Support\Collection;
 use Relaticle\CustomFields\Enums\CustomFieldsFeature;
-use Relaticle\CustomFields\Enums\ResolutionKind;
 use Relaticle\CustomFields\FeatureSystem\FeatureManager;
+use Relaticle\CustomFields\Filament\Integration\Builders\Concerns\ResolvesFields;
 use Relaticle\CustomFields\Filament\Integration\Factories\FieldColumnFactory;
 use Relaticle\CustomFields\Filament\Integration\Factories\FieldFilterFactory;
 use Relaticle\CustomFields\Models\CustomField;
@@ -19,7 +19,7 @@ use Relaticle\CustomFields\Services\Visibility\BackendVisibilityService;
 
 final class TableBuilder extends BaseBuilder
 {
-    protected ResolutionKind $resolutionKind = ResolutionKind::Table;
+    use ResolvesFields;
 
     public function columns(): Collection
     {
@@ -32,7 +32,7 @@ final class TableBuilder extends BaseBuilder
 
         $allFields = $this->getAllFields();
 
-        return $this->getResolvedFields()
+        return $this->getFields()
             ->filter(fn (CustomField $field): bool => $field->typeData->tableColumn !== null)
             ->map(function (CustomField $field) use ($fieldColumnFactory, $backendVisibilityService, $allFields) {
                 $column = $fieldColumnFactory->create($field);
@@ -72,7 +72,7 @@ final class TableBuilder extends BaseBuilder
 
         $fieldFilterFactory = app(FieldFilterFactory::class);
 
-        return $this->getResolvedFields()
+        return $this->getFields()
             ->filter(fn (CustomField $field): bool => $field->isFilterable() && $field->typeData->tableFilter !== null)
             ->map(fn (CustomField $field) => $fieldFilterFactory->create($field))
             ->filter()

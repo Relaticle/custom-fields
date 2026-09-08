@@ -8,10 +8,11 @@ use Filament\Schemas\Schema;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Traits\Conditionable;
+use Illuminate\Support\Traits\Tappable;
 use InvalidArgumentException;
 use Relaticle\CustomFields\CustomFields;
 use Relaticle\CustomFields\Enums\CustomFieldsFeature;
-use Relaticle\CustomFields\Enums\ResolutionKind;
 use Relaticle\CustomFields\FeatureSystem\FeatureManager;
 use Relaticle\CustomFields\Models\Contracts\HasCustomFields;
 use Relaticle\CustomFields\Models\CustomField;
@@ -20,6 +21,9 @@ use Relaticle\CustomFields\QueryBuilders\CustomFieldQueryBuilder;
 
 abstract class BaseBuilder
 {
+    use Conditionable;
+    use Tappable;
+
     protected Model&HasCustomFields $model;
 
     protected Model|string|null $explicitModel = null;
@@ -30,8 +34,6 @@ abstract class BaseBuilder
 
     protected array $only = [];
 
-    protected ResolutionKind $resolutionKind;
-
     /** @var array<int, int> */
     protected array $onlySections = [];
 
@@ -40,6 +42,17 @@ abstract class BaseBuilder
 
     /** @var Collection<int, CustomField>|null */
     private ?Collection $loadedFields = null;
+
+    /** @return class-string<Model&HasCustomFields>|null */
+    public function getModel(): ?string
+    {
+        return isset($this->model) ? $this->model::class : null;
+    }
+
+    public function getRecord(): ?Model
+    {
+        return isset($this->model) && $this->model->exists ? $this->model : null;
+    }
 
     public function forSchema(Schema $schema): static
     {
@@ -216,97 +229,6 @@ abstract class BaseBuilder
         }
 
         return $this->getFilteredSections()->flatMap(
-            fn (CustomFieldSection $section): Collection => $section->fields
-        );
-    }
-
-    protected function resolutionContext(): FieldResolutionContext
-    {
-        return new FieldResolutionContext(
-            entityType: $this->model::class,
-            kind: $this->resolutionKind,
-            record: $this->model->exists ? $this->model : null,
-        );
-    }
-
-    /**
-     * @param  Collection<int, CustomField>  $fields
-     * @return Collection<int, CustomField>
-     */
-    protected function applyFieldFilters(Collection $fields): Collection
-    {
-        $filters = CustomFields::fieldFilters();
-
-        if ($filters === [] || $fields->isEmpty()) {
-            return $fields->values();
-        }
-
-        $context = $this->resolutionContext();
-
-        $fields = $fields->values();
-
-        foreach ($filters as $filter) {
-            $fields = $filter($fields, $context);
-        }
-
-        return $fields->values();
-    }
-
-    /**
-     * @param  Collection<int, CustomFieldSection>  $sections
-     * @return Collection<int, CustomFieldSection>
-     */
-    protected function applySectionFilters(Collection $sections): Collection
-    {
-        $filters = CustomFields::sectionFilters();
-
-        if ($filters === [] || $sections->isEmpty()) {
-            return $sections->values();
-        }
-
-        $context = $this->resolutionContext();
-
-        $sections = $sections->map(fn (CustomFieldSection $section): CustomFieldSection => (clone $section)
-            ->setRelation('fields', clone $section->fields));
-
-        foreach ($filters as $filter) {
-            $sections = $filter($sections, $context);
-        }
-
-        return $sections->values();
-    }
-
-    /**
-     * @return Collection<int, CustomFieldSection>
-     */
-    protected function getResolvedSections(): Collection
-    {
-        $sections = $this->applySectionFilters($this->getFilteredSections());
-
-        $keptFields = $this->applyFieldFilters($sections->flatMap(fn (CustomFieldSection $section): Collection => $section->fields))
-            ->keyBy(fn (CustomField $field): int|string => $field->getKey());
-
-        return $sections
-            ->map(function (CustomFieldSection $section) use ($keptFields): CustomFieldSection {
-                $resolved = clone $section;
-                $resolved->setRelation('fields', $section->fields->filter(fn (CustomField $field): bool => $keptFields->has($field->getKey()))->values());
-
-                return $resolved;
-            })
-            ->filter(fn (CustomFieldSection $section): bool => $section->fields->isNotEmpty())
-            ->values();
-    }
-
-    /**
-     * @return Collection<int, CustomField>
-     */
-    protected function getResolvedFields(): Collection
-    {
-        if (! FeatureManager::isEnabled(CustomFieldsFeature::SYSTEM_SECTIONS)) {
-            return $this->applyFieldFilters($this->getFieldsDirectly());
-        }
-
-        return $this->getResolvedSections()->flatMap(
             fn (CustomFieldSection $section): Collection => $section->fields
         );
     }

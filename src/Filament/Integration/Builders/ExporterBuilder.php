@@ -11,15 +11,15 @@ use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Contracts\Container\CircularDependencyException;
 use Illuminate\Support\Collection;
 use Relaticle\CustomFields\Contracts\ValueResolvers;
-use Relaticle\CustomFields\Enums\ResolutionKind;
 use Relaticle\CustomFields\Facades\CustomFieldsType;
+use Relaticle\CustomFields\Filament\Integration\Builders\Concerns\ResolvesFields;
 use Relaticle\CustomFields\Filament\Integration\Factories\ExportColumnFactory;
 use Relaticle\CustomFields\Models\CustomField;
 use Relaticle\CustomFields\Services\Visibility\BackendVisibilityService;
 
 final class ExporterBuilder extends BaseBuilder
 {
-    protected ResolutionKind $resolutionKind = ResolutionKind::Exporter;
+    use ResolvesFields;
 
     /**
      * @throws BindingResolutionException
@@ -32,7 +32,7 @@ final class ExporterBuilder extends BaseBuilder
 
         $allFields = $this->getAllFields();
 
-        return $this->getResolvedFields()
+        return $this->getFields()
             ->filter(fn (CustomField $field): bool => $field->settings->visible_in_list ?? true)
             ->map(function (CustomField $field) use ($exportColumnFactory, $backendVisibilityService, $allFields) {
                 $column = $exportColumnFactory->create($field);

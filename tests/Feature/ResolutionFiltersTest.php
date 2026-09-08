@@ -9,58 +9,158 @@ use Filament\Tables\Columns\Column;
 use Filament\Tables\Filters\BaseFilter;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
-use Relaticle\CustomFields\CustomFields as CustomFieldsRegistry;
 use Relaticle\CustomFields\Enums\CustomFieldsFeature;
-use Relaticle\CustomFields\Enums\ResolutionKind;
 use Relaticle\CustomFields\Enums\VisibilityOperator;
 use Relaticle\CustomFields\Facades\CustomFields;
 use Relaticle\CustomFields\FeatureSystem\FeatureConfigurator;
 use Relaticle\CustomFields\Filament\Integration\Builders\BaseBuilder;
-use Relaticle\CustomFields\Filament\Integration\Builders\FieldResolutionContext;
+use Relaticle\CustomFields\Filament\Integration\Builders\Concerns\ResolvesFields;
+use Relaticle\CustomFields\Filament\Integration\Builders\ExporterBuilder;
 use Relaticle\CustomFields\Filament\Integration\Builders\InfolistBuilder;
+use Relaticle\CustomFields\Filament\Integration\Builders\TableBuilder;
+use Relaticle\CustomFields\Filament\Integration\CustomFieldsManager;
 use Relaticle\CustomFields\Models\CustomField;
 use Relaticle\CustomFields\Models\CustomFieldSection;
 use Relaticle\CustomFields\Tests\Fixtures\Models\Post;
 
-mutates(CustomFieldsRegistry::class, BaseBuilder::class, InfolistBuilder::class);
+mutates(CustomFieldsManager::class, BaseBuilder::class, ResolvesFields::class, TableBuilder::class, InfolistBuilder::class, ExporterBuilder::class);
 
-afterEach(function (): void {
-    CustomFieldsRegistry::flushResolutionFilters();
+describe('native builder configuration', function (): void {
+    beforeEach(function (): void {
+        seedTwoSections();
+    });
+
+    it('applies container defaults only to exporters', function (): void {
+        app()->resolving(ExporterBuilder::class, static function (ExporterBuilder $builder): void {
+            $builder->filterFieldsUsing(fn (Collection $fields): Collection => $fields
+                ->reject(fn (CustomField $field): bool => $field->code === 'cost'));
+        });
+
+        $exportNames = CustomFields::exporter()->forModel(Post::class)->columns()
+            ->map(fn (ExportColumn $column): string => $column->getName());
+
+        expect($exportNames)->not->toContain('custom_fields.cost')
+            ->and(componentNames(CustomFields::table()->forModel(Post::class)->columns()))
+            ->toContain('custom_fields.cost');
+    });
+
+    it('keeps local filters isolated from later builders', function (): void {
+        $filtered = CustomFields::table()->forModel(Post::class)
+            ->filterFieldsUsing(fn (Collection $fields): Collection => $fields->where('code', 'headline'));
+
+        expect(componentNames($filtered->columns()))->toBe(['custom_fields.headline'])
+            ->and(componentNames(CustomFields::table()->forModel(Post::class)->columns()))
+            ->toBe(['custom_fields.headline', 'custom_fields.featured', 'custom_fields.reviewer_notes', 'custom_fields.cost']);
+    });
+
+    it('exposes selected fields through native fluent and collection methods', function (): void {
+        $codes = CustomFields::table()->forModel(Post::class)
+            ->when(true, fn (TableBuilder $builder): TableBuilder => $builder->only(['headline', 'featured', 'cost']))
+            ->unless(false, fn (TableBuilder $builder): TableBuilder => $builder->except(['cost']))
+            ->tap(function (TableBuilder $builder): void {
+                $builder->filterFieldsUsing(fn (Collection $fields): Collection => $fields->where('code', 'featured'));
+            })
+            ->getFields()->pluck('code')->all();
+
+        expect($codes)->toBe(['featured']);
+    });
+
+    it('keeps returned field and section collections independent from cached metadata', function (): void {
+        $builder = CustomFields::table()->forModel(Post::class);
+
+        $builder->getFields()->shift();
+        $builder->getSections()->first()->fields->shift();
+
+        expect($builder->getFields()->pluck('code')->all())
+            ->toBe(['headline', 'featured', 'reviewer_notes', 'cost'])
+            ->and(componentNames($builder->columns()))
+            ->toBe(['custom_fields.headline', 'custom_fields.featured', 'custom_fields.reviewer_notes', 'custom_fields.cost']);
+    });
+
+    it('returns empty metadata before binding a model', function (bool $sectionsEnabled): void {
+        $features = FeatureConfigurator::configure()->enable(CustomFieldsFeature::SYSTEM_SECTIONS);
+
+        if (! $sectionsEnabled) {
+            $features->disable(CustomFieldsFeature::SYSTEM_SECTIONS);
+        }
+
+        config()->set('custom-fields.features', $features);
+
+        foreach ([CustomFields::table(), CustomFields::infolist(), CustomFields::exporter()] as $builder) {
+            expect($builder->getFields())->toBeEmpty()
+                ->and($builder->getSections())->toBeEmpty()
+                ->and($builder->getModel())->toBeNull()
+                ->and($builder->getRecord())->toBeNull();
+        }
+    })->with([true, false]);
+
+    it('returns no sections after sections are disabled', function (): void {
+        $builder = CustomFields::table()->forModel(Post::class);
+
+        expect($builder->getSections())->toHaveCount(2);
+
+        config()->set('custom-fields.features', FeatureConfigurator::configure()
+            ->enable(CustomFieldsFeature::UI_TABLE_COLUMNS)
+            ->disable(CustomFieldsFeature::SYSTEM_SECTIONS));
+
+        expect($builder->getSections())->toBeEmpty()
+            ->and($builder->getFields()->pluck('code')->all())
+            ->toBe(['headline', 'featured', 'reviewer_notes', 'cost']);
+    });
+
+    it('resolves fields directly when sections are disabled', function (): void {
+        config()->set('custom-fields.features', FeatureConfigurator::configure()
+            ->enable(CustomFieldsFeature::UI_TABLE_COLUMNS)
+            ->disable(CustomFieldsFeature::SYSTEM_SECTIONS));
+
+        $builder = CustomFields::table()->forModel(Post::class)
+            ->filterFieldsUsing(fn (Collection $fields): Collection => $fields->where('code', 'headline'));
+
+        expect($builder->getFields()->pluck('code')->all())->toBe(['headline'])
+            ->and($builder->getSections())->toBeEmpty()
+            ->and(componentNames($builder->columns()))->toBe(['custom_fields.headline']);
+    });
+
+    it('removes sections when no selected fields remain', function (): void {
+        $builder = CustomFields::table()->forModel(Post::class)
+            ->filterFieldsUsing(fn (Collection $fields): Collection => $fields->whereIn('code', []));
+
+        expect($builder->getFields())->toBeEmpty()
+            ->and($builder->getSections())->toBeEmpty()
+            ->and($builder->columns())->toBeEmpty();
+    });
+
+    it('evaluates filters with the current record after rebinding a builder', function (): void {
+        $first = Post::factory()->create();
+        $second = Post::factory()->create();
+        $builder = CustomFields::table()->forModel($first)
+            ->filterFieldsUsing(fn (Collection $fields, TableBuilder $builder): Collection => $fields
+                ->where('code', $builder->getRecord()?->is($first) ? 'headline' : 'featured'));
+
+        expect(componentNames($builder->columns()))->toBe(['custom_fields.headline'])
+            ->and(componentNames($builder->forModel($second)->columns()))->toBe(['custom_fields.featured']);
+    });
 });
 
-describe('resolution filter registry', function (): void {
-    it('starts with no filters registered', function (): void {
-        expect(CustomFieldsRegistry::fieldFilters())->toBe([])
-            ->and(CustomFieldsRegistry::sectionFilters())->toBe([]);
-    });
+/** @param Closure(Collection<int, CustomField>, BaseBuilder): Collection<int, CustomField> $callback */
+function configureFieldFilter(Closure $callback): void
+{
+    foreach ([TableBuilder::class, InfolistBuilder::class, ExporterBuilder::class] as $builderClass) {
+        app()->resolving($builderClass, function (TableBuilder|InfolistBuilder|ExporterBuilder $builder) use ($callback): void {
+            $builder->filterFieldsUsing($callback);
+        });
+    }
+}
 
-    it('keeps field and section filters in registration order and flushes both', function (): void {
-        $first = fn (Collection $fields, FieldResolutionContext $context): Collection => $fields;
-        $second = fn (Collection $fields, FieldResolutionContext $context): Collection => $fields;
-        $sections = fn (Collection $sections, FieldResolutionContext $context): Collection => $sections;
-
-        CustomFieldsRegistry::filterFieldsUsing($first);
-        CustomFieldsRegistry::filterFieldsUsing($second);
-        CustomFieldsRegistry::filterSectionsUsing($sections);
-
-        expect(CustomFieldsRegistry::fieldFilters())->toBe([$first, $second])
-            ->and(CustomFieldsRegistry::sectionFilters())->toBe([$sections]);
-
-        CustomFieldsRegistry::flushResolutionFilters();
-
-        expect(CustomFieldsRegistry::fieldFilters())->toBe([])
-            ->and(CustomFieldsRegistry::sectionFilters())->toBe([]);
-    });
-
-    it('exposes a readonly context with entity type, kind and optional record', function (): void {
-        $context = new FieldResolutionContext(entityType: Post::class, kind: ResolutionKind::Table);
-
-        expect($context->entityType)->toBe(Post::class)
-            ->and($context->kind)->toBe(ResolutionKind::Table)
-            ->and($context->record)->toBeNull()
-            ->and(ResolutionKind::Exporter->value)->toBe('exporter');
-    });
-});
+/** @param Closure(Collection<int, CustomFieldSection>, BaseBuilder): Collection<int, CustomFieldSection> $callback */
+function configureSectionFilter(Closure $callback): void
+{
+    foreach ([TableBuilder::class, InfolistBuilder::class, ExporterBuilder::class] as $builderClass) {
+        app()->resolving($builderClass, function (TableBuilder|InfolistBuilder|ExporterBuilder $builder) use ($callback): void {
+            $builder->filterSectionsUsing($callback);
+        });
+    }
+}
 
 /**
  * @return array{public: CustomFieldSection, internal: CustomFieldSection}
@@ -100,7 +200,7 @@ describe('table builder', function (): void {
     });
 
     it('drops fields rejected by a field filter from columns and filters', function (): void {
-        CustomFieldsRegistry::filterFieldsUsing(fn (Collection $fields, FieldResolutionContext $context): Collection => $fields
+        configureFieldFilter(fn (Collection $fields, BaseBuilder $builderContext): Collection => $fields
             ->reject(fn (CustomField $field): bool => in_array($field->code, ['featured', 'cost'], true)));
 
         expect(componentNames(CustomFields::table()->forModel(Post::class)->columns()))
@@ -110,7 +210,7 @@ describe('table builder', function (): void {
     });
 
     it('drops every field of a section rejected by a section filter', function (): void {
-        CustomFieldsRegistry::filterSectionsUsing(fn (Collection $sections, FieldResolutionContext $context): Collection => $sections
+        configureSectionFilter(fn (Collection $sections, BaseBuilder $builderContext): Collection => $sections
             ->reject(fn (CustomFieldSection $section): bool => $section->code === 'internal'));
 
         expect(componentNames(CustomFields::table()->forModel(Post::class)->columns()))
@@ -120,24 +220,24 @@ describe('table builder', function (): void {
     it('hands the table builder context to the filter', function (): void {
         $seen = null;
 
-        CustomFieldsRegistry::filterFieldsUsing(function (Collection $fields, FieldResolutionContext $context) use (&$seen): Collection {
-            $seen = $context;
+        configureFieldFilter(function (Collection $fields, BaseBuilder $builderContext) use (&$seen): Collection {
+            $seen = $builderContext;
 
             return $fields;
         });
 
         CustomFields::table()->forModel(Post::class)->columns();
 
-        expect($seen)->toBeInstanceOf(FieldResolutionContext::class)
-            ->and($seen->kind)->toBe(ResolutionKind::Table)
-            ->and($seen->entityType)->toBe(Post::class)
-            ->and($seen->record)->toBeNull();
+        expect($seen)->toBeInstanceOf(TableBuilder::class)
+            ->and($seen::class)->toBe(TableBuilder::class)
+            ->and($seen->getModel())->toBe(Post::class)
+            ->and($seen->getRecord())->toBeNull();
     });
 
     it('composes several field filters in registration order', function (): void {
-        CustomFieldsRegistry::filterFieldsUsing(fn (Collection $fields, FieldResolutionContext $context): Collection => $fields
+        configureFieldFilter(fn (Collection $fields, BaseBuilder $builderContext): Collection => $fields
             ->reject(fn (CustomField $field): bool => $field->code === 'headline'));
-        CustomFieldsRegistry::filterFieldsUsing(fn (Collection $fields, FieldResolutionContext $context): Collection => $fields
+        configureFieldFilter(fn (Collection $fields, BaseBuilder $builderContext): Collection => $fields
             ->reject(fn (CustomField $field): bool => $field->code === 'cost'));
 
         expect(componentNames(CustomFields::table()->forModel(Post::class)->columns()))
@@ -150,7 +250,7 @@ describe('table builder', function (): void {
             ->conditionallyVisible('headline', VisibilityOperator::EQUALS->value, 'Sale')
             ->create(['custom_field_section_id' => $public->id, 'entity_type' => Post::class, 'name' => 'Promo Copy', 'code' => 'promo_copy', 'type' => 'text']);
 
-        CustomFieldsRegistry::filterFieldsUsing(fn (Collection $fields, FieldResolutionContext $context): Collection => $fields
+        configureFieldFilter(fn (Collection $fields, BaseBuilder $builderContext): Collection => $fields
             ->reject(fn (CustomField $field): bool => $field->code === 'headline'));
 
         $post = Post::factory()->create();
@@ -174,7 +274,7 @@ describe('table builder', function (): void {
     });
 
     it('returns no columns from a builder that was never given a model', function (): void {
-        CustomFieldsRegistry::filterFieldsUsing(fn (Collection $fields, FieldResolutionContext $context): Collection => $fields);
+        configureFieldFilter(fn (Collection $fields, BaseBuilder $builderContext): Collection => $fields);
 
         expect(CustomFields::table()->columns())->toBeEmpty();
     });
@@ -182,7 +282,7 @@ describe('table builder', function (): void {
     it('hands the field filter the whole entity field set once, not one slice per section', function (): void {
         $counts = [];
 
-        CustomFieldsRegistry::filterFieldsUsing(function (Collection $fields, FieldResolutionContext $context) use (&$counts): Collection {
+        configureFieldFilter(function (Collection $fields, BaseBuilder $builderContext) use (&$counts): Collection {
             $counts[] = count($fields);
 
             return $fields;
@@ -194,7 +294,7 @@ describe('table builder', function (): void {
     });
 
     it('lets a field filter reason across sections', function (): void {
-        CustomFieldsRegistry::filterFieldsUsing(fn (Collection $fields, FieldResolutionContext $context): Collection => $fields->contains(fn (CustomField $field): bool => $field->code === 'headline')
+        configureFieldFilter(fn (Collection $fields, BaseBuilder $builderContext): Collection => $fields->contains(fn (CustomField $field): bool => $field->code === 'headline')
             ? $fields->reject(fn (CustomField $field): bool => $field->code === 'cost')
             : $fields);
 
@@ -215,38 +315,42 @@ describe('table builder', function (): void {
         expect(componentNames($builder->onlySections([])->columns()))->toHaveCount(4);
     });
 
-    it('keeps getAllFields intact when a filter mutates its input in place', function (): void {
-        config()->set('custom-fields.features', FeatureConfigurator::configure()
-            ->enable(CustomFieldsFeature::UI_TABLE_COLUMNS, CustomFieldsFeature::FIELD_CONDITIONAL_VISIBILITY));
+    it('keeps cached fields intact when a filter mutates its input', function (): void {
+        config()->set('custom-fields.testing_filter_enabled', true);
+        $builder = CustomFields::table()->forModel(Post::class)
+            ->filterFieldsUsing(function (Collection $fields): Collection {
+                if (config('custom-fields.testing_filter_enabled')) {
+                    $fields->forget($fields->search(fn (CustomField $field): bool => $field->code === 'cost'));
+                }
 
-        CustomFieldsRegistry::filterFieldsUsing(function (Collection $fields, FieldResolutionContext $context): Collection {
-            $cost = $fields->search(fn (CustomField $field): bool => $field->code === 'cost');
-            $fields->forget($cost);
+                return $fields;
+            });
 
-            return $fields;
-        });
+        expect(componentNames($builder->columns()))
+            ->toBe(['custom_fields.headline', 'custom_fields.featured', 'custom_fields.reviewer_notes']);
 
-        $builder = CustomFields::table()->forModel(Post::class);
-        $builder->columns();
+        config()->set('custom-fields.testing_filter_enabled', false);
 
-        $method = new ReflectionMethod($builder, 'getAllFields');
-
-        expect($method->invoke($builder)->pluck('code')->all())
-            ->toContain('cost');
+        expect(componentNames($builder->columns()))->toContain('custom_fields.cost');
     });
 
     it('keeps section field collections intact when a filter mutates them', function (): void {
-        CustomFieldsRegistry::filterSectionsUsing(fn (Collection $sections): Collection => $sections
-            ->each(function (CustomFieldSection $section): void {
-                $section->fields->shift();
-            }));
+        config()->set('custom-fields.testing_filter_enabled', true);
+        $builder = CustomFields::table()->forModel(Post::class)
+            ->filterSectionsUsing(function (Collection $sections): Collection {
+                if (config('custom-fields.testing_filter_enabled')) {
+                    $sections->each(function (CustomFieldSection $section): void {
+                        $section->fields->shift();
+                    });
+                }
 
-        $builder = CustomFields::table()->forModel(Post::class);
+                return $sections;
+            });
 
         expect(componentNames($builder->columns()))->toBe(['custom_fields.featured', 'custom_fields.cost'])
             ->and(componentNames($builder->columns()))->toBe(['custom_fields.featured', 'custom_fields.cost']);
 
-        CustomFieldsRegistry::flushResolutionFilters();
+        config()->set('custom-fields.testing_filter_enabled', false);
 
         expect(componentNames($builder->columns()))
             ->toBe(['custom_fields.headline', 'custom_fields.featured', 'custom_fields.reviewer_notes', 'custom_fields.cost']);
@@ -259,7 +363,7 @@ describe('table builder query efficiency', function (): void {
 
         CustomField::factory()->create(['custom_field_section_id' => $section->id, 'entity_type' => Post::class, 'name' => 'Headline', 'code' => 'headline', 'type' => 'text']);
 
-        CustomFieldsRegistry::filterFieldsUsing(fn (Collection $fields, FieldResolutionContext $context): Collection => $fields);
+        configureFieldFilter(fn (Collection $fields, BaseBuilder $builderContext): Collection => $fields);
 
         $customFieldsTable = config('custom-fields.database.table_names.custom_fields');
 
@@ -267,7 +371,9 @@ describe('table builder query efficiency', function (): void {
         DB::enableQueryLog();
 
         try {
-            CustomFields::table()->forModel(Post::class)->columns();
+            $builder = CustomFields::table()->forModel(Post::class);
+            $builder->getFields();
+            $builder->columns();
 
             $customFieldQueries = array_filter(DB::getQueryLog(), static fn (array $entry): bool => str_contains($entry['query'], '"'.$customFieldsTable.'"')
                 || str_contains($entry['query'], '`'.$customFieldsTable.'`'));
@@ -292,11 +398,11 @@ describe('exporter and importer builders', function (): void {
         expect($names)->toBe(['custom_fields.headline', 'custom_fields.featured', 'custom_fields.reviewer_notes', 'custom_fields.cost']);
     });
 
-    it('drops a filtered field from export columns and reports the exporter kind', function (): void {
-        $kinds = [];
+    it('drops a filtered field from export columns and passes the exporter builder', function (): void {
+        $builders = [];
 
-        CustomFieldsRegistry::filterFieldsUsing(function (Collection $fields, FieldResolutionContext $context) use (&$kinds): Collection {
-            $kinds[] = $context->kind;
+        configureFieldFilter(function (Collection $fields, BaseBuilder $builderContext) use (&$builders): Collection {
+            $builders[] = $builderContext::class;
 
             return $fields->reject(fn (CustomField $field): bool => $field->code === 'cost');
         });
@@ -305,11 +411,11 @@ describe('exporter and importer builders', function (): void {
             ->map(fn (ExportColumn $column): string => $column->getName())->values()->all();
 
         expect($names)->toBe(['custom_fields.headline', 'custom_fields.featured', 'custom_fields.reviewer_notes'])
-            ->and($kinds)->toBe([ResolutionKind::Exporter]);
+            ->and($builders)->toBe([ExporterBuilder::class]);
     });
 
     it('leaves importer columns untouched by a field filter', function (): void {
-        CustomFieldsRegistry::filterFieldsUsing(fn (Collection $fields, FieldResolutionContext $context): Collection => $fields
+        configureFieldFilter(fn (Collection $fields, BaseBuilder $builderContext): Collection => $fields
             ->reject(fn (CustomField $field): bool => $field->code === 'cost'));
 
         $names = CustomFields::importer()->forModel(Post::class)->columns()
@@ -354,7 +460,7 @@ describe('infolist builder', function (): void {
     });
 
     it('removes a filtered section and its fields', function (): void {
-        CustomFieldsRegistry::filterSectionsUsing(fn (Collection $sections, FieldResolutionContext $context): Collection => $sections
+        configureSectionFilter(fn (Collection $sections, BaseBuilder $builderContext): Collection => $sections
             ->reject(fn (CustomFieldSection $section): bool => $section->code === 'internal'));
 
         expect(infolistShape($this->post))->toBe([
@@ -363,7 +469,7 @@ describe('infolist builder', function (): void {
     });
 
     it('removes a filtered field and drops a section left empty', function (): void {
-        CustomFieldsRegistry::filterFieldsUsing(fn (Collection $fields, FieldResolutionContext $context): Collection => $fields
+        configureFieldFilter(fn (Collection $fields, BaseBuilder $builderContext): Collection => $fields
             ->reject(fn (CustomField $field): bool => in_array($field->code, ['reviewer_notes', 'cost'], true)));
 
         expect(infolistShape($this->post))->toBe([
@@ -371,19 +477,19 @@ describe('infolist builder', function (): void {
         ]);
     });
 
-    it('passes the record and the infolist kind in the context', function (): void {
+    it('passes the bound infolist builder to filters', function (): void {
         $seen = null;
 
-        CustomFieldsRegistry::filterFieldsUsing(function (Collection $fields, FieldResolutionContext $context) use (&$seen): Collection {
-            $seen = $context;
+        configureFieldFilter(function (Collection $fields, BaseBuilder $builderContext) use (&$seen): Collection {
+            $seen = $builderContext;
 
             return $fields;
         });
 
         CustomFields::infolist()->forModel($this->post)->values();
 
-        expect($seen->kind)->toBe(ResolutionKind::Infolist)
-            ->and($seen->record?->is($this->post))->toBeTrue();
+        expect($seen::class)->toBe(InfolistBuilder::class)
+            ->and($seen->getRecord()?->is($this->post))->toBeTrue();
     });
 
     it('keeps a field whose condition depends on a filtered-out field in another section', function (): void {
@@ -395,7 +501,7 @@ describe('infolist builder', function (): void {
         $this->post->saveCustomFieldValue(CustomField::query()->where('code', 'headline')->sole(), 'Sale');
         $this->post->refresh();
 
-        CustomFieldsRegistry::filterFieldsUsing(fn (Collection $fields, FieldResolutionContext $context): Collection => $fields
+        configureFieldFilter(fn (Collection $fields, BaseBuilder $builderContext): Collection => $fields
             ->reject(fn (CustomField $field): bool => $field->code === 'headline'));
 
         expect(infolistShape($this->post)['Internal'])->toContain('custom_fields.promo_copy');
@@ -445,13 +551,13 @@ describe('infolist builder', function (): void {
     });
 
     it('returns no entries from a builder that was never given a model', function (): void {
-        CustomFieldsRegistry::filterFieldsUsing(fn (Collection $fields, FieldResolutionContext $context): Collection => $fields);
+        configureFieldFilter(fn (Collection $fields, BaseBuilder $builderContext): Collection => $fields);
 
         expect(CustomFields::infolist()->values())->toBeEmpty();
     });
 
     it('leaves the form builder untouched by a field filter', function (): void {
-        CustomFieldsRegistry::filterFieldsUsing(fn (Collection $fields, FieldResolutionContext $context): Collection => $fields
+        configureFieldFilter(fn (Collection $fields, BaseBuilder $builderContext): Collection => $fields
             ->reject(fn (CustomField $field): bool => $field->code === 'cost'));
 
         $names = CustomFields::form()->forModel($this->post)->values()

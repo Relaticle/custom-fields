@@ -7,13 +7,14 @@ All notable changes to `custom-fields` will be documented in this file.
 ### Resolution filters and a field-form schema seam
 
 A consumer can now hide specific fields or sections from the Table, Infolist and
-Exporter builders without the package knowing why. `CustomFields::filterFieldsUsing()`
-and `CustomFields::filterSectionsUsing()` register a callback that receives a
-`FieldResolutionContext` (entity type, builder kind, and the record when there is one)
-alongside the collection to narrow. Filters do not reach the Form or Importer builder:
-`saveCustomFields()` clears fields absent from its payload, and a filtered form would
-erase hidden values on save. Conditional visibility still evaluates against every field,
-so a field a filter removes can still drive another field's visibility condition. See
+Exporter builders. Each builder exposes `filterFieldsUsing()` and
+`filterSectionsUsing()` for local configuration. Laravel container resolving callbacks
+provide application-wide defaults for each concrete builder class. Callbacks receive a
+standard collection and the concrete builder, which exposes its model and persisted
+record. Builders also expose selected metadata through `getFields()` and `getSections()`.
+They support Laravel's `when()`, `unless()`, and `tap()` methods. Filters do not reach
+the Form or Importer builder. Conditional visibility still evaluates against every
+field. See
 [Extending](https://relaticle.github.io/custom-fields/essentials/extending) for the full walkthrough.
 
 `FieldForm::extendSchemaUsing()` mirrors the existing `SectionForm::extendSchemaUsing()`
