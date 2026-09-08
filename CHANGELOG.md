@@ -2,6 +2,28 @@
 
 All notable changes to `custom-fields` will be documented in this file.
 
+## v3.9.1 - 2026-09-08
+
+<!-- Release notes generated using configuration in .github/release.yml at 3.x -->
+### What's Changed
+
+#### Other Changes
+
+* chore(deps-dev): bump cssnano from 8.0.5 to 8.0.7 in the npm group by @dependabot[bot] in https://github.com/relaticle/custom-fields/pull/207
+* chore(deps): bump the npm group in /docs with 7 updates by @dependabot[bot] in https://github.com/relaticle/custom-fields/pull/208
+* fix(ci): make the docs deploy deterministic and gate it on pull requests by @ManukMinasyan in https://github.com/relaticle/custom-fields/pull/209
+* chore(deps): bump fast-uri from 3.1.5 to 3.1.7 in /docs by @dependabot[bot] in https://github.com/relaticle/custom-fields/pull/211
+* chore(deps): bump qs from 6.15.2 to 6.16.0 in /docs by @dependabot[bot] in https://github.com/relaticle/custom-fields/pull/212
+* chore(deps): bump @humanfs/node from 0.16.7 to 0.16.8 in /docs by @dependabot[bot] in https://github.com/relaticle/custom-fields/pull/213
+* chore(ci): drop composer.lock, group security updates, harden workflows by @ManukMinasyan in https://github.com/relaticle/custom-fields/pull/217
+* chore(deps): bump the npm group across 1 directory with 2 updates by @dependabot[bot] in https://github.com/relaticle/custom-fields/pull/215
+* chore(deps): bump nanoid from 3.3.16 to 3.3.18 in /docs by @dependabot[bot] in https://github.com/relaticle/custom-fields/pull/218
+* chore(deps): bump zizmorcore/zizmor-action from 0.6.2 to 0.6.3 in the github-actions group by @dependabot[bot] in https://github.com/relaticle/custom-fields/pull/220
+* chore(deps-dev): bump the npm group across 1 directory with 2 updates by @dependabot[bot] in https://github.com/relaticle/custom-fields/pull/219
+* feat: native builder filters and field schema extensions by @ManukMinasyan in https://github.com/relaticle/custom-fields/pull/223
+
+**Full Changelog**: https://github.com/relaticle/custom-fields/compare/v3.9.0...v3.9.1
+
 ## Unreleased
 
 ### Resolution filters and a field-form schema seam
@@ -106,6 +128,7 @@ This is a taste change, not a bug fix. It carries no performance benefit: filter
         'min_search_length' => 2,
     ],
 ],
+
 
 
 ```
