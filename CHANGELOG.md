@@ -2,6 +2,55 @@
 
 All notable changes to `custom-fields` will be documented in this file.
 
+## Unreleased
+
+### Resolution filters and a field-form schema seam
+
+A consumer can now hide specific fields or sections from the Table, Infolist and
+Exporter builders. Each builder exposes `filterFieldsUsing()` and
+`filterSectionsUsing()` for local configuration. Laravel container resolving callbacks
+provide application-wide defaults for each concrete builder class. Callbacks receive a
+standard collection and the concrete builder, which exposes its model and persisted
+record. Builders also expose selected metadata through `getFields()` and `getSections()`.
+They support Laravel's `when()`, `unless()`, and `tap()` methods. Filters do not reach
+the Form or Importer builder. Conditional visibility still evaluates against every
+field. See
+[Extending](https://relaticle.github.io/custom-fields/essentials/extending) for the full walkthrough.
+
+`FieldForm::extendSchemaUsing()` mirrors the existing `SectionForm::extendSchemaUsing()`
+hook, letting a consumer append or modify components on the field create/edit form. It
+receives the field's section rather than an entity type, since a field-level extension
+usually needs to look at its section.
+
+`CustomField::setting()` and `CustomFieldSection::setting()` read a consumer-defined key
+out of `settings->additional` / `settings->extra` with a default, so a filter or schema
+extension no longer has to reach into the settings array directly. Both accessors support Laravel's dot notation and preserve stored nulls.
+
+### Fixed
+
+- Editing a section no longer erases `settings.extra` keys that have no form component.
+  The wipe happened whenever the form submitted a partial `settings` payload, for
+  example `settings.visibility` with section conditional visibility enabled, because the
+  cast rebuilt the settings object from the partial and dropped the rest.
+- Editing a field no longer erases `settings.additional` keys its form did not render,
+  for example a consumer key on a currency field whose type settings occupy the same
+  bag. The merge now recurses into associative arrays, while a submitted empty list or
+  null still clears the value it targets.
+- The Infolist builder now evaluates conditional visibility against every field for the
+  entity type, matching the Form and Table builders. Previously it evaluated a section's
+  conditions against only that section's own fields, so a condition depending on a field
+  in another section was silently ignored.
+- `VisibilityData` drops conditions whenever the mode does not use them, so switching a
+  field or section back to Always visible no longer leaves the old conditions sitting in
+  the row. Every reader already gated on the mode, so the stored conditions were dead
+  weight that would reappear the next time the mode changed.
+- The Infolist builder returns an empty collection again when it was never given a model,
+  instead of reaching for the model to evaluate visibility.
+- Infolist conditions use their own section's fields when multiple sections share a field code.
+  Fields from other sections remain available for cross-section conditions.
+- Reusing `onlySections()` replaces the previous scope, including when an empty array clears it.
+- Section filters receive separate field collections, so modifying a collection cannot corrupt subsequent resolution.
+
 ## v3.9.0 - 2026-08-28
 
 <!-- Release notes generated using configuration in .github/release.yml at 3.x -->

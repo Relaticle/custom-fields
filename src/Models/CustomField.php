@@ -12,6 +12,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
 use Override;
 use Relaticle\CustomFields\CustomFields;
@@ -206,6 +207,11 @@ class CustomField extends Model
     public function getFieldName(): string
     {
         return 'custom_fields.'.$this->code;
+    }
+
+    public function setting(string $key, mixed $default = null): mixed
+    {
+        return Arr::get($this->settings->additional, $key, $default);
     }
 
     public function getCurrencySettings(): CurrencyFieldSettingsData

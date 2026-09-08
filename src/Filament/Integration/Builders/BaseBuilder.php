@@ -8,6 +8,8 @@ use Filament\Schemas\Schema;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Traits\Conditionable;
+use Illuminate\Support\Traits\Tappable;
 use InvalidArgumentException;
 use Relaticle\CustomFields\CustomFields;
 use Relaticle\CustomFields\Enums\CustomFieldsFeature;
@@ -19,6 +21,9 @@ use Relaticle\CustomFields\QueryBuilders\CustomFieldQueryBuilder;
 
 abstract class BaseBuilder
 {
+    use Conditionable;
+    use Tappable;
+
     protected Model&HasCustomFields $model;
 
     protected Model|string|null $explicitModel = null;
@@ -31,6 +36,23 @@ abstract class BaseBuilder
 
     /** @var array<int, int> */
     protected array $onlySections = [];
+
+    /** @var Collection<int, CustomFieldSection>|null */
+    private ?Collection $loadedSections = null;
+
+    /** @var Collection<int, CustomField>|null */
+    private ?Collection $loadedFields = null;
+
+    /** @return class-string<Model&HasCustomFields>|null */
+    public function getModel(): ?string
+    {
+        return isset($this->model) ? $this->model::class : null;
+    }
+
+    public function getRecord(): ?Model
+    {
+        return isset($this->model) && $this->model->exists ? $this->model : null;
+    }
 
     public function forSchema(Schema $schema): static
     {
@@ -68,6 +90,9 @@ abstract class BaseBuilder
                 ->orderBy('sort_order');
         }
 
+        $this->loadedSections = null;
+        $this->loadedFields = null;
+
         return $this;
     }
 
@@ -75,12 +100,18 @@ abstract class BaseBuilder
     {
         $this->except = $fieldCodes;
 
+        $this->loadedSections = null;
+        $this->loadedFields = null;
+
         return $this;
     }
 
     public function only(array $fieldCodes): static
     {
         $this->only = $fieldCodes;
+
+        $this->loadedSections = null;
+        $this->loadedFields = null;
 
         return $this;
     }
@@ -106,6 +137,9 @@ abstract class BaseBuilder
     {
         $this->onlySections = $sectionIds;
 
+        $this->loadedSections = null;
+        $this->loadedFields = null;
+
         return $this;
     }
 
@@ -119,8 +153,13 @@ abstract class BaseBuilder
             return collect();
         }
 
+        if ($this->loadedSections instanceof Collection) {
+            return $this->loadedSections;
+        }
+
         /** @var Collection<int, CustomFieldSection> $sections */
         $sections = $this->sections
+            ->clone()
             ->when($this->onlySections !== [], fn (Builder $query): Builder => $query->whereIn(
                 $this->sections->getModel()->getQualifiedKeyName(),
                 $this->onlySections
@@ -136,13 +175,14 @@ abstract class BaseBuilder
             }])
             ->get();
 
-        return $sections
+        return $this->loadedSections = $sections
             ->map(function (CustomFieldSection $section): CustomFieldSection {
                 $section->setRelation('fields', $section->fields->filter(fn (CustomField $field): bool => $field->typeData !== null));
 
                 return $section;
             })
-            ->filter(fn (CustomFieldSection $section) => $section->fields->isNotEmpty());
+            ->filter(fn (CustomFieldSection $section) => $section->fields->isNotEmpty())
+            ->values();
     }
 
     /**
@@ -164,7 +204,7 @@ abstract class BaseBuilder
             return collect();
         }
 
-        return CustomFields::newCustomFieldModel()::forMorphEntity($this->model::class)
+        return $this->loadedFields ??= CustomFields::newCustomFieldModel()::forMorphEntity($this->model::class)
             ->when($this instanceof TableBuilder, fn (CustomFieldQueryBuilder $q): CustomFieldQueryBuilder => $q->visibleInList())
             ->when($this instanceof InfolistBuilder, fn (CustomFieldQueryBuilder $q): CustomFieldQueryBuilder => $q->visibleInView())
             ->when($this->only !== [], fn (CustomFieldQueryBuilder $q): CustomFieldQueryBuilder => $q->whereIn('code', $this->only))
@@ -172,7 +212,8 @@ abstract class BaseBuilder
             ->with('options')
             ->orderBy('sort_order')
             ->get()
-            ->filter(fn (CustomField $field): bool => $field->typeData !== null);
+            ->filter(fn (CustomField $field): bool => $field->typeData !== null)
+            ->values();
     }
 
     /**
