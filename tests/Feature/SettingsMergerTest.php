@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 use Filament\Forms\Components\Toggle;
 use Relaticle\CustomFields\Enums\CustomFieldsFeature;
+use Relaticle\CustomFields\Enums\VisibilityMode;
+use Relaticle\CustomFields\Enums\VisibilityOperator;
 use Relaticle\CustomFields\FeatureSystem\FeatureConfigurator;
 use Relaticle\CustomFields\Filament\Management\Schemas\SectionForm;
 use Relaticle\CustomFields\Livewire\ManageCustomField;
@@ -93,6 +95,36 @@ describe('section edit', function (): void {
 });
 
 describe('field edit', function (): void {
+    it('clears conditions when the edit switches the field to always visible', function (): void {
+        $section = CustomFieldSection::factory()->forEntityType(Post::class)->create(['code' => 'main']);
+        CustomField::factory()->create([
+            'custom_field_section_id' => $section->id,
+            'entity_type' => Post::class,
+            'name' => 'Headline',
+            'code' => 'headline',
+            'type' => 'text',
+        ]);
+
+        $field = CustomField::factory()
+            ->conditionallyVisible('headline', VisibilityOperator::EQUALS->value, 'Sale')
+            ->create([
+                'custom_field_section_id' => $section->id,
+                'entity_type' => Post::class,
+                'name' => 'Promo',
+                'code' => 'promo',
+                'type' => 'text',
+            ]);
+
+        livewire(ManageCustomField::class, ['field' => $field])
+            ->mountAction('edit')
+            ->setActionData(['settings' => ['visibility' => ['mode' => VisibilityMode::ALWAYS_VISIBLE->value]]])
+            ->callMountedAction()
+            ->assertHasNoActionErrors();
+
+        expect($field->refresh()->settings->visibility->mode)->toBe(VisibilityMode::ALWAYS_VISIBLE)
+            ->and($field->settings->visibility->conditions)->toBeNull();
+    });
+
     it('keeps an additional key that has no form component when a type setting is edited', function (): void {
         $section = CustomFieldSection::factory()->forEntityType(Post::class)->create(['code' => 'main']);
         $field = CustomField::factory()->ofType('currency')->create([
