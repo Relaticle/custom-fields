@@ -53,16 +53,42 @@ describe('native builder configuration', function (): void {
             ->toBe(['custom_fields.headline', 'custom_fields.featured', 'custom_fields.reviewer_notes', 'custom_fields.cost']);
     });
 
-    it('exposes selected fields through native fluent and collection methods', function (): void {
-        $codes = CustomFields::table()->forModel(Post::class)
+    it('exposes selected fields through native fluent and collection methods', function (bool $includeCost, array $expectedCodes): void {
+        $builder = CustomFields::table()->forModel(Post::class)
             ->when(true, fn (TableBuilder $builder): TableBuilder => $builder->only(['headline', 'featured', 'cost']))
-            ->unless(false, fn (TableBuilder $builder): TableBuilder => $builder->except(['cost']))
+            ->unless($includeCost, fn (TableBuilder $builder): TableBuilder => $builder->except(['cost']))
             ->tap(function (TableBuilder $builder): void {
-                $builder->filterFieldsUsing(fn (Collection $fields): Collection => $fields->where('code', 'featured'));
-            })
-            ->getFields()->pluck('code')->all();
+                $builder->filterFieldsUsing(fn (Collection $fields): Collection => $fields->where('code', '!=', 'headline'));
+            });
 
-        expect($codes)->toBe(['featured']);
+        expect($builder->getFields()->pluck('code')->all())->toBe($expectedCodes)
+            ->and(componentNames($builder->columns()))
+            ->toBe(array_map(fn (string $code): string => 'custom_fields.'.$code, $expectedCodes));
+    })->with([
+        [false, ['featured']],
+        [true, ['featured', 'cost']],
+    ]);
+
+    it('passes fields from surviving sections to field callbacks', function (): void {
+        $seenCodes = [];
+        $builder = CustomFields::table()->forModel(Post::class)
+            ->filterFieldsUsing(function (Collection $fields) use (&$seenCodes): Collection {
+                $seenCodes = $fields->pluck('code')->all();
+
+                return $fields->where('code', 'featured');
+            })
+            ->filterSectionsUsing(fn (Collection $sections): Collection => $sections->where('code', 'public'));
+
+        expect(componentNames($builder->columns()))->toBe(['custom_fields.featured'])
+            ->and($seenCodes)->toBe(['headline', 'featured']);
+    });
+
+    it('exposes an unsaved model class without exposing it as a persisted record', function (): void {
+        $builder = CustomFields::table()->forModel(new Post);
+
+        expect($builder->getModel())->toBe(Post::class)
+            ->and($builder->getRecord())->toBeNull()
+            ->and($builder->getFields())->toHaveCount(4);
     });
 
     it('keeps returned field and section collections independent from cached metadata', function (): void {
