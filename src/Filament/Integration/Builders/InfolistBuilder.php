@@ -60,6 +60,13 @@ final class InfolistBuilder extends BaseBuilder
             ->when($this->visibleWhenFilled, fn (Entry $field): Entry => $field->visible(fn (mixed $state): bool => filled($state)));
 
         $allFields = $this->getAllFields();
+
+        // Nothing to render, and the visibility pass below would reach for a model this
+        // builder was never given.
+        if ($allFields->isEmpty()) {
+            return collect();
+        }
+
         $visible = $backendVisibilityService->getVisibleFields($this->model, $allFields)->keyBy(fn (CustomField $field): int|string => $field->getKey());
 
         $renderable = fn (Collection $fields): Collection => $fields

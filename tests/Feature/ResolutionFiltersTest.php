@@ -385,6 +385,12 @@ describe('infolist builder', function (): void {
             ->and(infolistShape($this->post)['Internal'])->not->toContain('custom_fields.promo_copy');
     });
 
+    it('returns no entries from a builder that was never given a model', function (): void {
+        CustomFieldsRegistry::filterFieldsUsing(fn (Collection $fields, FieldResolutionContext $context): Collection => $fields);
+
+        expect(CustomFields::infolist()->values())->toBeEmpty();
+    });
+
     it('leaves the form builder untouched by a field filter', function (): void {
         CustomFieldsRegistry::filterFieldsUsing(fn (Collection $fields, FieldResolutionContext $context): Collection => $fields
             ->reject(fn (CustomField $field): bool => $field->code === 'cost'));
